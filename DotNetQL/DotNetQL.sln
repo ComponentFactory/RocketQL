@@ -3,11 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetQL.Parser", "DotNetQL.Parser\DotNetQL.Parser.csproj", "{5843D171-1987-43D0-93D8-755D62B28EF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.Parser", "DotNetQL.Parser\DotNetQL.Parser.csproj", "{5843D171-1987-43D0-93D8-755D62B28EF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetQL.UnitTests", "DotNetQL.UnitTests\DotNetQL.UnitTests.csproj", "{008A0968-8786-48D1-81D8-093803BF2C5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.UnitTests", "DotNetQL.UnitTests\DotNetQL.UnitTests.csproj", "{008A0968-8786-48D1-81D8-093803BF2C5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetQL.PerformanceTests", "DotNetQL.PerformanceTests\DotNetQL.PerformanceTests.csproj", "{4AFCE501-B61C-4C06-9756-3143DB089BD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.PerformanceTests", "DotNetQL.PerformanceTests\DotNetQL.PerformanceTests.csproj", "{4AFCE501-B61C-4C06-9756-3143DB089BD1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.Utf8", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.Utf8\HotChocolate.Language.Utf8.csproj", "{DFDF206D-B775-4796-8F07-E15B0DA4E47B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.SyntaxTree", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.SyntaxTree\HotChocolate.Language.SyntaxTree.csproj", "{5128348D-DAA0-484F-ADCA-FA3087632E6F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.Visitors", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.Visitors\HotChocolate.Language.Visitors.csproj", "{953BF48A-AD2C-4436-B9AC-AB675A7AF0D8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language\HotChocolate.Language.csproj", "{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +35,22 @@ Global
 		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5128348D-DAA0-484F-ADCA-FA3087632E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5128348D-DAA0-484F-ADCA-FA3087632E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5128348D-DAA0-484F-ADCA-FA3087632E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5128348D-DAA0-484F-ADCA-FA3087632E6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{953BF48A-AD2C-4436-B9AC-AB675A7AF0D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{953BF48A-AD2C-4436-B9AC-AB675A7AF0D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{953BF48A-AD2C-4436-B9AC-AB675A7AF0D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{953BF48A-AD2C-4436-B9AC-AB675A7AF0D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

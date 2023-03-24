@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.Utf8\HotChocolate.Language.Utf8.csproj" />
     <ProjectReference Include="..\DotNetQL.Parser\DotNetQL.Parser.csproj" />
   </ItemGroup>
 
