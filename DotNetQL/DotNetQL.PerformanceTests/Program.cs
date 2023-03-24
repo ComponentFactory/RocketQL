@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using DotNetQL.Parser;
 using GraphQLParser;
 using HotChocolate.Language;
 using Microsoft.Extensions.Options;
@@ -12,8 +13,51 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
+            //BenchmarkRunner.Run<MicroBenchmark>();
             BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<ParserBenchmark>();
+            //BenchmarkRunner.Run<ParserBenchmark>();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class MicroBenchmark
+    {
+        public string _graphQL = string.Empty;
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+        }
+
+        [Benchmark]
+        public void AccessViaString()
+        {
+            int len = _graphQL.Length;
+            char? c;
+            for (int i = 0; i < len; i++)
+            {
+                c = _graphQL[i];
+            }
+        }
+
+        [Benchmark]
+        public void AccessViaSpan()
+        {
+            ReadOnlySpan<char> span = _graphQL.AsSpan();
+            int len = span.Length;
+            char? c;
+            for (int i = 0; i < len; i++)
+            {
+                c = span[i];
+            }
+        }
+
+        [Benchmark]
+        public void Tokenizer()
+        {
+            var t = new Tokenizer(_graphQL.AsSpan());
+            while (t.Next() != Parser.Token.EndOfText);
         }
     }
 
@@ -34,7 +78,7 @@ namespace DotNetQL.PerformanceTests
         public void TokenizerGraphQL()
         {
             int resetPosition = 0;
-            Token token;
+            GraphQLParser.Token token;
             while ((token = Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
             {
                 resetPosition = token.End;
@@ -46,6 +90,13 @@ namespace DotNetQL.PerformanceTests
         {
             var reader = new Utf8GraphQLReader(_graphQLBytes);
             while (reader.Read());
+        }
+
+        [Benchmark]
+        public void Tokenizer()
+        {
+            var t = new Tokenizer(_graphQL.AsSpan());
+            while (t.Next() != Parser.Token.EndOfText) ;
         }
     }
 
