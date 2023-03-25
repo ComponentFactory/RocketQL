@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DotNetQL.Parser
+﻿namespace DotNetQL.Parser
 {
     public ref struct Tokenizer
     {
@@ -20,10 +14,8 @@ namespace DotNetQL.Parser
 
         static Tokenizer()
         {
-            // Skip the Byte Order Mark (BOM)
+            // Skip the Byte Order Mark (BOM) and simple whitespace
             _map[0xFEFF] = Token.Skip;
-
-            // Skip simple whitespace
             _map[' '] = Token.Skip;
             _map['\t'] = Token.Skip;
             _map[','] = Token.Skip;
@@ -51,19 +43,18 @@ namespace DotNetQL.Parser
             _map['|'] = Token.Vertical;
             _map['.'] = Token.Dot;
 
-            // Names
+            // Letters and numbers
             _map['_'] = Token.Underscore;
             for (char c = 'A'; c <= 'Z'; c++)
                 _map[c] = Token.Letter;
             for (char c = 'a'; c <= 'z'; c++)
                 _map[c] = Token.Letter;
-
-            // Names and numbers
             for (char c = '0'; c <= '9'; c++)
                 _map[c] = Token.Digit;
 
-            // Numbers
-            _map['-'] = Token.Negative;
+            // Signs
+            _map['-'] = Token.Minus;
+            _map['+'] = Token.Plus;
         }
 
         public Tokenizer(ReadOnlySpan<char> text)
@@ -81,7 +72,8 @@ namespace DotNetQL.Parser
 
         public Token Token => _token;
         public int LineNumber => _lineNumber;
-        public int ColumnNumber => _tokenIndex - _lineIndex;
+        public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
+        public string StringValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
 
         public Token Next()
         {
@@ -103,6 +95,7 @@ namespace DotNetQL.Parser
                         _lineIndex = _index;
                         break;
                     case Token.CarriageReturn:
+                        // Skip over any following newline character
                         if ((_index < _length) && (_text[_index] == '\n'))
                             _index++;
 
@@ -110,6 +103,7 @@ namespace DotNetQL.Parser
                         _lineIndex = _index;
                         break;
                     case Token.Hash:
+                        // Ignore everything until we reach the end of the line
                         while ((_index < _length) && (_text[_index] != '\r') && (_text[_index] != '\n'))
                             _index++;
                         break;
@@ -126,21 +120,20 @@ namespace DotNetQL.Parser
                     case Token.LeftCurlyBracket:
                     case Token.RightCurlyBracket:
                     case Token.Vertical:
-                        _tokenIndex = _index;
+                        _tokenIndex = _index - 1;
                         return _token = token;
                     case Token.Dot:
-                        _tokenIndex = _index;
+                        // Should be 3 dots in a row to be the spread operator
+                        _tokenIndex = _index - 1;
                         if (((_index + 1) < _length) && (_text[_index] == '.') && (_text[_index + 1] == '.'))
                         {
                             _index += 2;
                             return _token = Token.Spread;
                         }
-                        // TEMP
-                        break;
-                    //throw new ApplicationException($"Less than 3 dots found when only spread allowed");
+                        throw new ApplicationException($"Less than 3 dots found when only spread allowed");
                     case Token.Underscore:
                     case Token.Letter:
-                        _tokenIndex = _index;
+                        _tokenIndex = _index - 1;
                         while (_index < _length)
                         {
                             switch (_map[_text[_index]])
@@ -150,15 +143,134 @@ namespace DotNetQL.Parser
                                 case Token.Digit:
                                     _index++;
                                     continue;
-                                default:
-                                    return _token = Token.Name;
                             }
+
+                            break;
                         }
                         return _token = Token.Name;
                     case Token.Digit:
-                    case Token.Negative:
-                        _tokenIndex = _index;
-                        break;
+                    case Token.Minus:
+                        _tokenIndex = _index - 1;
+                        if (c == '-')
+                        {
+                            if (_index == _length)
+                                throw new ApplicationException($"Unexpected end of file.");
+
+                            c = _text[_index++];
+                            if (_map[c] != Token.Digit)
+                                throw new ApplicationException($"Minus must be followed by a digit.");
+                        }
+
+                        if (c != '0')
+                        {
+                            while (_index < _length && _map[_text[_index]] == Token.Digit)
+                                _index++;
+                        }
+
+                        if (_index == _length)
+                            return _token = Token.IntValue;
+
+                        c = _text[_index];
+                        if (c == '.')
+                        {
+                            _index++;
+                            if (_index == _length)
+                                throw new ApplicationException($"Unexpected end of file.");
+
+                            c = _text[_index++];
+                            if (_map[c] != Token.Digit)
+                                throw new ApplicationException($"Decimal point must be followed by a digit.");
+
+                            while (_index < _length && _map[_text[_index]] == Token.Digit)
+                                _index++;
+
+                            if (_index == _length)
+                                return _token = Token.FloatValue;
+
+                            c = _text[_index];
+                            if ((c == 'e') || (c == 'E'))
+                            {
+                                _index++;
+                                if (_index == _length)
+                                    throw new ApplicationException($"Unexpected end of file.");
+
+                                c = _text[_index++];
+                                if ((_map[c] == Token.Minus) || (_map[c] == Token.Plus))
+                                {
+                                    if (_index == _length)
+                                        throw new ApplicationException($"Unexpected end of file.");
+
+                                    c = _text[_index++];
+                                }
+
+                                if (_map[c] != Token.Digit)
+                                    throw new ApplicationException($"Exponent must be followed by a digit.");
+
+                                while (_index < _length && _map[_text[_index]] == Token.Digit)
+                                    _index++;
+
+                                if (_index == _length)
+                                    return _token = Token.FloatValue;
+
+                                switch (_map[_text[_index]])
+                                {
+                                    case Token.Dot:
+                                        throw new ApplicationException($"Float value cannot be followed by a decimal point.");
+                                    case Token.Underscore:
+                                        throw new ApplicationException($"Float value cannot be followed by an underscore.");
+                                    case Token.Letter:
+                                        throw new ApplicationException($"Float value cannot be followed by a letter.");
+                                }
+                            }
+
+                            return _token = Token.FloatValue;
+                        }
+                        else if ((c == 'e') || (c == 'E'))
+                        {
+                            _index++;
+                            if (_index == _length)
+                                throw new ApplicationException($"Unexpected end of file.");
+
+                            c = _text[_index++];
+                            if ((_map[c] == Token.Minus) || (_map[c] == Token.Plus))
+                            {
+                                if (_index == _length)
+                                    throw new ApplicationException($"Unexpected end of file.");
+
+                                c = _text[_index++];
+                            }
+
+                            if (_map[c] != Token.Digit)
+                                throw new ApplicationException($"Exponent must be followed by a digit.");
+
+                            while (_index < _length && _map[_text[_index]] == Token.Digit)
+                                _index++;
+
+                            if (_index == _length)
+                                return _token = Token.FloatValue;
+
+                            switch (_map[_text[_index]])
+                            {
+                                case Token.Dot:
+                                    throw new ApplicationException($"Float value cannot be followed by a decimal point.");
+                                case Token.Underscore:
+                                    throw new ApplicationException($"Float value cannot be followed by an underscore.");
+                                case Token.Letter:
+                                    throw new ApplicationException($"Float value cannot be followed by a letter.");
+                            }
+
+                            return _token = Token.FloatValue;
+                        }
+                        else if (c == '_')
+                        {
+                            throw new ApplicationException($"Integer value cannot be followed by an underscore.");
+                        }
+                        else if (_map[c] == Token.Letter)
+                        {
+                            throw new ApplicationException($"Integer value cannot be followed by a letter.");
+                        }
+
+                        return _token = Token.IntValue;
                     default:
                         // TEMP
                         break;
@@ -166,7 +278,7 @@ namespace DotNetQL.Parser
                 }
             }
 
-            _tokenIndex = _index + 1;
+            _tokenIndex = _index;
             return _token = Token.EndOfText;
         }
     }
@@ -195,11 +307,14 @@ namespace DotNetQL.Parser
         Underscore,
         Letter,
         Digit,
-        Negative,
+        Minus,
+        Plus,
 
         StartOfText,
         EndOfText,
         Spread,
-        Name
+        Name,
+        IntValue,
+        FloatValue,
     }
 }
