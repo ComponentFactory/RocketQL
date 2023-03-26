@@ -16,8 +16,8 @@ namespace DotNetQL.PerformanceTests
 
         static void Main()
         {
-            //_graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
-            //_graphQLBytes = Encoding.ASCII.GetBytes(_graphQL);
+            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            _graphQLBytes = Encoding.ASCII.GetBytes(_graphQL);
 
             //int countGQL = 0;
             //int resetPosition = 0;
@@ -35,12 +35,25 @@ namespace DotNetQL.PerformanceTests
             //    countHC++;
             //}
 
-            //int countT = 0;
-            //var t = new Tokenizer(_graphQL.AsSpan());
-            //while (t.Next() != Parser.TokenKind.EndOfText)
-            //{
-            //    countT++;
-            //}
+            Dictionary<Parser.TokenKind, int> occ = new();
+            int countT = 0;
+            var t = new Tokenizer(_graphQL.AsSpan());
+            while (t.Next() != Parser.TokenKind.EndOfText)
+            {
+                if (occ.TryGetValue(t.Token, out int val))
+                    occ[t.Token] = val + 1;
+                else
+                    occ[t.Token] = 1;
+
+
+                countT++;
+            }
+
+            foreach(var pair in occ)
+            {
+                Console.WriteLine($"{pair.Key} = {pair.Value}");
+            }
+            Console.WriteLine($"{t.Blocks}  {t.Simples}");
 
             BenchmarkRunner.Run<TokenizerBenchmark>();
             // BenchmarkRunner.Run<ParserBenchmark>();

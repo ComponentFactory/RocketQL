@@ -346,10 +346,10 @@ namespace DotNetQL.Parser
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private TokenKind ScanString()
         {
-            _tokenIndex = _index;
             if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
             {
                 _index += 2;
+                _tokenIndex = _index;
                 while (_index < _length)
                 {
                     if (_text[_index++] == '"')
@@ -364,6 +364,7 @@ namespace DotNetQL.Parser
             }
             else
             {
+                _tokenIndex = _index;
                 while (_index < _length)
                 {
                     _c = _text[_index];
