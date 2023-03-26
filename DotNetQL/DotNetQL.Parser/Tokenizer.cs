@@ -3,6 +3,7 @@
     public ref struct Tokenizer
     {
         private static Token[] _map = new Token[65536];
+        private static Token[] _hex = new Token[65536];
 
         private int _length = 0;
         private int _index = 0;
@@ -55,6 +56,18 @@
             // Signs
             _map['-'] = Token.Minus;
             _map['+'] = Token.Plus;
+
+            // String related
+            _map['"'] = Token.DoubleQuote;
+
+            // Hexadecimal values
+            for (char c = 'A'; c <= 'Z'; c++)
+                _hex[c] = Token.Hexadecimal;
+            for (char c = 'a'; c <= 'z'; c++)
+                _hex[c] = Token.Hexadecimal;
+            for (char c = '0'; c <= '9'; c++)
+                _hex[c] = Token.Hexadecimal;
+            _hex['}'] = Token.RightCurlyBracket;
         }
 
         public Tokenizer(ReadOnlySpan<char> text)
@@ -73,7 +86,7 @@
         public Token Token => _token;
         public int LineNumber => _lineNumber;
         public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-        public string StringValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
+        public string TokenString => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
 
         public Token Next()
         {
@@ -85,9 +98,7 @@
                 switch (token)
                 {
                     case Token.IllegalCharacter:
-                        // TEMP
-                        break;
-                        //throw new ApplicationException("IllegalCharacter");
+                        throw new ApplicationException("IllegalCharacter");
                     case Token.Skip:
                         break;
                     case Token.NewLine:
@@ -271,10 +282,109 @@
                         }
 
                         return _token = Token.IntValue;
+                    case Token.DoubleQuote:
+                        _tokenIndex = _index;
+                        if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
+                        {
+                            _index += 2;
+                            while (_index < _length)
+                            {
+                                if (_text[_index++] == '"')
+                                {
+                                    if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
+                                    {
+                                        _index += 2;
+                                        return Token.StringValue;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            while (_index < _length)
+                            {
+                                c = _text[_index];
+                                if (c == '"')
+                                {
+                                    _index++;
+                                    return Token.StringValue;
+                                }
+                                else if (c == '\\')
+                                {
+                                    _index++;
+                                    if (_index == _length)
+                                        throw new ApplicationException($"Unexpected end of file.");
+
+                                    c = _text[_index];
+                                    switch (c)
+                                    {
+                                        case '\"':
+                                        case '\\':
+                                        case '/':
+                                        case 'b':
+                                        case 'f':
+                                        case 'n':
+                                        case 'r':
+                                        case 't':
+                                            break;
+                                        case 'u':
+                                            _index++;
+                                            if (_index == _length)
+                                                throw new ApplicationException($"Unexpected end of file.");
+
+                                            c = _text[_index];
+                                            if (c == '{')
+                                            {
+                                                int digits = 0;
+                                                while (true)
+                                                {
+                                                    _index++;
+                                                    if (_index == _length)
+                                                        throw new ApplicationException($"Unexpected end of file.");
+
+                                                    c = _text[_index];
+                                                    Token hexToken = _hex[c];
+                                                    if (hexToken == Token.Hexadecimal)
+                                                        digits++;
+                                                    else
+                                                    {
+                                                        if (hexToken == Token.RightCurlyBracket)
+                                                        {
+                                                            if (digits == 0)
+                                                                throw new ApplicationException($"Escaped character must have at least 1 hexadecimal digit.");
+
+                                                            break;
+                                                        }
+                                                        else
+                                                            throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if ((_index + 3) >= _length)
+                                                    throw new ApplicationException($"Unexpected end of file.");
+
+                                                Token hexToken1 = _hex[c];
+                                                Token hexToken2 = _hex[_text[_index++]];
+                                                Token hexToken3 = _hex[_text[_index++]];
+                                                Token hexToken4 = _hex[_text[_index++]];
+                                                if ((hexToken1 != Token.Hexadecimal) || (hexToken2 != Token.Hexadecimal) || (hexToken3 != Token.Hexadecimal) || (hexToken4 != Token.Hexadecimal))
+                                                    throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                                            }
+                                            break;
+                                        default:
+                                            throw new ApplicationException($"Escaped character is not one of '\"\t\\\t/\tb\tf\tn\tr\tt\r\n'.");
+                                    }
+                                }
+
+                                _index++;
+                            }
+                        }
+
+                        throw new ApplicationException($"Unexpected end of file.");
                     default:
-                        // TEMP
-                        break;
-                        //throw new ApplicationException($"Unrecognized '{c}'");
+                        throw new ApplicationException($"Unrecognized '{c}'");
                 }
             }
 
@@ -309,12 +419,14 @@
         Digit,
         Minus,
         Plus,
-
+        DoubleQuote,
+        Hexadecimal,
         StartOfText,
         EndOfText,
         Spread,
         Name,
         IntValue,
         FloatValue,
+        StringValue
     }
 }

@@ -100,7 +100,7 @@ namespace DotNetQL.UnitTests
         {
             var t = new Tokenizer(text);
             Assert.Equal(token, t.Token);
-            Assert.Equal(text, t.StringValue);
+            Assert.Equal(text, t.TokenString);
             t.Next();
             Assert.Equal(Token.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
@@ -139,7 +139,7 @@ namespace DotNetQL.UnitTests
         {
             var t = new Tokenizer(text);
             Assert.Equal(Token.Name, t.Token);
-            Assert.Equal(text, t.StringValue);
+            Assert.Equal(text, t.TokenString);
             Assert.Equal(1, t.ColumnNumber);
             t.Next();
             Assert.Equal(Token.EndOfText, t.Token);
@@ -155,7 +155,7 @@ namespace DotNetQL.UnitTests
         {
             var t = new Tokenizer(text);
             Assert.Equal(Token.Name, t.Token);
-            Assert.Equal("World", t.StringValue);
+            Assert.Equal("World", t.TokenString);
             t.Next();
             Assert.Equal(Token.EndOfText, t.Token);
         }
@@ -179,7 +179,7 @@ namespace DotNetQL.UnitTests
         {
             var t = new Tokenizer(text);
             Assert.Equal(Token.IntValue, t.Token);
-            Assert.Equal(val, int.Parse(t.StringValue));
+            Assert.Equal(val, int.Parse(t.TokenString));
             t.Next();
             Assert.Equal(nextToken, t.Token);
         }
@@ -214,7 +214,7 @@ namespace DotNetQL.UnitTests
         {
             var t = new Tokenizer(text);
             Assert.Equal(Token.FloatValue, t.Token);
-            Assert.Equal(val, double.Parse(t.StringValue));
+            Assert.Equal(val, double.Parse(t.TokenString));
             t.Next();
             Assert.Equal(nextToken, t.Token);
         }
@@ -222,43 +222,99 @@ namespace DotNetQL.UnitTests
         [Theory]
         [InlineData("  \t42#fish\n\t 3.14#fish", 42, 3.14)]
         [InlineData("7   \r\n3.14e-2    \n\r", 7, 3.14e-2)]
-        [InlineData("\uFEFF你好Ȳ8\n9e+0", 8, 9e+0)]
         public void NumbersAndWhitespace(string text, int val1, double val2)
         {
             var t = new Tokenizer(text);
             Assert.Equal(Token.IntValue, t.Token);
-            Assert.Equal(val1, int.Parse(t.StringValue));
+            Assert.Equal(val1, int.Parse(t.TokenString));
             t.Next();
             Assert.Equal(Token.FloatValue, t.Token);
-            Assert.Equal(val2, double.Parse(t.StringValue));
+            Assert.Equal(val2, double.Parse(t.TokenString));
             t.Next();
             Assert.Equal(Token.EndOfText, t.Token);
         }
 
-
-        [Fact]
-        public void ColumnNumber()
+        [Theory]
+        [InlineData("\"\"")]
+        [InlineData("\"你好Ȳ\"")]
+        [InlineData("\"abc\"")]
+        [InlineData("\"\\\"\"")]
+        [InlineData("\"\\\\\"")]
+        [InlineData("\"\\/\"")]
+        [InlineData("\"\\b\"")]
+        [InlineData("\"\\f\"")]
+        [InlineData("\"\\n\"")]
+        [InlineData("\"\\r\"")]
+        [InlineData("\"\\u0123\"")]
+        [InlineData("\"\\u4567\"")]
+        [InlineData("\"\\u7890\"")]
+        [InlineData("\"\\uABCD\"")]
+        [InlineData("\"\\uCDEF\"")]
+        [InlineData("\"\\u{0}\"")]
+        [InlineData("\"\\u{99}\"")]
+        [InlineData("\"\\u{AAA}\"")]
+        [InlineData("\"\\u{FFFF}\"")]
+        [InlineData("\"\\u{123456789ABCDEF}\"")]
+        public void String(string text)
         {
-            var t = new Tokenizer("aA $ , # Ȳ\n3.2 9");
-            Assert.Equal(Token.Name, t.Token);
-            Assert.Equal(1, t.LineNumber);
-            Assert.Equal(1, t.ColumnNumber);
-            t.Next();
-            Assert.Equal(Token.Dollar, t.Token);
-            Assert.Equal(1, t.LineNumber);
-            Assert.Equal(4, t.ColumnNumber);
-            t.Next();
-            Assert.Equal(Token.FloatValue, t.Token);
-            Assert.Equal(2, t.LineNumber);
-            Assert.Equal(1, t.ColumnNumber);
-            t.Next();
-            Assert.Equal(Token.IntValue, t.Token);
-            Assert.Equal(2, t.LineNumber);
-            Assert.Equal(5, t.ColumnNumber);
+            var t = new Tokenizer(text);
+            Assert.Equal(Token.StringValue, t.Token);
             t.Next();
             Assert.Equal(Token.EndOfText, t.Token);
-            Assert.Equal(2, t.LineNumber);
-            Assert.Equal(6, t.ColumnNumber);
+        }
+
+        [Theory]
+        [InlineData("\"\"!", Token.Exclamation)]
+        [InlineData("\"\" $", Token.Dollar)]
+        [InlineData("\"abc\"42", Token.IntValue)]
+        [InlineData("\"abc\" ,3.14", Token.FloatValue)]
+        [InlineData("\"abc\" \"def\"", Token.StringValue)]
+        [InlineData("\"abc\"\"def\"", Token.StringValue)]
+        public void StringAndSecondToken(string text, Token token)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(Token.StringValue, t.Token);
+            t.Next();
+            Assert.Equal(token, t.Token);
+            t.Next();
+            Assert.Equal(Token.EndOfText, t.Token);
+        }
+
+        [Theory]
+        [InlineData("\"\"\"\"\"\"")]
+        [InlineData("\"\"\"你好Ȳ\"\"\"")]
+        [InlineData("\"\"\"abc\"\"\"")]
+        [InlineData("\"\"\"a\"b\"c\"\"\"")]
+        [InlineData("\"\"\"a\"\"b\"\"c\"\"\"")]
+        [InlineData("\"\"\"abc\n\"\"\"")]
+        [InlineData("\"\"\"abc\r\ndef\"\"\"")]
+        [InlineData("\"\"\"abc#fish\r\n\"\"\"")]
+        [InlineData("\"\"\"$ab!c#fish\r\n3.14 _fish\"\"\"")]
+        public void BlockString(string text)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(Token.StringValue, t.Token);
+            t.Next();
+            Assert.Equal(Token.EndOfText, t.Token);
+        }
+
+        [Theory]
+        [InlineData("\"\"\"\"\"\"!", Token.Exclamation)]
+        [InlineData("\"\"\"abc\"\"\" $", Token.Dollar)]
+        [InlineData("\"\"\"a\"b\"c\"\"\"42", Token.IntValue)]
+        [InlineData("\"\"\"a\"\"b\"\"c\"\"\" ,3.14", Token.FloatValue)]
+        [InlineData("\"\"\"abc\n\"\"\" \"def\"", Token.StringValue)]
+        [InlineData("\"\"\"abc\r\ndef\"\"\"\"def\"", Token.StringValue)]
+        [InlineData("\"\"\"abc\"\"\" \"\"\"abc\"\"\"", Token.StringValue)]
+        [InlineData("\"\"\"abc\"\"\"\"\"\"abc\"\"\"", Token.StringValue)]
+        public void BlockStringAndSecondToken(string text, Token token)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(Token.StringValue, t.Token);
+            t.Next();
+            Assert.Equal(token, t.Token);
+            t.Next();
+            Assert.Equal(Token.EndOfText, t.Token);
         }
     }
 }
