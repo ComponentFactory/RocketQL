@@ -43,7 +43,7 @@ namespace DotNetQL.PerformanceTests
             //}
 
             BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<ParserBenchmark>();
+            // BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
