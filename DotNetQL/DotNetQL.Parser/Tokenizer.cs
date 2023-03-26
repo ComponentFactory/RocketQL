@@ -1,12 +1,16 @@
-﻿namespace DotNetQL.Parser
+﻿using GraphQLParser;
+using System.Runtime.CompilerServices;
+
+namespace DotNetQL.Parser
 {
     public ref struct Tokenizer
     {
         private static readonly TokenKind[] _map = new TokenKind[65536];
         private static readonly TokenKind[] _hex = new TokenKind[65536];
 
-        private int _length = 0;
+        private char _c = ' ';
         private int _index = 0;
+        private int _length = 0;
         private int _lineIndex = 0;
         private int _lineNumber = 1;
         private int _tokenIndex = 0;
@@ -61,9 +65,9 @@
             _map['"'] = TokenKind.DoubleQuote;
 
             // Hexadecimal values
-            for (char c = 'A'; c <= 'Z'; c++)
+            for (char c = 'A'; c <= 'F'; c++)
                 _hex[c] = TokenKind.Hexadecimal;
-            for (char c = 'a'; c <= 'z'; c++)
+            for (char c = 'a'; c <= 'f'; c++)
                 _hex[c] = TokenKind.Hexadecimal;
             for (char c = '0'; c <= '9'; c++)
                 _hex[c] = TokenKind.Hexadecimal;
@@ -91,8 +95,8 @@
         {
             while(_index < _length)
             {
-                char c = _text[_index++];
-                TokenKind token = _map[c];
+                _c = _text[_index++];
+                TokenKind token = _map[_c];
 
                 switch (token)
                 {
@@ -101,21 +105,13 @@
                     case TokenKind.Skip:
                         break;
                     case TokenKind.NewLine:
-                        _lineNumber++;
-                        _lineIndex = _index;
+                        ScanNewLine();
                         break;
                     case TokenKind.CarriageReturn:
-                        // Skip over any following newline character
-                        if ((_index < _length) && (_text[_index] == '\n'))
-                            _index++;
-
-                        _lineNumber++;
-                        _lineIndex = _index;
+                        ScanCarriageReturn();
                         break;
                     case TokenKind.Hash:
-                        // Ignore everything until we reach the end of the line
-                        while ((_index < _length) && (_text[_index] != '\r') && (_text[_index] != '\n'))
-                            _index++;
+                        ScanComment();
                         break;
                     case TokenKind.Exclamation:
                     case TokenKind.Dollar:
@@ -130,265 +126,324 @@
                     case TokenKind.LeftCurlyBracket:
                     case TokenKind.RightCurlyBracket:
                     case TokenKind.Vertical:
-                        _tokenIndex = _index - 1;
-                        return _tokenKind = token;
+                        return ScanPunctuator(token);
                     case TokenKind.Dot:
-                        // Should be 3 dots in a row to be the spread operator
-                        _tokenIndex = _index - 1;
-                        if (((_index + 1) < _length) && (_text[_index] == '.') && (_text[_index + 1] == '.'))
-                        {
-                            _index += 2;
-                            return _tokenKind = TokenKind.Spread;
-                        }
-                        throw new ApplicationException($"Less than 3 dots found when only spread allowed");
+                        return ScanSpread();
                     case TokenKind.Underscore:
                     case TokenKind.Letter:
-                        _tokenIndex = _index - 1;
-                        while (_index < _length)
-                        {
-                            switch (_map[_text[_index]])
-                            {
-                                case TokenKind.Underscore:
-                                case TokenKind.Letter:
-                                case TokenKind.Digit:
-                                    _index++;
-                                    continue;
-                            }
-
-                            break;
-                        }
-                        return _tokenKind = TokenKind.Name;
+                        return ScanName();
                     case TokenKind.Digit:
                     case TokenKind.Minus:
-                        _tokenIndex = _index - 1;
-                        if (c == '-')
-                        {
-                            if (_index == _length)
-                                throw new ApplicationException($"Unexpected end of file.");
-
-                            c = _text[_index++];
-                            if (_map[c] != TokenKind.Digit)
-                                throw new ApplicationException($"Minus must be followed by a digit.");
-                        }
-
-                        if (c != '0')
-                        {
-                            while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
-                                _index++;
-                        }
-
-                        if (_index == _length)
-                            return _tokenKind = TokenKind.IntValue;
-
-                        c = _text[_index];
-                        if (c == '.')
-                        {
-                            _index++;
-                            if (_index == _length)
-                                throw new ApplicationException($"Unexpected end of file.");
-
-                            c = _text[_index++];
-                            if (_map[c] != TokenKind.Digit)
-                                throw new ApplicationException($"Decimal point must be followed by a digit.");
-
-                            while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
-                                _index++;
-
-                            if (_index == _length)
-                                return _tokenKind = TokenKind.FloatValue;
-
-                            c = _text[_index];
-                            if ((c == 'e') || (c == 'E'))
-                            {
-                                _index++;
-                                if (_index == _length)
-                                    throw new ApplicationException($"Unexpected end of file.");
-
-                                c = _text[_index++];
-                                if ((_map[c] == TokenKind.Minus) || (_map[c] == TokenKind.Plus))
-                                {
-                                    if (_index == _length)
-                                        throw new ApplicationException($"Unexpected end of file.");
-
-                                    c = _text[_index++];
-                                }
-
-                                if (_map[c] != TokenKind.Digit)
-                                    throw new ApplicationException($"Exponent must be followed by a digit.");
-
-                                while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
-                                    _index++;
-
-                                if (_index == _length)
-                                    return _tokenKind = TokenKind.FloatValue;
-
-                                switch (_map[_text[_index]])
-                                {
-                                    case TokenKind.Dot:
-                                        throw new ApplicationException($"Float value cannot be followed by a decimal point.");
-                                    case TokenKind.Underscore:
-                                        throw new ApplicationException($"Float value cannot be followed by an underscore.");
-                                    case TokenKind.Letter:
-                                        throw new ApplicationException($"Float value cannot be followed by a letter.");
-                                }
-                            }
-
-                            return _tokenKind = TokenKind.FloatValue;
-                        }
-                        else if ((c == 'e') || (c == 'E'))
-                        {
-                            _index++;
-                            if (_index == _length)
-                                throw new ApplicationException($"Unexpected end of file.");
-
-                            c = _text[_index++];
-                            if ((_map[c] == TokenKind.Minus) || (_map[c] == TokenKind.Plus))
-                            {
-                                if (_index == _length)
-                                    throw new ApplicationException($"Unexpected end of file.");
-
-                                c = _text[_index++];
-                            }
-
-                            if (_map[c] != TokenKind.Digit)
-                                throw new ApplicationException($"Exponent must be followed by a digit.");
-
-                            while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
-                                _index++;
-
-                            if (_index == _length)
-                                return _tokenKind = TokenKind.FloatValue;
-
-                            switch (_map[_text[_index]])
-                            {
-                                case TokenKind.Dot:
-                                    throw new ApplicationException($"Float value cannot be followed by a decimal point.");
-                                case TokenKind.Underscore:
-                                    throw new ApplicationException($"Float value cannot be followed by an underscore.");
-                                case TokenKind.Letter:
-                                    throw new ApplicationException($"Float value cannot be followed by a letter.");
-                            }
-
-                            return _tokenKind = TokenKind.FloatValue;
-                        }
-                        else if (c == '_')
-                        {
-                            throw new ApplicationException($"Integer value cannot be followed by an underscore.");
-                        }
-                        else if (_map[c] == TokenKind.Letter)
-                        {
-                            throw new ApplicationException($"Integer value cannot be followed by a letter.");
-                        }
-
-                        return _tokenKind = TokenKind.IntValue;
+                        return ScanNumber();
                     case TokenKind.DoubleQuote:
-                        _tokenIndex = _index;
-                        if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
-                        {
-                            _index += 2;
-                            while (_index < _length)
-                            {
-                                if (_text[_index++] == '"')
-                                {
-                                    if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
-                                    {
-                                        _index += 2;
-                                        return TokenKind.StringValue;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            while (_index < _length)
-                            {
-                                c = _text[_index];
-                                if (c == '"')
-                                {
-                                    _index++;
-                                    return TokenKind.StringValue;
-                                }
-                                else if (c == '\\')
-                                {
-                                    _index++;
-                                    if (_index == _length)
-                                        throw new ApplicationException($"Unexpected end of file.");
-
-                                    c = _text[_index];
-                                    switch (c)
-                                    {
-                                        case '\"':
-                                        case '\\':
-                                        case '/':
-                                        case 'b':
-                                        case 'f':
-                                        case 'n':
-                                        case 'r':
-                                        case 't':
-                                            break;
-                                        case 'u':
-                                            _index++;
-                                            if (_index == _length)
-                                                throw new ApplicationException($"Unexpected end of file.");
-
-                                            c = _text[_index];
-                                            if (c == '{')
-                                            {
-                                                int digits = 0;
-                                                while (true)
-                                                {
-                                                    _index++;
-                                                    if (_index == _length)
-                                                        throw new ApplicationException($"Unexpected end of file.");
-
-                                                    c = _text[_index];
-                                                    TokenKind hexToken = _hex[c];
-                                                    if (hexToken == TokenKind.Hexadecimal)
-                                                        digits++;
-                                                    else
-                                                    {
-                                                        if (hexToken == TokenKind.RightCurlyBracket)
-                                                        {
-                                                            if (digits == 0)
-                                                                throw new ApplicationException($"Escaped character must have at least 1 hexadecimal digit.");
-
-                                                            break;
-                                                        }
-                                                        else
-                                                            throw new ApplicationException($"Escape code specify value using hexadecimal character.");
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if ((_index + 3) >= _length)
-                                                    throw new ApplicationException($"Unexpected end of file.");
-
-                                                TokenKind hexToken1 = _hex[c];
-                                                TokenKind hexToken2 = _hex[_text[_index++]];
-                                                TokenKind hexToken3 = _hex[_text[_index++]];
-                                                TokenKind hexToken4 = _hex[_text[_index++]];
-                                                if ((hexToken1 != TokenKind.Hexadecimal) || (hexToken2 != TokenKind.Hexadecimal) || (hexToken3 != TokenKind.Hexadecimal) || (hexToken4 != TokenKind.Hexadecimal))
-                                                    throw new ApplicationException($"Escape code specify value using hexadecimal character.");
-                                            }
-                                            break;
-                                        default:
-                                            throw new ApplicationException($"Escaped character is not one of '\"\t\\\t/\tb\tf\tn\tr\tt\r\n'.");
-                                    }
-                                }
-
-                                _index++;
-                            }
-                        }
-
-                        throw new ApplicationException($"Unexpected end of file.");
+                        return ScanString();
                     default:
-                        throw new ApplicationException($"Unrecognized '{c}'");
+                        throw new ApplicationException($"Unrecognized '{_c}'");
                 }
             }
 
             _tokenIndex = _index;
             return _tokenKind = TokenKind.EndOfText;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ScanNewLine()
+        {
+            _lineNumber++;
+            _lineIndex = _index;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ScanCarriageReturn()
+        {
+            // Skip over any optional following newline
+            if ((_index < _length) && (_text[_index] == '\n'))
+                _index++;
+
+            _lineNumber++;
+            _lineIndex = _index;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ScanComment()
+        {
+            // Single line comment, ignore everything until we reach the end of the line
+            while ((_index < _length) && (_text[_index] != '\r') && (_text[_index] != '\n'))
+                _index++;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TokenKind ScanPunctuator(TokenKind token)
+        {
+            _tokenIndex = _index - 1;
+            return _tokenKind = token;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TokenKind ScanSpread()
+        {
+            if ((_index + 1) >= _length)
+                throw new ApplicationException($"Unexpected end of file.");
+
+            if ((_text[_index] == '.') && (_text[_index + 1] == '.'))
+            {
+                _tokenIndex = _index - 1;
+                _index += 2;
+                return _tokenKind = TokenKind.Spread;
+            }
+
+            throw new ApplicationException($"Spread operator requires 3 dots in sequence.");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TokenKind ScanName()
+        {
+            _tokenIndex = _index - 1;
+            while (_index < _length)
+            {
+                switch (_map[_text[_index]])
+                {
+                    case TokenKind.Underscore:
+                    case TokenKind.Letter:
+                    case TokenKind.Digit:
+                        _index++;
+                        continue;
+                }
+
+                return _tokenKind = TokenKind.Name;
+            }
+
+            return _tokenKind = TokenKind.Name;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TokenKind ScanNumber()
+        {
+            _tokenIndex = _index - 1;
+            if (_c == '-')
+            {
+                if (_index == _length)
+                    throw new ApplicationException($"Unexpected end of file.");
+
+                _c = _text[_index++];
+                if (_map[_c] != TokenKind.Digit)
+                    throw new ApplicationException($"Minus must be followed by a digit.");
+            }
+
+            if (_c != '0')
+            {
+                // Skip over all the whole number digits
+                while ((_index < _length) && (_map[_text[_index]] == TokenKind.Digit))
+                    _index++;
+            }
+
+            if (_index == _length)
+                return _tokenKind = TokenKind.IntValue;
+
+            _c = _text[_index];
+            if (_c == '.')
+            {
+                if (++_index == _length)
+                    throw new ApplicationException($"Unexpected end of file.");
+
+                _c = _text[_index++];
+                if (_map[_c] != TokenKind.Digit)
+                    throw new ApplicationException($"Decimal point must be followed by a digit.");
+
+                while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
+                    _index++;
+
+                if (_index == _length)
+                    return _tokenKind = TokenKind.FloatValue;
+
+                _c = _text[_index];
+                if ((_c == 'e') || (_c == 'E'))
+                {
+                    if (++_index == _length)
+                        throw new ApplicationException($"Unexpected end of file.");
+
+                    _c = _text[_index++];
+                    if ((_map[_c] == TokenKind.Minus) || (_map[_c] == TokenKind.Plus))
+                    {
+                        if (_index == _length)
+                            throw new ApplicationException($"Unexpected end of file.");
+
+                        _c = _text[_index++];
+                    }
+
+                    if (_map[_c] != TokenKind.Digit)
+                        throw new ApplicationException($"Exponent must be followed by a digit.");
+
+                    while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
+                        _index++;
+
+                    if (_index == _length)
+                        return _tokenKind = TokenKind.FloatValue;
+
+                    switch (_map[_text[_index]])
+                    {
+                        case TokenKind.Dot:
+                            throw new ApplicationException($"Float value cannot be followed by a decimal point.");
+                        case TokenKind.Underscore:
+                            throw new ApplicationException($"Float value cannot be followed by an underscore.");
+                        case TokenKind.Letter:
+                            throw new ApplicationException($"Float value cannot be followed by a letter.");
+                    }
+                }
+
+                return _tokenKind = TokenKind.FloatValue;
+            }
+            else if ((_c == 'e') || (_c == 'E'))
+            {
+                if (++_index == _length)
+                    throw new ApplicationException($"Unexpected end of file.");
+
+                _c = _text[_index++];
+                if ((_map[_c] == TokenKind.Minus) || (_map[_c] == TokenKind.Plus))
+                {
+                    if (_index == _length)
+                        throw new ApplicationException($"Unexpected end of file.");
+
+                    _c = _text[_index++];
+                }
+
+                if (_map[_c] != TokenKind.Digit)
+                    throw new ApplicationException($"Exponent must be followed by a digit.");
+
+                while (_index < _length && _map[_text[_index]] == TokenKind.Digit)
+                    _index++;
+
+                if (_index == _length)
+                    return _tokenKind = TokenKind.FloatValue;
+
+                switch (_map[_text[_index]])
+                {
+                    case TokenKind.Dot:
+                        throw new ApplicationException($"Float value cannot be followed by a decimal point.");
+                    case TokenKind.Underscore:
+                        throw new ApplicationException($"Float value cannot be followed by an underscore.");
+                    case TokenKind.Letter:
+                        throw new ApplicationException($"Float value cannot be followed by a letter.");
+                }
+
+                return _tokenKind = TokenKind.FloatValue;
+            }
+            else if (_c == '_')
+            {
+                throw new ApplicationException($"Integer value cannot be followed by an underscore.");
+            }
+            else if (_map[_c] == TokenKind.Letter)
+            {
+                throw new ApplicationException($"Integer value cannot be followed by a letter.");
+            }
+            else if (_map[_c] == TokenKind.Digit)
+            {
+                throw new ApplicationException($"Numbers cannot have a leading zero.");
+            }
+            return _tokenKind = TokenKind.IntValue;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TokenKind ScanString()
+        {
+            _tokenIndex = _index;
+            if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
+            {
+                _index += 2;
+                while (_index < _length)
+                {
+                    if (_text[_index++] == '"')
+                    {
+                        if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
+                        {
+                            _index += 2;
+                            return _tokenKind = TokenKind.StringValue;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                while (_index < _length)
+                {
+                    _c = _text[_index];
+                    if (_c == '"')
+                    {
+                        _index++;
+                        return _tokenKind = TokenKind.StringValue;
+                    }
+                    else if (_c == '\\')
+                    {
+                        if (++_index == _length)
+                            throw new ApplicationException($"Unexpected end of file.");
+
+                        _c = _text[_index];
+                        switch (_c)
+                        {
+                            case '\"':
+                            case '\\':
+                            case '/':
+                            case 'b':
+                            case 'f':
+                            case 'n':
+                            case 'r':
+                            case 't':
+                                break;
+                            case 'u':
+                                _index++;
+                                if (_index == _length)
+                                    throw new ApplicationException($"Unexpected end of file.");
+
+                                _c = _text[_index];
+                                if (_c == '{')
+                                {
+                                    int digits = 0;
+                                    while (true)
+                                    {
+                                        if (++_index == _length)
+                                            throw new ApplicationException($"Unexpected end of file.");
+
+                                        _c = _text[_index];
+                                        TokenKind hexToken = _hex[_c];
+                                        if (hexToken == TokenKind.Hexadecimal)
+                                            digits++;
+                                        else
+                                        {
+                                            if (hexToken == TokenKind.RightCurlyBracket)
+                                            {
+                                                if (digits == 0)
+                                                    throw new ApplicationException($"Escaped character must have at least 1 hexadecimal digit.");
+
+                                                break;
+                                            }
+                                            else
+                                                throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ((_index + 3) >= _length)
+                                        throw new ApplicationException($"Unexpected end of file.");
+
+                                    TokenKind hexToken1 = _hex[_c];
+                                    TokenKind hexToken2 = _hex[_text[_index++]];
+                                    TokenKind hexToken3 = _hex[_text[_index++]];
+                                    TokenKind hexToken4 = _hex[_text[_index++]];
+                                    if ((hexToken1 != TokenKind.Hexadecimal) || (hexToken2 != TokenKind.Hexadecimal) || (hexToken3 != TokenKind.Hexadecimal) || (hexToken4 != TokenKind.Hexadecimal))
+                                        throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                                }
+                                break;
+                            default:
+                                throw new ApplicationException($"Escaped character is not one of '\"\t\\\t/\tb\tf\tn\tr\tt\r\n'.");
+                        }
+                    }
+
+                    _index++;
+                }
+            }
+
+            throw new ApplicationException($"Unexpected end of file.");
         }
     }
 

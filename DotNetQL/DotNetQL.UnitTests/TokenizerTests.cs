@@ -19,13 +19,14 @@ namespace DotNetQL.UnitTests
         public void ByteOrderMark(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData(" ")]
         [InlineData("   ")]
         [InlineData("\t")]
@@ -34,6 +35,8 @@ namespace DotNetQL.UnitTests
         public void Whitespace(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
@@ -49,6 +52,8 @@ namespace DotNetQL.UnitTests
         public void LineTerminators(string text, int lineNumber)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(lineNumber, t.LineNumber);
         }
@@ -65,6 +70,8 @@ namespace DotNetQL.UnitTests
         public void Comment(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
@@ -74,6 +81,8 @@ namespace DotNetQL.UnitTests
         public void Comma(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
@@ -87,6 +96,8 @@ namespace DotNetQL.UnitTests
         public void Ignored(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
@@ -108,6 +119,8 @@ namespace DotNetQL.UnitTests
         public void Punctuators(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(token, t.Token);
             Assert.Equal(text, t.TokenString);
             t.Next();
@@ -124,6 +137,8 @@ namespace DotNetQL.UnitTests
         public void PunctuatorsAndWhitespace(string text, TokenKind token1, TokenKind token2, TokenKind token3)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(token1, t.Token);
             t.Next();
             Assert.Equal(token2, t.Token);
@@ -147,6 +162,8 @@ namespace DotNetQL.UnitTests
         public void Name(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.Name, t.Token);
             Assert.Equal(text, t.TokenString);
             Assert.Equal(1, t.ColumnNumber);
@@ -163,6 +180,8 @@ namespace DotNetQL.UnitTests
         public void NameAndWhitespace(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.Name, t.Token);
             Assert.Equal("World", t.TokenString);
             t.Next();
@@ -189,6 +208,8 @@ namespace DotNetQL.UnitTests
         public void IntValue(string text, int val, TokenKind nextToken)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.IntValue, t.Token);
             Assert.Equal(val, int.Parse(t.TokenString));
             t.Next();
@@ -224,6 +245,8 @@ namespace DotNetQL.UnitTests
         public void FloatValue(string text, double val, TokenKind nextToken)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.FloatValue, t.Token);
             Assert.Equal(val, double.Parse(t.TokenString));
             t.Next();
@@ -236,6 +259,8 @@ namespace DotNetQL.UnitTests
         public void NumbersAndWhitespace(string text, int val1, double val2)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.IntValue, t.Token);
             Assert.Equal(val1, int.Parse(t.TokenString));
             t.Next();
@@ -269,6 +294,8 @@ namespace DotNetQL.UnitTests
         public void StringOnly(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -284,6 +311,8 @@ namespace DotNetQL.UnitTests
         public void StringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(token, t.Token);
@@ -304,6 +333,8 @@ namespace DotNetQL.UnitTests
         public void BlockStringOnly(string text)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -321,6 +352,8 @@ namespace DotNetQL.UnitTests
         public void BlockStringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(token, t.Token);
