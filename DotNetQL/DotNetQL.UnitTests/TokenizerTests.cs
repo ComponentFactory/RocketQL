@@ -4,13 +4,22 @@ namespace DotNetQL.UnitTests
 {
     public class TokenizerTests
     {
+        [Fact]
+        public void NullText()
+        {
+            var t = new Tokenizer(null);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
+            Assert.Equal(1, t.LineNumber);
+            Assert.Equal(1, t.ColumnNumber);
+
+        }
         [Theory]
         [InlineData("\uFEFF")]
         [InlineData("﻿\uFEFF\uFEFF\uFEFF")]
         public void ByteOrderMark(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
@@ -25,7 +34,7 @@ namespace DotNetQL.UnitTests
         public void Whitespace(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
@@ -40,7 +49,7 @@ namespace DotNetQL.UnitTests
         public void LineTerminators(string text, int lineNumber)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(lineNumber, t.LineNumber);
         }
 
@@ -56,7 +65,7 @@ namespace DotNetQL.UnitTests
         public void Comment(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -65,7 +74,7 @@ namespace DotNetQL.UnitTests
         public void Comma(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
@@ -78,41 +87,41 @@ namespace DotNetQL.UnitTests
         public void Ignored(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
-        [InlineData("!", Token.Exclamation)]
-        [InlineData("$", Token.Dollar)]
-        [InlineData("&", Token.Ampersand)]
-        [InlineData("(", Token.LeftParenthesis)]
-        [InlineData(")", Token.RightParenthesis)]
-        [InlineData(":", Token.Colon)]
-        [InlineData("=", Token.Equals)]
-        [InlineData("@", Token.At)]
-        [InlineData("[", Token.LeftSquareBracket)]
-        [InlineData("]", Token.RightSquareBracket)]
-        [InlineData("{", Token.LeftCurlyBracket)]
-        [InlineData("}", Token.RightCurlyBracket)]
-        [InlineData("|", Token.Vertical)]
-        [InlineData("...", Token.Spread)]
-        public void Punctuators(string text, Token token)
+        [InlineData("!", TokenKind.Exclamation)]
+        [InlineData("$", TokenKind.Dollar)]
+        [InlineData("&", TokenKind.Ampersand)]
+        [InlineData("(", TokenKind.LeftParenthesis)]
+        [InlineData(")", TokenKind.RightParenthesis)]
+        [InlineData(":", TokenKind.Colon)]
+        [InlineData("=", TokenKind.Equals)]
+        [InlineData("@", TokenKind.At)]
+        [InlineData("[", TokenKind.LeftSquareBracket)]
+        [InlineData("]", TokenKind.RightSquareBracket)]
+        [InlineData("{", TokenKind.LeftCurlyBracket)]
+        [InlineData("}", TokenKind.RightCurlyBracket)]
+        [InlineData("|", TokenKind.Vertical)]
+        [InlineData("...", TokenKind.Spread)]
+        public void Punctuators(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
             Assert.Equal(token, t.Token);
             Assert.Equal(text, t.TokenString);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
 
         [Theory]
-        [InlineData("!$&", Token.Exclamation, Token.Dollar, Token.Ampersand)]
-        [InlineData("! $ &", Token.Exclamation, Token.Dollar, Token.Ampersand)]
-        [InlineData("\uFEFF\t!,...   &\r\n", Token.Exclamation, Token.Spread, Token.Ampersand)]
-        [InlineData("...... \t,\t...", Token.Spread, Token.Spread, Token.Spread)]
-        public void PunctuatorsAndWhitespace(string text, Token token1, Token token2, Token token3)
+        [InlineData("!$&", TokenKind.Exclamation, TokenKind.Dollar, TokenKind.Ampersand)]
+        [InlineData("! $ &", TokenKind.Exclamation, TokenKind.Dollar, TokenKind.Ampersand)]
+        [InlineData("\uFEFF\t!,...   &\r\n", TokenKind.Exclamation, TokenKind.Spread, TokenKind.Ampersand)]
+        [InlineData("...... \t,\t...", TokenKind.Spread, TokenKind.Spread, TokenKind.Spread)]
+        public void PunctuatorsAndWhitespace(string text, TokenKind token1, TokenKind token2, TokenKind token3)
         {
             var t = new Tokenizer(text);
             Assert.Equal(token1, t.Token);
@@ -121,7 +130,7 @@ namespace DotNetQL.UnitTests
             t.Next();
             Assert.Equal(token3, t.Token);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -138,11 +147,11 @@ namespace DotNetQL.UnitTests
         public void Name(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.Name, t.Token);
+            Assert.Equal(TokenKind.Name, t.Token);
             Assert.Equal(text, t.TokenString);
             Assert.Equal(1, t.ColumnNumber);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
         }
 
@@ -154,66 +163,68 @@ namespace DotNetQL.UnitTests
         public void NameAndWhitespace(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.Name, t.Token);
+            Assert.Equal(TokenKind.Name, t.Token);
             Assert.Equal("World", t.TokenString);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
-        [InlineData("0", 0, Token.EndOfText)]
-        [InlineData("9", 9, Token.EndOfText)]
-        [InlineData("12345", 12345, Token.EndOfText)]
-        [InlineData("9876543", 9876543, Token.EndOfText)]
-        [InlineData("-0", -0, Token.EndOfText)]
-        [InlineData("-9", -9, Token.EndOfText)]
-        [InlineData("-12345", -12345, Token.EndOfText)]
-        [InlineData("-9876543", -9876543, Token.EndOfText)]
-        [InlineData("0#", 0, Token.EndOfText)]
-        [InlineData("9\t", 9, Token.EndOfText)]
-        [InlineData("12345\r\n", 12345, Token.EndOfText)]
-        [InlineData("9876543,", 9876543, Token.EndOfText)]
-        [InlineData("-0{", -0, Token.LeftCurlyBracket)]
-        [InlineData("-9876543\uFEFF", -9876543, Token.EndOfText)]
-        public void IntValue(string text, int val, Token nextToken)
+        [InlineData("0", 0, TokenKind.EndOfText)]
+        [InlineData("9", 9, TokenKind.EndOfText)]
+        [InlineData("12345", 12345, TokenKind.EndOfText)]
+        [InlineData("9876543", 9876543, TokenKind.EndOfText)]
+        [InlineData("-0", -0, TokenKind.EndOfText)]
+        [InlineData("-9", -9, TokenKind.EndOfText)]
+        [InlineData("-12345", -12345, TokenKind.EndOfText)]
+        [InlineData("-9876543", -9876543, TokenKind.EndOfText)]
+        [InlineData("0 ", 0, TokenKind.EndOfText)]
+        [InlineData("0#", 0, TokenKind.EndOfText)]
+        [InlineData("9\t", 9, TokenKind.EndOfText)]
+        [InlineData("12345\r\n", 12345, TokenKind.EndOfText)]
+        [InlineData("9876543,", 9876543, TokenKind.EndOfText)]
+        [InlineData("-0{", -0, TokenKind.LeftCurlyBracket)]
+        [InlineData("-0 {", -0, TokenKind.LeftCurlyBracket)]
+        [InlineData("-9876543\uFEFF", -9876543, TokenKind.EndOfText)]
+        public void IntValue(string text, int val, TokenKind nextToken)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.IntValue, t.Token);
+            Assert.Equal(TokenKind.IntValue, t.Token);
             Assert.Equal(val, int.Parse(t.TokenString));
             t.Next();
             Assert.Equal(nextToken, t.Token);
         }
 
         [Theory]
-        [InlineData("0.0", 0.0, Token.EndOfText)]
-        [InlineData("9.1", 9.1, Token.EndOfText)]
-        [InlineData("12345.0123", 12345.0123, Token.EndOfText)]
-        [InlineData("9876543.987", 9876543.987, Token.EndOfText)]
-        [InlineData("-0.0", -0.0, Token.EndOfText)]
-        [InlineData("-9.1", -9.1, Token.EndOfText)]
-        [InlineData("-12345.0123", -12345.0123, Token.EndOfText)]
-        [InlineData("-9876543.987", -9876543.987, Token.EndOfText)]
-        [InlineData("1e0", 1e0, Token.EndOfText)]
-        [InlineData("2e123", 2e123, Token.EndOfText)]
-        [InlineData("1e+2", 1e+2, Token.EndOfText)]
-        [InlineData("2e+33", 2e+33, Token.EndOfText)]
-        [InlineData("1e-2", 1e-2, Token.EndOfText)]
-        [InlineData("2e-33", 2e-33, Token.EndOfText)]
-        [InlineData("1.1e0", 1.1e0, Token.EndOfText)]
-        [InlineData("2.2e123", 2.2e123, Token.EndOfText)]
-        [InlineData("1.1e+2", 1.1e+2, Token.EndOfText)]
-        [InlineData("2.2e+33", 2.2e+33, Token.EndOfText)]
-        [InlineData("1.1e-2", 1.1e-2, Token.EndOfText)]
-        [InlineData("2.2e-33", 2.2e-33, Token.EndOfText)]
-        [InlineData("0.0 ", 0.0, Token.EndOfText)]
-        [InlineData("9.1#", 9.1, Token.EndOfText)]
-        [InlineData("12345.0123\r\n", 12345.0123, Token.EndOfText)]
-        [InlineData("9876543.987{", 9876543.987, Token.LeftCurlyBracket)]
-        [InlineData("-0.0﻿\uFEFF", -0.0, Token.EndOfText)]
-        public void FloatValue(string text, double val, Token nextToken)
+        [InlineData("0.0", 0.0, TokenKind.EndOfText)]
+        [InlineData("9.1", 9.1, TokenKind.EndOfText)]
+        [InlineData("12345.0123", 12345.0123, TokenKind.EndOfText)]
+        [InlineData("9876543.987", 9876543.987, TokenKind.EndOfText)]
+        [InlineData("-0.0", -0.0, TokenKind.EndOfText)]
+        [InlineData("-9.1", -9.1, TokenKind.EndOfText)]
+        [InlineData("-12345.0123", -12345.0123, TokenKind.EndOfText)]
+        [InlineData("-9876543.987", -9876543.987, TokenKind.EndOfText)]
+        [InlineData("1e0", 1e0, TokenKind.EndOfText)]
+        [InlineData("2e123", 2e123, TokenKind.EndOfText)]
+        [InlineData("1e+2", 1e+2, TokenKind.EndOfText)]
+        [InlineData("2e+33", 2e+33, TokenKind.EndOfText)]
+        [InlineData("1e-2", 1e-2, TokenKind.EndOfText)]
+        [InlineData("2e-33", 2e-33, TokenKind.EndOfText)]
+        [InlineData("1.1e0", 1.1e0, TokenKind.EndOfText)]
+        [InlineData("2.2e123", 2.2e123, TokenKind.EndOfText)]
+        [InlineData("1.1e+2", 1.1e+2, TokenKind.EndOfText)]
+        [InlineData("2.2e+33", 2.2e+33, TokenKind.EndOfText)]
+        [InlineData("1.1e-2", 1.1e-2, TokenKind.EndOfText)]
+        [InlineData("2.2e-33", 2.2e-33, TokenKind.EndOfText)]
+        [InlineData("0.0 ", 0.0, TokenKind.EndOfText)]
+        [InlineData("9.1#", 9.1, TokenKind.EndOfText)]
+        [InlineData("12345.0123\r\n", 12345.0123, TokenKind.EndOfText)]
+        [InlineData("9876543.987{", 9876543.987, TokenKind.LeftCurlyBracket)]
+        [InlineData("-0.0﻿\uFEFF", -0.0, TokenKind.EndOfText)]
+        public void FloatValue(string text, double val, TokenKind nextToken)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.FloatValue, t.Token);
+            Assert.Equal(TokenKind.FloatValue, t.Token);
             Assert.Equal(val, double.Parse(t.TokenString));
             t.Next();
             Assert.Equal(nextToken, t.Token);
@@ -225,13 +236,13 @@ namespace DotNetQL.UnitTests
         public void NumbersAndWhitespace(string text, int val1, double val2)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.IntValue, t.Token);
+            Assert.Equal(TokenKind.IntValue, t.Token);
             Assert.Equal(val1, int.Parse(t.TokenString));
             t.Next();
-            Assert.Equal(Token.FloatValue, t.Token);
+            Assert.Equal(TokenKind.FloatValue, t.Token);
             Assert.Equal(val2, double.Parse(t.TokenString));
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -255,29 +266,29 @@ namespace DotNetQL.UnitTests
         [InlineData("\"\\u{AAA}\"")]
         [InlineData("\"\\u{FFFF}\"")]
         [InlineData("\"\\u{123456789ABCDEF}\"")]
-        public void String(string text)
+        public void StringOnly(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.StringValue, t.Token);
+            Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
-        [InlineData("\"\"!", Token.Exclamation)]
-        [InlineData("\"\" $", Token.Dollar)]
-        [InlineData("\"abc\"42", Token.IntValue)]
-        [InlineData("\"abc\" ,3.14", Token.FloatValue)]
-        [InlineData("\"abc\" \"def\"", Token.StringValue)]
-        [InlineData("\"abc\"\"def\"", Token.StringValue)]
-        public void StringAndSecondToken(string text, Token token)
+        [InlineData("\"\"!", TokenKind.Exclamation)]
+        [InlineData("\"\" $", TokenKind.Dollar)]
+        [InlineData("\"abc\"42", TokenKind.IntValue)]
+        [InlineData("\"abc\" ,3.14", TokenKind.FloatValue)]
+        [InlineData("\"abc\" \"def\"", TokenKind.StringValue)]
+        [InlineData("\"abc\"\"def\"", TokenKind.StringValue)]
+        public void StringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.StringValue, t.Token);
+            Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(token, t.Token);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -290,31 +301,31 @@ namespace DotNetQL.UnitTests
         [InlineData("\"\"\"abc\r\ndef\"\"\"")]
         [InlineData("\"\"\"abc#fish\r\n\"\"\"")]
         [InlineData("\"\"\"$ab!c#fish\r\n3.14 _fish\"\"\"")]
-        public void BlockString(string text)
+        public void BlockStringOnly(string text)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.StringValue, t.Token);
+            Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
-        [InlineData("\"\"\"\"\"\"!", Token.Exclamation)]
-        [InlineData("\"\"\"abc\"\"\" $", Token.Dollar)]
-        [InlineData("\"\"\"a\"b\"c\"\"\"42", Token.IntValue)]
-        [InlineData("\"\"\"a\"\"b\"\"c\"\"\" ,3.14", Token.FloatValue)]
-        [InlineData("\"\"\"abc\n\"\"\" \"def\"", Token.StringValue)]
-        [InlineData("\"\"\"abc\r\ndef\"\"\"\"def\"", Token.StringValue)]
-        [InlineData("\"\"\"abc\"\"\" \"\"\"abc\"\"\"", Token.StringValue)]
-        [InlineData("\"\"\"abc\"\"\"\"\"\"abc\"\"\"", Token.StringValue)]
-        public void BlockStringAndSecondToken(string text, Token token)
+        [InlineData("\"\"\"\"\"\"!", TokenKind.Exclamation)]
+        [InlineData("\"\"\"abc\"\"\" $", TokenKind.Dollar)]
+        [InlineData("\"\"\"a\"b\"c\"\"\"42", TokenKind.IntValue)]
+        [InlineData("\"\"\"a\"\"b\"\"c\"\"\" ,3.14", TokenKind.FloatValue)]
+        [InlineData("\"\"\"abc\n\"\"\" \"def\"", TokenKind.StringValue)]
+        [InlineData("\"\"\"abc\r\ndef\"\"\"\"def\"", TokenKind.StringValue)]
+        [InlineData("\"\"\"abc\"\"\" \"\"\"abc\"\"\"", TokenKind.StringValue)]
+        [InlineData("\"\"\"abc\"\"\"\"\"\"abc\"\"\"", TokenKind.StringValue)]
+        public void BlockStringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
-            Assert.Equal(Token.StringValue, t.Token);
+            Assert.Equal(TokenKind.StringValue, t.Token);
             t.Next();
             Assert.Equal(token, t.Token);
             t.Next();
-            Assert.Equal(Token.EndOfText, t.Token);
+            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
     }
 }

@@ -11,53 +11,39 @@ namespace DotNetQL.PerformanceTests
 {
     internal class Program
     {
+        public static string _graphQL = string.Empty;
+        public static byte[] _graphQLBytes = Array.Empty<byte>();
+
         static void Main()
         {
-            //BenchmarkRunner.Run<MicroBenchmark>();
+            //_graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            //_graphQLBytes = Encoding.ASCII.GetBytes(_graphQL);
+
+            //int countGQL = 0;
+            //int resetPosition = 0;
+            //GraphQLParser.Token token;
+            //while ((token = Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
+            //{
+            //    resetPosition = token.End;
+            //    countGQL++;
+            //}
+
+            //int countHC = 0;
+            //var reader = new Utf8GraphQLReader(_graphQLBytes);
+            //while (reader.Read())
+            //{
+            //    countHC++;
+            //}
+
+            //int countT = 0;
+            //var t = new Tokenizer(_graphQL.AsSpan());
+            //while (t.Next() != Parser.TokenKind.EndOfText)
+            //{
+            //    countT++;
+            //}
+
             BenchmarkRunner.Run<TokenizerBenchmark>();
-            //BenchmarkRunner.Run<ParserBenchmark>();
-        }
-    }
-
-    [MemoryDiagnoser]
-    public class MicroBenchmark
-    {
-        public string _graphQL = string.Empty;
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
-        }
-
-        [Benchmark]
-        public void AccessViaString()
-        {
-            int len = _graphQL.Length;
-            char? c;
-            for (int i = 0; i < len; i++)
-            {
-                c = _graphQL[i];
-            }
-        }
-
-        [Benchmark]
-        public void AccessViaSpan()
-        {
-            ReadOnlySpan<char> span = _graphQL.AsSpan();
-            int len = span.Length;
-            char? c;
-            for (int i = 0; i < len; i++)
-            {
-                c = span[i];
-            }
-        }
-
-        [Benchmark]
-        public void Tokenizer()
-        {
-            var t = new Tokenizer(_graphQL.AsSpan());
-            while (t.Next() != Parser.Token.EndOfText);
+            BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
@@ -96,7 +82,7 @@ namespace DotNetQL.PerformanceTests
         public void Tokenizer()
         {
             var t = new Tokenizer(_graphQL.AsSpan());
-            while (t.Next() != Parser.Token.EndOfText) ;
+            while (t.Next() != Parser.TokenKind.EndOfText) ;
         }
     }
 
