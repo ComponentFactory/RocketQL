@@ -1,0 +1,38 @@
+﻿namespace DotNetQL.Parser;
+
+public enum TokenKind : uint
+{
+    IllegalCharacter,
+    Skip,
+    NewLine,
+    CarriageReturn,
+    Hash,
+    Exclamation,
+    Dollar,
+    Ampersand,
+    LeftParenthesis,
+    RightParenthesis,
+    Colon,
+    Equals,
+    At,
+    LeftSquareBracket,
+    RightSquareBracket,
+    LeftCurlyBracket,
+    RightCurlyBracket,
+    Vertical,
+    Dot,
+    Underscore,
+    Letter,
+    Digit,
+    Minus,
+    DoubleQuote,
+    Plus,
+    Hexadecimal,
+    StartOfText,
+    EndOfText,
+    Spread,
+    Name,
+    IntValue,
+    FloatValue,
+    StringValue
+}

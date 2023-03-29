@@ -122,7 +122,7 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(token, t.Token);
-            Assert.Equal(text, t.TokenString);
+            Assert.Equal(text, t.TokenValue);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
@@ -165,7 +165,7 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.Name, t.Token);
-            Assert.Equal(text, t.TokenString);
+            Assert.Equal(text, t.TokenValue);
             Assert.Equal(1, t.ColumnNumber);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -183,7 +183,7 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.Name, t.Token);
-            Assert.Equal("World", t.TokenString);
+            Assert.Equal("World", t.TokenValue);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
@@ -211,7 +211,7 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.IntValue, t.Token);
-            Assert.Equal(val, int.Parse(t.TokenString));
+            Assert.Equal(val, int.Parse(t.TokenValue));
             t.Next();
             Assert.Equal(nextToken, t.Token);
         }
@@ -248,7 +248,7 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.FloatValue, t.Token);
-            Assert.Equal(val, double.Parse(t.TokenString));
+            Assert.Equal(val, double.Parse(t.TokenValue));
             t.Next();
             Assert.Equal(nextToken, t.Token);
         }
@@ -262,10 +262,10 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.IntValue, t.Token);
-            Assert.Equal(val1, int.Parse(t.TokenString));
+            Assert.Equal(val1, int.Parse(t.TokenValue));
             t.Next();
             Assert.Equal(TokenKind.FloatValue, t.Token);
-            Assert.Equal(val2, double.Parse(t.TokenString));
+            Assert.Equal(val2, double.Parse(t.TokenValue));
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
@@ -291,7 +291,7 @@ namespace DotNetQL.UnitTests
         [InlineData("\"\\u{AAA}\"")]
         [InlineData("\"\\u{FFFF}\"")]
         [InlineData("\"\\u{123456789ABCDEF}\"")]
-        public void StringOnly(string text)
+        public void SimpleStringOnly(string text)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
@@ -308,7 +308,7 @@ namespace DotNetQL.UnitTests
         [InlineData("\"abc\" ,3.14", TokenKind.FloatValue)]
         [InlineData("\"abc\" \"def\"", TokenKind.StringValue)]
         [InlineData("\"abc\"\"def\"", TokenKind.StringValue)]
-        public void StringAndSecondToken(string text, TokenKind token)
+        public void SimpleStringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
@@ -321,21 +321,42 @@ namespace DotNetQL.UnitTests
         }
 
         [Theory]
-        [InlineData("\"\"\"\"\"\"")]
-        [InlineData("\"\"\"你好Ȳ\"\"\"")]
-        [InlineData("\"\"\"abc\"\"\"")]
-        [InlineData("\"\"\"a\"b\"c\"\"\"")]
-        [InlineData("\"\"\"a\"\"b\"\"c\"\"\"")]
-        [InlineData("\"\"\"abc\n\"\"\"")]
-        [InlineData("\"\"\"abc\r\ndef\"\"\"")]
-        [InlineData("\"\"\"abc#fish\r\n\"\"\"")]
-        [InlineData("\"\"\"$ab!c#fish\r\n3.14 _fish\"\"\"")]
-        public void BlockStringOnly(string text)
+        [InlineData("\"\"\"\"\"\"", "")]
+        [InlineData("\"\"\"a\"\"\"", "a")]
+        [InlineData("\"\"\"\na\"\"\"", "a")]
+        [InlineData("\"\"\"   \na\"\"\"", "a")]
+        [InlineData("\"\"\"   \n  \n\na\"\"\"", "a")]
+        [InlineData("\"\"\"abc\"\"\"", "abc")]
+        [InlineData("\"\"\"\nabc\"\"\"", "abc")]
+        [InlineData("\"\"\"   \nabc\"\"\"", "abc")]
+        [InlineData("\"\"\"   \n  \n\nabc\"\"\"", "abc")]
+        [InlineData("\"\"\"a\n\"\"\"", "a")]
+        [InlineData("\"\"\"a\n  \"\"\"", "a")]
+        [InlineData("\"\"\"a   \n\"\"\"", "a   ")]
+        [InlineData("\"\"\"a   \n\n\n\"\"\"", "a   ")]
+        [InlineData("\"\"\"a   \n  \n \n\"\"\"", "a   ")]
+        [InlineData("\"\"\"abc\n\"\"\"", "abc")]
+        [InlineData("\"\"\"abc\n  \"\"\"", "abc")]
+        [InlineData("\"\"\"abc   \n\"\"\"", "abc   ")]
+        [InlineData("\"\"\"abc   \n\n\n\"\"\"", "abc   ")]
+        [InlineData("\"\"\"abc   \n  \n \n\"\"\"", "abc   ")]
+        [InlineData("\"\"\"a\nbc\"\"\"", "a\nbc")]
+        [InlineData("\"\"\"ab\nc\"\"\"", "ab\nc")]
+        [InlineData("\"\"\"ab\ncd\nef\"\"\"", "ab\ncd\nef")]
+        [InlineData("\"\"\"ab \ncd  \nef   \"\"\"", "ab \ncd  \nef   ")]
+        [InlineData("\"\"\"   a\"\"\"", "   a")]
+        [InlineData("\"\"\"  a\n  b\n  c\"\"\"", "  a\nb\nc")]
+        [InlineData("\"\"\"  a\n    b\n   c\"\"\"", "  a\n b\nc")]
+        [InlineData("\"\"\"  a\n      \n  c\"\"\"", "  a\n    \nc")]
+        [InlineData("\"\"\" a\n  b\n  c\"\"\"", " a\nb\nc")]
+        [InlineData("\"\"\"    a\n  b\n    c\"\"\"", "    a\nb\n  c")]
+        public void BlockStringOnly(string text, string contents)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
+            Assert.Equal(contents, t.TokenString);
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
@@ -347,8 +368,7 @@ namespace DotNetQL.UnitTests
         [InlineData("\"\"\"a\"\"b\"\"c\"\"\" ,3.14", TokenKind.FloatValue)]
         [InlineData("\"\"\"abc\n\"\"\" \"def\"", TokenKind.StringValue)]
         [InlineData("\"\"\"abc\r\ndef\"\"\"\"def\"", TokenKind.StringValue)]
-        [InlineData("\"\"\"abc\"\"\" \"\"\"abc\"\"\"", TokenKind.StringValue)]
-        [InlineData("\"\"\"abc\"\"\"\"\"\"abc\"\"\"", TokenKind.StringValue)]
+        [InlineData("\"\"\"  a\n    b\n   c\"\"\" ,3.14", TokenKind.FloatValue)]
         public void BlockStringAndSecondToken(string text, TokenKind token)
         {
             var t = new Tokenizer(text);

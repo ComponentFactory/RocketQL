@@ -3,58 +3,14 @@ using BenchmarkDotNet.Running;
 using DotNetQL.Parser;
 using GraphQLParser;
 using HotChocolate.Language;
-using Microsoft.Extensions.Options;
-using System.Reflection.PortableExecutable;
 using System.Text;
 
 namespace DotNetQL.PerformanceTests
 {
     internal class Program
     {
-        public static string _graphQL = string.Empty;
-        public static byte[] _graphQLBytes = Array.Empty<byte>();
-
         static void Main()
         {
-            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
-            _graphQLBytes = Encoding.ASCII.GetBytes(_graphQL);
-
-            //int countGQL = 0;
-            //int resetPosition = 0;
-            //GraphQLParser.Token token;
-            //while ((token = Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
-            //{
-            //    resetPosition = token.End;
-            //    countGQL++;
-            //}
-
-            //int countHC = 0;
-            //var reader = new Utf8GraphQLReader(_graphQLBytes);
-            //while (reader.Read())
-            //{
-            //    countHC++;
-            //}
-
-            Dictionary<Parser.TokenKind, int> occ = new();
-            int countT = 0;
-            var t = new Tokenizer(_graphQL.AsSpan());
-            while (t.Next() != Parser.TokenKind.EndOfText)
-            {
-                if (occ.TryGetValue(t.Token, out int val))
-                    occ[t.Token] = val + 1;
-                else
-                    occ[t.Token] = 1;
-
-
-                countT++;
-            }
-
-            foreach(var pair in occ)
-            {
-                Console.WriteLine($"{pair.Key} = {pair.Value}");
-            }
-            Console.WriteLine($"{t.Blocks}  {t.Simples}");
-
             BenchmarkRunner.Run<TokenizerBenchmark>();
             // BenchmarkRunner.Run<ParserBenchmark>();
         }
@@ -87,15 +43,40 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void TokenizerHC()
         {
+            var s = string.Empty;
             var reader = new Utf8GraphQLReader(_graphQLBytes);
-            while (reader.Read());
+            while (reader.Read())
+            {
+                switch (reader.Kind)
+                {
+                    case HotChocolate.Language.TokenKind.String:
+                    case HotChocolate.Language.TokenKind.BlockString:
+                        s = reader.GetString();
+                        break;
+                    case HotChocolate.Language.TokenKind.Name:
+                        s = reader.GetName();
+                        break;
+                }
+            }
         }
 
         [Benchmark]
         public void Tokenizer()
         {
+            var s = string.Empty;
             var t = new Tokenizer(_graphQL.AsSpan());
-            while (t.Next() != Parser.TokenKind.EndOfText) ;
+            while (t.Next() != Parser.TokenKind.EndOfText)
+            {
+                switch(t.Token)
+                {
+                    case Parser.TokenKind.StringValue:
+                        s = t.TokenString;
+                        break;
+                    case Parser.TokenKind.Name:
+                        s = t.TokenValue;
+                        break;
+                }
+            }
         }
     }
 
