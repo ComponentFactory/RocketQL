@@ -8,16 +8,18 @@ public ref struct Tokenizer
 {
     private static readonly TokenKind[] _map = new TokenKind[65536];
     private static readonly TokenKind[] _hex = new TokenKind[65536];
+    private static readonly string _spaces = new(' ', 256);
 
     private char _c = ' ';
     private int _index = 0;
-    private int _length = 0;
+    private readonly int _length = 0;
     private int _lineIndex = 0;
     private int _lineNumber = 1;
     private int _tokenIndex = 0;
     private TokenKind _tokenKind = TokenKind.StartOfText;
-    private StringBuilder _sb = new StringBuilder();
+    private StringBuilder _sb = new();
     private readonly ReadOnlySpan<char> _text;
+    private readonly ReadOnlySpan<char> _whitespace = _spaces;
 
     static Tokenizer()
     {
@@ -353,7 +355,6 @@ public ref struct Tokenizer
             return ScanSimpleString();
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TokenKind ScanBlockString()
     {
@@ -457,13 +458,14 @@ public ref struct Tokenizer
                 case TokenKind.Skip:
                     break;
                 case TokenKind.NewLine:
-                    GenerateStringUsingBuilder(currentLine, firstRealLine, i, onlyWhitespace, indent);
+                    AppendLineToBlock(currentLine, firstRealLine, i, onlyWhitespace, indent);
 
                     firstRealLine = i + 1;
                     currentLine = firstRealLine;
                     onlyWhitespace = true;
                     break;
                 case TokenKind.CarriageReturn:
+                    // TODO
                     break;
                 default:
                     if (onlyWhitespace)
@@ -477,33 +479,40 @@ public ref struct Tokenizer
 
         // Process any remaining line
         if (firstRealLine < endIndex)
-            GenerateStringUsingBuilder(currentLine, firstRealLine, endIndex, onlyWhitespace, indent);
+            AppendLineToBlock(currentLine, firstRealLine, endIndex, onlyWhitespace, indent);
 
         _index += 2;
         return _tokenKind = TokenKind.StringValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void GenerateStringUsingBuilder(int currentLine, int firstRealLine, int endIndex, bool onlyWhitespace, int indent)
+    private void AppendLineToBlock(int currentLine, int firstRealLine, int endIndex, bool onlyWhitespace, int indent)
     {
         if (_sb.Length > 0)
             _sb.Append('\n');
 
+        // The first line never has indent applied
         if (currentLine == _tokenIndex)
-            _sb.Append(_text.Slice(_tokenIndex, endIndex - _tokenIndex));
+            _sb.Append(_text[_tokenIndex..endIndex]);
         else if (onlyWhitespace)
-        {
-            int len = endIndex - currentLine - indent;
-            if (len > 0)
-                _sb.Append(new string(' ', len));
-        }
+            AppendCommonIndent(endIndex, currentLine, indent);
         else
         {
-            int ind = firstRealLine - currentLine - indent;
-            if (ind > 0)
-                _sb.Append(new string(' ', ind));
+            AppendCommonIndent(firstRealLine, currentLine, indent);
+            _sb.Append(_text[firstRealLine..endIndex]);
+        }
+    }
 
-            _sb.Append(_text.Slice(firstRealLine, endIndex - firstRealLine));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AppendCommonIndent(int index, int currentLine, int indent)
+    {
+        int len = index - currentLine - indent;
+        if (len > 0)
+        {
+            if (len <= _whitespace.Length)
+                _sb.Append(_whitespace[..len]);
+            else
+                _sb.Append(new string(' ', len));
         }
     }
 
