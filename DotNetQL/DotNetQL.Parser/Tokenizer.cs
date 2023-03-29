@@ -1,4 +1,5 @@
 ﻿using GraphQLParser.AST;
+using System;
 using System.Text;
 
 namespace DotNetQL.Parser;
@@ -359,14 +360,27 @@ public ref struct Tokenizer
         _index += 2;
         _tokenIndex = _index;
 
-        int line = _tokenIndex;
-        int first = line;
-        int lastChar = line;
-        int lastLine = line;
+        // Common indent found across all non-whitespace and non-first line
         int indent = int.MaxValue;
-        bool isFirst = true;
-        bool findFirst = true;
-        bool whitespace = true;
+
+        // Start of the current line being scanned
+        int currentLine = _tokenIndex;
+
+        // Is the current line only whitespace characters
+        bool onlyWhitespace = true;
+
+        // Points to the first and last real lines, a real line has at least 1 non-whitespace character
+        int firstRealLine = currentLine;
+        int lastRealLine = currentLine;
+
+        // Points to the last non-whitespace character scanned
+        int lastRealChar = currentLine;
+
+        // We always start by scanning the first line
+        bool isFirstLine = true;
+
+        // Are we still looking for the first real line, the first line that is not just whitespace
+        bool findingFirstReal = true;
 
         while (_index < _length)
         {
@@ -375,129 +389,122 @@ public ref struct Tokenizer
                 case TokenKind.Skip:
                     break;
                 case TokenKind.NewLine:
-                    line = _index;
+                    currentLine = _index;
 
-                    if (findFirst)
+                    if (findingFirstReal)
                     {
-                        if (whitespace)
-                            first = line;
+                        if (onlyWhitespace)
+                            firstRealLine = currentLine;
                         else
-                            findFirst = false;
+                            findingFirstReal = false;
                     }
 
-                    if (lastChar > lastLine)
-                        lastLine = _index - 1;
+                    if (lastRealChar > lastRealLine)
+                        lastRealLine = _index - 1;
 
-                    isFirst = false;
-                    whitespace = true;
+                    isFirstLine = false;
+                    onlyWhitespace = true;
                     break;
                 case TokenKind.CarriageReturn:
+                    // TODO
                     break;
                 case TokenKind.DoubleQuote:
                     if (((_index + 1) < _length) && (_text[_index] == '"') && (_text[_index + 1] == '"'))
-                    {
-                        _sb.Clear();
+                        return GenerateStringForBlock(firstRealLine, lastRealChar, lastRealLine, indent);
 
-                        int endIndex = _index - 1;
-                        if (_text[endIndex - 1] == '\\')
-                            endIndex--;
-
-                        if (lastChar > lastLine)
-                            lastLine = endIndex;
-
-                        if (lastLine < endIndex)
-                            endIndex = lastLine;
-
-                        whitespace = true;
-                        line = first;
-                        for (int i = first; i < endIndex; i++)
-                        {
-                            switch (_map[_text[i]])
-                            {
-                                case TokenKind.Skip:
-                                    break;
-                                case TokenKind.NewLine:
-                                    if (_sb.Length > 0)
-                                        _sb.Append("\n");
-
-                                    if (line == _tokenIndex)
-                                    {
-                                        _sb.Append(_text.Slice(_tokenIndex, i - _tokenIndex));
-                                    }
-                                    else if (whitespace)
-                                    {
-                                        int len = i - line - indent;
-                                        if (len > 0)
-                                            _sb.Append(new string(' ', len));
-                                    }
-                                    else
-                                    {
-                                        int ind = first - line - indent;
-                                        if (ind > 0)
-                                            _sb.Append(new string(' ', ind));
-
-                                        _sb.Append(_text.Slice(first, i - first));
-                                    }
-
-                                    first = i + 1;
-                                    line = first;
-                                    whitespace = true;
-                                    break;
-                                case TokenKind.CarriageReturn:
-                                    break;
-                                default:
-                                    if (whitespace)
-                                    {
-                                        first = i;
-                                        whitespace = false;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        if (first < endIndex)
-                        {
-                            if (_sb.Length > 0)
-                                _sb.Append("\n");
-
-                            if (line == _tokenIndex)
-                            {
-                                _sb.Append(_text.Slice(_tokenIndex, endIndex - _tokenIndex));
-                            }
-                            else if (whitespace)
-                            {
-                                int len = endIndex - line - indent;
-                                if (len > 0)
-                                    _sb.Append(new string(' ', len));
-                            }
-                            else
-                            {
-                                int ind = first - line - indent;
-                                if (ind > 0)
-                                    _sb.Append(new string(' ', ind));
-
-                                _sb.Append(_text.Slice(first, endIndex - first));
-                            }
-                        }
-
-                        _index += 2;
-                        return _tokenKind = TokenKind.StringValue;
-                    }
                     break;
                 default:
-                    lastChar = _index;
-                    if (whitespace)
+                    lastRealChar = _index;
+                    if (onlyWhitespace)
                     {
-                        if (!isFirst)
-                            indent = Math.Min(indent, _index - line - 1);
+                        if (!isFirstLine)
+                            indent = Math.Min(indent, _index - currentLine - 1);
 
-                        whitespace = false;
+                        onlyWhitespace = false;
                     }
                     break;
             }
         }
 
         throw new ApplicationException($"Unexpected end of file.");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private TokenKind GenerateStringForBlock(int firstRealLine, int lastRealChar, int lastRealLine, int indent)
+    {
+        _sb.Clear();
+
+        // If the three quotes are preceded by a backslash then we want to ignore the backslash
+        int endIndex = _index - 1;
+        if (_text[endIndex - 1] == '\\')
+            endIndex--;
+
+        // If the last real character is within the last line, we need to process the entire last line
+        if (lastRealChar > lastRealLine)
+            lastRealLine = endIndex;
+
+        // If one of more of the ending lines are empty, we do not need to process them
+        if (lastRealLine < endIndex)
+            endIndex = lastRealLine;
+
+        int currentLine = firstRealLine;
+        bool onlyWhitespace = true;
+
+        for (int i = firstRealLine; i < endIndex; i++)
+        {
+            switch (_map[_text[i]])
+            {
+                case TokenKind.Skip:
+                    break;
+                case TokenKind.NewLine:
+                    GenerateStringUsingBuilder(currentLine, firstRealLine, i, onlyWhitespace, indent);
+
+                    firstRealLine = i + 1;
+                    currentLine = firstRealLine;
+                    onlyWhitespace = true;
+                    break;
+                case TokenKind.CarriageReturn:
+                    break;
+                default:
+                    if (onlyWhitespace)
+                    {
+                        firstRealLine = i;
+                        onlyWhitespace = false;
+                    }
+                    break;
+            }
+        }
+
+        // Process any remaining line
+        if (firstRealLine < endIndex)
+            GenerateStringUsingBuilder(currentLine, firstRealLine, endIndex, onlyWhitespace, indent);
+
+        _index += 2;
+        return _tokenKind = TokenKind.StringValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void GenerateStringUsingBuilder(int currentLine, int firstRealLine, int endIndex, bool onlyWhitespace, int indent)
+    {
+        if (_sb.Length > 0)
+            _sb.Append('\n');
+
+        if (currentLine == _tokenIndex)
+            _sb.Append(_text.Slice(_tokenIndex, endIndex - _tokenIndex));
+        else if (onlyWhitespace)
+        {
+            int len = endIndex - currentLine - indent;
+            if (len > 0)
+                _sb.Append(new string(' ', len));
+        }
+        else
+        {
+            int ind = firstRealLine - currentLine - indent;
+            if (ind > 0)
+                _sb.Append(new string(' ', ind));
+
+            _sb.Append(_text.Slice(firstRealLine, endIndex - firstRealLine));
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
