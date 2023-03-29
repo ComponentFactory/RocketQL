@@ -1,8 +1,4 @@
-﻿using GraphQLParser.AST;
-using System;
-using System.Text;
-
-namespace DotNetQL.Parser;
+﻿namespace DotNetQL.Parser;
 
 public ref struct Tokenizer
 {
