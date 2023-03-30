@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotNetQL.Parser\DotNetQL.Parser.csproj" />
+    <ProjectReference Include="..\RocketQL.Core\RocketQL.Core.csproj" />
   </ItemGroup>
 
 </Project>

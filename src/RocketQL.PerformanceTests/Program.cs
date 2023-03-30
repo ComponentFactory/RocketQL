@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using DotNetQL.Parser;
+using RocketQL.Core;
 using GraphQLParser;
 using HotChocolate.Language;
 using System.Text;
@@ -12,7 +12,7 @@ namespace DotNetQL.PerformanceTests
         static void Main()
         {
             BenchmarkRunner.Run<TokenizerBenchmark>();
-            // BenchmarkRunner.Run<ParserBenchmark>();
+            //BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
@@ -65,14 +65,14 @@ namespace DotNetQL.PerformanceTests
         {
             var s = string.Empty;
             var t = new Tokenizer(_graphQL.AsSpan());
-            while (t.Next() != Parser.TokenKind.EndOfText)
+            while (t.Next())
             {
                 switch(t.Token)
                 {
-                    case Parser.TokenKind.StringValue:
+                    case RocketQL.Core.TokenKind.StringValue:
                         s = t.TokenString;
                         break;
-                    case Parser.TokenKind.Name:
+                    case RocketQL.Core.TokenKind.Name:
                         s = t.TokenValue;
                         break;
                 }

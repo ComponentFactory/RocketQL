@@ -1,6 +1,4 @@
-﻿using DotNetQL.Parser;
-
-namespace DotNetQL.UnitTests
+﻿namespace RocketQL.Core.UnitsTests
 {
     public class TokenizerTests
     {
@@ -49,7 +47,7 @@ namespace DotNetQL.UnitTests
         [InlineData("\r\r\r", 4)]
         [InlineData("\r\n", 2)]
         [InlineData("\r\n\r\n\r\n", 4)]
-        public void LineTerminators(string text, int lineNumber)
+        public void LineTerminator(string text, int lineNumber)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
@@ -116,7 +114,7 @@ namespace DotNetQL.UnitTests
         [InlineData("}", TokenKind.RightCurlyBracket)]
         [InlineData("|", TokenKind.Vertical)]
         [InlineData("...", TokenKind.Spread)]
-        public void Punctuators(string text, TokenKind token)
+        public void Punctuator(string text, TokenKind token)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
@@ -127,25 +125,6 @@ namespace DotNetQL.UnitTests
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(1, t.LineNumber);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
-        }
-
-        [Theory]
-        [InlineData("!$&", TokenKind.Exclamation, TokenKind.Dollar, TokenKind.Ampersand)]
-        [InlineData("! $ &", TokenKind.Exclamation, TokenKind.Dollar, TokenKind.Ampersand)]
-        [InlineData("\uFEFF\t!,...   &\r\n", TokenKind.Exclamation, TokenKind.Spread, TokenKind.Ampersand)]
-        [InlineData("...... \t,\t...", TokenKind.Spread, TokenKind.Spread, TokenKind.Spread)]
-        public void PunctuatorsAndWhitespace(string text, TokenKind token1, TokenKind token2, TokenKind token3)
-        {
-            var t = new Tokenizer(text);
-            Assert.Equal(TokenKind.StartOfText, t.Token);
-            t.Next();
-            Assert.Equal(token1, t.Token);
-            t.Next();
-            Assert.Equal(token2, t.Token);
-            t.Next();
-            Assert.Equal(token3, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -170,22 +149,6 @@ namespace DotNetQL.UnitTests
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
             Assert.Equal(text.Length + 1, t.ColumnNumber);
-        }
-
-        [Theory]
-        [InlineData("World#Hello")]
-        [InlineData("# Hello 你好Ȳ\nWorld\t# fish")]
-        [InlineData("#Fish#你好Ȳ\rWorld")]
-        [InlineData("#Fish#你好Ȳ\rWorld\n")]
-        public void NameAndWhitespace(string text)
-        {
-            var t = new Tokenizer(text);
-            Assert.Equal(TokenKind.StartOfText, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.Name, t.Token);
-            Assert.Equal("World", t.TokenValue);
-            t.Next();
-            Assert.Equal(TokenKind.EndOfText, t.Token);
         }
 
         [Theory]
@@ -254,68 +217,35 @@ namespace DotNetQL.UnitTests
         }
 
         [Theory]
-        [InlineData("  \t42#fish\n\t 3.14#fish", 42, 3.14)]
-        [InlineData("7   \r\n3.14e-2    \n\r", 7, 3.14e-2)]
-        public void NumbersAndWhitespace(string text, int val1, double val2)
-        {
-            var t = new Tokenizer(text);
-            Assert.Equal(TokenKind.StartOfText, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.IntValue, t.Token);
-            Assert.Equal(val1, int.Parse(t.TokenValue));
-            t.Next();
-            Assert.Equal(TokenKind.FloatValue, t.Token);
-            Assert.Equal(val2, double.Parse(t.TokenValue));
-            t.Next();
-            Assert.Equal(TokenKind.EndOfText, t.Token);
-        }
-
-        [Theory]
-        [InlineData("\"\"")]
-        [InlineData("\"你好Ȳ\"")]
-        [InlineData("\"abc\"")]
-        [InlineData("\"\\\"\"")]
-        [InlineData("\"\\\\\"")]
-        [InlineData("\"\\/\"")]
-        [InlineData("\"\\b\"")]
-        [InlineData("\"\\f\"")]
-        [InlineData("\"\\n\"")]
-        [InlineData("\"\\r\"")]
-        [InlineData("\"\\u0123\"")]
-        [InlineData("\"\\u4567\"")]
-        [InlineData("\"\\u7890\"")]
-        [InlineData("\"\\uABCD\"")]
-        [InlineData("\"\\uCDEF\"")]
-        [InlineData("\"\\u{0}\"")]
-        [InlineData("\"\\u{99}\"")]
-        [InlineData("\"\\u{AAA}\"")]
-        [InlineData("\"\\u{FFFF}\"")]
-        [InlineData("\"\\u{123456789ABCDEF}\"")]
-        public void SimpleStringOnly(string text)
+        [InlineData("\"\"", "")]
+        [InlineData("\"a\"", "a")]
+        [InlineData("\"abc\"", "abc")]
+        [InlineData("\"你好Ȳ\"", "你好Ȳ")]
+        [InlineData("\"\\\\\"", "\\")]
+        [InlineData("\"\\/\"", "/")]
+        [InlineData("\"\\b\"", "\b")]
+        [InlineData("\"\\f\"", "\f")]
+        [InlineData("\"\\n\"", "\n")]
+        [InlineData("\"\\r\"", "\r")]
+        [InlineData("\"\\t\"", "\t")]
+        [InlineData("\"\\\"\"", "\"")]
+        [InlineData("\"\\t\\r\\n\\f\\b\\/\\\\\\\"\"", "\t\r\n\f\b/\\\"")]
+        [InlineData("\"\\thello world\\t\"", "\thello world\t")]
+        [InlineData("\"\\u0041\"", "A")]
+        [InlineData("\"Z\\u0041\"", "ZA")]
+        [InlineData("\"Z\\u00411\"", "ZA1")]
+        [InlineData("\"\\u0041\\u0042\"", "AB")]
+        [InlineData("\"\\u00411\\u0042\"", "A1B")]
+        [InlineData("\"\\u{41}\"", "A")]
+        [InlineData("\"\\u{41}\\u{42}\\u{43}\"", "ABC")]
+        [InlineData("\"\\u{41}你好Ȳ\\u0041\t\\u{42}\\u{43}\"", "A你好ȲA\tBC")]
+        public void SimpleString(string text, string contents)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
             t.Next();
             Assert.Equal(TokenKind.StringValue, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.EndOfText, t.Token);
-        }
-
-        [Theory]
-        [InlineData("\"\"!", TokenKind.Exclamation)]
-        [InlineData("\"\" $", TokenKind.Dollar)]
-        [InlineData("\"abc\"42", TokenKind.IntValue)]
-        [InlineData("\"abc\" ,3.14", TokenKind.FloatValue)]
-        [InlineData("\"abc\" \"def\"", TokenKind.StringValue)]
-        [InlineData("\"abc\"\"def\"", TokenKind.StringValue)]
-        public void SimpleStringAndSecondToken(string text, TokenKind token)
-        {
-            var t = new Tokenizer(text);
-            Assert.Equal(TokenKind.StartOfText, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.StringValue, t.Token);
-            t.Next();
-            Assert.Equal(token, t.Token);
+            Assert.Equal(contents, t.TokenString); t.Next();
             t.Next();
             Assert.Equal(TokenKind.EndOfText, t.Token);
         }
@@ -350,7 +280,9 @@ namespace DotNetQL.UnitTests
         [InlineData("\"\"\"  a\n      \n  c\"\"\"", "  a\n    \nc")]
         [InlineData("\"\"\" a\n  b\n  c\"\"\"", " a\nb\nc")]
         [InlineData("\"\"\"    a\n  b\n    c\"\"\"", "    a\nb\n  c")]
-        public void BlockStringOnly(string text, string contents)
+        [InlineData("\"\"\"ab\r\ncd\r\nef\"\"\"", "ab\ncd\nef")]
+        [InlineData("\"\"\"ab\rcd\ref\"\"\"", "ab\ncd\nef")]
+        public void BlockString(string text, string contents)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
@@ -362,23 +294,133 @@ namespace DotNetQL.UnitTests
         }
 
         [Theory]
-        [InlineData("\"\"\"\"\"\"!", TokenKind.Exclamation)]
-        [InlineData("\"\"\"abc\"\"\" $", TokenKind.Dollar)]
-        [InlineData("\"\"\"a\"b\"c\"\"\"42", TokenKind.IntValue)]
-        [InlineData("\"\"\"a\"\"b\"\"c\"\"\" ,3.14", TokenKind.FloatValue)]
-        [InlineData("\"\"\"abc\n\"\"\" \"def\"", TokenKind.StringValue)]
-        [InlineData("\"\"\"abc\r\ndef\"\"\"\"def\"", TokenKind.StringValue)]
-        [InlineData("\"\"\"  a\n    b\n   c\"\"\" ,3.14", TokenKind.FloatValue)]
-        public void BlockStringAndSecondToken(string text, TokenKind token)
+        [InlineData("\u0001", '\u0001', 1, 1, 1)]
+        [InlineData("   \u0001", '\u0001', 1, 4, 4)]
+        [InlineData("\n\n   \u0001", '\u0001', 3, 4, 6)]
+        public void IllegalCharacterCode(string text, char code, int line, int column, int position)
         {
             var t = new Tokenizer(text);
             Assert.Equal(TokenKind.StartOfText, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.StringValue, t.Token);
-            t.Next();
-            Assert.Equal(token, t.Token);
-            t.Next();
-            Assert.Equal(TokenKind.EndOfText, t.Token);
+            try
+            {
+                t.Next();
+            }
+            catch(SyntaxException ex)
+            {
+                Assert.Equal($"Illegal character code '{(int)code}' for this location.", ex.Message);
+                Assert.Equal(line, ex.Location.Line);
+                Assert.Equal(column, ex.Location.Column);
+                Assert.Equal(position, ex.Location.Position);
+            }
+            catch
+            {
+                Assert.Fail("Wrong exception");
+            }
+        }
+
+        [Theory]
+        [InlineData(".", 1, 1, 1)]
+        [InlineData("..", 1, 1, 2)]
+        [InlineData("-", 1, 1, 1)]
+        [InlineData("0.", 1, 1, 2)]
+        [InlineData("-1.", 1, 1, 3)]
+        public void UnexpectedEndOfFile(string text, int line, int column, int position)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            try
+            {
+                t.Next();
+            }
+            catch (SyntaxException ex)
+            {
+                Assert.Equal($"Unexpected end of file encountered.", ex.Message);
+                Assert.Equal(line, ex.Location.Line);
+                Assert.Equal(column, ex.Location.Column);
+                Assert.Equal(position, ex.Location.Position);
+            }
+            catch
+            {
+                Assert.Fail("Wrong exception");
+            }
+        }
+
+        [Theory]
+        [InlineData(".  ", 1, 1, 1)]
+        [InlineData(".. ", 1, 1, 1)]
+        [InlineData("  .. ", 1, 3, 3)]
+        [InlineData(" \n .. ", 2, 2, 4)]
+        [InlineData(" \n\n .. ", 3, 2, 5)]
+        public void SpreadNeedsThreeDots(string text, int line, int column, int position)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            try
+            {
+                t.Next();
+            }
+            catch (SyntaxException ex)
+            {
+                Assert.Equal($"Spread operator requires 3 dots in sequence.", ex.Message);
+                Assert.Equal(line, ex.Location.Line);
+                Assert.Equal(column, ex.Location.Column);
+                Assert.Equal(position, ex.Location.Position);
+            }
+            catch
+            {
+                Assert.Fail("Wrong exception");
+            }
+        }
+
+        [Theory]
+        [InlineData("-A", 1, 1, 2)]
+        [InlineData("-.", 1, 1, 2)]
+        [InlineData("- ", 1, 1, 2)]
+        public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            try
+            {
+                t.Next();
+            }
+            catch (SyntaxException ex)
+            {
+                Assert.Equal($"Minus sign must be followed by a digit.", ex.Message);
+                Assert.Equal(line, ex.Location.Line);
+                Assert.Equal(column, ex.Location.Column);
+                Assert.Equal(position, ex.Location.Position);
+            }
+            catch
+            {
+                Assert.Fail("Wrong exception");
+            }
+        }
+
+        [Theory]
+        [InlineData("0.A", 1, 1, 3)]
+        [InlineData("0.-", 1, 1, 3)]
+        [InlineData("0. ", 1, 1, 3)]
+        public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
+        {
+            var t = new Tokenizer(text);
+            Assert.Equal(TokenKind.StartOfText, t.Token);
+            try
+            {
+                t.Next();
+            }
+            catch (SyntaxException ex)
+            {
+                Assert.Equal($"Decimal point must be followed by a digit.", ex.Message);
+                Assert.Equal(line, ex.Location.Line);
+                Assert.Equal(column, ex.Location.Column);
+                Assert.Equal(position, ex.Location.Position);
+            }
+            catch
+            {
+                Assert.Fail("Wrong exception");
+            }
         }
     }
+    
 }

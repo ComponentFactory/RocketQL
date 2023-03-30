@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.Parser", "DotNetQL.Parser\DotNetQL.Parser.csproj", "{5843D171-1987-43D0-93D8-755D62B28EF0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.UnitTests", "DotNetQL.UnitTests\DotNetQL.UnitTests.csproj", "{008A0968-8786-48D1-81D8-093803BF2C5B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetQL.PerformanceTests", "DotNetQL.PerformanceTests\DotNetQL.PerformanceTests.csproj", "{4AFCE501-B61C-4C06-9756-3143DB089BD1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.Utf8", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.Utf8\HotChocolate.Language.Utf8.csproj", "{DFDF206D-B775-4796-8F07-E15B0DA4E47B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.SyntaxTree", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language.SyntaxTree\HotChocolate.Language.SyntaxTree.csproj", "{5128348D-DAA0-484F-ADCA-FA3087632E6F}"
@@ -17,24 +11,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language.Visit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotChocolate.Language", "..\..\..\Code\graphql-platform\src\HotChocolate\Language\src\Language\HotChocolate.Language.csproj", "{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL", "GraphQL\GraphQL.csproj", "{45CD397B-787B-49C5-A409-CBC7E8B8258D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketQL.Core", "RocketQL.Core\RocketQL.Core.csproj", "{EBD0A7BC-2082-4836-90E9-AEECAF29BC4F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketQL.Core.UnitTests", "RocketQL.Core.UnitTests\RocketQL.Core.UnitTests.csproj", "{201EECED-FD39-4369-AD49-E34DEC6BC189}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketQL.PerformanceTests", "RocketQL.PerformanceTests\RocketQL.PerformanceTests.csproj", "{B0590F28-C488-4FA6-BC5B-0D391E1E08F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5843D171-1987-43D0-93D8-755D62B28EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5843D171-1987-43D0-93D8-755D62B28EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5843D171-1987-43D0-93D8-755D62B28EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5843D171-1987-43D0-93D8-755D62B28EF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{008A0968-8786-48D1-81D8-093803BF2C5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{008A0968-8786-48D1-81D8-093803BF2C5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{008A0968-8786-48D1-81D8-093803BF2C5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{008A0968-8786-48D1-81D8-093803BF2C5B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AFCE501-B61C-4C06-9756-3143DB089BD1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFDF206D-B775-4796-8F07-E15B0DA4E47B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +41,22 @@ Global
 		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7656F65B-C979-40EB-B6A9-CE54FC62D1D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45CD397B-787B-49C5-A409-CBC7E8B8258D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45CD397B-787B-49C5-A409-CBC7E8B8258D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45CD397B-787B-49C5-A409-CBC7E8B8258D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45CD397B-787B-49C5-A409-CBC7E8B8258D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD0A7BC-2082-4836-90E9-AEECAF29BC4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD0A7BC-2082-4836-90E9-AEECAF29BC4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD0A7BC-2082-4836-90E9-AEECAF29BC4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD0A7BC-2082-4836-90E9-AEECAF29BC4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201EECED-FD39-4369-AD49-E34DEC6BC189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{201EECED-FD39-4369-AD49-E34DEC6BC189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{201EECED-FD39-4369-AD49-E34DEC6BC189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{201EECED-FD39-4369-AD49-E34DEC6BC189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0590F28-C488-4FA6-BC5B-0D391E1E08F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0590F28-C488-4FA6-BC5B-0D391E1E08F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0590F28-C488-4FA6-BC5B-0D391E1E08F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0590F28-C488-4FA6-BC5B-0D391E1E08F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
