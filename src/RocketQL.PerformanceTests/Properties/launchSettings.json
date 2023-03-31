@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RocketQL.PerformanceTests": {
+      "commandName": "Project",
+      "hotReloadEnabled": false
+    }
+  }
+}
