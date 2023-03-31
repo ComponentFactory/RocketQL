@@ -6,7 +6,7 @@ public class TokenizerTests
     public void NullText()
     {
         var t = new Tokenizer(null);
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(1, t.ColumnNumber);
 
@@ -17,9 +17,9 @@ public class TokenizerTests
     public void ByteOrderMark(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(text.Length + 1, t.ColumnNumber);
     }
@@ -33,9 +33,9 @@ public class TokenizerTests
     public void Whitespace(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(text.Length + 1, t.ColumnNumber);
     }
@@ -50,9 +50,9 @@ public class TokenizerTests
     public void LineTerminator(string text, int lineNumber)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(lineNumber, t.LineNumber);
     }
 
@@ -68,9 +68,9 @@ public class TokenizerTests
     public void Comment(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
     }
 
     [Theory]
@@ -79,9 +79,9 @@ public class TokenizerTests
     public void Comma(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(text.Length + 1, t.ColumnNumber);
     }
@@ -94,9 +94,9 @@ public class TokenizerTests
     public void Ignored(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
     }
 
     [Theory]
@@ -117,12 +117,12 @@ public class TokenizerTests
     public void Punctuator(string text, TokenKind token)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(token, t.Token);
+        Assert.Equal(token, t.TokenKind);
         Assert.Equal(text, t.TokenValue);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(text.Length + 1, t.ColumnNumber);
     }
@@ -141,13 +141,13 @@ public class TokenizerTests
     public void Name(string text)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.Name, t.Token);
+        Assert.Equal(TokenKind.Name, t.TokenKind);
         Assert.Equal(text, t.TokenValue);
         Assert.Equal(1, t.ColumnNumber);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
         Assert.Equal(text.Length + 1, t.ColumnNumber);
     }
 
@@ -171,12 +171,12 @@ public class TokenizerTests
     public void IntValue(string text, int val, TokenKind nextToken)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.IntValue, t.Token);
+        Assert.Equal(TokenKind.IntValue, t.TokenKind);
         Assert.Equal(val, int.Parse(t.TokenValue));
         t.Next();
-        Assert.Equal(nextToken, t.Token);
+        Assert.Equal(nextToken, t.TokenKind);
     }
 
     [Theory]
@@ -208,12 +208,12 @@ public class TokenizerTests
     public void FloatValue(string text, double val, TokenKind nextToken)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.FloatValue, t.Token);
+        Assert.Equal(TokenKind.FloatValue, t.TokenKind);
         Assert.Equal(val, double.Parse(t.TokenValue));
         t.Next();
-        Assert.Equal(nextToken, t.Token);
+        Assert.Equal(nextToken, t.TokenKind);
     }
 
     [Theory]
@@ -242,12 +242,12 @@ public class TokenizerTests
     public void SimpleString(string text, string contents)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.StringValue, t.Token);
+        Assert.Equal(TokenKind.StringValue, t.TokenKind);
         Assert.Equal(contents, t.TokenString); t.Next();
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
     }
 
     [Theory]
@@ -285,12 +285,12 @@ public class TokenizerTests
     public void BlockString(string text, string contents)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         t.Next();
-        Assert.Equal(TokenKind.StringValue, t.Token);
+        Assert.Equal(TokenKind.StringValue, t.TokenKind);
         Assert.Equal(contents, t.TokenString);
         t.Next();
-        Assert.Equal(TokenKind.EndOfText, t.Token);
+        Assert.Equal(TokenKind.EndOfText, t.TokenKind);
     }
 
     [Theory]
@@ -300,7 +300,7 @@ public class TokenizerTests
     public void IllegalCharacterCode(string text, char code, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -336,7 +336,7 @@ public class TokenizerTests
     public void UnexpectedEndOfFile(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -363,7 +363,7 @@ public class TokenizerTests
     public void SpreadNeedsThreeDots(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -388,7 +388,7 @@ public class TokenizerTests
     public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -413,7 +413,7 @@ public class TokenizerTests
     public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -439,7 +439,7 @@ public class TokenizerTests
     public void ExponentMustHaveDigit(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -467,7 +467,7 @@ public class TokenizerTests
     public void FloatCannotBeFollowed(string text, int line, int column, int position, string param)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -491,7 +491,7 @@ public class TokenizerTests
     public void IntCannotBeFollowed(string text, int line, int column, int position, string param)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -515,7 +515,7 @@ public class TokenizerTests
     public void EscapeAtLeast1Hex(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -546,7 +546,7 @@ public class TokenizerTests
     public void EscapeOnlyUsingHex(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -571,7 +571,7 @@ public class TokenizerTests
     public void EscapeCannotBeConverted(string text, int line, int column, int position, string param)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -596,7 +596,7 @@ public class TokenizerTests
     public void EscapeMustBeOneOf(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
-        Assert.Equal(TokenKind.StartOfText, t.Token);
+        Assert.Equal(TokenKind.StartOfText, t.TokenKind);
         try
         {
             t.Next();
@@ -623,7 +623,7 @@ public class TokenizerTests
         var s = string.Empty;
         while (t.Next())
         {
-            switch (t.Token)
+            switch (t.TokenKind)
             {
                 case TokenKind.Name:
                 case TokenKind.IntValue:

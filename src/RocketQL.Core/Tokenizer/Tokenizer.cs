@@ -8,20 +8,20 @@ public ref struct Tokenizer
     private static readonly EscapeKind[] _escKind = new EscapeKind[65536];
     private static readonly char[] _escChar = new char[(int)EscapeKind.u];
 
+    private readonly ReadOnlySpan<char> _text;
+    private readonly int _length = 0;
+    private readonly StringBuilder _sb = new(4096);
+    private FullTokenKind _tokenKind = FullTokenKind.StartOfText;
     private char _c = ' ';
     private int _index = 0;
-    private readonly int _length = 0;
     private int _lineIndex = 0;
     private int _lineNumber = 1;
     private int _tokenIndex = 0;
-    private FullTokenKind _tokenKind = FullTokenKind.StartOfText;
-    private readonly StringBuilder _sb = new();
-    private readonly ReadOnlySpan<char> _text;
 
     static Tokenizer()
     {
-        // All _mapKind and _hexKind entries are implicitly TokenKind.IllegalCharacter because it
-        // has the enumeration value of 0 and the arrays are initialized to all 0 by default
+        // All _mapKind and _hexKind entries are implicitly FullTokenKind.IllegalCharacter because
+        // ithas the enumeration value of 0 and the arrays are initialized to all 0 by default
 
         // Skip the Byte Order Mark (BOM) and simple whitespace
         _mapKind[0xFEFF] = FullTokenKind.Skip;
@@ -29,7 +29,7 @@ public ref struct Tokenizer
         _mapKind['\t'] = FullTokenKind.Skip;
         _mapKind[','] = FullTokenKind.Skip;
 
-        // Individual characters
+        // Individual characters, mostly punctuators
         _mapKind['\n'] = FullTokenKind.NewLine;
         _mapKind['\r'] = FullTokenKind.CarriageReturn;
         _mapKind['#'] = FullTokenKind.Hash;
@@ -98,6 +98,11 @@ public ref struct Tokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
+    public Tokenizer(string text)
+        : this(text.AsSpan())
+    {
+    }
+
     public Tokenizer(ReadOnlySpan<char> text)
     {
         if (text.Length == 0)
@@ -110,11 +115,11 @@ public ref struct Tokenizer
         }
     }
 
-    public TokenKind Token => (TokenKind)_tokenKind;
-    public int LineNumber => _lineNumber;
-    public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
+    public TokenKind TokenKind => (TokenKind)_tokenKind;
     public string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
     public string TokenString => _sb.ToString();
+    public int LineNumber => _lineNumber;
+    public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
     public Location Location => new(_index, LineNumber, ColumnNumber);
 
     public bool Next()
