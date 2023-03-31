@@ -1,2 +1,2 @@
-# DotNetQL
-GraphQL server for DotNet
+# RocketQL
+GraphQL parser for .NET
