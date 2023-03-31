@@ -26,4 +26,10 @@
     <ProjectReference Include="..\RocketQL.Core\RocketQL.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestFiles\github.graphql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

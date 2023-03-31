@@ -230,7 +230,12 @@ public ref struct Tokenizer
             _tokenKind = FullTokenKind.Spread;
         }
         else
+        {
+            if (_text[_index] == '.')
+                _index++;
+
             throw SyntaxException.SpreadNeedsThreeDots(Location);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -263,9 +268,11 @@ public ref struct Tokenizer
             if (_index == _length)
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
-            _c = _text[_index++];
+            _c = _text[_index];
             if (_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.MinusMustBeFollowedByDigit(Location);
+
+            _index++;
         }
 
         if (_c != '0')
@@ -287,107 +294,78 @@ public ref struct Tokenizer
             if (++_index == _length)
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
-            _c = _text[_index++];
+            _c = _text[_index];
             if (_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.PointMustBeFollowedByDigit(Location);
 
+            _index++;
             while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
                 _index++;
 
-            if (_index == _length)
+            if (_index < _length)
             {
-                _tokenKind = FullTokenKind.FloatValue;
-                return;
-            }
-
-            _c = _text[_index];
-            if ((_c == 'e') || (_c == 'E'))
-            {
-                if (++_index == _length)
-                    throw SyntaxException.UnexpectedEndOfFile(Location);
-
-                _c = _text[_index++];
-                if ((_mapKind[_c] == FullTokenKind.Minus) || (_mapKind[_c] == FullTokenKind.Plus))
-                {
-                    if (_index == _length)
-                        throw SyntaxException.UnexpectedEndOfFile(Location);
-
-                    _c = _text[_index++];
-                }
-
-                if (_mapKind[_c] != FullTokenKind.Digit)
-                    throw new ApplicationException($"Exponent must be followed by a digit.");
-
-                while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
-                    _index++;
-
-                if (_index == _length)
-                {
-                    _tokenKind = FullTokenKind.FloatValue;
-                    return;
-                }
-
-                switch (_mapKind[_text[_index]])
-                {
-                    case FullTokenKind.Dot:
-                        throw new ApplicationException($"Float value cannot be followed by a decimal point.");
-                    case FullTokenKind.Underscore:
-                        throw new ApplicationException($"Float value cannot be followed by an underscore.");
-                    case FullTokenKind.Letter:
-                        throw new ApplicationException($"Float value cannot be followed by a letter.");
-                }
+                _c = _text[_index];
+                if ((_c == 'e') || (_c == 'E'))
+                    ScanFloatExponent();
             }
 
             _tokenKind = FullTokenKind.FloatValue;
             return;
         }
         else if ((_c == 'e') || (_c == 'E'))
+            ScanFloatExponent();
+        else
         {
-            if (++_index == _length)
+            switch (_mapKind[_text[_index]])
+            {
+                case FullTokenKind.Underscore:
+                case FullTokenKind.Letter:
+                    throw SyntaxException.IntCannotBeFollowed(Location, _mapKind[_c].ToString());
+            }
+
+            _tokenKind = FullTokenKind.IntValue;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ScanFloatExponent()
+    {
+        if (++_index == _length)
+            throw SyntaxException.UnexpectedEndOfFile(Location);
+
+        _c = _text[_index++];
+        if ((_mapKind[_c] == FullTokenKind.Minus) || (_mapKind[_c] == FullTokenKind.Plus))
+        {
+            if (_index == _length)
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
             _c = _text[_index++];
-            if ((_mapKind[_c] == FullTokenKind.Minus) || (_mapKind[_c] == FullTokenKind.Plus))
-            {
-                if (_index == _length)
-                    throw SyntaxException.UnexpectedEndOfFile(Location);
+        }
 
-                _c = _text[_index++];
-            }
+        if (_mapKind[_c] != FullTokenKind.Digit)
+        {
+            _index--;
+            throw SyntaxException.ExponentMustHaveDigit(Location);
+        }
 
-            if (_mapKind[_c] != FullTokenKind.Digit)
-                throw new ApplicationException($"Exponent must be followed by a digit.");
+        while (_index < _length && _mapKind[_text[_index]] == FullTokenKind.Digit)
+            _index++;
 
-            while (_index < _length && _mapKind[_text[_index]] == FullTokenKind.Digit)
-                _index++;
-
-            if (_index == _length)
-            {
-                _tokenKind = FullTokenKind.FloatValue;
-                return;
-            }
-
-            switch (_mapKind[_text[_index]])
-            {
-                case FullTokenKind.Dot:
-                    throw new ApplicationException($"Float value cannot be followed by a decimal point.");
-                case FullTokenKind.Underscore:
-                    throw new ApplicationException($"Float value cannot be followed by an underscore.");
-                case FullTokenKind.Letter:
-                    throw new ApplicationException($"Float value cannot be followed by a letter.");
-            }
-
+        if (_index == _length)
+        {
             _tokenKind = FullTokenKind.FloatValue;
             return;
         }
-        else if (_c == '_')
-            throw new ApplicationException($"Integer value cannot be followed by an underscore.");
-        else if (_mapKind[_c] == FullTokenKind.Letter)
-            throw new ApplicationException($"Integer value cannot be followed by a letter.");
-        else if (_mapKind[_c] == FullTokenKind.Digit)
-            throw new ApplicationException($"Numbers cannot have a leading zero.");
 
-        _tokenKind = FullTokenKind.IntValue;
+        switch (_mapKind[_text[_index]])
+        {
+            case FullTokenKind.Dot:
+            case FullTokenKind.Underscore:
+            case FullTokenKind.Letter:
+                throw SyntaxException.FloatCannotBeFollowed(Location, _mapKind[_text[_index]].ToString());
+        }
+
+        _tokenKind = FullTokenKind.FloatValue;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -654,7 +632,7 @@ public ref struct Tokenizer
                                     if (hexToken == FullTokenKind.RightCurlyBracket)
                                     {
                                         if (digits == 0)
-                                            throw new ApplicationException($"Escaped character must have at least 1 hexadecimal digit.");
+                                            throw SyntaxException.EscapeAtLeast1Hex(Location);
 
                                         try
                                         {
@@ -664,14 +642,14 @@ public ref struct Tokenizer
                                         }
                                         catch
                                         {
-                                            throw new ApplicationException($"Escape code cannot be converted to unicode character.");
+                                            throw SyntaxException.EscapeCannotBeConverted(Location, new string(_text.Slice(_index - digits, digits)));
                                         }
 
                                         copyIndex = _index + 1;
                                         break;
                                     }
                                     else
-                                        throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                                        throw SyntaxException.EscapeOnlyUsingHex(Location);
                                 }
                             }
                         }
@@ -683,12 +661,16 @@ public ref struct Tokenizer
                                 throw SyntaxException.UnexpectedEndOfFile(Location);
                             }
 
-                            FullTokenKind hexToken1 = _hexKind[_c];
+                            FullTokenKind hexToken1 = _hexKind[_text[_index++]];
                             FullTokenKind hexToken2 = _hexKind[_text[_index++]];
                             FullTokenKind hexToken3 = _hexKind[_text[_index++]];
-                            FullTokenKind hexToken4 = _hexKind[_text[_index++]];
-                            if ((hexToken1 != FullTokenKind.Hexadecimal) || (hexToken2 != FullTokenKind.Hexadecimal) || (hexToken3 != FullTokenKind.Hexadecimal) || (hexToken4 != FullTokenKind.Hexadecimal))
-                                throw new ApplicationException($"Escape code specify value using hexadecimal character.");
+                            FullTokenKind hexToken4 = _hexKind[_text[_index]];
+                            if ((hexToken1 != FullTokenKind.Hexadecimal) || (hexToken2 != FullTokenKind.Hexadecimal) ||
+                                (hexToken3 != FullTokenKind.Hexadecimal) || (hexToken4 != FullTokenKind.Hexadecimal))
+                            {
+                                _index++;
+                                throw SyntaxException.EscapeOnlyUsingHex(Location);
+                            }
 
                             // Copy waiting characters, except the previous '\uXXXX'
                             if (copyIndex < (_index - 5))
@@ -703,7 +685,7 @@ public ref struct Tokenizer
                         }
                         break;
                     default:
-                        throw new ApplicationException($"Escaped character is not one of '\"\t\\\t/\tb\tf\tn\tr\tt\r\n'.");
+                        throw SyntaxException.EscapeMustBeOneOf(Location);
                 }
             }
 

@@ -1,9 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using RocketQL.Core;
+using Y = RocketQL.Core;
 using GraphQLParser;
-using HotChocolate.Language;
+using X = HotChocolate.Language;
 using System.Text;
+
 
 namespace DotNetQL.PerformanceTests
 {
@@ -30,7 +31,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void TokenizerGraphQL()
+        public void GraphQL()
         {
             int resetPosition = 0;
             GraphQLParser.Token token;
@@ -41,19 +42,19 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void TokenizerHC()
+        public void HotChocolate()
         {
             var s = string.Empty;
-            var reader = new Utf8GraphQLReader(_graphQLBytes);
+            var reader = new X.Utf8GraphQLReader(_graphQLBytes);
             while (reader.Read())
             {
                 switch (reader.Kind)
                 {
-                    case HotChocolate.Language.TokenKind.String:
-                    case HotChocolate.Language.TokenKind.BlockString:
+                    case X.TokenKind.String:
+                    case X.TokenKind.BlockString:
                         s = reader.GetString();
                         break;
-                    case HotChocolate.Language.TokenKind.Name:
+                    case X.TokenKind.Name:
                         s = reader.GetName();
                         break;
                 }
@@ -61,18 +62,18 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void Tokenizer()
+        public void RocketQL()
         {
             var s = string.Empty;
-            var t = new Tokenizer(_graphQL.AsSpan());
+            var t = new Y.Tokenizer(_graphQL.AsSpan());
             while (t.Next())
             {
                 switch(t.Token)
                 {
-                    case RocketQL.Core.TokenKind.StringValue:
+                    case Y.TokenKind.StringValue:
                         s = t.TokenString;
                         break;
-                    case RocketQL.Core.TokenKind.Name:
+                    case Y.TokenKind.Name:
                         s = t.TokenValue;
                         break;
                 }
@@ -100,7 +101,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void ParserHC()
         {
-            Utf8GraphQLParser.Parse(_graphQL);
+            X.Utf8GraphQLParser.Parse(_graphQL);
         }
     }
 }

@@ -324,6 +324,15 @@ public class TokenizerTests
     [InlineData("-", 1, 1, 1)]
     [InlineData("0.", 1, 1, 2)]
     [InlineData("-1.", 1, 1, 3)]
+    [InlineData("2e", 1, 1, 2)]
+    [InlineData("2e+", 1, 1, 3)]
+    [InlineData("2.0e", 1, 1, 4)]
+    [InlineData("2.0e+", 1, 1, 5)]
+    [InlineData("\"\\u", 1, 2, 3)]
+    [InlineData("\"\\u{", 1, 2, 4)]
+    [InlineData("\"\\u1", 1, 2, 4)]
+    [InlineData("\"\\u12", 1, 2, 5)]
+    [InlineData("\"\\u123", 1, 2, 6)]
     public void UnexpectedEndOfFile(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
@@ -347,10 +356,10 @@ public class TokenizerTests
 
     [Theory]
     [InlineData(".  ", 1, 1, 1)]
-    [InlineData(".. ", 1, 1, 1)]
-    [InlineData("  .. ", 1, 3, 3)]
-    [InlineData(" \n .. ", 2, 2, 4)]
-    [InlineData(" \n\n .. ", 3, 2, 5)]
+    [InlineData(".. ", 1, 1, 2)]
+    [InlineData("  .. ", 1, 3, 4)]
+    [InlineData(" \n .. ", 2, 2, 5)]
+    [InlineData(" \n\n .. ", 3, 2, 6)]
     public void SpreadNeedsThreeDots(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
@@ -373,9 +382,9 @@ public class TokenizerTests
     }
 
     [Theory]
-    [InlineData("-A", 1, 1, 2)]
-    [InlineData("-.", 1, 1, 2)]
-    [InlineData("- ", 1, 1, 2)]
+    [InlineData("-A", 1, 1, 1)]
+    [InlineData("-.", 1, 1, 1)]
+    [InlineData("- ", 1, 1, 1)]
     public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
@@ -398,9 +407,9 @@ public class TokenizerTests
     }
 
     [Theory]
-    [InlineData("0.A", 1, 1, 3)]
-    [InlineData("0.-", 1, 1, 3)]
-    [InlineData("0. ", 1, 1, 3)]
+    [InlineData("0.A", 1, 1, 2)]
+    [InlineData("0.-", 1, 1, 2)]
+    [InlineData("0. ", 1, 1, 2)]
     public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
     {
         var t = new Tokenizer(text);
@@ -419,6 +428,215 @@ public class TokenizerTests
         catch
         {
             Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("0e ", 1, 1, 2)]
+    [InlineData("0e!", 1, 1, 2)]
+    [InlineData("1.0e ", 1, 1, 4)]
+    [InlineData("1.0e!", 1, 1, 4)]
+    public void ExponentMustHaveDigit(string text, int line, int column, int position)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Exponent must have at least one digit.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("0.0_", 1, 1, 3, "underscore")]
+    [InlineData("0.0e1_", 1, 1, 5, "underscore")]
+    [InlineData("0.0a", 1, 1, 3, "letter")]
+    [InlineData("0.0e1a", 1, 1, 5, "letter")]
+    [InlineData("0.0.", 1, 1, 3, "dot")]
+    [InlineData("0.0e1.", 1, 1, 5, "dot")]
+    public void FloatCannotBeFollowed(string text, int line, int column, int position, string param)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Floating point value cannot be followed by a {param}.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("0_", 1, 1, 1, "underscore")]
+    [InlineData("0a", 1, 1, 1, "letter")]
+    public void IntCannotBeFollowed(string text, int line, int column, int position, string param)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Integer value cannot be followed by a {param}.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("\"\\u{}", 1, 2, 4)]
+    [InlineData("\n \"\\u{}", 2, 3, 6)]
+    public void EscapeAtLeast1Hex(string text, int line, int column, int position)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Escaped character must have at least 1 hexadecimal value.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+
+        
+    }
+
+    [Theory]
+    [InlineData("\"\\u{z", 1, 2, 4)]
+    [InlineData("\"\\u{@", 1, 2, 4)]
+    [InlineData("\"\\u{ }", 1, 2, 4)]
+    [InlineData("\"\\u.111", 1, 2, 7)]
+    [InlineData("\"\\u1.11", 1, 2, 7)]
+    [InlineData("\"\\u11.1", 1, 2, 7)]
+    [InlineData("\"\\u111.", 1, 2, 7)]
+    public void EscapeOnlyUsingHex(string text, int line, int column, int position)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Escaped character must be specificed only using hexadecimal values.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("\"\\u{123456789}", 1, 2, 13, "123456789")]
+    [InlineData("\"\\u{ABCDEFABC}", 1, 2, 13, "ABCDEFABC")]
+    [InlineData("\"\\u{abcdefabc}", 1, 2, 13, "abcdefabc")]
+    public void EscapeCannotBeConverted(string text, int line, int column, int position, string param)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Cannot escape characters using hexidecimal value '{param}'.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("\"\\k", 1, 2, 2)]
+    [InlineData("\"\\ ", 1, 2, 2)]
+    [InlineData("\"\\_ ", 1, 2, 2)]
+    public void EscapeMustBeOneOf(string text, int line, int column, int position)
+    {
+        var t = new Tokenizer(text);
+        Assert.Equal(TokenKind.StartOfText, t.Token);
+        try
+        {
+            t.Next();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Escaped character is not one of \\\" \\\\ \\/ \\b \\f \\n \\r \\t.", ex.Message);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("github.graphql")]
+    public void GithubSchema(string filename)
+    {
+        var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
+        var t = new Tokenizer(schema.AsSpan());
+        var s = string.Empty;
+        while (t.Next())
+        {
+            switch (t.Token)
+            {
+                case TokenKind.Name:
+                case TokenKind.IntValue:
+                case TokenKind.FloatValue:
+                case TokenKind.Spread:
+                    s = t.TokenValue;
+                    break;
+                case TokenKind.StringValue:
+                    s = t.TokenString;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
