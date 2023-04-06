@@ -103,5 +103,52 @@ public class Directive
         Assert.Equal("world", directiveNode2.Name);
         Assert.Empty(directiveNode2.Arguments);
     }
+
+    [Theory]
+    [InlineData("directive @foo (bar: fizz @")]
+    [InlineData("directive @foo (bar: fizz @hello")]
+    [InlineData("directive @foo (bar: fizz @hello (")]
+    [InlineData("directive @foo (bar: fizz @hello (world")]
+    [InlineData("directive @foo (bar: fizz @hello (world:")]
+    [InlineData("directive @foo (bar: fizz @hello (world: 3")]
+    public void UnexpectedEndOfFile(string text)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Unexpected end of file encountered.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("directive @foo (bar: fizz @42", TokenKind.Name, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz @hello 42", TokenKind.RightParenthesis, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz @hello (42", TokenKind.Name, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz @hello (world 42", TokenKind.Colon, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz @hello (world: 42 43", TokenKind.Name, TokenKind.IntValue)]
+    public void ExpectedTokenNotFound(string text, TokenKind expected, TokenKind found)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Expected token '{expected}' but found '{found}' instead.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

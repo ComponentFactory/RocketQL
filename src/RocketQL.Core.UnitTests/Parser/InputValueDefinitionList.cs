@@ -99,5 +99,47 @@ public class InputValueDefinitionList
         Assert.Equal("world", nameNode2.Name);
         Assert.False(nameNode2.NonNull);
     }
+
+    [Theory]
+    [InlineData("directive @foo (bar")]
+    [InlineData("directive @foo (bar:")]
+    [InlineData("directive @foo (bar: fizz")]
+    public void UnexpectedEndOfFile(string text)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Unexpected end of file encountered.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("directive @foo (42", TokenKind.Name, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar 42", TokenKind.Colon, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz 42", TokenKind.RightParenthesis, TokenKind.IntValue)]
+    public void ExpectedTokenNotFound(string text, TokenKind expected, TokenKind found)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Expected token '{expected}' but found '{found}' instead.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

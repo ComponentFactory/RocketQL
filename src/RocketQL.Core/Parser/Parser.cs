@@ -165,7 +165,7 @@ public ref struct Parser
                 }
                 break;
             default:
-                throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind);
+                throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind);
         }
 
         MandatoryNext();
@@ -333,6 +333,9 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryKeyword(string keyword)
     {
+        if (_tokenizer.TokenKind == TokenKind.EndOfText)
+            throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
+
         if (_tokenizer.TokenKind != TokenKind.Name)
             throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, TokenKind.Name, _tokenizer.TokenKind);
 

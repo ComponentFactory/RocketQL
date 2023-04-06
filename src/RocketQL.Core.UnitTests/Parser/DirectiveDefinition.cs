@@ -187,5 +187,72 @@ public class DirectiveDefinition
         Assert.Equal("hello", directiveNode.Name);
         Assert.Empty(directiveNode.Arguments);
     }
+
+    [Theory]
+    [InlineData("directive")]
+    [InlineData("directive @")]
+    [InlineData("directive @foo")]
+    [InlineData("directive @foo (")]
+    [InlineData("directive @foo repeatable")]
+    [InlineData("directive @foo (bar: fizz @hello) on")]
+    public void UnexpectedEndOfFile(string text)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Unexpected end of file encountered.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("directive foo", TokenKind.At, TokenKind.Name)]
+    [InlineData("directive @42", TokenKind.Name, TokenKind.IntValue)]
+    [InlineData("directive @foo repeatable 42", TokenKind.Name, TokenKind.IntValue)]
+    [InlineData("directive @foo (bar: fizz @hello) on 42", TokenKind.Name, TokenKind.IntValue)]
+    public void ExpectedTokenNotFound(string text, TokenKind expected, TokenKind found)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Expected token '{expected}' but found '{found}' instead.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Theory]
+    [InlineData("directive @foo query", "query")]
+    [InlineData("directive @foo repeatable query", "query")]
+    [InlineData("directive @foo repeatable repeatable", "repeatable")]
+    public void ExpectedKeywordNotFound(string text, string found)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Expected keyword 'on' but found '{found}' instead.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

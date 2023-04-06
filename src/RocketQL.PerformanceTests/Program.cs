@@ -160,10 +160,21 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
+        public void ParserGraphQL()
+        {
+            GraphQLParser.Parser.Parse(_directives);
+        }
+
+        [Benchmark]
+        public void ParserHC()
+        {
+            HC.Utf8GraphQLParser.Parse(_directives);
+        }
+
+        [Benchmark]
         public void RocketQL()
         {
-            var t = new RQL.Parser(_directives.AsSpan());
-            t.Parse();
+            new RQL.Parser(_directives.AsSpan()).Parse();
         }
     }
 }

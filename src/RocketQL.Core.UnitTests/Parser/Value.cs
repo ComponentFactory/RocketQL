@@ -279,5 +279,27 @@ public class Value
         IntValueNode entryNode2 = (IntValueNode)innerNode.Values[0];
         Assert.Equal("42", entryNode2.Value);
     }
+
+    [Theory]
+    [InlineData("directive @foo (fizz: buzz = { world: $ }) on ENUM", TokenKind.Dollar)]
+    [InlineData("directive @foo (fizz: buzz = { world: @ }) on ENUM", TokenKind.At)]
+    [InlineData("directive @foo (fizz: buzz = { world: : }) on ENUM", TokenKind.Colon)]
+    [InlineData("directive @foo (fizz: buzz = { world: ... }) on ENUM", TokenKind.Spread)]
+    public void TokenNotAllowedHere(string text, TokenKind tokenKind)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Token '{tokenKind}' not allowed in this position.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 
