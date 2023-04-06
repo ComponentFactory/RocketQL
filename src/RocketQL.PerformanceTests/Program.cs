@@ -109,7 +109,7 @@ namespace DotNetQL.PerformanceTests
             var t = new RQL.Tokenizer(_graphQL);
             while (t.Next())
             {
-                switch (t.Token)
+                switch (t.TokenKind)
                 {
                     case RQL.TokenKind.StringValue:
                         s = t.TokenString;
@@ -162,7 +162,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL()
         {
-            var t = new Y.Parser(_directives.AsSpan());
+            var t = new RQL.Parser(_directives.AsSpan());
             t.Parse();
         }
     }

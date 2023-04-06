@@ -11,7 +11,7 @@ public class Schema
         var s = string.Empty;
         while (t.Next())
         {
-            switch (t.Token)
+            switch (t.TokenKind)
             {
                 case TokenKind.Name:
                 case TokenKind.IntValue:

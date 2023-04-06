@@ -21,9 +21,9 @@ public ref struct Parser
         _tokenizer.Next();
 
         // Keep processing until we reach the end of the tokens or throw because of an exception
-        while(_tokenizer.Token != TokenKind.EndOfText)
+        while(_tokenizer.TokenKind != TokenKind.EndOfText)
         {
-            switch(_tokenizer.Token) 
+            switch(_tokenizer.TokenKind) 
             {
                 case TokenKind.StringValue:
                     _description = _tokenizer.TokenString;
@@ -38,7 +38,7 @@ public ref struct Parser
                     }
                     break;
                 default:
-                    throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.Token);
+                    throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind);
             }
         }
 
@@ -64,7 +64,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private List<InputValueDefinitionNode> ParseArgumentsOptionalDefinition()
     {
-        if (_tokenizer.Token == TokenKind.LeftParenthesis)
+        if (_tokenizer.TokenKind == TokenKind.LeftParenthesis)
         {
             MandatoryNext();
             var arguments = ParseInputValueListDefinition();
@@ -92,7 +92,7 @@ public ref struct Parser
             var directives = ParseDirectivesOptional();
             list.Add(new InputValueDefinitionNode(description, name, type, defaultValue, directives));
 
-        } while ((_tokenizer.Token == TokenKind.Name) || (_tokenizer.Token == TokenKind.StringValue));
+        } while ((_tokenizer.TokenKind == TokenKind.Name) || (_tokenizer.TokenKind == TokenKind.StringValue));
 
         return list;
     }
@@ -100,7 +100,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ValueNode? ParseDefaultValueOptional()
     {
-        if (_tokenizer.Token != TokenKind.Equals)
+        if (_tokenizer.TokenKind != TokenKind.Equals)
             return null;
 
         MandatoryNext();
@@ -112,7 +112,7 @@ public ref struct Parser
     {
         ValueNode node;
 
-        switch (_tokenizer.Token)
+        switch (_tokenizer.TokenKind)
         {
             // TODO Variables
             case TokenKind.IntValue:
@@ -141,7 +141,7 @@ public ref struct Parser
                     List<ValueNode> values = new();
 
                     MandatoryNext();
-                    while (_tokenizer.Token != TokenKind.RightSquareBracket)
+                    while (_tokenizer.TokenKind != TokenKind.RightSquareBracket)
                         values.Add(ParseValue(constant: constant));
 
                     node = new ListValueNode(values);
@@ -152,7 +152,7 @@ public ref struct Parser
                     List<ObjectFieldNode> objectsFields = new();
 
                     MandatoryNext();
-                    while (_tokenizer.Token != TokenKind.RightCurlyBracket)
+                    while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket)
                     {
                         MandatoryToken(TokenKind.Name);
                         string name = _tokenizer.TokenValue;
@@ -165,7 +165,7 @@ public ref struct Parser
                 }
                 break;
             default:
-                throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.Token);
+                throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind);
         }
 
         MandatoryNext();
@@ -177,7 +177,7 @@ public ref struct Parser
     {
         List<DirectiveNode> list = new();
 
-        while(_tokenizer.Token == TokenKind.At)
+        while(_tokenizer.TokenKind == TokenKind.At)
         {
             MandatoryNextToken(TokenKind.Name);
             string name = _tokenizer.TokenValue;
@@ -194,10 +194,10 @@ public ref struct Parser
     {
         List<ObjectFieldNode> list = new();
 
-        if (_tokenizer.Token == TokenKind.LeftParenthesis)
+        if (_tokenizer.TokenKind == TokenKind.LeftParenthesis)
         {
             MandatoryNext();
-            while (_tokenizer.Token != TokenKind.RightParenthesis)
+            while (_tokenizer.TokenKind != TokenKind.RightParenthesis)
             {
                 MandatoryToken(TokenKind.Name);
                 string name = _tokenizer.TokenValue;
@@ -215,7 +215,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private TypeNode ParseType()
     {
-        switch(_tokenizer.Token) 
+        switch(_tokenizer.TokenKind) 
         {
             case TokenKind.Name:
                 {
@@ -233,7 +233,7 @@ public ref struct Parser
                     return new TypeListNode(listType, nonNull);
                 }
             default:
-                throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.Token);
+                throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind);
         }
     }
 
@@ -245,7 +245,7 @@ public ref struct Parser
 
         if (_tokenizer.Next())
         {
-            while (_tokenizer.Token == TokenKind.Vertical)
+            while (_tokenizer.TokenKind == TokenKind.Vertical)
             {
                 MandatoryNextToken(TokenKind.Name);
                 directiveLocations |= StringToDriveLocations(_tokenizer.TokenValue);
@@ -306,8 +306,8 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryToken(TokenKind token) 
     {
-        if (_tokenizer.Token != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.Token);
+        if (_tokenizer.TokenKind != token)
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -316,15 +316,15 @@ public ref struct Parser
         if (!_tokenizer.Next())
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
-        if (_tokenizer.Token != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.Token);
+        if (_tokenizer.TokenKind != token)
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryTokenNext(TokenKind token)
     {
-        if (_tokenizer.Token != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.Token);
+        if (_tokenizer.TokenKind != token)
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
 
         if (!_tokenizer.Next())
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
@@ -333,8 +333,8 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryKeyword(string keyword)
     {
-        if (_tokenizer.Token != TokenKind.Name)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, TokenKind.Name, _tokenizer.Token);
+        if (_tokenizer.TokenKind != TokenKind.Name)
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, TokenKind.Name, _tokenizer.TokenKind);
 
         if (_tokenizer.TokenValue != keyword)
             throw SyntaxException.ExpectedKeywordNotFound(_tokenizer.Location, "on", _tokenizer.TokenValue);
@@ -343,7 +343,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool OptionalToken(TokenKind tokenKind)
     {
-        if (_tokenizer.Token == tokenKind)
+        if (_tokenizer.TokenKind == tokenKind)
         {
             _tokenizer.Next();
             return true;
@@ -355,7 +355,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool OptionalKeyword(string keyword)
     {
-        if ((_tokenizer.Token == TokenKind.Name) && (_tokenizer.TokenValue == keyword))
+        if ((_tokenizer.TokenKind == TokenKind.Name) && (_tokenizer.TokenValue == keyword))
         {
             _tokenizer.Next();
             return true;
@@ -367,7 +367,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string? OptionalString()
     {
-        if (_tokenizer.Token == TokenKind.StringValue)
+        if (_tokenizer.TokenKind == TokenKind.StringValue)
         {
             string ret = _tokenizer.TokenString;
             _tokenizer.Next();
