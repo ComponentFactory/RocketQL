@@ -1,9 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using Y = RocketQL.Core;
-using GraphQLParser;
-using X = HotChocolate.Language;
 using System.Text;
+using GQL = GraphQLParser;
+using HC = HotChocolate.Language;
+using RQL = RocketQL.Core;
 
 
 namespace DotNetQL.PerformanceTests
@@ -55,11 +55,22 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void GraphQL()
         {
+            var s = string.Empty;
             int resetPosition = 0;
-            GraphQLParser.Token token;
-            while ((token = Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
+            GQL.Token token;
+            while ((token = GQL.Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
             {
                 resetPosition = token.End;
+                switch (token.Kind)
+                {
+                    case GQL.TokenKind.STRING:
+                    case GQL.TokenKind.INT:
+                    case GQL.TokenKind.FLOAT:
+                    case GQL.TokenKind.NAME:
+                    case GQL.TokenKind.COMMENT:
+                        s = token.Value.ToString();
+                        break;
+                }
             }
         }
 
@@ -67,18 +78,26 @@ namespace DotNetQL.PerformanceTests
         public void HotChocolate()
         {
             var s = string.Empty;
-            var reader = new X.Utf8GraphQLReader(_graphQLBytes);
+            var reader = new HC.Utf8GraphQLReader(_graphQLBytes);
             while (reader.Read())
             {
                 switch (reader.Kind)
                 {
-                    case X.TokenKind.String:
-                    case X.TokenKind.BlockString:
+                    case HC.TokenKind.String:
+                    case HC.TokenKind.BlockString:
                         s = reader.GetString();
                         break;
-                    case X.TokenKind.Name:
+                    case HC.TokenKind.Name:
                         s = reader.GetName();
                         break;
+                    case HC.TokenKind.Integer:
+                    case HC.TokenKind.Float:
+                        s = reader.GetScalarValue();
+                        break;
+                    case HC.TokenKind.Comment:
+                        s = reader.GetComment();
+                        break;
+
                 }
             }
         }
@@ -87,15 +106,17 @@ namespace DotNetQL.PerformanceTests
         public void RocketQL()
         {
             var s = string.Empty;
-            var t = new Y.Tokenizer(_graphQL.AsSpan());
+            var t = new RQL.Tokenizer(_graphQL);
             while (t.Next())
             {
                 switch (t.Token)
                 {
-                    case Y.TokenKind.StringValue:
+                    case RQL.TokenKind.StringValue:
                         s = t.TokenString;
                         break;
-                    case Y.TokenKind.Name:
+                    case RQL.TokenKind.IntValue:
+                    case RQL.TokenKind.FloatValue:
+                    case RQL.TokenKind.Name:
                         s = t.TokenValue;
                         break;
                 }
@@ -123,7 +144,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void ParserHC()
         {
-            X.Utf8GraphQLParser.Parse(_graphQL);
+            HC.Utf8GraphQLParser.Parse(_graphQL);
         }
     }
 

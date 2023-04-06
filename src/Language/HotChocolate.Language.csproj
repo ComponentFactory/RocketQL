@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	  <TargetFramework>net7.0</TargetFramework>
+	  <PackageId>HotChocolate.Language</PackageId>
+    <AssemblyName>HotChocolate.Language</AssemblyName>
+    <RootNamespace>HotChocolate.Language</RootNamespace>
+    <Description>Contains the Hot Chocolate GraphQL parser and lexer. Also included are syntax visitor and syntax rewriter base classes.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AST\**" />
+    <EmbeddedResource Remove="AST\**" />
+    <None Remove="AST\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Language.SyntaxTree\HotChocolate.Language.SyntaxTree.csproj" />
+    <ProjectReference Include="..\Language.Utf8\HotChocolate.Language.Utf8.csproj" />
+    <ProjectReference Include="..\Language.Web\HotChocolate.Language.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\LangResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LangResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\LangResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LangResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
