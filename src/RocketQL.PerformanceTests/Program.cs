@@ -12,8 +12,30 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<TokenizerBenchmark>();
-            //BenchmarkRunner.Run<ParserBenchmark>();
+            //var graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+
+            // var s = string.Empty;
+
+            // for(int i= 1; i <10000; i++)
+            // {
+            //     var t = new Y.Tokenizer(graphQL);
+            //     while (t.Next())
+            //     {
+            //         switch (t.Token)
+            //         {
+            //             case Y.TokenKind.StringValue:
+            //                 s = t.TokenString;
+            //                 break;
+            //             case Y.TokenKind.Name:
+            //                 s = t.TokenValue;
+            //                 break;
+            //         }
+            //     }
+            // }
+
+            // BenchmarkRunner.Run<TokenizerBenchmark>();
+            // BenchmarkRunner.Run<ParserBenchmark>();
+            BenchmarkRunner.Run<TempBenchmark>();
         }
     }
 
@@ -68,7 +90,7 @@ namespace DotNetQL.PerformanceTests
             var t = new Y.Tokenizer(_graphQL.AsSpan());
             while (t.Next())
             {
-                switch(t.Token)
+                switch (t.Token)
                 {
                     case Y.TokenKind.StringValue:
                         s = t.TokenString;
@@ -102,6 +124,25 @@ namespace DotNetQL.PerformanceTests
         public void ParserHC()
         {
             X.Utf8GraphQLParser.Parse(_graphQL);
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class TempBenchmark
+    {
+        public string _directives = string.Empty;
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _directives = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "directives.graphql"));
+        }
+
+        [Benchmark]
+        public void RocketQL()
+        {
+            var t = new Y.Parser(_directives.AsSpan());
+            t.Parse();
         }
     }
 }

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestFiles\small.graphql">
+    <None Update="TestFiles\directives.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\github.graphql">

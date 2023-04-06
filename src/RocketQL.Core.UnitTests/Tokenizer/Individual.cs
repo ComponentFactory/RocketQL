@@ -1,22 +1,23 @@
-﻿namespace RocketQL.Core.UnitsTests;
+﻿namespace RocketQL.Core.UnitTests.Tokenizer;
 
-public class TokenizerTests
+public class Individual
 {
     [Fact]
     public void NullText()
     {
-        var t = new Tokenizer(null);
+        var t = new Core.Tokenizer(null);
         Assert.Equal(TokenKind.EndOfText, t.Token);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(1, t.ColumnNumber);
 
     }
+
     [Theory]
     [InlineData("\uFEFF")]
     [InlineData("﻿\uFEFF\uFEFF\uFEFF")]
     public void ByteOrderMark(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -32,7 +33,7 @@ public class TokenizerTests
     [InlineData("\t  \t\t  ")]
     public void Whitespace(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -49,7 +50,7 @@ public class TokenizerTests
     [InlineData("\r\n\r\n\r\n", 4)]
     public void LineTerminator(string text, int lineNumber)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -67,7 +68,7 @@ public class TokenizerTests
     [InlineData("#\n#\n\r# ")]
     public void Comment(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -78,7 +79,7 @@ public class TokenizerTests
     [InlineData(",,,")]
     public void Comma(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -93,7 +94,7 @@ public class TokenizerTests
     [InlineData("﻿ ,,, \t\r\t\t#你好Ȳ \n ,\t,\t,\r\n\t,,,")]
     public void Ignored(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.EndOfText, t.Token);
@@ -116,7 +117,7 @@ public class TokenizerTests
     [InlineData("...", TokenKind.Spread)]
     public void Punctuator(string text, TokenKind token)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(token, t.Token);
@@ -140,7 +141,7 @@ public class TokenizerTests
     [InlineData("_1A2b_3_d_eezZ")]
     public void Name(string text)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.Name, t.Token);
@@ -170,7 +171,7 @@ public class TokenizerTests
     [InlineData("-9876543\uFEFF", -9876543, TokenKind.EndOfText)]
     public void IntValue(string text, int val, TokenKind nextToken)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.IntValue, t.Token);
@@ -207,7 +208,7 @@ public class TokenizerTests
     [InlineData("-0.0﻿\uFEFF", -0.0, TokenKind.EndOfText)]
     public void FloatValue(string text, double val, TokenKind nextToken)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.FloatValue, t.Token);
@@ -241,7 +242,7 @@ public class TokenizerTests
     [InlineData("\"\\u{41}你好Ȳ\\u0041\t\\u{42}\\u{43}\"", "A你好ȲA\tBC")]
     public void SimpleString(string text, string contents)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.StringValue, t.Token);
@@ -284,7 +285,7 @@ public class TokenizerTests
     [InlineData("\"\"\"ab\rcd\ref\"\"\"", "ab\ncd\nef")]
     public void BlockString(string text, string contents)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         t.Next();
         Assert.Equal(TokenKind.StringValue, t.Token);
@@ -299,18 +300,18 @@ public class TokenizerTests
     [InlineData("\n\n   \u0001", '\u0001', 3, 4, 6)]
     public void IllegalCharacterCode(string text, char code, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
             t.Next();
         }
-        catch(SyntaxException ex)
+        catch (SyntaxException ex)
         {
             Assert.Equal($"Illegal character code '{(int)code}' for this location.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -335,7 +336,7 @@ public class TokenizerTests
     [InlineData("\"\\u123", 1, 2, 6)]
     public void UnexpectedEndOfFile(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -344,9 +345,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -362,7 +363,7 @@ public class TokenizerTests
     [InlineData(" \n\n .. ", 3, 2, 6)]
     public void SpreadNeedsThreeDots(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -371,9 +372,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Spread operator requires 3 dots in sequence.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -387,7 +388,7 @@ public class TokenizerTests
     [InlineData("- ", 1, 1, 1)]
     public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -396,9 +397,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Minus sign must be followed by a digit.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -412,7 +413,7 @@ public class TokenizerTests
     [InlineData("0. ", 1, 1, 2)]
     public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -421,9 +422,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Decimal point must be followed by a digit.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -438,7 +439,7 @@ public class TokenizerTests
     [InlineData("1.0e!", 1, 1, 4)]
     public void ExponentMustHaveDigit(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -447,9 +448,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Exponent must have at least one digit.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -466,7 +467,7 @@ public class TokenizerTests
     [InlineData("0.0e1.", 1, 1, 5, "dot")]
     public void FloatCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -475,9 +476,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Floating point value cannot be followed by a {param}.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -490,7 +491,7 @@ public class TokenizerTests
     [InlineData("0a", 1, 1, 1, "letter")]
     public void IntCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -499,9 +500,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Integer value cannot be followed by a {param}.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -514,7 +515,7 @@ public class TokenizerTests
     [InlineData("\n \"\\u{}", 2, 3, 6)]
     public void EscapeAtLeast1Hex(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -523,16 +524,16 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Escaped character must have at least 1 hexadecimal value.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
             Assert.Fail("Wrong exception");
         }
 
-        
+
     }
 
     [Theory]
@@ -545,7 +546,7 @@ public class TokenizerTests
     [InlineData("\"\\u111.", 1, 2, 7)]
     public void EscapeOnlyUsingHex(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -554,9 +555,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Escaped character must be specificed only using hexadecimal values.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -570,7 +571,7 @@ public class TokenizerTests
     [InlineData("\"\\u{abcdefabc}", 1, 2, 13, "abcdefabc")]
     public void EscapeCannotBeConverted(string text, int line, int column, int position, string param)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -579,9 +580,9 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Cannot escape characters using hexidecimal value '{param}'.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
@@ -595,7 +596,7 @@ public class TokenizerTests
     [InlineData("\"\\_ ", 1, 2, 2)]
     public void EscapeMustBeOneOf(string text, int line, int column, int position)
     {
-        var t = new Tokenizer(text);
+        var t = new Core.Tokenizer(text);
         Assert.Equal(TokenKind.StartOfText, t.Token);
         try
         {
@@ -604,39 +605,13 @@ public class TokenizerTests
         catch (SyntaxException ex)
         {
             Assert.Equal($"Escaped character is not one of \\\" \\\\ \\/ \\b \\f \\n \\r \\t.", ex.Message);
-            Assert.Equal(line, ex.Location.Line);
-            Assert.Equal(column, ex.Location.Column);
-            Assert.Equal(position, ex.Location.Position);
+            Assert.Equal(line, ex.Locations[0].Line);
+            Assert.Equal(column, ex.Locations[0].Column);
+            Assert.Equal(position, ex.Locations[0].Position);
         }
         catch
         {
             Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Theory]
-    [InlineData("github.graphql")]
-    public void GithubSchema(string filename)
-    {
-        var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var t = new Tokenizer(schema.AsSpan());
-        var s = string.Empty;
-        while (t.Next())
-        {
-            switch (t.Token)
-            {
-                case TokenKind.Name:
-                case TokenKind.IntValue:
-                case TokenKind.FloatValue:
-                case TokenKind.Spread:
-                    s = t.TokenValue;
-                    break;
-                case TokenKind.StringValue:
-                    s = t.TokenString;
-                    break;
-                default:
-                    break;
-            }
         }
     }
 }
