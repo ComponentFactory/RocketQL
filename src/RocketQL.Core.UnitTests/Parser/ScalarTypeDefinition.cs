@@ -11,7 +11,7 @@ public class ScalarTypeDefinition
         var scalar = documentNode.NotNull().ScalarTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, scalar.Description);
         Assert.Equal("foo", scalar.Name);
-        scalar.Directives.IsNull();
+        scalar.Directives.NotNull().Count(0);
     }
 
     [Theory]
@@ -25,7 +25,7 @@ public class ScalarTypeDefinition
         var scalar = documentNode.NotNull().ScalarTypeDefinitions.NotNull().One();
         Assert.Equal("bar", scalar.Description);
         Assert.Equal("foo", scalar.Name);
-        scalar.Directives.IsNull();
+        scalar.Directives.NotNull().Count(0);
     }
 
     [Fact]

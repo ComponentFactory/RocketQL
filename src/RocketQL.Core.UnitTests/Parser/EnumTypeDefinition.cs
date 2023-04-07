@@ -14,7 +14,7 @@ public class EnumTypeDefinition
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal(string.Empty, enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
-        enumValue.Directives.IsNull();
+        enumValue.Directives.NotNull().Count(0);
     }
 
     [Fact]
@@ -30,11 +30,11 @@ public class EnumTypeDefinition
         var enumValue1 = enums.EnumValues[0];
         Assert.Equal(string.Empty, enumValue1.Description);
         Assert.Equal("FIZZ", enumValue1.Name);
-        enumValue1.Directives.IsNull();
+        enumValue1.Directives.NotNull().Count(0);
         var enumValue2 = enums.EnumValues[1];
         Assert.Equal(string.Empty, enumValue2.Description);
         Assert.Equal("BUZZ", enumValue2.Name);
-        enumValue2.Directives.IsNull();
+        enumValue2.Directives.NotNull().Count(0);
     }
 
     [Fact]
@@ -50,15 +50,15 @@ public class EnumTypeDefinition
         var enumValue1 = enums.EnumValues[0];
         Assert.Equal(string.Empty, enumValue1.Description);
         Assert.Equal("FIZZ", enumValue1.Name);
-        enumValue1.Directives.IsNull();
+        enumValue1.Directives.NotNull().Count(0);
         var enumValue2 = enums.EnumValues[1];
         Assert.Equal(string.Empty, enumValue2.Description);
         Assert.Equal("BUZZ", enumValue2.Name);
-        enumValue2.Directives.IsNull();
+        enumValue2.Directives.NotNull().Count(0);
         var enumValue3 = enums.EnumValues[2];
         Assert.Equal(string.Empty, enumValue3.Description);
         Assert.Equal("LAST", enumValue3.Name);
-        enumValue3.Directives.IsNull();
+        enumValue3.Directives.NotNull().Count(0);
     }
 
     [Theory]
@@ -75,7 +75,7 @@ public class EnumTypeDefinition
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal("fizz", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
-        enumValue.Directives.IsNull();
+        enumValue.Directives.NotNull().Count(0);
     }
 
     [Fact]
@@ -89,13 +89,13 @@ public class EnumTypeDefinition
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
         Assert.Equal("bar", typeDirective.Name);
-        typeDirective.Arguments.IsNull();
+        typeDirective.Arguments.NotNull().Count(0);
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal(string.Empty, enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
         var valueDirective = enumValue.Directives.NotNull().One();
         Assert.Equal("fizz", valueDirective.Name);
-        valueDirective.Arguments.IsNull();
+        valueDirective.Arguments.NotNull().Count(0);
     }
 
     [Theory]

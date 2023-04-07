@@ -19,7 +19,7 @@ public class Directive
         Assert.Single(directive.Directives);
         DirectiveNode directiveNode = directive.Directives[0];
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Null(directiveNode.Arguments);
+        directiveNode.Arguments.NotNull().Count(0);
     }
 
     [Fact]
@@ -91,10 +91,10 @@ public class Directive
         directive.Directives.NotNull().Count(2);
         DirectiveNode directiveNode1 = directive.Directives[0];
         Assert.Equal("hello", directiveNode1.Name);
-        Assert.Null(directiveNode1.Arguments);
+        directiveNode1.Arguments.NotNull().Count(0);
         DirectiveNode directiveNode2 = directive.Directives[1];
         Assert.Equal("world", directiveNode2.Name);
-        Assert.Null(directiveNode2.Arguments);
+        directiveNode2.Arguments.NotNull().Count(0);
     }
 
     [Theory]

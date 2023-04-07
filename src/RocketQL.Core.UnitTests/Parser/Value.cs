@@ -88,7 +88,7 @@ public class Value
 
         var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
-        Assert.Null(valueNode.Values);
+        valueNode.Values.NotNull().Count(0);
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class Value
 
         var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
         ObjectValueNode valueNode = argument.DefaultValue.IsType<ObjectValueNode>();
-        Assert.Null(valueNode.ObjectFields);
+        valueNode.ObjectFields.NotNull().Count(0);
     }
 
     [Fact]

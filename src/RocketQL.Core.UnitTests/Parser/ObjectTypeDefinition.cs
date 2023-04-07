@@ -11,9 +11,9 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
-        type.FieldDefinitions.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
+        type.FieldDefinitions.NotNull().Count(0);
     }
 
     [Theory]
@@ -27,9 +27,9 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal("bar", type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
-        type.FieldDefinitions.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
+        type.FieldDefinitions.NotNull().Count(0);
     }
 
     [Theory]
@@ -50,8 +50,8 @@ public class ObjectTypeDefinition
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
             Assert.Equal(implements[i], type.ImplementsInterfaces[i]);
-        type.Directives.IsNull();
-        type.FieldDefinitions.IsNull();
+        type.Directives.NotNull().Count(0);
+        type.FieldDefinitions.NotNull().Count(0);
     }
 
     [Fact]
@@ -63,11 +63,11 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
         var field = type.FieldDefinitions.NotNull().One();
-        field.Arguments.IsNull();
-        field.Directives.IsNull();
+        field.Arguments.NotNull().Count(0);
+        field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
@@ -86,11 +86,11 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
         var field = type.FieldDefinitions.NotNull().One();
-        field.Arguments.IsNull();
-        field.Directives.IsNull();
+        field.Arguments.NotNull().Count(0);
+        field.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field.Description);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
@@ -106,16 +106,16 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
         var field = type.FieldDefinitions.NotNull().One();
-        field.Arguments.IsNull();
+        field.Arguments.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         var directive = field.Directives.NotNull().One();
         Assert.Equal("fizz", directive.Name);
-        directive.Arguments.IsNull();
+        directive.Arguments.NotNull().Count(0);
     }
 
     [Fact]
@@ -127,10 +127,10 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
         var field = type.FieldDefinitions.NotNull().One();
-        field.Directives.IsNull();
+        field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
@@ -138,7 +138,7 @@ public class ObjectTypeDefinition
         Assert.Equal("hello", argument.Name);
         TypeNameNode argumentType = (TypeNameNode)argument.Type;
         Assert.Equal("Integer", argumentType.Name);
-        argument.Directives.IsNull();
+        argument.Directives.NotNull().Count(0);
         argument.DefaultValue.NotNull();
         IntValueNode defaultValue = (IntValueNode)argument.DefaultValue;
         Assert.Equal("3", defaultValue.Value);
@@ -153,18 +153,18 @@ public class ObjectTypeDefinition
         var type = documentNode.NotNull().ObjectTypeDefinitions.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.Directives.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.Directives.NotNull().Count(0);
         type.FieldDefinitions.NotNull().Count(2);
         var field1 = type.FieldDefinitions[0];
-        field1.Arguments.IsNull();
-        field1.Directives.IsNull();
+        field1.Arguments.NotNull().Count(0);
+        field1.Directives.NotNull().Count(0);
         Assert.Equal("bar", field1.Name);
         TypeNameNode field1Type = (TypeNameNode)field1.Type;
         Assert.Equal("Integer", field1Type.Name);
         var field2 = type.FieldDefinitions[1];
-        field2.Arguments.IsNull();
-        field2.Directives.IsNull();
+        field2.Arguments.NotNull().Count(0);
+        field2.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field2.Name);
         TypeNameNode field2Type = (TypeNameNode)field2.Type;
         Assert.Equal("String", field2Type.Name);
@@ -181,8 +181,8 @@ public class ObjectTypeDefinition
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
-        type.ImplementsInterfaces.IsNull();
-        type.FieldDefinitions.IsNull();
+        type.ImplementsInterfaces.NotNull().Count(0);
+        type.FieldDefinitions.NotNull().Count(0);
     }
 
     [Theory]

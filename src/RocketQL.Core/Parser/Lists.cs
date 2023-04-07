@@ -10,11 +10,15 @@ public class InputValueDefinitionNodeList : List<InputValueDefinitionNode> { };
 public class InterfaceTypeDefinitionNodeList : List<InterfaceTypeDefinitionNode> { }; 
 public class ObjectFieldNodeList : List<ObjectFieldNode> { };
 public class ObjectTypeDefinitionNodeList : List<ObjectTypeDefinitionNode> { };
-public class OperationTypeDefinitionNodeList : List<OperationTypeDefinitionNode> { }; 
+public class OperationNodeList : List<OperationNode> { }; 
+public class OperationTypeDefinitionNodeList : List<OperationTypeDefinitionNode> { };
+public class SelectionNodeList : List<SelectionNode> { }; 
 public class ScalarTypeDefinitionNodeList : List<ScalarTypeDefinitionNode> { };
 public class SchemaNodeList : List<SchemaNode> { }; 
 public class NameList : List<string> { };
 public class UnionTypeDefinitionNodeList : List<UnionTypeDefinitionNode> { };
 public class ValueNodeList : List<ValueNode> { };
+public class VariableDefinitionNodeList : List<VariableDefinitionNode> { };
+
 
 

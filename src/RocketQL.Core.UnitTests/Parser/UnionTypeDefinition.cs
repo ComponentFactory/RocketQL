@@ -15,7 +15,7 @@ public class UnionTypeDefinition
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
         Assert.Equal("bar", member);
-        union.Directives.IsNull();
+        union.Directives.NotNull().Count(0);
     }
 
     [Theory]
@@ -32,7 +32,7 @@ public class UnionTypeDefinition
         union.MemberTypes.NotNull().Count(2);
         Assert.Equal("bar", union.MemberTypes[0]);
         Assert.Equal("fizz", union.MemberTypes[1]);
-        union.Directives.IsNull();
+        union.Directives.NotNull().Count(0);
     }
 
     [Theory]
@@ -50,7 +50,7 @@ public class UnionTypeDefinition
         Assert.Equal("bar", union.MemberTypes[0]);
         Assert.Equal("fizz", union.MemberTypes[1]);
         Assert.Equal("hello", union.MemberTypes[2]);
-        union.Directives.IsNull();
+        union.Directives.NotNull().Count(0);
     }
 
     [Theory]
@@ -66,7 +66,7 @@ public class UnionTypeDefinition
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
         Assert.Equal("bar", member);
-        union.Directives.IsNull();
+        union.Directives.NotNull().Count(0);
     }
 
     [Fact]

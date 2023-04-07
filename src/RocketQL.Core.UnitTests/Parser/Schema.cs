@@ -13,7 +13,7 @@ public class Schema
 
         var def = documentNode.NotNull().Schemas.NotNull().One();
         Assert.Equal(string.Empty, def.Description);
-        def.Directives.IsNull();
+        def.Directives.NotNull().Count(0);
         var operation = def.OperationTypeDefinitions.NotNull().One();
         Assert.Equal(operationType, operation.Operation);
         Assert.Equal("FizzBuzz", operation.NamedType);
@@ -29,7 +29,7 @@ public class Schema
 
         var def = documentNode.NotNull().Schemas.NotNull().One();
         Assert.Equal("bar", def.Description);
-        def.Directives.IsNull();
+        def.Directives.NotNull().Count(0);
         var operation = def.OperationTypeDefinitions.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("FizzBuzz", operation.NamedType);

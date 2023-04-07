@@ -14,7 +14,7 @@ public class DirectiveDefinition
         var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
-        Assert.Null(directive.Arguments);
+        directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
@@ -47,7 +47,7 @@ public class DirectiveDefinition
         var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
-        Assert.Null(directive.Arguments);
+        directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(location, directive.DirectiveLocations);
     }
@@ -70,7 +70,7 @@ public class DirectiveDefinition
         var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
-        Assert.Null(directive.Arguments);
+        directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(location, directive.DirectiveLocations);
     }
@@ -86,7 +86,7 @@ public class DirectiveDefinition
         var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
-        Assert.Null(directive.Arguments);
+        directive.Arguments.NotNull().Count(0);
         Assert.Equal(repeatable, directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
@@ -102,7 +102,7 @@ public class DirectiveDefinition
         var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
         Assert.Equal("bar", directive.Description);
         Assert.Equal("foo", directive.Name);
-        Assert.Null(directive.Arguments);
+        directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
@@ -175,7 +175,7 @@ public class DirectiveDefinition
         Assert.Null(argument.DefaultValue);
         DirectiveNode directiveNode = argument.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Null(directiveNode.Arguments);
+        directiveNode.Arguments.NotNull().Count(0);
     }
 
     [Theory]
