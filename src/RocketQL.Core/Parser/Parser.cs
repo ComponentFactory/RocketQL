@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Metadata;
-
-namespace RocketQL.Core;
+﻿namespace RocketQL.Core;
 
 public ref struct Parser
 {
@@ -15,7 +12,8 @@ public ref struct Parser
 
     public DocumentNode Parse()
     {
-        List<DirectiveDefinitionNode> _directiveDefinitions = new();
+        DirectiveDefinitionNodeList? _directiveDefinitions = null;
+        ScalarTypeDefinitionNodeList? _scalarTypeDefinitions = null;
 
         // Move to the first real token
         _tokenizer.Next();
@@ -33,7 +31,12 @@ public ref struct Parser
                     switch (_tokenizer.TokenValue)
                     {
                         case "directive":
+                            _directiveDefinitions ??= new();
                             _directiveDefinitions.Add(ParseDirectiveDefinition());
+                            break;
+                        case "scalar":
+                            _scalarTypeDefinitions ??= new();
+                            _scalarTypeDefinitions.Add(ParseScalarTypeDefinition());
                             break;
                     }
                     break;
@@ -42,9 +45,8 @@ public ref struct Parser
             }
         }
 
-        return new DocumentNode(_directiveDefinitions);
+        return new DocumentNode(_directiveDefinitions, _scalarTypeDefinitions);
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DirectiveDefinitionNode ParseDirectiveDefinition() 
@@ -62,7 +64,18 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<InputValueDefinitionNode> ParseArgumentsOptionalDefinition()
+    private ScalarTypeDefinitionNode ParseScalarTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+        var directives = ParseDirectivesOptional();
+
+        return new ScalarTypeDefinitionNode(UseTopLevelDescription(), name, directives);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private InputValueDefinitionNodeList? ParseArgumentsOptionalDefinition()
     {
         if (_tokenizer.TokenKind == TokenKind.LeftParenthesis)
         {
@@ -71,14 +84,14 @@ public ref struct Parser
             MandatoryTokenNext(TokenKind.RightParenthesis);
             return arguments;
         }
-        else
-            return new List<InputValueDefinitionNode>();
+
+        return null;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<InputValueDefinitionNode> ParseInputValueListDefinition()
+    private InputValueDefinitionNodeList? ParseInputValueListDefinition()
     {
-        List<InputValueDefinitionNode> list = new();
+        InputValueDefinitionNodeList? list = null;
 
         do
         {
@@ -90,7 +103,8 @@ public ref struct Parser
             var type = ParseType();
             var defaultValue = ParseDefaultValueOptional();
             var directives = ParseDirectivesOptional();
-            list.Add(new InputValueDefinitionNode(description, name, type, defaultValue, directives));
+            list ??= new();
+            list.Add(new InputValueDefinitionNode(description ?? string.Empty, name, type, defaultValue, directives));
 
         } while ((_tokenizer.TokenKind == TokenKind.Name) || (_tokenizer.TokenKind == TokenKind.StringValue));
 
@@ -138,18 +152,21 @@ public ref struct Parser
                 break;
             case TokenKind.LeftSquareBracket:
                 {
-                    List<ValueNode> values = new();
+                    ValueNodeList? values = null;
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != TokenKind.RightSquareBracket)
+                    {
+                        values ??= new();
                         values.Add(ParseValue(constant: constant));
+                    }
 
                     node = new ListValueNode(values);
                 }
                 break;
             case TokenKind.LeftCurlyBracket:
                 {
-                    List<ObjectFieldNode> objectsFields = new();
+                    ObjectFieldNodeList? objectsFields = null;
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket)
@@ -158,6 +175,7 @@ public ref struct Parser
                         string name = _tokenizer.TokenValue;
                         MandatoryNextToken(TokenKind.Colon);
                         MandatoryNext();
+                        objectsFields ??= new();
                         objectsFields.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
                     }
 
@@ -173,16 +191,17 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<DirectiveNode> ParseDirectivesOptional()
+    private DirectiveNodeList? ParseDirectivesOptional()
     {
-        List<DirectiveNode> list = new();
+        DirectiveNodeList? list = null;
 
         while(_tokenizer.TokenKind == TokenKind.At)
         {
             MandatoryNextToken(TokenKind.Name);
             string name = _tokenizer.TokenValue;
-            MandatoryNext();
+            _tokenizer.Next();
             var arguments = ParseArgumentsOptional(true);
+            list ??= new();
             list.Add(new DirectiveNode(name, arguments));
         }
 
@@ -190,9 +209,9 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<ObjectFieldNode> ParseArgumentsOptional(bool constant)
+    private ObjectFieldNodeList? ParseArgumentsOptional(bool constant)
     {
-        List<ObjectFieldNode> list = new();
+        ObjectFieldNodeList? list = null;
 
         if (_tokenizer.TokenKind == TokenKind.LeftParenthesis)
         {
@@ -203,6 +222,7 @@ public ref struct Parser
                 string name = _tokenizer.TokenValue;
                 MandatoryNextToken(TokenKind.Colon);
                 MandatoryNext();
+                list ??= new();
                 list.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
             }
 
@@ -289,23 +309,26 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string? UseTopLevelDescription()
+    private string UseTopLevelDescription()
     {
         string? description = _description;
         _description = null;
-        return description;
+        return description ?? String.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryNext()
     {
-        if (!_tokenizer.Next())
+        if ((_tokenizer.TokenKind == TokenKind.EndOfText) || !_tokenizer.Next())
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryToken(TokenKind token) 
     {
+        if (_tokenizer.TokenKind == TokenKind.EndOfText)
+            throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
+
         if (_tokenizer.TokenKind != token)
             throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
     }
@@ -313,7 +336,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryNextToken(TokenKind token)
     {
-        if (!_tokenizer.Next())
+        if ((_tokenizer.TokenKind == TokenKind.EndOfText) || !_tokenizer.Next())
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
         if (_tokenizer.TokenKind != token)
@@ -323,6 +346,9 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MandatoryTokenNext(TokenKind token)
     {
+        if (_tokenizer.TokenKind == TokenKind.EndOfText)
+            throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
+
         if (_tokenizer.TokenKind != token)
             throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
 

@@ -8,19 +8,18 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("bar", directive.Name);
+        Assert.IsType<TypeNameNode>(directive.Type);
+        TypeNameNode nameNode = (TypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
-        Assert.Single(node.Directives);
-        DirectiveNode directiveNode = node.Directives[0];
+        Assert.Null(directive.DefaultValue);
+        Assert.Single(directive.Directives);
+        DirectiveNode directiveNode = directive.Directives[0];
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Empty(directiveNode.Arguments);
+        Assert.Null(directiveNode.Arguments);
     }
 
     [Fact]
@@ -29,20 +28,17 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello (world: 3)) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("bar", directive.Name);
+        Assert.IsType<TypeNameNode>(directive.Type);
+        TypeNameNode nameNode = (TypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
-        Assert.Single(node.Directives);
-        DirectiveNode directiveNode = node.Directives[0];
+        Assert.Null(directive.DefaultValue);
+        DirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Single(directiveNode.Arguments);
-        ObjectFieldNode argument = directiveNode.Arguments[0];
+        ObjectFieldNode argument = directiveNode.Arguments.NotNull().One();
         Assert.Equal("world", argument.Name);
         Assert.IsType<IntValueNode>(argument.Value);
         IntValueNode argumentValue = (IntValueNode)argument.Value;
@@ -55,19 +51,17 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("bar", directive.Name);
+        Assert.IsType<TypeNameNode>(directive.Type);
+        TypeNameNode nameNode = (TypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
-        Assert.Single(node.Directives);
-        DirectiveNode directiveNode = node.Directives[0];
+        Assert.Null(directive.DefaultValue);
+        DirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Equal(2, directiveNode.Arguments.Count);
+        directiveNode.Arguments.NotNull().Count(2);
         ObjectFieldNode argument1 = directiveNode.Arguments[0];
         Assert.Equal("world", argument1.Name);
         Assert.IsType<IntValueNode>(argument1.Value);
@@ -86,22 +80,21 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello @world) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("bar", directive.Name);
+        Assert.IsType<TypeNameNode>(directive.Type);
+        TypeNameNode nameNode = (TypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
-        Assert.Equal(2, node.Directives.Count);
-        DirectiveNode directiveNode1 = node.Directives[0];
+        Assert.Null(directive.DefaultValue);
+        directive.Directives.NotNull().Count(2);
+        DirectiveNode directiveNode1 = directive.Directives[0];
         Assert.Equal("hello", directiveNode1.Name);
-        Assert.Empty(directiveNode1.Arguments);
-        DirectiveNode directiveNode2 = node.Directives[1];
+        Assert.Null(directiveNode1.Arguments);
+        DirectiveNode directiveNode2 = directive.Directives[1];
         Assert.Equal("world", directiveNode2.Name);
-        Assert.Empty(directiveNode2.Arguments);
+        Assert.Null(directiveNode2.Arguments);
     }
 
     [Theory]

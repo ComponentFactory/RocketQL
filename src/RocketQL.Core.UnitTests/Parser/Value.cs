@@ -7,12 +7,9 @@ public class Value
     {
         var t = new Core.Parser("directive @foo (fizz: buzz = 1) on ENUM");
         var documentNode = t.Parse();
-        
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<IntValueNode>(node.DefaultValue);
-        IntValueNode valueNode = (IntValueNode)node.DefaultValue;
+
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        IntValueNode valueNode = argument.DefaultValue.IsType<IntValueNode>();
         Assert.Equal("1", valueNode.Value);
     }
 
@@ -22,11 +19,8 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = 3.14159) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<FloatValueNode>(node.DefaultValue);
-        FloatValueNode valueNode = (FloatValueNode)node.DefaultValue;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        FloatValueNode valueNode = argument.DefaultValue.IsType<FloatValueNode>();
         Assert.Equal("3.14159", valueNode.Value);
     }
 
@@ -36,11 +30,8 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = \"word\") on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<StringValueNode>(node.DefaultValue);
-        StringValueNode valueNode = (StringValueNode)node.DefaultValue;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
         Assert.Equal("word", valueNode.Value);
     }
 
@@ -50,11 +41,8 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = \"\"\"word\"\"\") on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<StringValueNode>(node.DefaultValue);
-        StringValueNode valueNode = (StringValueNode)node.DefaultValue;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
         Assert.Equal("word", valueNode.Value);
     }
 
@@ -66,11 +54,8 @@ public class Value
         var t = new Core.Parser($"directive @foo (fizz: buzz = {value.ToString().ToLower()}) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<BooleanValueNode>(node.DefaultValue);
-        BooleanValueNode valueNode = (BooleanValueNode)node.DefaultValue;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        BooleanValueNode valueNode = argument.DefaultValue.IsType<BooleanValueNode>();
         Assert.Equal(value, valueNode.Value);
     }
 
@@ -80,10 +65,8 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = null) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<NullValueNode>(node.DefaultValue);
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        argument.DefaultValue.IsType<NullValueNode>();
     }
 
     [Fact]
@@ -92,11 +75,8 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = ORANGE) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<EnumValueNode>(node.DefaultValue);
-        EnumValueNode valueNode = (EnumValueNode)node.DefaultValue;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        EnumValueNode valueNode = argument.DefaultValue.IsType<EnumValueNode>();
         Assert.Equal("ORANGE", valueNode.Value);
     }
 
@@ -106,12 +86,9 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = []) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ListValueNode>(node.DefaultValue);
-        ListValueNode valueNode = (ListValueNode)node.DefaultValue;
-        Assert.Empty(valueNode.Values);
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
+        Assert.Null(valueNode.Values);
     }
 
     [Fact]
@@ -120,14 +97,9 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3]) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ListValueNode>(node.DefaultValue);
-        ListValueNode valueNode = (ListValueNode)node.DefaultValue;
-        Assert.Single(valueNode.Values);
-        Assert.IsType<IntValueNode>(valueNode.Values[0]);
-        IntValueNode entryNode = (IntValueNode)valueNode.Values[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
+        IntValueNode entryNode = valueNode.Values.NotNull().One().IsType<IntValueNode>();
         Assert.Equal("3", entryNode.Value);
     }
 
@@ -140,19 +112,14 @@ public class Value
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ListValueNode>(node.DefaultValue);
-        ListValueNode valueNode = (ListValueNode)node.DefaultValue;
-        Assert.Equal(3, valueNode.Values.Count);
-        Assert.IsType<IntValueNode>(valueNode.Values[0]);
-        IntValueNode entryNode1 = (IntValueNode)valueNode.Values[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
+        var valueNodeList = valueNode.Values.NotNull().Count(3);
+        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
         Assert.Equal("3", entryNode1.Value);
-        Assert.IsType<BooleanValueNode>(valueNode.Values[1]);
-        BooleanValueNode entryNode2 = (BooleanValueNode)valueNode.Values[1];
+        BooleanValueNode entryNode2 = valueNodeList[1].IsType<BooleanValueNode>();
         Assert.True(entryNode2.Value);
-        Assert.IsType<NullValueNode>(valueNode.Values[2]);
+        valueNodeList[2].IsType<NullValueNode>();
     }
 
     [Fact]
@@ -161,20 +128,14 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3 [4]]) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ListValueNode>(node.DefaultValue);
-        ListValueNode valueNode = (ListValueNode)node.DefaultValue;
-        Assert.Equal(2, valueNode.Values.Count);
-        Assert.IsType<IntValueNode>(valueNode.Values[0]);
-        IntValueNode entryNode1 = (IntValueNode)valueNode.Values[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
+        var valueNodeList = valueNode.Values.NotNull().Count(2);
+        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
         Assert.Equal("3", entryNode1.Value);
-        Assert.IsType<ListValueNode>(valueNode.Values[1]);
-        ListValueNode innerNode = (ListValueNode)valueNode.Values[1];
-        Assert.Single(innerNode.Values);
-        Assert.IsType<IntValueNode>(innerNode.Values[0]);
-        IntValueNode entryNode2 = (IntValueNode)innerNode.Values[0];
+        ListValueNode innerNode = valueNodeList[1].IsType<ListValueNode>();
+        var innerNodeList = innerNode.Values.NotNull().Count(1);
+        IntValueNode entryNode2 = innerNodeList[0].IsType<IntValueNode>();
         Assert.Equal("4", entryNode2.Value);
     }
 
@@ -184,19 +145,12 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3 { hello: null }]) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ListValueNode>(node.DefaultValue);
-        ListValueNode valueNode = (ListValueNode)node.DefaultValue;
-        Assert.Equal(2, valueNode.Values.Count);
-        Assert.IsType<IntValueNode>(valueNode.Values[0]);
-        IntValueNode entryNode1 = (IntValueNode)valueNode.Values[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
+        var valueNodeList = valueNode.Values.NotNull().Count(2);
+        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
         Assert.Equal("3", entryNode1.Value);
-        Assert.IsType<ObjectValueNode>(valueNode.Values[1]);
-        ObjectValueNode innerNode = (ObjectValueNode)valueNode.Values[1];
-        Assert.Single(innerNode.ObjectFields);
-        ObjectFieldNode fieldNode = innerNode.ObjectFields[0];
+        ObjectFieldNode fieldNode = valueNodeList[1].IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("hello", fieldNode.Name);
         Assert.IsType<NullValueNode>(fieldNode.Value);
     }
@@ -207,12 +161,9 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = {}) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ObjectValueNode>(node.DefaultValue);
-        ObjectValueNode valueNode = (ObjectValueNode)node.DefaultValue;
-        Assert.Empty(valueNode.ObjectFields);
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ObjectValueNode valueNode = argument.DefaultValue.IsType<ObjectValueNode>();
+        Assert.Null(valueNode.ObjectFields);
     }
 
     [Fact]
@@ -221,16 +172,10 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: 42 }) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ObjectValueNode>(node.DefaultValue);
-        ObjectValueNode valueNode = (ObjectValueNode)node.DefaultValue;
-        Assert.Single(valueNode.ObjectFields);
-        ObjectFieldNode fieldNode = valueNode.ObjectFields[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode.Name);
-        Assert.IsType<IntValueNode>(fieldNode.Value);
-        IntValueNode intNode = (IntValueNode)fieldNode.Value;
+        IntValueNode intNode = fieldNode.Value.IsType<IntValueNode>();
         Assert.Equal("42", intNode.Value);
     }
 
@@ -240,21 +185,12 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: { hello: 42 } }) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ObjectValueNode>(node.DefaultValue);
-        ObjectValueNode valueNode1 = (ObjectValueNode)node.DefaultValue;
-        Assert.Single(valueNode1.ObjectFields);
-        ObjectFieldNode fieldNode1 = valueNode1.ObjectFields[0];
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ObjectFieldNode fieldNode1 = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode1.Name);
-        Assert.IsType<ObjectValueNode>(fieldNode1.Value);
-        ObjectValueNode valueNode2 = (ObjectValueNode)fieldNode1.Value;
-        Assert.Single(valueNode2.ObjectFields);
-        ObjectFieldNode fieldNode2 = valueNode2.ObjectFields[0];
+        ObjectFieldNode fieldNode2 = fieldNode1.Value.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("hello", fieldNode2.Name);
-        Assert.IsType<IntValueNode>(fieldNode2.Value);
-        IntValueNode intNode = (IntValueNode)fieldNode2.Value;
+        IntValueNode intNode = fieldNode2.Value.IsType<IntValueNode>();
         Assert.Equal("42", intNode.Value);
     }
 
@@ -264,20 +200,11 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: [42] }) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<ObjectValueNode>(node.DefaultValue);
-        ObjectValueNode valueNode1 = (ObjectValueNode)node.DefaultValue;
-        Assert.Single(valueNode1.ObjectFields);
-        ObjectFieldNode fieldNode1 = valueNode1.ObjectFields[0];
-        Assert.Equal("world", fieldNode1.Name);
-        Assert.IsType<ListValueNode>(fieldNode1.Value);
-        ListValueNode innerNode = (ListValueNode)fieldNode1.Value;
-        Assert.Single(innerNode.Values);
-        Assert.IsType<IntValueNode>(innerNode.Values[0]);
-        IntValueNode entryNode2 = (IntValueNode)innerNode.Values[0];
-        Assert.Equal("42", entryNode2.Value);
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
+        Assert.Equal("world", fieldNode.Name);
+        IntValueNode entryNode = fieldNode.Value.IsType<ListValueNode>().Values.NotNull().One().IsType<IntValueNode>();
+        Assert.Equal("42", entryNode.Value);
     }
 
     [Theory]

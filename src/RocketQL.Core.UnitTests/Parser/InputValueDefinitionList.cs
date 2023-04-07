@@ -9,13 +9,12 @@ public class InputValueDefinitionList
     {
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
-        
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("fizz", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("fizz", argument.Name);
+        Assert.IsType<TypeNameNode>(argument.Type);
+        TypeNameNode nameNode = (TypeNameNode)argument.Type;
         Assert.Equal("buzz", nameNode.Name);
         Assert.Equal(nonNull, nameNode.NonNull);
     }
@@ -30,12 +29,11 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("fizz", node.Name);
-        Assert.IsType<TypeListNode>(node.Type);
-        TypeListNode listNode = (TypeListNode)node.Type;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("fizz", argument.Name);
+        Assert.IsType<TypeListNode>(argument.Type);
+        TypeListNode listNode = (TypeListNode)argument.Type;
         Assert.Equal(listNonNull, listNode.NonNull);
         Assert.IsType<TypeNameNode>(listNode.Type);
         TypeNameNode nameNode = (TypeNameNode)listNode.Type;
@@ -57,12 +55,11 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("fizz", node.Name);
-        Assert.IsType<TypeListNode>(node.Type);
-        TypeListNode listNodeOuter = (TypeListNode)node.Type;
+        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("fizz", argument.Name);
+        Assert.IsType<TypeListNode>(argument.Type);
+        TypeListNode listNodeOuter = (TypeListNode)argument.Type;
         Assert.Equal(outerNonNull, listNodeOuter.NonNull);
         Assert.IsType<TypeListNode>(listNodeOuter.Type);
         TypeListNode listNodeInner = (TypeListNode)listNodeOuter.Type;
@@ -83,19 +80,20 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.Equal(2, documentNode.DirectiveDefinitions[0].Arguments.Count);
-        var node1 = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node1.Description);
-        Assert.Equal("fizz", node1.Name);
-        Assert.IsType<TypeNameNode>(node1.Type);
-        TypeNameNode nameNode1 = (TypeNameNode)node1.Type;
+        var arguments = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().Count(2);
+        var argument1 = arguments[0];
+        Assert.Equal(string.Empty, argument1.Description);
+        Assert.Equal("fizz", argument1.Name);
+        Assert.IsType<TypeNameNode>(argument1.Type);
+        TypeNameNode nameNode1 = (TypeNameNode)argument1.Type;
         Assert.Equal("buzz", nameNode1.Name);
         Assert.False(nameNode1.NonNull);
-        var node2 = documentNode.DirectiveDefinitions[0].Arguments[1];
-        Assert.Null(node2.Description);
-        Assert.Equal("hello", node2.Name);
-        Assert.IsType<TypeNameNode>(node2.Type);
-        TypeNameNode nameNode2 = (TypeNameNode)node2.Type;
+
+        var argument2 = arguments[1];
+        Assert.Equal(string.Empty, argument2.Description);
+        Assert.Equal("hello", argument2.Name);
+        Assert.IsType<TypeNameNode>(argument2.Type);
+        TypeNameNode nameNode2 = (TypeNameNode)argument2.Type;
         Assert.Equal("world", nameNode2.Name);
         Assert.False(nameNode2.NonNull);
     }

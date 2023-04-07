@@ -11,13 +11,12 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.Empty(documentNode.DirectiveDefinitions[0].Arguments);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.Null(directive.Arguments);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
 
     [Theory]
@@ -45,13 +44,12 @@ public class DirectiveDefinition
         var t = new Core.Parser($"directive @foo on {location}");
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.Empty(documentNode.DirectiveDefinitions[0].Arguments);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(location, documentNode.DirectiveDefinitions[0].DirectiveLocations);
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.Null(directive.Arguments);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(location, directive.DirectiveLocations);
     }
 
     [Theory]
@@ -69,13 +67,12 @@ public class DirectiveDefinition
         var t = new Core.Parser($"directive @foo on {str}");
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.Empty(documentNode.DirectiveDefinitions[0].Arguments);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(location, documentNode.DirectiveDefinitions[0].DirectiveLocations);
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.Null(directive.Arguments);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(location, directive.DirectiveLocations);
     }
 
     [Theory]
@@ -86,13 +83,12 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.Empty(documentNode.DirectiveDefinitions[0].Arguments);
-        Assert.Equal(repeatable, documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.Null(directive.Arguments);
+        Assert.Equal(repeatable, directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
 
     [Theory]
@@ -103,13 +99,12 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Equal("bar", documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.Empty(documentNode.DirectiveDefinitions[0].Arguments);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal("bar", directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.Null(directive.Arguments);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
     }
 
     [Fact]
@@ -118,21 +113,20 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
+
+        var argument = directive.Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("bar", argument.Name);
+        Assert.IsType<TypeNameNode>(argument.Type);
+        TypeNameNode nameNode = (TypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
+        Assert.Null(argument.DefaultValue);
     }
 
     [Fact]
@@ -141,23 +135,21 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz = 3.14) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
+
+        var argument = directive.Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("bar", argument.Name);
+        Assert.IsType<TypeNameNode>(argument.Type);
+        TypeNameNode nameNode = (TypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.NotNull(node.DefaultValue);
-        Assert.IsType<FloatValueNode>(node.DefaultValue);
-        FloatValueNode floatValueNode = (FloatValueNode)node.DefaultValue;
+        Assert.NotNull(argument.DefaultValue);
+        FloatValueNode floatValueNode = argument.DefaultValue.IsType<FloatValueNode>();
         Assert.Equal("3.14", floatValueNode.Value);
     }
 
@@ -167,25 +159,23 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz @hello) on ENUM");
         var documentNode = t.Parse();
 
-        Assert.NotNull(documentNode);
-        Assert.Single(documentNode.DirectiveDefinitions);
-        Assert.Null(documentNode.DirectiveDefinitions[0].Description);
-        Assert.Equal("foo", documentNode.DirectiveDefinitions[0].Name);
-        Assert.False(documentNode.DirectiveDefinitions[0].Repeatable);
-        Assert.Equal(DirectiveLocations.ENUM, documentNode.DirectiveDefinitions[0].DirectiveLocations);
-        Assert.Single(documentNode.DirectiveDefinitions[0].Arguments);
-        var node = documentNode.DirectiveDefinitions[0].Arguments[0];
-        Assert.Null(node.Description);
-        Assert.Equal("bar", node.Name);
-        Assert.IsType<TypeNameNode>(node.Type);
-        TypeNameNode nameNode = (TypeNameNode)node.Type;
+        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("foo", directive.Name);
+        Assert.False(directive.Repeatable);
+        Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
+
+        var argument = directive.Arguments.NotNull().One();
+        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("bar", argument.Name);
+        Assert.IsType<TypeNameNode>(argument.Type);
+        TypeNameNode nameNode = (TypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
-        Assert.Null(node.DefaultValue);
-        Assert.Single(node.Directives);
-        DirectiveNode directiveNode = node.Directives[0];
+        Assert.Null(argument.DefaultValue);
+        DirectiveNode directiveNode = argument.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
-        Assert.Empty(directiveNode.Arguments);
+        Assert.Null(directiveNode.Arguments);
     }
 
     [Theory]
