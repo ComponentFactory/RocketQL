@@ -30,5 +30,6 @@ public class SyntaxException : Exception
     public static SyntaxException ExpectedKeywordNotFound(Location location, string expected, string found) => new(location, $"Expected keyword '{expected}' but found '{found}' instead.");
     public static SyntaxException ExpectedDirectiveLocationNotFound(Location location, string found) => new(location, $"Expected directive location but found '{found}' instead.");
     public static SyntaxException TypeMustBeNameOrList(Location location, TokenKind found) => new(location, $"Type must be a name or '[' indicating a list but found token '{found}' instead.");
-    public static SyntaxException TokenNotAllowedHere(Location location, TokenKind tokenKind) => new(location, $"Token '{tokenKind}' not allowed in this position.");
+    public static SyntaxException TokenNotAllowedHere(Location location, TokenKind found) => new(location, $"Token '{found}' not allowed in this position.");
+    public static SyntaxException SelectionSetInvalidToken(Location location, TokenKind found) => new(location, $"Found token '{found}' instead of either a name or spread operator inside the selection set.");
 }

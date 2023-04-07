@@ -285,16 +285,55 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SelectionNodeList ParseSelectionSetOptional()
+    {
+        if (_tokenizer.TokenKind == TokenKind.LeftCurlyBracket)
+            return ParseSelectionSet();
+
+        return new();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SelectionNodeList ParseSelectionSet()
     {
         SelectionNodeList list = new();
 
-        MandatoryNextToken(TokenKind.LeftCurlyBracket);
+        MandatoryTokenNext(TokenKind.LeftCurlyBracket);
 
         do
         {
-            // TODO
+            switch (_tokenizer.TokenKind)
+            {
+                case TokenKind.Name:
+                    {
+                        MandatoryToken(TokenKind.Name);
+                        string alias = string.Empty;
+                        string name = _tokenizer.TokenValue;
+                        MandatoryNext();
 
+                        if (_tokenizer.TokenKind == TokenKind.Colon)
+                        {
+                            MandatoryNextToken(TokenKind.Name);
+                            alias = name;
+                            name = _tokenizer.TokenValue;
+                            MandatoryNext();
+                        }
+
+                        var arguments = ParseArgumentsOptional(constant: false);
+                        var directives = ParseDirectivesOptional();
+                        var selectionSet = ParseSelectionSetOptional();
+                        list.Add(new FieldSelectionNode(alias, name, arguments, directives, selectionSet));
+                    }
+                    break;
+                case TokenKind.Spread:
+                    {
+                        // TODO
+                    }
+                    break;
+                default:
+                    throw SyntaxException.SelectionSetInvalidToken(_tokenizer.Location, _tokenizer.TokenKind);
+
+            }
         } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
 
         _tokenizer.Next();
@@ -433,7 +472,15 @@ public ref struct Parser
 
         switch (_tokenizer.TokenKind)
         {
-            // TODO Variables
+            case TokenKind.Dollar:
+                {
+                    if (constant)
+                        throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind);
+
+                    MandatoryNextToken(TokenKind.Name);
+                    node = new VariableValueNode(_tokenizer.TokenValue);
+                }
+                break;
             case TokenKind.IntValue:
                 node = new IntValueNode(_tokenizer.TokenValue);
                 break;

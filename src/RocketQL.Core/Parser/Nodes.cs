@@ -37,9 +37,9 @@ public record class EnumValueDefinition(string Description, string Name, Directi
 // SelectionSet can contains fields, fragment spreads and inline fragments
 //------------------------------------------------------------------------------
 public abstract record class SelectionNode();
-public abstract record class FieldSelectionNode(string Alias, string Name, ObjectFieldNodeList Arguments, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
-public abstract record class FragmentSpreadSelectionNode(string Name, DirectiveNodeList Directives) : SelectionNode();
-public abstract record class InlineFragmentSelectionNode(string NamedType, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
+public record class FieldSelectionNode(string Alias, string Name, ObjectFieldNodeList Arguments, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
+public record class FragmentSpreadSelectionNode(string Name, DirectiveNodeList Directives) : SelectionNode();
+public record class InlineFragmentSelectionNode(string NamedType, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
 
 //------------------------------------------------------------------------------
 // Types are specified by name or as a list containgina a type
@@ -61,3 +61,5 @@ public record class EnumValueNode(string Value) : ValueNode();
 public record class ListValueNode(ValueNodeList Values) : ValueNode();
 public record class ObjectValueNode(ObjectFieldNodeList ObjectFields) : ValueNode();
 public record class ObjectFieldNode(string Name, ValueNode Value) : ValueNode();
+public record class VariableValueNode(string Value) : ValueNode();
+
