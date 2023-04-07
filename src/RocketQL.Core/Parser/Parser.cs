@@ -14,13 +14,14 @@ public ref struct Parser
 
     public DocumentNode Parse()
     {
-        DirectiveDefinitionNodeList? _directiveDefinitions = null;
+        SchemaNodeList? _schemas = null;
         ScalarTypeDefinitionNodeList? _scalarTypeDefinitions = null;
         ObjectTypeDefinitionNodeList? _objectTypeDefinitions = null;
         InterfaceTypeDefinitionNodeList? _interfaceTypeDefinitions = null;
         UnionTypeDefinitionNodeList? _unionTypeDefinitions = null;
         EnumTypeDefinitionNodeList? _enumTypeDefinitions = null;
         InputObjectTypeDefinitionNodeList? _inputObjectTypeDefinitions = null;
+        DirectiveDefinitionNodeList? _directiveDefinitions = null;
 
         // Move to the first real token
         _tokenizer.Next();
@@ -37,9 +38,9 @@ public ref struct Parser
                 case TokenKind.Name:
                     switch (_tokenizer.TokenValue)
                     {
-                        case "directive":
-                            _directiveDefinitions ??= new();
-                            _directiveDefinitions.Add(ParseDirectiveDefinition());
+                        case "schema":
+                            _schemas ??= new();
+                            _schemas.Add(ParseSchema());
                             break;
                         case "scalar":
                             _scalarTypeDefinitions ??= new();
@@ -65,6 +66,10 @@ public ref struct Parser
                             _inputObjectTypeDefinitions ??= new();
                             _inputObjectTypeDefinitions.Add(ParseInputObjectTypeDefinition());
                             break;
+                        case "directive":
+                            _directiveDefinitions ??= new();
+                            _directiveDefinitions.Add(ParseDirectiveDefinition());
+                            break;
                         default:
                             throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                     }
@@ -74,28 +79,46 @@ public ref struct Parser
             }
         }
 
-        return new DocumentNode(_directiveDefinitions, 
-                                _scalarTypeDefinitions, 
-                                _objectTypeDefinitions, 
-                                _interfaceTypeDefinitions, 
+        return new DocumentNode(_schemas,
+                                _scalarTypeDefinitions,
+                                _objectTypeDefinitions,
+                                _interfaceTypeDefinitions,
                                 _unionTypeDefinitions,
                                 _enumTypeDefinitions,
-                                _inputObjectTypeDefinitions);
+                                _inputObjectTypeDefinitions,
+                                _directiveDefinitions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DirectiveDefinitionNode ParseDirectiveDefinition() 
+    private SchemaNode ParseSchema()
     {
-        MandatoryNextToken(TokenKind.At);
-        MandatoryNextToken(TokenKind.Name);
-        string name  = _tokenizer.TokenValue;
         MandatoryNext();
-        var arguments = ParseArgumentsOptionalDefinition();
-        var repeatable = OptionalKeyword("repeatable");
-        MandatoryKeyword("on");
-        var directiveLocations = ParseDirectiveLocations();
+        var directives = ParseDirectivesOptional();
+        MandatoryTokenNext(TokenKind.LeftCurlyBracket);
 
-        return new DirectiveDefinitionNode(UseTopLevelDescription(), name, arguments, repeatable, directiveLocations);
+        OperationTypeDefinitionNodeList list = new();
+
+        do
+        {
+            MandatoryToken(TokenKind.Name);
+            OperationType operationType = _tokenizer.TokenValue switch
+            {
+                "query" => OperationType.QUERY,
+                "mutation" => OperationType.MUTATION,
+                "subscription" => OperationType.SUBSCRIPTION,
+                _ => throw SyntaxException.UnrecognizedOperationType(_tokenizer.Location, _tokenizer.TokenValue)
+            };
+            MandatoryNextToken(TokenKind.Colon);
+            MandatoryNextToken(TokenKind.Name);
+            string namedType = _tokenizer.TokenValue;
+            MandatoryNext();
+
+            list.Add(new OperationTypeDefinitionNode(operationType, namedType));
+
+        } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
+        
+        _tokenizer.Next();
+        return new SchemaNode(UseTopLevelDescription(), directives, list);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -159,7 +182,6 @@ public ref struct Parser
         return new EnumTypeDefinitionNode(UseTopLevelDescription(), name, directives, enumValueTypes);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InputObjectTypeDefinitionNode ParseInputObjectTypeDefinition()
     {
@@ -173,6 +195,21 @@ public ref struct Parser
         _tokenizer.Next();
 
         return new InputObjectTypeDefinitionNode(UseTopLevelDescription(), name, directives, inputFields);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private DirectiveDefinitionNode ParseDirectiveDefinition()
+    {
+        MandatoryNextToken(TokenKind.At);
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        MandatoryNext();
+        var arguments = ParseArgumentsOptionalDefinition();
+        var repeatable = OptionalKeyword("repeatable");
+        MandatoryKeyword("on");
+        var directiveLocations = ParseDirectiveLocations();
+
+        return new DirectiveDefinitionNode(UseTopLevelDescription(), name, arguments, repeatable, directiveLocations);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

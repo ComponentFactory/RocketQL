@@ -1,23 +1,27 @@
 ﻿namespace RocketQL.Core;
 
-public record class DocumentNode(DirectiveDefinitionNodeList? DirectiveDefinitions, 
+public record class DocumentNode(SchemaNodeList? Schemas,
                                  ScalarTypeDefinitionNodeList? ScalarTypeDefinitions, 
                                  ObjectTypeDefinitionNodeList? ObjectTypeDefinitions, 
                                  InterfaceTypeDefinitionNodeList? InterfaceTypeDefinitions,
                                  UnionTypeDefinitionNodeList? UnionTypeDefinitions,
                                  EnumTypeDefinitionNodeList? EnumTypeDefinitions,
-                                 InputObjectTypeDefinitionNodeList? InputObjectTypeDefinitions);
+                                 InputObjectTypeDefinitionNodeList? InputObjectTypeDefinitions,
+                                 DirectiveDefinitionNodeList? DirectiveDefinitions);
 
-public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
+public record class SchemaNode(string Description, DirectiveNodeList? Directives, OperationTypeDefinitionNodeList? OperationTypeDefinitions);
 public record class ScalarTypeDefinitionNode(string Description, string Name, DirectiveNodeList? Directives);
 public record class ObjectTypeDefinitionNode(string Description, string Name, NameList? ImplementsInterfaces, DirectiveNodeList? Directives, FieldDefinitionNodeList? FieldDefinitions);
-public record class FieldDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, TypeNode Type, DirectiveNodeList? Directives);
 public record class InterfaceTypeDefinitionNode(string Description, string Name, NameList? ImplementsInterfaces, DirectiveNodeList? Directives, FieldDefinitionNodeList? FieldDefinitions);
 public record class UnionTypeDefinitionNode(string Description, string Name, DirectiveNodeList? Directives, NameList? MemberTypes);
 public record class EnumTypeDefinitionNode(string Description, string Name, DirectiveNodeList? Directives, EnumValueDefinitionList? EnumValues);
-public record class EnumValueDefinition(string Description, string Name, DirectiveNodeList? Directives);
-public record class InputValueDefinitionNode(string Description, string Name, TypeNode Type, ValueNode? DefaultValue, DirectiveNodeList? Directives);
 public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList? Directives, InputValueDefinitionNodeList? InputFields);
+public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
+
+public record class FieldDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, TypeNode Type, DirectiveNodeList? Directives);
+public record class InputValueDefinitionNode(string Description, string Name, TypeNode Type, ValueNode? DefaultValue, DirectiveNodeList? Directives);
+public record class EnumValueDefinition(string Description, string Name, DirectiveNodeList? Directives);
+public record class OperationTypeDefinitionNode(OperationType Operation, string NamedType);
 
 public record class DirectiveNode(string Name, ObjectFieldNodeList? Arguments);
 
