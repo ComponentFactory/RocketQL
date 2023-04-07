@@ -136,45 +136,51 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void ParserGraphQL()
+        public void GraphQL()
         {
             GraphQLParser.Parser.Parse(_graphQL);
         }
 
         [Benchmark]
-        public void ParserHC()
+        public void HotChocolate()
         {
             HC.Utf8GraphQLParser.Parse(_graphQL);
+        }
+
+        [Benchmark]
+        public void RocketQL()
+        {
+            new RQL.Parser(_graphQL).Parse();
         }
     }
 
     [MemoryDiagnoser]
     public class TempBenchmark
     {
-        public string _directives = string.Empty;
+        public string _temp = string.Empty;
 
         [GlobalSetup]
         public void Setup()
         {
-            _directives = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "directives.graphql"));
+            _temp = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
         }
 
         [Benchmark]
-        public void ParserGraphQL()
+        public void GraphQL()
         {
-            GraphQLParser.Parser.Parse(_directives);
+            GraphQLParser.Parser.Parse(_temp);
         }
 
         [Benchmark]
-        public void ParserHC()
+        public void HotChocolate()
         {
-            HC.Utf8GraphQLParser.Parse(_directives);
+            HC.Utf8GraphQLParser.Parse(_temp);
         }
 
         [Benchmark]
         public void RocketQL()
         {
-            new RQL.Parser(_directives.AsSpan()).Parse();
+            new RQL.Parser(_temp).Parse();
         }
     }
 }
