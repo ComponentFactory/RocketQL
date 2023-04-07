@@ -13,6 +13,7 @@ public class SyntaxException : Exception
     public static SyntaxException UnexpectedEndOfFile(Location location) => new(location, "Unexpected end of file encountered.");
     public static SyntaxException UnrecognizedCharacterCode(Location location, char c) => new(location, $"Unrecognized character code '{(int)c}' found.");
     public static SyntaxException UnrecognizedToken(Location location, TokenKind tokenKind) => new(location, $"Unrecognized token '{tokenKind}'.");
+    public static SyntaxException UnrecognizedKeyword(Location location, string keyword) => new(location, $"Unrecognized keyword '{keyword}'.");    
     public static SyntaxException IllegalCharacterCode(Location location, char c) => new(location, $"Illegal character code '{(int)c}' for this location.");
     public static SyntaxException SpreadNeedsThreeDots(Location location) => new(location, $"Spread operator requires 3 dots in sequence.");
     public static SyntaxException MinusMustBeFollowedByDigit(Location location) => new(location, $"Minus sign must be followed by a digit.");

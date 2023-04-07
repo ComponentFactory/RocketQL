@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core;
+﻿using System.Collections.Generic;
+
+namespace RocketQL.Core;
 
 public ref struct Parser
 {
@@ -14,6 +16,7 @@ public ref struct Parser
     {
         DirectiveDefinitionNodeList? _directiveDefinitions = null;
         ScalarTypeDefinitionNodeList? _scalarTypeDefinitions = null;
+        ObjectTypeDefinitionNodeList? _objectTypeDefinitions = null;
 
         // Move to the first real token
         _tokenizer.Next();
@@ -38,6 +41,12 @@ public ref struct Parser
                             _scalarTypeDefinitions ??= new();
                             _scalarTypeDefinitions.Add(ParseScalarTypeDefinition());
                             break;
+                        case "type":
+                            _objectTypeDefinitions ??= new();
+                            _objectTypeDefinitions.Add(ParseObjectTypeDefinition());
+                            break;
+                        default:
+                            throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                     }
                     break;
                 default:
@@ -45,7 +54,7 @@ public ref struct Parser
             }
         }
 
-        return new DocumentNode(_directiveDefinitions, _scalarTypeDefinitions);
+        return new DocumentNode(_directiveDefinitions, _scalarTypeDefinitions, _objectTypeDefinitions);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,6 +84,75 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ObjectTypeDefinitionNode ParseObjectTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+        var implementsInterfaces = ParseImplementsInterfacesOptional();
+        var directives = ParseDirectivesOptional();
+        var fields = ParseFieldsOptionalDefinition();
+
+        return new ObjectTypeDefinitionNode(UseTopLevelDescription(), name, implementsInterfaces, directives, fields);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private NameList? ParseImplementsInterfacesOptional()
+    {
+        if (OptionalKeyword("implements"))
+        {
+            NameList list = new();
+
+            OptionalToken(TokenKind.Ampersand);
+            MandatoryToken(TokenKind.Name);
+            list.Add(_tokenizer.TokenValue);
+            _tokenizer.Next();
+
+            while(_tokenizer.TokenKind == TokenKind.Ampersand)
+            {
+                MandatoryNextToken(TokenKind.Name);
+                list.Add(_tokenizer.TokenValue);
+                _tokenizer.Next();
+            }
+
+            return list;
+        }
+
+        return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private FieldDefinitionNodeList? ParseFieldsOptionalDefinition()
+    {
+        if (_tokenizer.TokenKind == TokenKind.LeftCurlyBracket)
+        {
+            MandatoryNext();
+
+            FieldDefinitionNodeList list = new();
+
+            do
+            {
+                var description = OptionalString();
+                MandatoryToken(TokenKind.Name);
+                string name = _tokenizer.TokenValue;
+                MandatoryNext();
+                var arguments = ParseArgumentsOptionalDefinition();
+                MandatoryTokenNext(TokenKind.Colon);
+                var type = ParseType();
+                var directives = ParseDirectivesOptional();
+                list.Add(new FieldDefinitionNode(description ?? string.Empty, name, arguments, type, directives));
+
+            } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
+
+            _tokenizer.Next();
+            return list;
+        }
+
+        return null;
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InputValueDefinitionNodeList? ParseArgumentsOptionalDefinition()
     {
         if (_tokenizer.TokenKind == TokenKind.LeftParenthesis)
@@ -91,7 +169,7 @@ public ref struct Parser
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InputValueDefinitionNodeList? ParseInputValueListDefinition()
     {
-        InputValueDefinitionNodeList? list = null;
+        InputValueDefinitionNodeList? list = new();
 
         do
         {
@@ -103,7 +181,6 @@ public ref struct Parser
             var type = ParseType();
             var defaultValue = ParseDefaultValueOptional();
             var directives = ParseDirectivesOptional();
-            list ??= new();
             list.Add(new InputValueDefinitionNode(description ?? string.Empty, name, type, defaultValue, directives));
 
         } while ((_tokenizer.TokenKind == TokenKind.Name) || (_tokenizer.TokenKind == TokenKind.StringValue));
@@ -152,21 +229,21 @@ public ref struct Parser
                 break;
             case TokenKind.LeftSquareBracket:
                 {
-                    ValueNodeList? values = null;
+                    ValueNodeList? list = null;
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != TokenKind.RightSquareBracket)
                     {
-                        values ??= new();
-                        values.Add(ParseValue(constant: constant));
+                        list ??= new();
+                        list.Add(ParseValue(constant: constant));
                     }
 
-                    node = new ListValueNode(values);
+                    node = new ListValueNode(list);
                 }
                 break;
             case TokenKind.LeftCurlyBracket:
                 {
-                    ObjectFieldNodeList? objectsFields = null;
+                    ObjectFieldNodeList? list = null;
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket)
@@ -175,11 +252,11 @@ public ref struct Parser
                         string name = _tokenizer.TokenValue;
                         MandatoryNextToken(TokenKind.Colon);
                         MandatoryNext();
-                        objectsFields ??= new();
-                        objectsFields.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
+                        list ??= new();
+                        list.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
                     }
 
-                    node = new ObjectValueNode(objectsFields);
+                    node = new ObjectValueNode(list);
                 }
                 break;
             default:

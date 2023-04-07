@@ -1,10 +1,12 @@
 ﻿namespace RocketQL.Core;
 
-public record class DocumentNode(DirectiveDefinitionNodeList? DirectiveDefinitions, ScalarTypeDefinitionNodeList? ScalarTypeDefinitions);
+public record class DocumentNode(DirectiveDefinitionNodeList? DirectiveDefinitions, ScalarTypeDefinitionNodeList? ScalarTypeDefinitions, ObjectTypeDefinitionNodeList? ObjectTypeDefinitions);
 
 public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
 public record class InputValueDefinitionNode(string Description, string Name, TypeNode Type, ValueNode? DefaultValue, DirectiveNodeList? Directives);
 public record class ScalarTypeDefinitionNode(string Description, string Name, DirectiveNodeList? Directives);
+public record class ObjectTypeDefinitionNode(string Description, string Name, NameList? ImplementsInterfaces, DirectiveNodeList? Directives, FieldDefinitionNodeList? FieldDefinitions);
+public record class FieldDefinitionNode(string Description, string Name, InputValueDefinitionNodeList? Arguments, TypeNode Type, DirectiveNodeList? Directives);
 
 public record class DirectiveNode(string Name, ObjectFieldNodeList? Arguments);
 

@@ -40,6 +40,26 @@ public class ScalarTypeDefinition
         var directive = scalar.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
     }
+
+    [Theory]
+    [InlineData("scalar")]
+    [InlineData("scalar foo @")]
+    public void UnexpectedEndOfFile(string text)
+    {
+        var t = new Core.Parser(text);
+        try
+        {
+            var documentNode = t.Parse();
+        }
+        catch (SyntaxException ex)
+        {
+            Assert.Equal($"Unexpected end of file encountered.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 
 
