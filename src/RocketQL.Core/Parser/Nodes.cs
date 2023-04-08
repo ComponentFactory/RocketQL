@@ -1,23 +1,25 @@
 ﻿namespace RocketQL.Core;
 
-public record class DocumentNode(OperationNodeList Operations,
-                                 SchemaNodeList Schemas,
-                                 ScalarTypeDefinitionNodeList ScalarTypeDefinitions, 
-                                 ObjectTypeDefinitionNodeList ObjectTypeDefinitions, 
-                                 InterfaceTypeDefinitionNodeList InterfaceTypeDefinitions,
-                                 UnionTypeDefinitionNodeList UnionTypeDefinitions,
-                                 EnumTypeDefinitionNodeList EnumTypeDefinitions,
-                                 InputObjectTypeDefinitionNodeList InputObjectTypeDefinitions,
-                                 DirectiveDefinitionNodeList DirectiveDefinitions);
+public record class DocumentNode(OperationDefinitionNodeList Operations,
+                                 FragmentDefinitionNodeList Fragments,
+                                 SchemaDefinitionNodeList Schemas,
+                                 ScalarTypeDefinitionNodeList ScalarTypes, 
+                                 ObjectTypeDefinitionNodeList ObjectTypes, 
+                                 InterfaceTypeDefinitionNodeList InterfaceTypes,
+                                 UnionTypeDefinitionNodeList UnionTypes,
+                                 EnumTypeDefinitionNodeList EnumTypes,
+                                 InputObjectTypeDefinitionNodeList InputObjectTypes,
+                                 DirectiveDefinitionNodeList Directives);
 
 //------------------------------------------------------------------------------
 // Nodes at the top level of a document
 //------------------------------------------------------------------------------
-public record class OperationNode(OperationType Operation, string Name, VariableDefinitionNodeList VariableDefinitions, DirectiveNodeList Directives, SelectionNodeList SelectionSet);
-public record class SchemaNode(string Description, DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypeDefinitions);
+public record class OperationDefinitionNode(OperationType Operation, string Name, VariableDefinitionNodeList VariableDefinitions, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
+public record class FragmentDefinitionNode(string Name, string TypeCondition, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
+public record class SchemaDefinitionNode(string Description, DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypes);
 public record class ScalarTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives);
-public record class ObjectTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList FieldDefinitions);
-public record class InterfaceTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList FieldDefinitions);
+public record class ObjectTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
+public record class InterfaceTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
 public record class UnionTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, NameList MemberTypes);
 public record class EnumTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, EnumValueDefinitionList EnumValues);
 public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields);
@@ -37,12 +39,12 @@ public record class EnumValueDefinition(string Description, string Name, Directi
 // SelectionSet can contains fields, fragment spreads and inline fragments
 //------------------------------------------------------------------------------
 public abstract record class SelectionNode();
-public record class FieldSelectionNode(string Alias, string Name, ObjectFieldNodeList Arguments, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
+public record class FieldSelectionNode(string Alias, string Name, ObjectFieldNodeList Arguments, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet) : SelectionNode();
 public record class FragmentSpreadSelectionNode(string Name, DirectiveNodeList Directives) : SelectionNode();
-public record class InlineFragmentSelectionNode(string NamedType, DirectiveNodeList Directives, SelectionNodeList SelectionSet) : SelectionNode();
+public record class InlineFragmentSelectionNode(string TypeCondition, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet) : SelectionNode();
 
 //------------------------------------------------------------------------------
-// Types are specified by name or as a list containgina a type
+// Types are specified by name or as a list containing a type
 //------------------------------------------------------------------------------
 public abstract record class TypeNode(bool NonNull);
 public record class TypeNameNode(string Name, bool NonNull) : TypeNode(NonNull);

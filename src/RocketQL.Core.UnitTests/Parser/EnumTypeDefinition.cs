@@ -8,7 +8,7 @@ public class EnumTypeDefinition
         var t = new Core.Parser("enum foo { BUZZ }");
         var documentNode = t.Parse();
 
-        var enums = documentNode.NotNull().EnumTypeDefinitions.NotNull().One();
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
@@ -23,7 +23,7 @@ public class EnumTypeDefinition
         var t = new Core.Parser("enum foo { FIZZ BUZZ }");
         var documentNode = t.Parse();
 
-        var enums = documentNode.NotNull().EnumTypeDefinitions.NotNull().One();
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(2);
@@ -43,7 +43,7 @@ public class EnumTypeDefinition
         var t = new Core.Parser("enum foo { FIZZ BUZZ LAST }");
         var documentNode = t.Parse();
 
-        var enums = documentNode.NotNull().EnumTypeDefinitions.NotNull().One();
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(3);
@@ -69,7 +69,7 @@ public class EnumTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var enums = documentNode.NotNull().EnumTypeDefinitions.NotNull().One();
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal("bar", enums.Description);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
@@ -84,7 +84,7 @@ public class EnumTypeDefinition
         var t = new Core.Parser("enum foo @bar { BUZZ @fizz }");
         var documentNode = t.Parse();
 
-        var enums = documentNode.NotNull().EnumTypeDefinitions.NotNull().One();
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();

@@ -1,10 +1,11 @@
 ﻿namespace RocketQL.Core.UnitTests.Tokenizer;
 
-public class Schema
+public class Files
 {
     [Theory]
     [InlineData("github.graphql")]
-    public void GithubSchema(string filename)
+    [InlineData("introspection.graphql")]
+    public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
         var t = new Core.Tokenizer(schema.AsSpan());

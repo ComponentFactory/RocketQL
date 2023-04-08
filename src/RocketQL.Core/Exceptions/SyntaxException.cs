@@ -32,4 +32,7 @@ public class SyntaxException : Exception
     public static SyntaxException TypeMustBeNameOrList(Location location, TokenKind found) => new(location, $"Type must be a name or '[' indicating a list but found token '{found}' instead.");
     public static SyntaxException TokenNotAllowedHere(Location location, TokenKind found) => new(location, $"Token '{found}' not allowed in this position.");
     public static SyntaxException SelectionSetInvalidToken(Location location, TokenKind found) => new(location, $"Found token '{found}' instead of either a name or spread operator inside the selection set.");
+    public static SyntaxException FragmentNameCannotBeOn(Location location) => new(location, $"Fragment name cannot be the keyword 'on'.");
 }
+
+

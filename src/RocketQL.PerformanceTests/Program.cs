@@ -12,53 +12,71 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            //var graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
-
-            // var s = string.Empty;
-
-            // for(int i= 1; i <10000; i++)
-            // {
-            //     var t = new Y.Tokenizer(graphQL);
-            //     while (t.Next())
-            //     {
-            //         switch (t.Token)
-            //         {
-            //             case Y.TokenKind.StringValue:
-            //                 s = t.TokenString;
-            //                 break;
-            //             case Y.TokenKind.Name:
-            //                 s = t.TokenValue;
-            //                 break;
-            //         }
-            //     }
-            // }
-
-            // BenchmarkRunner.Run<TokenizerBenchmark>();
-            // BenchmarkRunner.Run<ParserBenchmark>();
-            BenchmarkRunner.Run<TempBenchmark>();
+            BenchmarkRunner.Run<TokenizerBenchmark>();
+            BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
     [MemoryDiagnoser]
     public class TokenizerBenchmark
     {
-        public string _graphQL = string.Empty;
-        public byte[] _graphQLBytes = Array.Empty<byte>();
+        public string _github = string.Empty;
+        public byte[] _githubBytes = Array.Empty<byte>();
+        public string _introspection = string.Empty;
+        public byte[] _introspectionBytes = Array.Empty<byte>();
 
         [GlobalSetup]
         public void Setup()
         {
-            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
-            _graphQLBytes = Encoding.ASCII.GetBytes(_graphQL);
+            _github = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            _githubBytes = Encoding.ASCII.GetBytes(_github);
+
+            _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
+            _introspectionBytes = Encoding.ASCII.GetBytes(_introspection);
         }
 
         [Benchmark]
-        public void GraphQL()
+        public void Token_GraphQL_GitHub_Token()
+        {
+            GraphQL(_github);
+        }
+
+        [Benchmark]
+        public void HotChocolate_GitHub_Token()
+        {
+            HotChocolate(_githubBytes);
+        }
+
+        [Benchmark]
+        public void RocketkQL_GitHub_Token()
+        {
+            RocketQL(_github);
+        }
+
+        [Benchmark]
+        public void GraphQL_Intro_Token()
+        {
+            GraphQL(_introspection);
+        }
+
+        [Benchmark]
+        public void HotChocolate_Intro_Token()
+        {
+            HotChocolate(_introspectionBytes);
+        }
+
+        [Benchmark]
+        public void RocketQL_Intro_Token()
+        {
+            RocketQL(_introspection);
+        }
+
+        private void GraphQL(string schema)
         {
             var s = string.Empty;
             int resetPosition = 0;
             GQL.Token token;
-            while ((token = GQL.Lexer.Lex(_graphQL, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
+            while ((token = GQL.Lexer.Lex(schema, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
             {
                 resetPosition = token.End;
                 switch (token.Kind)
@@ -74,11 +92,10 @@ namespace DotNetQL.PerformanceTests
             }
         }
 
-        [Benchmark]
-        public void HotChocolate()
+        private void HotChocolate(byte[] schemaBytes)
         {
             var s = string.Empty;
-            var reader = new HC.Utf8GraphQLReader(_graphQLBytes);
+            var reader = new HC.Utf8GraphQLReader(schemaBytes);
             while (reader.Read())
             {
                 switch (reader.Kind)
@@ -102,11 +119,10 @@ namespace DotNetQL.PerformanceTests
             }
         }
 
-        [Benchmark]
-        public void RocketQL()
+        private void RocketQL(string schema)
         {
             var s = string.Empty;
-            var t = new RQL.Tokenizer(_graphQL);
+            var t = new RQL.Tokenizer(schema);
             while (t.Next())
             {
                 switch (t.TokenKind)
@@ -127,60 +143,50 @@ namespace DotNetQL.PerformanceTests
     [MemoryDiagnoser]
     public class ParserBenchmark
     {
-        public string _graphQL = string.Empty;
+        public string _github = string.Empty;
+        public string _introspection = string.Empty;
 
         [GlobalSetup]
         public void Setup()
         {
-            _graphQL = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            _github = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
         }
 
         [Benchmark]
-        public void GraphQL()
+        public void GraphQL_GitHub_Parse()
         {
-            GraphQLParser.Parser.Parse(_graphQL);
+            GraphQLParser.Parser.Parse(_github);
         }
 
         [Benchmark]
-        public void HotChocolate()
+        public void HotChocolate_GitHub_Parse()
         {
-            HC.Utf8GraphQLParser.Parse(_graphQL);
+            HC.Utf8GraphQLParser.Parse(_github);
         }
 
         [Benchmark]
-        public void RocketQL()
+        public void RocketQL_GitHub_Parse()
         {
-            new RQL.Parser(_graphQL).Parse();
-        }
-    }
-
-    [MemoryDiagnoser]
-    public class TempBenchmark
-    {
-        public string _temp = string.Empty;
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _temp = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            new RQL.Parser(_github).Parse();
         }
 
         [Benchmark]
-        public void GraphQL()
+        public void GraphQL_Intro_Parse()
         {
-            GraphQLParser.Parser.Parse(_temp);
+            GraphQLParser.Parser.Parse(_introspection);
         }
 
         [Benchmark]
-        public void HotChocolate()
+        public void HotChocolate_Intro_Parse()
         {
-            HC.Utf8GraphQLParser.Parse(_temp);
+            HC.Utf8GraphQLParser.Parse(_introspection);
         }
 
         [Benchmark]
-        public void RocketQL()
+        public void RocketQL_Intro_Parse()
         {
-            new RQL.Parser(_temp).Parse();
+            new RQL.Parser(_introspection).Parse();
         }
     }
 }

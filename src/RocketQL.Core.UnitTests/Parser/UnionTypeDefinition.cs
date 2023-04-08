@@ -10,7 +10,7 @@ public class UnionTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var union = documentNode.NotNull().UnionTypeDefinitions.NotNull().One();
+        var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
@@ -26,7 +26,7 @@ public class UnionTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var union = documentNode.NotNull().UnionTypeDefinitions.NotNull().One();
+        var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(2);
@@ -43,7 +43,7 @@ public class UnionTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var union = documentNode.NotNull().UnionTypeDefinitions.NotNull().One();
+        var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(3);
@@ -61,7 +61,7 @@ public class UnionTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var union = documentNode.NotNull().UnionTypeDefinitions.NotNull().One();
+        var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal("bar", union.Description);
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
@@ -75,7 +75,7 @@ public class UnionTypeDefinition
         var t = new Core.Parser("union foo @bar = fizz");
         var documentNode = t.Parse();
 
-        var union = documentNode.NotNull().UnionTypeDefinitions.NotNull().One();
+        var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         var directive = union.Directives.NotNull().One();

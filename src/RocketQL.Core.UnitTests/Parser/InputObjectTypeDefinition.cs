@@ -8,7 +8,7 @@ public class InputObjectTypeDefinition
         var t = new Core.Parser("input foo { bar: Integer }");
         var documentNode = t.Parse();
 
-        var input = documentNode.NotNull().InputObjectTypeDefinitions.NotNull().One();
+        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
@@ -30,7 +30,7 @@ public class InputObjectTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var input = documentNode.NotNull().InputObjectTypeDefinitions.NotNull().One();
+        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal("bar", input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
@@ -50,7 +50,7 @@ public class InputObjectTypeDefinition
         var t = new Core.Parser("input foo @fizz { bar: Integer @buzz }");
         var documentNode = t.Parse();
 
-        var input = documentNode.NotNull().InputObjectTypeDefinitions.NotNull().One();
+        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, input.Description);
         Assert.Equal("foo", input.Name);
         var directive1 = input.Directives.NotNull().One();

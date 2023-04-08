@@ -11,7 +11,7 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -44,7 +44,7 @@ public class DirectiveDefinition
         var t = new Core.Parser($"directive @foo on {location}");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -67,7 +67,7 @@ public class DirectiveDefinition
         var t = new Core.Parser($"directive @foo on {str}");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -83,7 +83,7 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -99,7 +99,7 @@ public class DirectiveDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal("bar", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -113,7 +113,7 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
@@ -135,7 +135,7 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz = 3.14) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
@@ -159,7 +159,7 @@ public class DirectiveDefinition
         var t = new Core.Parser("directive @foo (bar: fizz @hello) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);

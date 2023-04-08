@@ -4,21 +4,19 @@ public class DirectiveDefinitionNodeList : List<DirectiveDefinitionNode> { };
 public class DirectiveNodeList : List<DirectiveNode> { };
 public class EnumTypeDefinitionNodeList : List<EnumTypeDefinitionNode> { };
 public class EnumValueDefinitionList : List<EnumValueDefinition> { };
-public class FieldDefinitionNodeList : List<FieldDefinitionNode> { }; 
+public class FieldDefinitionNodeList : List<FieldDefinitionNode> { };
+public class FragmentDefinitionNodeList : List<FragmentDefinitionNode> { };
 public class InputObjectTypeDefinitionNodeList : List<InputObjectTypeDefinitionNode> { }; 
 public class InputValueDefinitionNodeList : List<InputValueDefinitionNode> { };
 public class InterfaceTypeDefinitionNodeList : List<InterfaceTypeDefinitionNode> { }; 
 public class ObjectFieldNodeList : List<ObjectFieldNode> { };
 public class ObjectTypeDefinitionNodeList : List<ObjectTypeDefinitionNode> { };
-public class OperationNodeList : List<OperationNode> { }; 
+public class OperationDefinitionNodeList : List<OperationDefinitionNode> { }; 
 public class OperationTypeDefinitionNodeList : List<OperationTypeDefinitionNode> { };
-public class SelectionNodeList : List<SelectionNode> { }; 
+public class SelectionDefinitionNodeList : List<SelectionNode> { }; 
 public class ScalarTypeDefinitionNodeList : List<ScalarTypeDefinitionNode> { };
-public class SchemaNodeList : List<SchemaNode> { }; 
+public class SchemaDefinitionNodeList : List<SchemaDefinitionNode> { }; 
 public class NameList : List<string> { };
 public class UnionTypeDefinitionNodeList : List<UnionTypeDefinitionNode> { };
 public class ValueNodeList : List<ValueNode> { };
 public class VariableDefinitionNodeList : List<VariableDefinitionNode> { };
-
-
-

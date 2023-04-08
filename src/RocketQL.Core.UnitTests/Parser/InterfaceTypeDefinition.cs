@@ -8,12 +8,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        type.FieldDefinitions.NotNull().Count(0);
+        type.Fields.NotNull().Count(0);
     }
 
     [Theory]
@@ -24,12 +24,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal("bar", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        type.FieldDefinitions.NotNull().Count(0);
+        type.Fields.NotNull().Count(0);
     }
 
     [Theory]
@@ -44,14 +44,14 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
             Assert.Equal(implements[i], type.ImplementsInterfaces[i]);
         type.Directives.NotNull().Count(0);
-        type.FieldDefinitions.NotNull().Count(0);
+        type.Fields.NotNull().Count(0);
     }
 
     [Fact]
@@ -60,12 +60,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo { bar: Integer }");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        var field = type.FieldDefinitions.NotNull().One();
+        var field = type.Fields.NotNull().One();
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
@@ -83,12 +83,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        var field = type.FieldDefinitions.NotNull().One();
+        var field = type.Fields.NotNull().One();
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field.Description);
@@ -103,12 +103,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo { bar: Integer @fizz }");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        var field = type.FieldDefinitions.NotNull().One();
+        var field = type.Fields.NotNull().One();
         field.Arguments.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
@@ -124,12 +124,12 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo { bar(hello: Integer = 3): Integer }");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        var field = type.FieldDefinitions.NotNull().One();
+        var field = type.Fields.NotNull().One();
         field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
         TypeNameNode fieldType = (TypeNameNode)field.Type;
@@ -150,19 +150,19 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo { bar: Integer fizz: String }");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
-        type.FieldDefinitions.NotNull().Count(2);
-        var field1 = type.FieldDefinitions[0];
+        type.Fields.NotNull().Count(2);
+        var field1 = type.Fields[0];
         field1.Arguments.NotNull().Count(0);
         field1.Directives.NotNull().Count(0);
         Assert.Equal("bar", field1.Name);
         TypeNameNode field1Type = (TypeNameNode)field1.Type;
         Assert.Equal("Integer", field1Type.Name);
-        var field2 = type.FieldDefinitions[1];
+        var field2 = type.Fields[1];
         field2.Arguments.NotNull().Count(0);
         field2.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field2.Name);
@@ -176,13 +176,13 @@ public class InterfaceTypeDefinition
         var t = new Core.Parser("interface foo @bar");
         var documentNode = t.Parse();
 
-        var type = documentNode.NotNull().InterfaceTypeDefinitions.NotNull().One();
+        var type = documentNode.NotNull().InterfaceTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
-        type.FieldDefinitions.NotNull().Count(0);
+        type.Fields.NotNull().Count(0);
     }
 
     [Theory]

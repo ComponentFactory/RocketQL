@@ -10,7 +10,7 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         Assert.IsType<TypeNameNode>(argument.Type);
@@ -29,7 +29,7 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         Assert.IsType<TypeListNode>(argument.Type);
@@ -55,7 +55,7 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         Assert.IsType<TypeListNode>(argument.Type);
@@ -80,7 +80,7 @@ public class InputValueDefinitionList
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var arguments = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().Count(2);
+        var arguments = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().Count(2);
         var argument1 = arguments[0];
         Assert.Equal(string.Empty, argument1.Description);
         Assert.Equal("fizz", argument1.Name);

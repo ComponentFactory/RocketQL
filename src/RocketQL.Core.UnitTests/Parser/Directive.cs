@@ -8,7 +8,7 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<TypeNameNode>(directive.Type);
@@ -28,7 +28,7 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello (world: 3)) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<TypeNameNode>(directive.Type);
@@ -51,7 +51,7 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<TypeNameNode>(directive.Type);
@@ -80,7 +80,7 @@ public class Directive
         var t = new Core.Parser("directive @foo (bar: fizz @hello @world) on ENUM");
         var documentNode = t.Parse();
 
-        var directive = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<TypeNameNode>(directive.Type);

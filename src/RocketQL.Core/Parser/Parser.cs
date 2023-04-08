@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace RocketQL.Core;
 
@@ -14,15 +15,16 @@ public ref struct Parser
 
     public DocumentNode Parse()
     {
-        OperationNodeList _operations = new();
-        SchemaNodeList _schemas = new();
-        ScalarTypeDefinitionNodeList _scalarTypeDefinitions = new();
-        ObjectTypeDefinitionNodeList _objectTypeDefinitions = new();
-        InterfaceTypeDefinitionNodeList _interfaceTypeDefinitions = new();
-        UnionTypeDefinitionNodeList _unionTypeDefinitions = new();
-        EnumTypeDefinitionNodeList _enumTypeDefinitions = new();
-        InputObjectTypeDefinitionNodeList _inputObjectTypeDefinitions = new();
-        DirectiveDefinitionNodeList _directiveDefinitions = new();
+        OperationDefinitionNodeList _operations = new();
+        FragmentDefinitionNodeList _fragments = new();
+        SchemaDefinitionNodeList _schemas = new();
+        ScalarTypeDefinitionNodeList _scalarTypes = new();
+        ObjectTypeDefinitionNodeList _objectTypes = new();
+        InterfaceTypeDefinitionNodeList _interfaceTypes = new();
+        UnionTypeDefinitionNodeList _unionTypes = new();
+        EnumTypeDefinitionNodeList _enumTypes = new();
+        InputObjectTypeDefinitionNodeList _inputObjectTypes = new();
+        DirectiveDefinitionNodeList _directives = new();
 
         // Move to the first real token
         _tokenizer.Next();
@@ -42,54 +44,52 @@ public ref struct Parser
                         case "query":
                         case "mutation":
                         case "subscription":
-                            _operations.Add(ParseOperation());
+                            _operations.Add(ParseOperationDefinition());
+                            break;
+                        case "fragment":
+                            _fragments.Add(ParseFragmentDefinition());
                             break;
                         case "schema":
-                            _schemas.Add(ParseSchema());
+                            _schemas.Add(ParseSchemaDefinition());
                             break;
                         case "scalar":
-                            _scalarTypeDefinitions.Add(ParseScalarTypeDefinition());
+                            _scalarTypes.Add(ParseScalarTypeDefinition());
                             break;
                         case "type":
-                            _objectTypeDefinitions.Add(ParseObjectTypeDefinition());
+                            _objectTypes.Add(ParseObjectTypeDefinition());
                             break;
                         case "interface":
-                            _interfaceTypeDefinitions.Add(ParseInterfaceTypeDefinition());
+                            _interfaceTypes.Add(ParseInterfaceTypeDefinition());
                             break;
                         case "union":
-                            _unionTypeDefinitions.Add(ParseUnionTypeDefinition());
+                            _unionTypes.Add(ParseUnionTypeDefinition());
                             break;
                         case "enum":
-                            _enumTypeDefinitions.Add(ParseEnumTypeDefinition());
+                            _enumTypes.Add(ParseEnumTypeDefinition());
                             break;
                         case "input":
-                            _inputObjectTypeDefinitions.Add(ParseInputObjectTypeDefinition());
+                            _inputObjectTypes.Add(ParseInputObjectTypeDefinition());
                             break;
                         case "directive":
-                            _directiveDefinitions.Add(ParseDirectiveDefinition());
+                            _directives.Add(ParseDirectiveDefinition());
                             break;
                         default:
                             throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                     }
+                    break;
+                case TokenKind.LeftCurlyBracket:
+                    _operations.Add(new OperationDefinitionNode(OperationType.QUERY, string.Empty, new(), new(), ParseSelectionSet()));
                     break;
                 default:
                     throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind);
             }
         }
 
-        return new DocumentNode(_operations,
-                                _schemas,
-                                _scalarTypeDefinitions,
-                                _objectTypeDefinitions,
-                                _interfaceTypeDefinitions,
-                                _unionTypeDefinitions,
-                                _enumTypeDefinitions,
-                                _inputObjectTypeDefinitions,
-                                _directiveDefinitions);
+        return new DocumentNode(_operations, _fragments, _schemas, _scalarTypes, _objectTypes, _interfaceTypes, _unionTypes, _enumTypes, _inputObjectTypes, _directives);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationNode ParseOperation()
+    private OperationDefinitionNode ParseOperationDefinition()
     {
         OperationType operationType = OperationTypeFromTokenValue();
         MandatoryNext();
@@ -101,15 +101,32 @@ public ref struct Parser
             MandatoryNext();
         }
 
-        var variables = ParseVariablesOptionalDefinition();
-        var directives = ParseDirectivesOptional();
-        var selectionSet = ParseSelectionSet();
-
-        return new OperationNode(operationType, name, variables, directives, selectionSet);
+        return new OperationDefinitionNode(operationType, 
+                                           name, 
+                                           ParseVariablesOptionalDefinition(), 
+                                           ParseDirectivesOptional(), 
+                                           ParseSelectionSet());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SchemaNode ParseSchema()
+    private FragmentDefinitionNode ParseFragmentDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        if (name == "on")
+            throw SyntaxException.FragmentNameCannotBeOn(_tokenizer.Location);
+
+        MandatoryNext();
+        MandatoryKeyword("on");
+        MandatoryNextToken(TokenKind.Name);
+        string typeCondition = _tokenizer.TokenValue;
+        MandatoryNext();
+
+        return new FragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet());
+    }
+        
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SchemaDefinitionNode ParseSchemaDefinition()
     {
         MandatoryNext();
         var directives = ParseDirectivesOptional();
@@ -131,7 +148,7 @@ public ref struct Parser
         } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
         
         _tokenizer.Next();
-        return new SchemaNode(UseTopLevelDescription(), directives, list);
+        return new SchemaDefinitionNode(UseTopLevelDescription(), directives, list);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,9 +157,10 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        var directives = ParseDirectivesOptional();
 
-        return new ScalarTypeDefinitionNode(UseTopLevelDescription(), name, directives);
+        return new ScalarTypeDefinitionNode(UseTopLevelDescription(), 
+                                            name, 
+                                            ParseDirectivesOptional());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -151,11 +169,12 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        var implementsInterfaces = ParseImplementsInterfacesOptional();
-        var directives = ParseDirectivesOptional();
-        var fields = ParseFieldsOptionalDefinition();
-
-        return new ObjectTypeDefinitionNode(UseTopLevelDescription(), name, implementsInterfaces, directives, fields);
+        
+        return new ObjectTypeDefinitionNode(UseTopLevelDescription(), 
+                                            name, 
+                                            ParseImplementsInterfacesOptional(), 
+                                            ParseDirectivesOptional(), 
+                                            ParseFieldsOptionalDefinition());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -164,11 +183,12 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        var implementsInterfaces = ParseImplementsInterfacesOptional();
-        var directives = ParseDirectivesOptional();
-        var fields = ParseFieldsOptionalDefinition();
 
-        return new InterfaceTypeDefinitionNode(UseTopLevelDescription(), name, implementsInterfaces, directives, fields);
+        return new InterfaceTypeDefinitionNode(UseTopLevelDescription(), 
+                                               name, 
+                                               ParseImplementsInterfacesOptional(), 
+                                               ParseDirectivesOptional(), 
+                                               ParseFieldsOptionalDefinition());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -177,10 +197,11 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        var directives = ParseDirectivesOptional();
-        var memberTypes = ParseMemberTypesOptional();
 
-        return new UnionTypeDefinitionNode(UseTopLevelDescription(), name, directives, memberTypes);
+        return new UnionTypeDefinitionNode(UseTopLevelDescription(), 
+                                           name, 
+                                           ParseDirectivesOptional(), 
+                                           ParseMemberTypesOptional());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,10 +210,11 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        var directives = ParseDirectivesOptional();
-        var enumValueTypes = ParseEnumValueTypesOptional();
 
-        return new EnumTypeDefinitionNode(UseTopLevelDescription(), name, directives, enumValueTypes);
+        return new EnumTypeDefinitionNode(UseTopLevelDescription(), 
+                                          name, 
+                                          ParseDirectivesOptional(), 
+                                          ParseEnumValueTypesOptional());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -207,7 +229,10 @@ public ref struct Parser
         MandatoryToken(TokenKind.RightCurlyBracket);
         _tokenizer.Next();
 
-        return new InputObjectTypeDefinitionNode(UseTopLevelDescription(), name, directives, inputFields);
+        return new InputObjectTypeDefinitionNode(UseTopLevelDescription(), 
+                                                 name, 
+                                                 directives, 
+                                                 inputFields);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -220,9 +245,12 @@ public ref struct Parser
         var arguments = ParseArgumentsOptionalDefinition();
         var repeatable = OptionalKeyword("repeatable");
         MandatoryKeyword("on");
-        var directiveLocations = ParseDirectiveLocations();
 
-        return new DirectiveDefinitionNode(UseTopLevelDescription(), name, arguments, repeatable, directiveLocations);
+        return new DirectiveDefinitionNode(UseTopLevelDescription(), 
+                                           name, 
+                                           arguments, 
+                                           repeatable, 
+                                           ParseDirectiveLocations());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -274,10 +302,11 @@ public ref struct Parser
             string name = _tokenizer.TokenValue;
             MandatoryNextToken(TokenKind.Colon);
             MandatoryNext();
-            var type = ParseType();
-            var defaultValue = ParseDefaultValueOptional();
-            var directives = ParseDirectivesOptional();
-            list.Add(new VariableDefinitionNode(name, type, defaultValue, directives));
+
+            list.Add(new VariableDefinitionNode(name, 
+                                                ParseType(), 
+                                                ParseDefaultValueOptional(), 
+                                                ParseDirectivesOptional()));
 
         } while (_tokenizer.TokenKind == TokenKind.Dollar);
 
@@ -285,7 +314,7 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SelectionNodeList ParseSelectionSetOptional()
+    private SelectionDefinitionNodeList ParseSelectionSetOptional()
     {
         if (_tokenizer.TokenKind == TokenKind.LeftCurlyBracket)
             return ParseSelectionSet();
@@ -294,9 +323,9 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SelectionNodeList ParseSelectionSet()
+    private SelectionDefinitionNodeList ParseSelectionSet()
     {
-        SelectionNodeList list = new();
+        SelectionDefinitionNodeList list = new();
 
         MandatoryTokenNext(TokenKind.LeftCurlyBracket);
 
@@ -319,15 +348,38 @@ public ref struct Parser
                             MandatoryNext();
                         }
 
-                        var arguments = ParseArgumentsOptional(constant: false);
-                        var directives = ParseDirectivesOptional();
-                        var selectionSet = ParseSelectionSetOptional();
-                        list.Add(new FieldSelectionNode(alias, name, arguments, directives, selectionSet));
+                        list.Add(new FieldSelectionNode(alias, 
+                                                        name, 
+                                                        ParseArgumentsOptional(constant: false), 
+                                                        ParseDirectivesOptional(), 
+                                                        ParseSelectionSetOptional()));
                     }
                     break;
                 case TokenKind.Spread:
                     {
-                        // TODO
+                        MandatoryNext();
+
+                        string name = string.Empty;
+                        if (_tokenizer.TokenKind == TokenKind.Name)
+                        {
+                            name = _tokenizer.TokenValue;
+                            if (name != "on")
+                            {
+                                _tokenizer.Next();
+                                list.Add(new FragmentSpreadSelectionNode(name, ParseDirectivesOptional()));
+                                break;
+                            }
+                            else
+                            {
+                                MandatoryNextToken(TokenKind.Name);
+                                name = _tokenizer.TokenValue;
+                                _tokenizer.Next();
+                            }
+                        }
+
+                        list.Add(new InlineFragmentSelectionNode(name, 
+                                                                 ParseDirectivesOptional(), 
+                                                                 ParseSelectionSet()));
                     }
                     break;
                 default:
@@ -357,9 +409,12 @@ public ref struct Parser
                 MandatoryNext();
                 var arguments = ParseArgumentsOptionalDefinition();
                 MandatoryTokenNext(TokenKind.Colon);
-                var type = ParseType();
-                var directives = ParseDirectivesOptional();
-                list.Add(new FieldDefinitionNode(description ?? string.Empty, name, arguments, type, directives));
+
+                list.Add(new FieldDefinitionNode(description ?? string.Empty, 
+                                                name, 
+                                                arguments, 
+                                                ParseType(), 
+                                                ParseDirectivesOptional()));
 
             } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
 
@@ -384,8 +439,10 @@ public ref struct Parser
                 MandatoryToken(TokenKind.Name);
                 string name = _tokenizer.TokenValue;
                 MandatoryNext();
-                var directives = ParseDirectivesOptional();
-                list.Add(new EnumValueDefinition(description ?? string.Empty, name, directives));
+                
+                list.Add(new EnumValueDefinition(description ?? string.Empty,
+                                                 name, 
+                                                 ParseDirectivesOptional()));
 
             } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
 
@@ -445,10 +502,12 @@ public ref struct Parser
             string name = _tokenizer.TokenValue;
             MandatoryNextToken(TokenKind.Colon);
             MandatoryNext();
-            var type = ParseType();
-            var defaultValue = ParseDefaultValueOptional();
-            var directives = ParseDirectivesOptional();
-            list.Add(new InputValueDefinitionNode(description ?? string.Empty, name, type, defaultValue, directives));
+
+            list.Add(new InputValueDefinitionNode(description ?? string.Empty, 
+                                                  name, 
+                                                  ParseType(), 
+                                                  ParseDefaultValueOptional(), 
+                                                  ParseDirectivesOptional()));
 
         } while ((_tokenizer.TokenKind == TokenKind.Name) || (_tokenizer.TokenKind == TokenKind.StringValue));
 
@@ -524,6 +583,7 @@ public ref struct Parser
                         string name = _tokenizer.TokenValue;
                         MandatoryNextToken(TokenKind.Colon);
                         MandatoryNext();
+
                         list.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
                     }
 
@@ -548,8 +608,8 @@ public ref struct Parser
             MandatoryNextToken(TokenKind.Name);
             string name = _tokenizer.TokenValue;
             _tokenizer.Next();
-            var arguments = ParseArgumentsOptional(true);
-            list.Add(new DirectiveNode(name, arguments));
+
+            list.Add(new DirectiveNode(name, ParseArgumentsOptional(true)));
         }
 
         return list;
@@ -569,6 +629,7 @@ public ref struct Parser
                 string name = _tokenizer.TokenValue;
                 MandatoryNextToken(TokenKind.Colon);
                 MandatoryNext();
+
                 list.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
             }
 
@@ -587,16 +648,16 @@ public ref struct Parser
                 {
                     var name = _tokenizer.TokenValue;
                     MandatoryNext();
-                    var nonNull = OptionalToken(TokenKind.Exclamation);
-                    return new TypeNameNode(name, nonNull);
+
+                    return new TypeNameNode(name, OptionalToken(TokenKind.Exclamation));
                 }
             case TokenKind.LeftSquareBracket:
                 {
                     MandatoryNext();
                     var listType = ParseType();
                     MandatoryTokenNext(TokenKind.RightSquareBracket);
-                    var nonNull = OptionalToken(TokenKind.Exclamation);
-                    return new TypeListNode(listType, nonNull);
+
+                    return new TypeListNode(listType, OptionalToken(TokenKind.Exclamation));
                 }
             default:
                 throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind);
@@ -659,7 +720,7 @@ public ref struct Parser
     {
         string? description = _description;
         _description = null;
-        return description ?? String.Empty;
+        return description ?? string.Empty;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

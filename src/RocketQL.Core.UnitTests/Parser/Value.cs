@@ -8,7 +8,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = 1) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         IntValueNode valueNode = argument.DefaultValue.IsType<IntValueNode>();
         Assert.Equal("1", valueNode.Value);
     }
@@ -19,7 +19,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = 3.14159) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         FloatValueNode valueNode = argument.DefaultValue.IsType<FloatValueNode>();
         Assert.Equal("3.14159", valueNode.Value);
     }
@@ -30,7 +30,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = \"word\") on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
         Assert.Equal("word", valueNode.Value);
     }
@@ -41,7 +41,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = \"\"\"word\"\"\") on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
         Assert.Equal("word", valueNode.Value);
     }
@@ -54,7 +54,7 @@ public class Value
         var t = new Core.Parser($"directive @foo (fizz: buzz = {value.ToString().ToLower()}) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         BooleanValueNode valueNode = argument.DefaultValue.IsType<BooleanValueNode>();
         Assert.Equal(value, valueNode.Value);
     }
@@ -65,7 +65,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = null) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         argument.DefaultValue.IsType<NullValueNode>();
     }
 
@@ -75,7 +75,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = ORANGE) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         EnumValueNode valueNode = argument.DefaultValue.IsType<EnumValueNode>();
         Assert.Equal("ORANGE", valueNode.Value);
     }
@@ -86,7 +86,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = []) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         valueNode.Values.NotNull().Count(0);
     }
@@ -97,7 +97,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3]) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         IntValueNode entryNode = valueNode.Values.NotNull().One().IsType<IntValueNode>();
         Assert.Equal("3", entryNode.Value);
@@ -112,7 +112,7 @@ public class Value
         var t = new Core.Parser(schema);
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(3);
         IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
@@ -128,7 +128,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3 [4]]) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(2);
         IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
@@ -145,7 +145,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = [3 { hello: null }]) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(2);
         IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
@@ -161,7 +161,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = {}) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectValueNode valueNode = argument.DefaultValue.IsType<ObjectValueNode>();
         valueNode.ObjectFields.NotNull().Count(0);
     }
@@ -172,7 +172,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: 42 }) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode.Name);
         IntValueNode intNode = fieldNode.Value.IsType<IntValueNode>();
@@ -185,7 +185,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: { hello: 42 } }) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode1 = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode1.Name);
         ObjectFieldNode fieldNode2 = fieldNode1.Value.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
@@ -200,7 +200,7 @@ public class Value
         var t = new Core.Parser("directive @foo (fizz: buzz = { world: [42] }) on ENUM");
         var documentNode = t.Parse();
 
-        var argument = documentNode.NotNull().DirectiveDefinitions.NotNull().One().Arguments.NotNull().One();
+        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode.Name);
         IntValueNode entryNode = fieldNode.Value.IsType<ListValueNode>().Values.NotNull().One().IsType<IntValueNode>();
