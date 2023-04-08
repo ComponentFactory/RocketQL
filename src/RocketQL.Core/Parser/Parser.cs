@@ -17,14 +17,14 @@ public ref struct Parser
     {
         OperationDefinitionNodeList _operations = new();
         FragmentDefinitionNodeList _fragments = new();
-        SchemaDefinitionNodeList _schemas = new();
-        ScalarTypeDefinitionNodeList _scalarTypes = new();
-        ObjectTypeDefinitionNodeList _objectTypes = new();
-        InterfaceTypeDefinitionNodeList _interfaceTypes = new();
-        UnionTypeDefinitionNodeList _unionTypes = new();
-        EnumTypeDefinitionNodeList _enumTypes = new();
-        InputObjectTypeDefinitionNodeList _inputObjectTypes = new();
         DirectiveDefinitionNodeList _directives = new();
+        SchemaDefinitionNodeList _schemas = new();                      ExtendSchemaDefinitionNodeList _extendSchemas = new();
+        ScalarTypeDefinitionNodeList _scalarTypes = new();              ExtendScalarTypeDefinitionNodeList _extendScalarTypes = new();
+        ObjectTypeDefinitionNodeList _objectTypes = new();              ExtendObjectTypeDefinitionNodeList _extendObjectTypes = new();
+        InterfaceTypeDefinitionNodeList _interfaceTypes = new();        ExtendInterfaceTypeDefinitionNodeList _extendInterfaceTypes = new();
+        UnionTypeDefinitionNodeList _unionTypes = new();                ExtendUnionTypeDefinitionNodeList _extendUnionTypes = new();
+        EnumTypeDefinitionNodeList _enumTypes = new();                  ExtendEnumTypeDefinitionNodeList _extendEnumTypes = new();
+        InputObjectTypeDefinitionNodeList _inputObjectTypes = new();    ExtendInputObjectTypeDefinitionNodeList _extendInputObjectTypes = new();
 
         // Move to the first real token
         _tokenizer.Next();
@@ -73,6 +73,37 @@ public ref struct Parser
                         case "directive":
                             _directives.Add(ParseDirectiveDefinition());
                             break;
+                        case "extend":
+                            {
+                                MandatoryNextToken(TokenKind.Name);
+                                switch (_tokenizer.TokenValue)
+                                {
+                                    case "schema":
+                                        _extendSchemas.Add(ParseExtendSchemaDefinition());
+                                        break;
+                                    case "scalar":
+                                        _extendScalarTypes.Add(ParseExtendScalarTypeDefinition());
+                                        break;
+                                    case "type":
+                                        _extendObjectTypes.Add(ParseExtendObjectTypeDefinition());
+                                        break;
+                                    case "interface":
+                                        _extendInterfaceTypes.Add(ParseExtendInterfaceTypeDefinition());
+                                        break;
+                                    case "union":
+                                        _extendUnionTypes.Add(ParseExtendUnionTypeDefinition());
+                                        break;
+                                    case "enum":
+                                        _extendEnumTypes.Add(ParseExtendEnumTypeDefinition());
+                                        break;
+                                    case "input":
+                                        _extendInputObjectTypes.Add(ParseExtendInputObjectTypeDefinition());
+                                        break;
+                                    default:
+                                        throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
+                                }
+                            }
+                            break;
                         default:
                             throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                     }
@@ -85,7 +116,14 @@ public ref struct Parser
             }
         }
 
-        return new DocumentNode(_operations, _fragments, _schemas, _scalarTypes, _objectTypes, _interfaceTypes, _unionTypes, _enumTypes, _inputObjectTypes, _directives);
+        return new DocumentNode(_operations, _fragments, _directives,
+                                _schemas, _extendSchemas,
+                                _scalarTypes, _extendScalarTypes,
+                                _objectTypes, _extendObjectTypes,
+                                _interfaceTypes, _extendInterfaceTypes,
+                                _unionTypes, _extendUnionTypes,
+                                _enumTypes, _extendEnumTypes,
+                                _inputObjectTypes, _extendInputObjectTypes);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -152,15 +190,56 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendSchemaDefinitionNode ParseExtendSchemaDefinition()
+    {
+        MandatoryNext();
+        var directives = ParseDirectivesOptional();
+        
+        OperationTypeDefinitionNodeList list = new();
+
+        if (_tokenizer.TokenKind == TokenKind.LeftCurlyBracket)
+        {
+            MandatoryNext();
+
+            do
+            {
+                MandatoryToken(TokenKind.Name);
+                OperationType operationType = OperationTypeFromTokenValue();
+                MandatoryNextToken(TokenKind.Colon);
+                MandatoryNextToken(TokenKind.Name);
+                string namedType = _tokenizer.TokenValue;
+                MandatoryNext();
+
+                list.Add(new OperationTypeDefinitionNode(operationType, namedType));
+
+            } while (_tokenizer.TokenKind != TokenKind.RightCurlyBracket);
+
+            _tokenizer.Next();
+        }
+        else if (directives.Count == 0)
+            throw SyntaxException.ExtendSchemaMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendSchemaDefinitionNode(directives, list);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ScalarTypeDefinitionNode ParseScalarTypeDefinition()
     {
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
-        return new ScalarTypeDefinitionNode(UseTopLevelDescription(), 
-                                            name, 
-                                            ParseDirectivesOptional());
+        return new ScalarTypeDefinitionNode(UseTopLevelDescription(), name, ParseDirectivesOptional());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendScalarTypeDefinitionNode ParseExtendScalarTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+
+        return new ExtendScalarTypeDefinitionNode(name, ParseDirectivesOptional());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -169,12 +248,29 @@ public ref struct Parser
         MandatoryNextToken(TokenKind.Name);
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
-        
-        return new ObjectTypeDefinitionNode(UseTopLevelDescription(), 
-                                            name, 
-                                            ParseImplementsInterfacesOptional(), 
-                                            ParseDirectivesOptional(), 
+
+        return new ObjectTypeDefinitionNode(UseTopLevelDescription(),
+                                            name,
+                                            ParseImplementsInterfacesOptional(),
+                                            ParseDirectivesOptional(),
                                             ParseFieldsOptionalDefinition());
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendObjectTypeDefinitionNode ParseExtendObjectTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+        var implementsIntefaces = ParseImplementsInterfacesOptional();
+        var directives = ParseDirectivesOptional();
+        var fieldSet = ParseFieldsOptionalDefinition();
+
+        if ((implementsIntefaces.Count == 0) && (directives.Count == 0) && (fieldSet.Count == 0))
+            throw SyntaxException.ExtendObjectTypeMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendObjectTypeDefinitionNode(name, implementsIntefaces, directives, fieldSet);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -192,6 +288,22 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendInterfaceTypeDefinitionNode ParseExtendInterfaceTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+        var implementsIntefaces = ParseImplementsInterfacesOptional();
+        var directives = ParseDirectivesOptional();
+        var fieldSet = ParseFieldsOptionalDefinition();
+
+        if ((implementsIntefaces.Count == 0) && (directives.Count == 0) && (fieldSet.Count == 0))
+            throw SyntaxException.ExtendInterfaceTypeMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendInterfaceTypeDefinitionNode(name, implementsIntefaces, directives, fieldSet);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UnionTypeDefinitionNode ParseUnionTypeDefinition()
     {
         MandatoryNextToken(TokenKind.Name);
@@ -205,6 +317,22 @@ public ref struct Parser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendUnionTypeDefinitionNode ParseExtendUnionTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+
+        var directives = ParseDirectivesOptional();
+        var memberTypes = ParseMemberTypesOptional();
+
+        if ((directives.Count == 0) && (memberTypes.Count == 0))
+            throw SyntaxException.ExtendUnionTypeMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendUnionTypeDefinitionNode(name, directives, memberTypes);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private EnumTypeDefinitionNode ParseEnumTypeDefinition()
     {
         MandatoryNextToken(TokenKind.Name);
@@ -215,6 +343,22 @@ public ref struct Parser
                                           name, 
                                           ParseDirectivesOptional(), 
                                           ParseEnumValueTypesOptional());
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendEnumTypeDefinitionNode ParseExtendEnumTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+
+        var directives = ParseDirectivesOptional();
+        var enumValues = ParseEnumValueTypesOptional();
+
+        if ((directives.Count == 0) && (enumValues.Count == 0))
+            throw SyntaxException.ExtendEnumTypeMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendEnumTypeDefinitionNode(name, directives, enumValues);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,6 +377,29 @@ public ref struct Parser
                                                  name, 
                                                  directives, 
                                                  inputFields);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ExtendInputObjectTypeDefinitionNode ParseExtendInputObjectTypeDefinition()
+    {
+        MandatoryNextToken(TokenKind.Name);
+        string name = _tokenizer.TokenValue;
+        _tokenizer.Next();
+        var directives = ParseDirectivesOptional();
+
+        InputValueDefinitionNodeList? inputFields = null;
+        if (_tokenizer.TokenKind == TokenKind.LeftCurlyBracket)
+        {
+            MandatoryTokenNext(TokenKind.LeftCurlyBracket);
+            inputFields = ParseInputValueListDefinition();
+            MandatoryToken(TokenKind.RightCurlyBracket);
+            _tokenizer.Next();
+        }
+
+        if ((directives.Count == 0) && (inputFields is null))
+            throw SyntaxException.ExtendInputObjectTypeMissingAtLeastOne(_tokenizer.Location);
+
+        return new ExtendInputObjectTypeDefinitionNode(name, directives, inputFields ?? new());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

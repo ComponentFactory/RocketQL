@@ -2,27 +2,34 @@
 
 public record class DocumentNode(OperationDefinitionNodeList Operations,
                                  FragmentDefinitionNodeList Fragments,
-                                 SchemaDefinitionNodeList Schemas,
-                                 ScalarTypeDefinitionNodeList ScalarTypes, 
-                                 ObjectTypeDefinitionNodeList ObjectTypes, 
-                                 InterfaceTypeDefinitionNodeList InterfaceTypes,
-                                 UnionTypeDefinitionNodeList UnionTypes,
-                                 EnumTypeDefinitionNodeList EnumTypes,
-                                 InputObjectTypeDefinitionNodeList InputObjectTypes,
-                                 DirectiveDefinitionNodeList Directives);
+                                 DirectiveDefinitionNodeList Directives,
+                                 SchemaDefinitionNodeList Schemas, ExtendSchemaDefinitionNodeList ExtendSchemas,
+                                 ScalarTypeDefinitionNodeList ScalarTypes, ExtendScalarTypeDefinitionNodeList ExtendScalarTypes,
+                                 ObjectTypeDefinitionNodeList ObjectTypes, ExtendObjectTypeDefinitionNodeList ExtendObjectTypes,
+                                 InterfaceTypeDefinitionNodeList InterfaceTypes, ExtendInterfaceTypeDefinitionNodeList ExtendInterfaceTypes,
+                                 UnionTypeDefinitionNodeList UnionTypes, ExtendUnionTypeDefinitionNodeList ExtendUnionTypes,
+                                 EnumTypeDefinitionNodeList EnumTypes, ExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
+                                 InputObjectTypeDefinitionNodeList InputObjectTypes, ExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
 
 //------------------------------------------------------------------------------
 // Nodes at the top level of a document
 //------------------------------------------------------------------------------
 public record class OperationDefinitionNode(OperationType Operation, string Name, VariableDefinitionNodeList VariableDefinitions, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
 public record class FragmentDefinitionNode(string Name, string TypeCondition, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
-public record class SchemaDefinitionNode(string Description, DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypes);
-public record class ScalarTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives);
-public record class ObjectTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
-public record class InterfaceTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
-public record class UnionTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, NameList MemberTypes);
-public record class EnumTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, EnumValueDefinitionList EnumValues);
-public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields);
+public record class ExtendSchemaDefinitionNode(DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypes);
+public record class SchemaDefinitionNode(string Description, DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypes) : ExtendSchemaDefinitionNode(Directives, OperationTypes);
+public record class ExtendScalarTypeDefinitionNode(string Name, DirectiveNodeList Directives);
+public record class ScalarTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives) : ExtendScalarTypeDefinitionNode(Name, Directives);
+public record class ExtendObjectTypeDefinitionNode(string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
+public record class ObjectTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields) : ExtendObjectTypeDefinitionNode(Name, ImplementsInterfaces, Directives, Fields);
+public record class ExtendInterfaceTypeDefinitionNode(string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields);
+public record class InterfaceTypeDefinitionNode(string Description, string Name, NameList ImplementsInterfaces, DirectiveNodeList Directives, FieldDefinitionNodeList Fields) : ExtendInterfaceTypeDefinitionNode(Name, ImplementsInterfaces, Directives, Fields);
+public record class ExtendUnionTypeDefinitionNode(string Name, DirectiveNodeList Directives, NameList MemberTypes);
+public record class UnionTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, NameList MemberTypes) : ExtendUnionTypeDefinitionNode(Name, Directives, MemberTypes);
+public record class ExtendEnumTypeDefinitionNode(string Name, DirectiveNodeList Directives, EnumValueDefinitionList EnumValues);
+public record class EnumTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, EnumValueDefinitionList EnumValues) : ExtendEnumTypeDefinitionNode(Name, Directives, EnumValues);
+public record class ExtendInputObjectTypeDefinitionNode(string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields);
+public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields) : ExtendInputObjectTypeDefinitionNode(Name, Directives, InputFields);
 public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
 
 //------------------------------------------------------------------------------
