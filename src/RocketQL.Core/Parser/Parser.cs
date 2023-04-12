@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml.Linq;
-
-namespace RocketQL.Core;
+﻿namespace RocketQL.Core;
 
 public ref struct Parser
 {

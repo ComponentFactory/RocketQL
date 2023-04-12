@@ -11,10 +11,10 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
     <PackageReference Include="GraphQL-Parser" Version="8.1.0" />
     <PackageReference Include="GraphQL.Server.All" Version="7.3.0" />
+    <PackageReference Include="HotChocolate.Language" Version="13.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Language.Utf8\HotChocolate.Language.Utf8.csproj" />
     <ProjectReference Include="..\RocketQL.Core\RocketQL.Core.csproj" />
   </ItemGroup>
 

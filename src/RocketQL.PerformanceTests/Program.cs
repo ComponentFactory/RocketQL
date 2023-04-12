@@ -5,9 +5,7 @@ using GQLParser = GraphQLParser;
 using GQLJson = GraphQL.SystemTextJson;
 using HC = HotChocolate.Language;
 using RQL = RocketQL.Core;
-using static BenchmarkDotNet.Attributes.MarkdownExporterAttribute;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace DotNetQL.PerformanceTests
 {
