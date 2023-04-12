@@ -1,10 +1,13 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using System.Text;
-using GQL = GraphQLParser;
+using GQLParser = GraphQLParser;
+using GQLJson = GraphQL.SystemTextJson;
 using HC = HotChocolate.Language;
 using RQL = RocketQL.Core;
-
+using static BenchmarkDotNet.Attributes.MarkdownExporterAttribute;
+using System.Text.Json;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace DotNetQL.PerformanceTests
 {
@@ -12,8 +15,48 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<ParserBenchmark>();
+            var x = new DeserializerBenchmark();
+            x.GraphQL_Small_Deserial();
+
+            BenchmarkRunner.Run<DeserializerBenchmark>();
+            //BenchmarkRunner.Run<TokenizerBenchmark>();
+            //BenchmarkRunner.Run<ParserBenchmark>();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class DeserializerBenchmark
+    {
+        public string _input =
+        """
+        {
+            "int": 123,
+            "float": 3.14,
+            "string": "hello",
+            "listints": [1, 2, 3],
+            "object": {
+                "int": 123,
+                "float": 3.14,
+                "string": "hello",
+                "listints": [1, 2, 3],
+            }
+        }
+        """;
+
+        public byte[] _utf8Bytes = Array.Empty<byte>();
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _utf8Bytes = Encoding.UTF8.GetBytes(_input);
+        }
+
+        [Benchmark]
+        public void GraphQL_Small_Deserial()
+        {
+            var reader = new GQLJson.InputsJsonConverter();
+            var utf8reader = new Utf8JsonReader(_utf8Bytes);
+            var inputs = reader.Read(ref utf8reader, typeof(object), new JsonSerializerOptions());
         }
     }
 
@@ -36,7 +79,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void Token_GraphQL_GitHub_Token()
+        public void _GraphQL_GitHub_Token()
         {
             GraphQL(_github);
         }
@@ -75,17 +118,17 @@ namespace DotNetQL.PerformanceTests
         {
             var s = string.Empty;
             int resetPosition = 0;
-            GQL.Token token;
-            while ((token = GQL.Lexer.Lex(schema, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
+            GQLParser.Token token;
+            while ((token = GQLParser.Lexer.Lex(schema, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
             {
                 resetPosition = token.End;
                 switch (token.Kind)
                 {
-                    case GQL.TokenKind.STRING:
-                    case GQL.TokenKind.INT:
-                    case GQL.TokenKind.FLOAT:
-                    case GQL.TokenKind.NAME:
-                    case GQL.TokenKind.COMMENT:
+                    case GQLParser.TokenKind.STRING:
+                    case GQLParser.TokenKind.INT:
+                    case GQLParser.TokenKind.FLOAT:
+                    case GQLParser.TokenKind.NAME:
+                    case GQLParser.TokenKind.COMMENT:
                         s = token.Value.ToString();
                         break;
                 }
