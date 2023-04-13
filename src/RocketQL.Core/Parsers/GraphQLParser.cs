@@ -109,7 +109,7 @@ public ref struct GraphQLParser
                     _operations.Add(new OperationDefinitionNode(OperationType.QUERY, string.Empty, new(), new(), ParseSelectionSet()));
                     break;
                 default:
-                    throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind);
+                    throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
             }
         }
 
@@ -547,7 +547,7 @@ public ref struct GraphQLParser
                     }
                     break;
                 default:
-                    throw SyntaxException.SelectionSetInvalidToken(_tokenizer.Location, _tokenizer.TokenKind);
+                    throw SyntaxException.SelectionSetInvalidToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
 
             }
         } while (_tokenizer.TokenKind != GraphQLTokenKind.RightCurlyBracket);
@@ -698,7 +698,7 @@ public ref struct GraphQLParser
             case GraphQLTokenKind.Dollar:
                 {
                     if (constant)
-                        throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind);
+                        throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind.ToString());
 
                     MandatoryNextToken(GraphQLTokenKind.Name);
                     node = new VariableValueNode(_tokenizer.TokenValue);
@@ -755,7 +755,7 @@ public ref struct GraphQLParser
                 }
                 break;
             default:
-                throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind);
+                throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind.ToString());
         }
 
         MandatoryNext();
@@ -824,7 +824,7 @@ public ref struct GraphQLParser
                     return new TypeListNode(listType, OptionalToken(GraphQLTokenKind.Exclamation));
                 }
             default:
-                throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind);
+                throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind.ToString());
         }
     }
 
@@ -913,7 +913,7 @@ public ref struct GraphQLParser
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
         if (_tokenizer.TokenKind != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token.ToString(), _tokenizer.TokenKind.ToString());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -923,7 +923,7 @@ public ref struct GraphQLParser
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
         if (_tokenizer.TokenKind != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token.ToString(), _tokenizer.TokenKind.ToString());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -933,7 +933,7 @@ public ref struct GraphQLParser
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
         if (_tokenizer.TokenKind != token)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token, _tokenizer.TokenKind);
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, token.ToString(), _tokenizer.TokenKind.ToString());
 
         if (!_tokenizer.Next())
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
@@ -946,7 +946,7 @@ public ref struct GraphQLParser
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
 
         if (_tokenizer.TokenKind != GraphQLTokenKind.Name)
-            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, GraphQLTokenKind.Name, _tokenizer.TokenKind);
+            throw SyntaxException.ExpectedTokenNotFound(_tokenizer.Location, GraphQLTokenKind.Name.ToString(), _tokenizer.TokenKind.ToString());
 
         if (_tokenizer.TokenValue != keyword)
             throw SyntaxException.ExpectedKeywordNotFound(_tokenizer.Location, "on", _tokenizer.TokenValue);

@@ -58,7 +58,7 @@ public record class TypeNameNode(string Name, bool NonNull) : TypeNode(NonNull);
 public record class TypeListNode(TypeNode Type, bool NonNull) : TypeNode(NonNull);
 
 //------------------------------------------------------------------------------
-// Constant Values
+// Values
 //------------------------------------------------------------------------------
 public abstract record class ValueNode();
 

@@ -142,21 +142,21 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void GraphQL_Small_Deserial()
+        public void GraphQL_Deserial()
         {
             var inputs = JsonSerializer.Deserialize<Inputs>(_input, _graphQLOptions);
         }
 
         [Benchmark]
-        public void HotChocolate_Small_Deserial()
+        public void HotChocolate_Deserial()
         {
             var reader = HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
         }        
 
         [Benchmark]
-        public void RocketQL_Small_Deserial()
+        public void RocketQL_Deserial()
         {
-            var valueNode = new RQL.ValueNodeSerializer().Deserialize(_input);
+            var valueNode = new RQL.JsonParser(_input).Parse();
         }
     }
 

@@ -5,7 +5,7 @@ public class Individual
     [Fact]
     public void NullText()
     {
-        var t = new Core.GraphQLTokenizer(null);
+        var t = new Core.GraphQLTokenizer(null!);
         Assert.Equal(GraphQLTokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(1, t.ColumnNumber);
