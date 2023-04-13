@@ -2,15 +2,17 @@
 
 public ref struct GraphQLTokenizer
 {
+
     private static readonly FullTokenKind[] _mapKind = new FullTokenKind[65536];
     private static readonly FullTokenKind[] _hexKind = new FullTokenKind[65536];
     private static readonly byte[] _hexValues = new byte[65536];
     private static readonly EscapeKind[] _escKind = new EscapeKind[65536];
     private static readonly char[] _escChar = new char[(int)EscapeKind.u];
+    private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
 
     private readonly ReadOnlySpan<char> _text;
     private readonly int _length = 0;
-    private readonly StringBuilder _sb = new(4096);
+    private readonly StringBuilder _sb;
     private FullTokenKind _tokenKind = FullTokenKind.StartOfText;
     private char _c = ' ';
     private int _index = 0;
@@ -105,6 +107,8 @@ public ref struct GraphQLTokenizer
 
     public GraphQLTokenizer(ReadOnlySpan<char> text)
     {
+        _sb = _cachedBuilder.Value!;
+
         if (text.Length == 0)
             _tokenKind = FullTokenKind.EndOfText;
         else
