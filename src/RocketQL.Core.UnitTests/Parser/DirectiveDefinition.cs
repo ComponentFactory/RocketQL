@@ -149,7 +149,7 @@ public class DirectiveDefinition
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
         Assert.NotNull(argument.DefaultValue);
-        FloatValueNode floatValueNode = argument.DefaultValue.IsType<FloatValueNode>();
+        NumberValueNode floatValueNode = argument.DefaultValue.IsType<NumberValueNode>();
         Assert.Equal("3.14", floatValueNode.Value);
     }
 

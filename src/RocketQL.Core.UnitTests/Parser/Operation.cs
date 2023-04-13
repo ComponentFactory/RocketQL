@@ -81,7 +81,7 @@ public class Operation
         Assert.Equal("foo", field.Name);
         var argument = field.Arguments.NotNull().One();
         Assert.Equal("bar", argument.Name);
-        Assert.Equal("3", argument.Value.IsType<IntValueNode>().Value);
+        Assert.Equal("3", argument.Value.IsType<NumberValueNode>().Value);
         field.Directives.NotNull().Count(0);
         field.SelectionSet.NotNull().Count(0);
     }
@@ -166,7 +166,7 @@ public class Operation
         Assert.Equal("bar", field1.Name);
         var argument1 = field1.Arguments.NotNull().One();
         Assert.Equal("fizz", argument1.Name);
-        Assert.Equal("3", argument1.Value.IsType<IntValueNode>().Value);
+        Assert.Equal("3", argument1.Value.IsType<NumberValueNode>().Value);
         var directive1 = field1.Directives.NotNull().One();
         Assert.Equal("bar", directive1.Name);
         var field2 = (FieldSelectionNode)field1.SelectionSet.NotNull().One();
@@ -174,7 +174,7 @@ public class Operation
         Assert.Equal("bar2", field2.Name);
         var argument2 = field2.Arguments.NotNull().One();
         Assert.Equal("fizz2", argument2.Name);
-        Assert.Equal("3", argument2.Value.IsType<IntValueNode>().Value);
+        Assert.Equal("3", argument2.Value.IsType<NumberValueNode>().Value);
         var directive2 = field2.Directives.NotNull().One();
         Assert.Equal("bar2", directive2.Name);
     }

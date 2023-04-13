@@ -40,8 +40,8 @@ public class Directive
         Assert.Equal("hello", directiveNode.Name);
         ObjectFieldNode argument = directiveNode.Arguments.NotNull().One();
         Assert.Equal("world", argument.Name);
-        Assert.IsType<IntValueNode>(argument.Value);
-        IntValueNode argumentValue = (IntValueNode)argument.Value;
+        Assert.IsType<NumberValueNode>(argument.Value);
+        NumberValueNode argumentValue = (NumberValueNode)argument.Value;
         Assert.Equal("3", argumentValue.Value);
     }
 
@@ -64,8 +64,8 @@ public class Directive
         directiveNode.Arguments.NotNull().Count(2);
         ObjectFieldNode argument1 = directiveNode.Arguments[0];
         Assert.Equal("world", argument1.Name);
-        Assert.IsType<IntValueNode>(argument1.Value);
-        IntValueNode argument1Value = (IntValueNode)argument1.Value;
+        Assert.IsType<NumberValueNode>(argument1.Value);
+        NumberValueNode argument1Value = (NumberValueNode)argument1.Value;
         Assert.Equal("3", argument1Value.Value);
         ObjectFieldNode argument2 = directiveNode.Arguments[1];
         Assert.Equal("second", argument2.Name);

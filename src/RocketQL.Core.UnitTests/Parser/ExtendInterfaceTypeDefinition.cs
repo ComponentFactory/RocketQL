@@ -105,7 +105,7 @@ public class ExtendInterfaceTypeDefinition
         Assert.Equal("Integer", argumentType.Name);
         argument.Directives.NotNull().Count(0);
         argument.DefaultValue.NotNull();
-        IntValueNode defaultValue = (IntValueNode)argument.DefaultValue;
+        NumberValueNode defaultValue = (NumberValueNode)argument.DefaultValue;
         Assert.Equal("3", defaultValue.Value);
     }
 

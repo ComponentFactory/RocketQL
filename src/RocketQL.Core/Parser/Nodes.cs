@@ -63,8 +63,7 @@ public record class TypeListNode(TypeNode Type, bool NonNull) : TypeNode(NonNull
 public abstract record class ValueNode();
 public record class NullValueNode() : ValueNode();
 public record class BooleanValueNode(bool Value) : ValueNode();
-public record class IntValueNode(string Value) : ValueNode();
-public record class FloatValueNode(string Value) : ValueNode();
+public record class NumberValueNode(string Value, NumberValueType Type) : ValueNode();
 public record class StringValueNode(string Value) : ValueNode();
 public record class EnumValueNode(string Value) : ValueNode();
 public record class ListValueNode(ValueNodeList Values) : ValueNode();

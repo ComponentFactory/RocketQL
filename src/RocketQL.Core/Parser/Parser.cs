@@ -705,10 +705,10 @@ public ref struct Parser
                 }
                 break;
             case TokenKind.IntValue:
-                node = new IntValueNode(_tokenizer.TokenValue);
+                node = new NumberValueNode(_tokenizer.TokenValue, NumberValueType.INT);
                 break;
             case TokenKind.FloatValue:
-                node = new FloatValueNode(_tokenizer.TokenValue);
+                node = new NumberValueNode(_tokenizer.TokenValue, NumberValueType.FLOAT);
                 break;
             case TokenKind.StringValue:
                 node = new StringValueNode(_tokenizer.TokenString);

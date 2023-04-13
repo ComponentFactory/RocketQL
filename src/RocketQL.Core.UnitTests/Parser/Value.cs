@@ -9,7 +9,7 @@ public class Value
         var documentNode = t.Parse();
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
-        IntValueNode valueNode = argument.DefaultValue.IsType<IntValueNode>();
+        NumberValueNode valueNode = argument.DefaultValue.IsType<NumberValueNode>();
         Assert.Equal("1", valueNode.Value);
     }
 
@@ -20,7 +20,7 @@ public class Value
         var documentNode = t.Parse();
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
-        FloatValueNode valueNode = argument.DefaultValue.IsType<FloatValueNode>();
+        NumberValueNode valueNode = argument.DefaultValue.IsType<NumberValueNode>();
         Assert.Equal("3.14159", valueNode.Value);
     }
 
@@ -99,7 +99,7 @@ public class Value
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
-        IntValueNode entryNode = valueNode.Values.NotNull().One().IsType<IntValueNode>();
+        NumberValueNode entryNode = valueNode.Values.NotNull().One().IsType<NumberValueNode>();
         Assert.Equal("3", entryNode.Value);
     }
 
@@ -115,7 +115,7 @@ public class Value
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(3);
-        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
+        NumberValueNode entryNode1 = valueNodeList[0].IsType<NumberValueNode>();
         Assert.Equal("3", entryNode1.Value);
         BooleanValueNode entryNode2 = valueNodeList[1].IsType<BooleanValueNode>();
         Assert.True(entryNode2.Value);
@@ -131,11 +131,11 @@ public class Value
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(2);
-        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
+        NumberValueNode entryNode1 = valueNodeList[0].IsType<NumberValueNode>();
         Assert.Equal("3", entryNode1.Value);
         ListValueNode innerNode = valueNodeList[1].IsType<ListValueNode>();
         var innerNodeList = innerNode.Values.NotNull().Count(1);
-        IntValueNode entryNode2 = innerNodeList[0].IsType<IntValueNode>();
+        NumberValueNode entryNode2 = innerNodeList[0].IsType<NumberValueNode>();
         Assert.Equal("4", entryNode2.Value);
     }
 
@@ -148,7 +148,7 @@ public class Value
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
         var valueNodeList = valueNode.Values.NotNull().Count(2);
-        IntValueNode entryNode1 = valueNodeList[0].IsType<IntValueNode>();
+        NumberValueNode entryNode1 = valueNodeList[0].IsType<NumberValueNode>();
         Assert.Equal("3", entryNode1.Value);
         ObjectFieldNode fieldNode = valueNodeList[1].IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("hello", fieldNode.Name);
@@ -175,7 +175,7 @@ public class Value
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode.Name);
-        IntValueNode intNode = fieldNode.Value.IsType<IntValueNode>();
+        NumberValueNode intNode = fieldNode.Value.IsType<NumberValueNode>();
         Assert.Equal("42", intNode.Value);
     }
 
@@ -190,7 +190,7 @@ public class Value
         Assert.Equal("world", fieldNode1.Name);
         ObjectFieldNode fieldNode2 = fieldNode1.Value.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("hello", fieldNode2.Name);
-        IntValueNode intNode = fieldNode2.Value.IsType<IntValueNode>();
+        NumberValueNode intNode = fieldNode2.Value.IsType<NumberValueNode>();
         Assert.Equal("42", intNode.Value);
     }
 
@@ -203,7 +203,7 @@ public class Value
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
         Assert.Equal("world", fieldNode.Name);
-        IntValueNode entryNode = fieldNode.Value.IsType<ListValueNode>().Values.NotNull().One().IsType<IntValueNode>();
+        NumberValueNode entryNode = fieldNode.Value.IsType<ListValueNode>().Values.NotNull().One().IsType<NumberValueNode>();
         Assert.Equal("42", entryNode.Value);
     }
 
