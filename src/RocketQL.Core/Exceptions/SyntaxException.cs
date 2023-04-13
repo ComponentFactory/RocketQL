@@ -12,7 +12,7 @@ public class SyntaxException : Exception
 
     public static SyntaxException UnexpectedEndOfFile(Location location) => new(location, "Unexpected end of file encountered.");
     public static SyntaxException UnrecognizedCharacterCode(Location location, char c) => new(location, $"Unrecognized character code '{(int)c}' found.");
-    public static SyntaxException UnrecognizedToken(Location location, TokenKind tokenKind) => new(location, $"Unrecognized token '{tokenKind}'.");
+    public static SyntaxException UnrecognizedToken(Location location, GraphQLTokenKind tokenKind) => new(location, $"Unrecognized token '{tokenKind}'.");
     public static SyntaxException UnrecognizedKeyword(Location location, string keyword) => new(location, $"Unrecognized keyword '{keyword}'.");
     public static SyntaxException UnrecognizedOperationType(Location location, string keyword) => new(location, $"Unrecognized operator type '{keyword}', must be one of 'query', 'mutation', 'subscription'.");
     public static SyntaxException IllegalCharacterCode(Location location, char c) => new(location, $"Illegal character code '{(int)c}' for this location.");
@@ -26,12 +26,12 @@ public class SyntaxException : Exception
     public static SyntaxException EscapeOnlyUsingHex(Location location) => new(location, $"Escaped character must be specificed only using hexadecimal values.");
     public static SyntaxException EscapeCannotBeConverted(Location location, string param) => new(location, $"Cannot escape characters using hexidecimal value '{param}'.");
     public static SyntaxException EscapeMustBeOneOf(Location location) => new(location, $"Escaped character is not one of \\\" \\\\ \\/ \\b \\f \\n \\r \\t.");
-    public static SyntaxException ExpectedTokenNotFound(Location location, TokenKind expected, TokenKind found) => new(location, $"Expected token '{expected}' but found '{found}' instead.");
+    public static SyntaxException ExpectedTokenNotFound(Location location, GraphQLTokenKind expected, GraphQLTokenKind found) => new(location, $"Expected token '{expected}' but found '{found}' instead.");
     public static SyntaxException ExpectedKeywordNotFound(Location location, string expected, string found) => new(location, $"Expected keyword '{expected}' but found '{found}' instead.");
     public static SyntaxException ExpectedDirectiveLocationNotFound(Location location, string found) => new(location, $"Expected directive location but found '{found}' instead.");
-    public static SyntaxException TypeMustBeNameOrList(Location location, TokenKind found) => new(location, $"Type must be a name or '[' indicating a list but found token '{found}' instead.");
-    public static SyntaxException TokenNotAllowedHere(Location location, TokenKind found) => new(location, $"Token '{found}' not allowed in this position.");
-    public static SyntaxException SelectionSetInvalidToken(Location location, TokenKind found) => new(location, $"Found token '{found}' instead of either a name or spread operator inside the selection set.");
+    public static SyntaxException TypeMustBeNameOrList(Location location, GraphQLTokenKind found) => new(location, $"Type must be a name or '[' indicating a list but found token '{found}' instead.");
+    public static SyntaxException TokenNotAllowedHere(Location location, GraphQLTokenKind found) => new(location, $"Token '{found}' not allowed in this position.");
+    public static SyntaxException SelectionSetInvalidToken(Location location, GraphQLTokenKind found) => new(location, $"Found token '{found}' instead of either a name or spread operator inside the selection set.");
     public static SyntaxException FragmentNameCannotBeOn(Location location) => new(location, $"Fragment name cannot be the keyword 'on'.");
     public static SyntaxException ExtendSchemaMissingAtLeastOne(Location location) => new(location, $"Extend scheme must specify at least one directive or operation types.");
     public static SyntaxException ExtendObjectTypeMissingAtLeastOne(Location location) => new(location, $"Extend type must specify at least one of interface, directive or field set.");

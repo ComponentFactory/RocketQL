@@ -6,6 +6,11 @@ using GQLJson = GraphQL.SystemTextJson;
 using HC = HotChocolate.Language;
 using RQL = RocketQL.Core;
 using System.Text.Json;
+using GraphQL;
+using GraphQL.SystemTextJson;
+using HotChocolate.Language;
+using GraphQL.Types;
+using static BenchmarkDotNet.Attributes.MarkdownExporterAttribute;
 
 namespace DotNetQL.PerformanceTests
 {
@@ -13,9 +18,6 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            var x = new DeserializerBenchmark();
-            x.GraphQL_Small_Deserial();
-
             BenchmarkRunner.Run<DeserializerBenchmark>();
             //BenchmarkRunner.Run<TokenizerBenchmark>();
             //BenchmarkRunner.Run<ParserBenchmark>();
@@ -37,24 +39,124 @@ namespace DotNetQL.PerformanceTests
                 "float": 3.14,
                 "string": "hello",
                 "listints": [1, 2, 3],
-            }
+                "child": {
+                    "int": 123,
+                    "float": 3.14,
+                    "string": "hello",
+                    "listints": [1, 2, 3],
+                    "object": {
+                        "int": 123,
+                        "float": 3.14,
+                        "string": "hello",
+                        "listints": [1, 2, 3]
+                    }
+                }
+            },
+            "listobj": [{
+                "int": 123,
+                "float": 3.14,
+                "string": "hello",
+                "listints": [1, 2, 3],
+                "object": {
+                    "int": 123,
+                    "float": 3.14,
+                    "string": "hello",
+                    "listints": [1, 2, 3],
+                    "child": {
+                        "int": 123,
+                        "float": 3.14,
+                        "string": "hello",
+                        "listints": [1, 2, 3],
+                        "object": {
+                            "int": 123,
+                            "float": 3.14,
+                            "string": "hello",
+                            "listints": [1, 2, 3]
+                        }
+                    }
+                }
+            },{
+                "int": 123,
+                "float": 3.14,
+                "string": "hello",
+                "listints": [1, 2, 3],
+                "object": {
+                    "int": 123,
+                    "float": 3.14,
+                    "string": "hello",
+                    "listints": [1, 2, 3],
+                    "child": {
+                        "int": 123,
+                        "float": 3.14,
+                        "string": "hello",
+                        "listints": [1, 2, 3],
+                        "object": {
+                            "int": 123,
+                            "float": 3.14,
+                            "string": "hello",
+                            "listints": [1, 2, 3]
+                        }
+                    }
+                }
+            },{
+                "int": 123,
+                "float": 3.14,
+                "string": "hello",
+                "listints": [1, 2, 3],
+                "object": {
+                    "int": 123,
+                    "float": 3.14,
+                    "string": "hello",
+                    "listints": [1, 2, 3],
+                    "child": {
+                        "int": 123,
+                        "float": 3.14,
+                        "string": "hello",
+                        "listints": [1, 2, 3],
+                        "object": {
+                            "int": 123,
+                            "float": 3.14,
+                            "string": "hello",
+                            "listints": [1, 2, 3]
+                        }
+                    }
+                }
+            }]
         }
         """;
 
-        public byte[] _utf8Bytes = Array.Empty<byte>();
+        public readonly JsonSerializerOptions _graphQLOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            Converters =
+            {
+                new InputsJsonConverter(),
+                new JsonConverterBigInteger(),
+            }
+        };
 
         [GlobalSetup]
         public void Setup()
         {
-            _utf8Bytes = Encoding.UTF8.GetBytes(_input);
         }
 
         [Benchmark]
         public void GraphQL_Small_Deserial()
         {
-            var reader = new GQLJson.InputsJsonConverter();
-            var utf8reader = new Utf8JsonReader(_utf8Bytes);
-            var inputs = reader.Read(ref utf8reader, typeof(object), new JsonSerializerOptions());
+            var inputs = JsonSerializer.Deserialize<Inputs>(_input, _graphQLOptions);
+        }
+
+        [Benchmark]
+        public void HotChocolate_Small_Deserial()
+        {
+            var reader = HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
+        }        
+
+        [Benchmark]
+        public void RocketQL_Small_Deserial()
+        {
+            var valueNode = new RQL.ValueNodeSerializer().Deserialize(_input);
         }
     }
 
@@ -163,17 +265,17 @@ namespace DotNetQL.PerformanceTests
         private void RocketQL(string schema)
         {
             var s = string.Empty;
-            var t = new RQL.Tokenizer(schema);
+            var t = new RQL.GraphQLTokenizer(schema);
             while (t.Next())
             {
                 switch (t.TokenKind)
                 {
-                    case RQL.TokenKind.StringValue:
+                    case RQL.GraphQLTokenKind.StringValue:
                         s = t.TokenString;
                         break;
-                    case RQL.TokenKind.IntValue:
-                    case RQL.TokenKind.FloatValue:
-                    case RQL.TokenKind.Name:
+                    case RQL.GraphQLTokenKind.IntValue:
+                    case RQL.GraphQLTokenKind.FloatValue:
+                    case RQL.GraphQLTokenKind.Name:
                         s = t.TokenValue;
                         break;
                 }
@@ -209,7 +311,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_GitHub_Parse()
         {
-            new RQL.Parser(_github).Parse();
+            new RQL.GraphQLParser(_github).Parse();
         }
 
         [Benchmark]
@@ -227,7 +329,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Intro_Parse()
         {
-            new RQL.Parser(_introspection).Parse();
+            new RQL.GraphQLParser(_introspection).Parse();
         }
     }
 }

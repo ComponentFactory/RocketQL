@@ -2,7 +2,7 @@
 using Xunit.Sdk;
 using System.Collections;
 
-namespace RocketQL.Core.UnitTests.Parser;
+namespace RocketQL.Core.UnitTests;
 
 public static class UnitTestExtensions
 {
