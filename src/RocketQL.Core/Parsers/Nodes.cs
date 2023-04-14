@@ -1,15 +1,15 @@
 ﻿namespace RocketQL.Core;
 
-public record class DocumentNode(OperationDefinitionNodeList Operations,
-                                 FragmentDefinitionNodeList Fragments,
-                                 DirectiveDefinitionNodeList Directives,
-                                 SchemaDefinitionNodeList Schemas, ExtendSchemaDefinitionNodeList ExtendSchemas,
-                                 ScalarTypeDefinitionNodeList ScalarTypes, ExtendScalarTypeDefinitionNodeList ExtendScalarTypes,
-                                 ObjectTypeDefinitionNodeList ObjectTypes, ExtendObjectTypeDefinitionNodeList ExtendObjectTypes,
-                                 InterfaceTypeDefinitionNodeList InterfaceTypes, ExtendInterfaceTypeDefinitionNodeList ExtendInterfaceTypes,
-                                 UnionTypeDefinitionNodeList UnionTypes, ExtendUnionTypeDefinitionNodeList ExtendUnionTypes,
-                                 EnumTypeDefinitionNodeList EnumTypes, ExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
-                                 InputObjectTypeDefinitionNodeList InputObjectTypes, ExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
+public record class ExecutableDocumentNode(OperationDefinitionNodeList Operations, FragmentDefinitionNodeList Fragments);
+
+public record class TypeSystemDocumentNode(DirectiveDefinitionNodeList Directives,
+                                           SchemaDefinitionNodeList Schemas, ExtendSchemaDefinitionNodeList ExtendSchemas,
+                                           ScalarTypeDefinitionNodeList ScalarTypes, ExtendScalarTypeDefinitionNodeList ExtendScalarTypes,
+                                           ObjectTypeDefinitionNodeList ObjectTypes, ExtendObjectTypeDefinitionNodeList ExtendObjectTypes,
+                                           InterfaceTypeDefinitionNodeList InterfaceTypes, ExtendInterfaceTypeDefinitionNodeList ExtendInterfaceTypes,
+                                           UnionTypeDefinitionNodeList UnionTypes, ExtendUnionTypeDefinitionNodeList ExtendUnionTypes,
+                                           EnumTypeDefinitionNodeList EnumTypes, ExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
+                                           InputObjectTypeDefinitionNodeList InputObjectTypes, ExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
 
 //------------------------------------------------------------------------------
 // Nodes at the top level of a document

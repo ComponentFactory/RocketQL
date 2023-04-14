@@ -19,8 +19,8 @@ namespace DotNetQL.PerformanceTests
         static void Main()
         {
             BenchmarkRunner.Run<DeserializerBenchmark>();
-            BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<ParserBenchmark>();
+            //BenchmarkRunner.Run<TokenizerBenchmark>();
+            //BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
@@ -142,21 +142,21 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void GraphQL_Deserial()
+        public void GraphQL_Small_Deserial()
         {
             var inputs = JsonSerializer.Deserialize<Inputs>(_input, _graphQLOptions);
         }
 
         [Benchmark]
-        public void HotChocolate_Deserial()
+        public void HotChocolate_Small_Deserial()
         {
             var reader = HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
         }        
 
         [Benchmark]
-        public void RocketQL_Deserial()
+        public void RocketQL_Small_Deserial()
         {
-            var valueNode = new RQL.JsonParser(_input).Parse();
+        //    var valueNode = new RQL.ValueNodeSerializer().Deserialize(_input);
         }
     }
 
@@ -265,17 +265,17 @@ namespace DotNetQL.PerformanceTests
         private void RocketQL(string schema)
         {
             var s = string.Empty;
-            var t = new RQL.GraphQLTokenizer(schema);
+            var t = new RQL.DocumentTokenizer(schema);
             while (t.Next())
             {
                 switch (t.TokenKind)
                 {
-                    case RQL.GraphQLTokenKind.StringValue:
+                    case RQL.DocumentTokenKind.StringValue:
                         s = t.TokenString;
                         break;
-                    case RQL.GraphQLTokenKind.IntValue:
-                    case RQL.GraphQLTokenKind.FloatValue:
-                    case RQL.GraphQLTokenKind.Name:
+                    case RQL.DocumentTokenKind.IntValue:
+                    case RQL.DocumentTokenKind.FloatValue:
+                    case RQL.DocumentTokenKind.Name:
                         s = t.TokenValue;
                         break;
                 }
@@ -311,7 +311,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_GitHub_Parse()
         {
-            new RQL.GraphQLParser(_github).Parse();
+            new RQL.TypeSystemParser(_github).Parse();
         }
 
         [Benchmark]
@@ -329,7 +329,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Intro_Parse()
         {
-            new RQL.GraphQLParser(_introspection).Parse();
+            new RQL.TypeSystemParser(_introspection).Parse();
         }
     }
 }

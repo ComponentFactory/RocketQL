@@ -1,1 +1,8 @@
-﻿
+﻿SchemaResolver
+    schema
+    resolvers
+
+Execute operation
+    validate operation
+    validate incoming variables
+
