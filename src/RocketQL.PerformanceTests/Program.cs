@@ -19,8 +19,8 @@ namespace DotNetQL.PerformanceTests
         static void Main()
         {
             BenchmarkRunner.Run<DeserializerBenchmark>();
-            //BenchmarkRunner.Run<TokenizerBenchmark>();
-            //BenchmarkRunner.Run<ParserBenchmark>();
+            BenchmarkRunner.Run<TokenizerBenchmark>();
+            BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 
@@ -156,7 +156,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Small_Deserial()
         {
-        //    var valueNode = new RQL.ValueNodeSerializer().Deserialize(_input);
+            var valueNode = new RQL.JsonParser(_input).Parse();
         }
     }
 
@@ -329,7 +329,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Intro_Parse()
         {
-            new RQL.TypeSystemParser(_introspection).Parse();
+            new RQL.ExecutableParser(_introspection).Parse();
         }
     }
 }
