@@ -1,11 +1,11 @@
-﻿namespace RocketQL.Core.Executor;
+﻿namespace RocketQL.Core.Resolvers;
 
 public class RawResolver : IRootSchemaResolver
 {
-    private readonly TypeSystemDocumentNode _schema;
+    private readonly SchemaNode _schema;
 
     public RawResolver(string schema)
     {
-        _schema = new TypeSystemParser(schema).Parse();
+        _schema = Document.SchemaDeserialize(schema);
     }
 }

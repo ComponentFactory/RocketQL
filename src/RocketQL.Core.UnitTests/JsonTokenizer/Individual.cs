@@ -1,11 +1,13 @@
-﻿namespace RocketQL.Core.UnitTests.JsonTokenizer;
+﻿using RocketQL.Core.Tokenizers;
+
+namespace RocketQL.Core.UnitTests.JsonTokenizerTests;
 
 public class Individual
 {
     [Fact]
     public void NullText()
     {
-        var t = new Core.JsonTokenizer(null!);
+        var t = new JsonTokenizer(null!);
         Assert.Equal(JsonTokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(1, t.ColumnNumber);
@@ -17,7 +19,7 @@ public class Individual
     [InlineData("﻿\uFEFF\uFEFF\uFEFF")]
     public void ByteOrderMark(string text)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.EndOfText, t.TokenKind);
@@ -33,7 +35,7 @@ public class Individual
     [InlineData("\t  \t\t  ")]
     public void Whitespace(string text)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.EndOfText, t.TokenKind);
@@ -50,7 +52,7 @@ public class Individual
     [InlineData("\r\n\r\n\r\n", 4)]
     public void LineTerminator(string text, int lineNumber)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.EndOfText, t.TokenKind);
@@ -62,7 +64,7 @@ public class Individual
     [InlineData("﻿\uFEFF \t \r\n\uFEFF﻿ \t \r\n")]
     public void Ignored(string text)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.EndOfText, t.TokenKind);
@@ -77,7 +79,7 @@ public class Individual
     [InlineData(",", JsonTokenKind.Comma)]
     public void Punctuator(string text, JsonTokenKind token)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(token, t.TokenKind);
@@ -94,7 +96,7 @@ public class Individual
     [InlineData("null", JsonTokenKind.NullValue)]
     public void Keywords(string text, JsonTokenKind token)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(token, t.TokenKind);
@@ -123,7 +125,7 @@ public class Individual
     [InlineData("-9876543\uFEFF", -9876543, JsonTokenKind.EndOfText)]
     public void IntValue(string text, int val, JsonTokenKind nextToken)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.IntValue, t.TokenKind);
@@ -159,7 +161,7 @@ public class Individual
     [InlineData("-0.0﻿\uFEFF", -0.0, JsonTokenKind.EndOfText)]
     public void FloatValue(string text, double val, JsonTokenKind nextToken)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.FloatValue, t.TokenKind);
@@ -190,7 +192,7 @@ public class Individual
     [InlineData("\"\\u00411\\u0042\"", "A1B")]
     public void StringValue(string text, string contents)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(JsonTokenKind.StringValue, t.TokenKind);
@@ -205,7 +207,7 @@ public class Individual
     [InlineData("\n\n   \u0001", '\u0001', 3, 4, 6)]
     public void IllegalCharacterCode(string text, char code, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -239,7 +241,7 @@ public class Individual
     [InlineData("\"\\u123", 1, 2, 6)]
     public void UnexpectedEndOfFile(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -270,7 +272,7 @@ public class Individual
     [InlineData("NULL", 1, 1, 4)]
     public void UnexpectedKeyword(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -295,7 +297,7 @@ public class Individual
     [InlineData("- ", 1, 1, 1)]
     public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -320,7 +322,7 @@ public class Individual
     [InlineData("0. ", 1, 1, 2)]
     public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -346,7 +348,7 @@ public class Individual
     [InlineData("1.0e!", 1, 1, 4)]
     public void ExponentMustHaveDigit(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -374,7 +376,7 @@ public class Individual
     [InlineData("0.0e1.", 1, 1, 5, "dot")]
     public void FloatCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -398,7 +400,7 @@ public class Individual
     [InlineData("0a", 1, 1, 1, "letter")]
     public void IntCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -424,7 +426,7 @@ public class Individual
     [InlineData("\"\\u111.", 1, 2, 7)]
     public void EscapeOnlyUsingHex(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -449,7 +451,7 @@ public class Individual
     [InlineData("\"\\_ ", 1, 2, 2)]
     public void EscapeMustBeOneOf(string text, int line, int column, int position)
     {
-        var t = new Core.JsonTokenizer(text);
+        var t = new JsonTokenizer(text);
         Assert.Equal(JsonTokenKind.StartOfText, t.TokenKind);
         try
         {

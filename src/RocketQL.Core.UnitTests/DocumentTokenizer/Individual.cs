@@ -1,11 +1,13 @@
-﻿namespace RocketQL.Core.UnitTests.DocumentTokenizer;
+﻿using RocketQL.Core.Tokenizers;
+
+namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
 
 public class Individual
 {
     [Fact]
     public void NullText()
     {
-        var t = new Core.DocumentTokenizer(null);
+        var t = new DocumentTokenizer(null);
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
         Assert.Equal(1, t.LineNumber);
         Assert.Equal(1, t.ColumnNumber);
@@ -17,7 +19,7 @@ public class Individual
     [InlineData("﻿\uFEFF\uFEFF\uFEFF")]
     public void ByteOrderMark(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -33,7 +35,7 @@ public class Individual
     [InlineData("\t  \t\t  ")]
     public void Whitespace(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -50,7 +52,7 @@ public class Individual
     [InlineData("\r\n\r\n\r\n", 4)]
     public void LineTerminator(string text, int lineNumber)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -68,7 +70,7 @@ public class Individual
     [InlineData("#\n#\n\r# ")]
     public void Comment(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -79,7 +81,7 @@ public class Individual
     [InlineData(",,,")]
     public void Comma(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -94,7 +96,7 @@ public class Individual
     [InlineData("﻿ ,,, \t\r\t\t#你好Ȳ \n ,\t,\t,\r\n\t,,,")]
     public void Ignored(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.EndOfText, t.TokenKind);
@@ -117,7 +119,7 @@ public class Individual
     [InlineData("...", DocumentTokenKind.Spread)]
     public void Punctuator(string text, DocumentTokenKind token)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(token, t.TokenKind);
@@ -141,7 +143,7 @@ public class Individual
     [InlineData("_1A2b_3_d_eezZ")]
     public void Name(string text)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.Name, t.TokenKind);
@@ -171,7 +173,7 @@ public class Individual
     [InlineData("-9876543\uFEFF", -9876543, DocumentTokenKind.EndOfText)]
     public void IntValue(string text, int val, DocumentTokenKind nextToken)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.IntValue, t.TokenKind);
@@ -208,7 +210,7 @@ public class Individual
     [InlineData("-0.0﻿\uFEFF", -0.0, DocumentTokenKind.EndOfText)]
     public void FloatValue(string text, double val, DocumentTokenKind nextToken)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.FloatValue, t.TokenKind);
@@ -242,7 +244,7 @@ public class Individual
     [InlineData("\"\\u{41}你好Ȳ\\u0041\t\\u{42}\\u{43}\"", "A你好ȲA\tBC")]
     public void SimpleString(string text, string contents)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.StringValue, t.TokenKind);
@@ -285,7 +287,7 @@ public class Individual
     [InlineData("\"\"\"ab\rcd\ref\"\"\"", "ab\ncd\nef")]
     public void BlockString(string text, string contents)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         t.Next();
         Assert.Equal(DocumentTokenKind.StringValue, t.TokenKind);
@@ -300,7 +302,7 @@ public class Individual
     [InlineData("\n\n   \u0001", '\u0001', 3, 4, 6)]
     public void IllegalCharacterCode(string text, char code, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -336,7 +338,7 @@ public class Individual
     [InlineData("\"\\u123", 1, 2, 6)]
     public void UnexpectedEndOfFile(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -363,7 +365,7 @@ public class Individual
     [InlineData(" \n\n .. ", 3, 2, 6)]
     public void SpreadNeedsThreeDots(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -388,7 +390,7 @@ public class Individual
     [InlineData("- ", 1, 1, 1)]
     public void MinusMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -413,7 +415,7 @@ public class Individual
     [InlineData("0. ", 1, 1, 2)]
     public void PointMustBeFollowedByDigit(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -439,7 +441,7 @@ public class Individual
     [InlineData("1.0e!", 1, 1, 4)]
     public void ExponentMustHaveDigit(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -467,7 +469,7 @@ public class Individual
     [InlineData("0.0e1.", 1, 1, 5, "dot")]
     public void FloatCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -491,7 +493,7 @@ public class Individual
     [InlineData("0a", 1, 1, 1, "letter")]
     public void IntCannotBeFollowed(string text, int line, int column, int position, string param)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -515,7 +517,7 @@ public class Individual
     [InlineData("\n \"\\u{}", 2, 3, 6)]
     public void EscapeAtLeast1Hex(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -546,7 +548,7 @@ public class Individual
     [InlineData("\"\\u111.", 1, 2, 7)]
     public void EscapeOnlyUsingHex(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -571,7 +573,7 @@ public class Individual
     [InlineData("\"\\u{abcdefabc}", 1, 2, 13, "abcdefabc")]
     public void EscapeCannotBeConverted(string text, int line, int column, int position, string param)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {
@@ -596,7 +598,7 @@ public class Individual
     [InlineData("\"\\_ ", 1, 2, 2)]
     public void EscapeMustBeOneOf(string text, int line, int column, int position)
     {
-        var t = new Core.DocumentTokenizer(text);
+        var t = new DocumentTokenizer(text);
         Assert.Equal(DocumentTokenKind.StartOfText, t.TokenKind);
         try
         {

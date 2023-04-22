@@ -1,22 +1,22 @@
-﻿namespace RocketQL.Core
+﻿namespace RocketQL.Core.Requests;
+
+public class RequestExecution : IExecuteRequest
 {
-    public class RequestExecution : IExecuteRequest
+    private readonly IRootSchemaResolver _resolver;
+
+    public RequestExecution(IRootSchemaResolver resolver)
     {
-        private readonly IRootSchemaResolver _resolver;
+        _resolver = resolver;
+    }
 
-        public RequestExecution(IRootSchemaResolver resolver)
-        {
-            _resolver = resolver;
-        }
+    public ValueNode ExecuteRequest(string executable, string variables, string? operationName)
+    {
+        return Execute(Document.RequestDeserialize(executable), Json.Deserialize(variables), operationName);
+    }
 
-        public ValueNode ExecuteRequest(string executable, string variables, string? operationName)
-        {
-            return Execute(new ExecutableParser(executable).Parse(), new JsonParser(variables).Parse(), operationName);
-        }
-
-        public ValueNode Execute(ExecutableDocumentNode executable, ValueNode variables, string? operationName)
-        {
-            return NullValueNode.Null;
-        }
+    public ValueNode Execute(RequestNode executable, ValueNode variables, string? operationName)
+    {
+        return NullValueNode.Null;
     }
 }
+

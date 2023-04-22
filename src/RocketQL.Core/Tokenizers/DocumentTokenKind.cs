@@ -1,4 +1,4 @@
-﻿namespace RocketQL.Core;
+﻿namespace RocketQL.Core.Tokenizers;
 
 public enum DocumentTokenKind : byte
 {

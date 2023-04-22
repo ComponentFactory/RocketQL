@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.UnitTests.DocumentTokenizer;
+﻿using RocketQL.Core.Tokenizers;
+
+namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
 
 public class Files
 {
@@ -8,7 +10,7 @@ public class Files
     public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var t = new Core.DocumentTokenizer(schema.AsSpan());
+        var t = new DocumentTokenizer(schema.AsSpan());
         var s = string.Empty;
         while (t.Next())
         {
