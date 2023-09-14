@@ -79,6 +79,7 @@ public ref struct JsonTokenizer
         _escKind['t'] = EscapeKind.Tab;
         _escKind['u'] = EscapeKind.u;
 
+        // Reverse lookup
         _escChar[(int)EscapeKind.DoubleQuote] = '\"';
         _escChar[(int)EscapeKind.Backslash] = '\\';
         _escChar[(int)EscapeKind.Slash] = '/';
@@ -108,12 +109,12 @@ public ref struct JsonTokenizer
         }
     }
 
-    public JsonTokenKind TokenKind => (JsonTokenKind)_tokenKind;
-    public string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
-    public string TokenString => _sb.ToString();
-    public int LineNumber => _lineNumber;
-    public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public Location Location => new(_index, LineNumber, ColumnNumber);
+    public readonly JsonTokenKind TokenKind => (JsonTokenKind)_tokenKind;
+    public readonly string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
+    public readonly string TokenString => _sb.ToString();
+    public readonly int LineNumber => _lineNumber;
+    public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
+    public readonly Location Location => new(_index, LineNumber, ColumnNumber);
 
     public bool Next()
     {

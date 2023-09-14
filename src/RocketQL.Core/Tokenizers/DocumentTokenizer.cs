@@ -2,7 +2,6 @@
 
 public ref struct DocumentTokenizer
 {
-
     private static readonly FullTokenKind[] _mapKind = new FullTokenKind[65536];
     private static readonly FullTokenKind[] _hexKind = new FullTokenKind[65536];
     private static readonly byte[] _hexValues = new byte[65536];
@@ -23,7 +22,7 @@ public ref struct DocumentTokenizer
     static DocumentTokenizer()
     {
         // All _mapKind and _hexKind entries are implicitly FullTokenKind.IllegalCharacter because
-        // ithas the enumeration value of 0 and the arrays are initialized to all 0 by default
+        // it has the enumeration value of 0 and the arrays are initialized to 0 by default
 
         // Skip the Byte Order Mark (BOM) and simple whitespace
         _mapKind[0xFEFF] = FullTokenKind.Skip;
@@ -52,9 +51,9 @@ public ref struct DocumentTokenizer
         _mapKind['-'] = FullTokenKind.Minus;
         _mapKind['+'] = FullTokenKind.Plus;
         _mapKind['"'] = FullTokenKind.DoubleQuote;
+        _mapKind['_'] = FullTokenKind.Underscore;
 
         // Letters and numbers
-        _mapKind['_'] = FullTokenKind.Underscore;
         for (char c = 'A'; c <= 'Z'; c++)
             _mapKind[c] = FullTokenKind.Letter;
         for (char c = 'a'; c <= 'z'; c++)
@@ -79,7 +78,7 @@ public ref struct DocumentTokenizer
         for (char c = '0'; c <= '9'; c++)
             _hexValues[c] = (byte)(c - '0');
 
-        // Escape characters in simple strings
+        // Escape characters inside a simple string
         _escKind['\"'] = EscapeKind.DoubleQuote;
         _escKind['\\'] = EscapeKind.Backslash;
         _escKind['/'] = EscapeKind.Slash;
@@ -90,6 +89,7 @@ public ref struct DocumentTokenizer
         _escKind['t'] = EscapeKind.Tab;
         _escKind['u'] = EscapeKind.u;
 
+        // Reverse lookup
         _escChar[(int)EscapeKind.DoubleQuote] = '\"';
         _escChar[(int)EscapeKind.Backslash] = '\\';
         _escChar[(int)EscapeKind.Slash] = '/';
@@ -119,12 +119,12 @@ public ref struct DocumentTokenizer
         }
     }
 
-    public DocumentTokenKind TokenKind => (DocumentTokenKind)_tokenKind;
-    public string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
-    public string TokenString => _sb.ToString();
-    public int LineNumber => _lineNumber;
-    public int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public Location Location => new(_index, LineNumber, ColumnNumber);
+    public readonly DocumentTokenKind TokenKind => (DocumentTokenKind)_tokenKind;
+    public readonly string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
+    public readonly string TokenString => _sb.ToString();
+    public readonly int LineNumber => _lineNumber;
+    public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
+    public readonly Location Location => new(_index, LineNumber, ColumnNumber);
 
     public bool Next()
     {
