@@ -1,1 +1,65 @@
-﻿
+﻿Next
+
+	Validation of raw schema into referenced schema
+
+
+
+Specifications
+	GraphQL
+		https://spec.graphql.org/
+
+	Relay
+		https://relay.dev/docs/guides/graphql-server-specification/
+
+	GraphQL over HTTP
+		https://graphql.github.io/graphql-over-http/
+
+	OData
+		https://www.odata.org/documentation/
+
+	OpenAPI
+		https://swagger.io/specification/
+
+	Apollo Federation
+		https://www.apollographql.com/docs/federation/v1/federation-spec/
+
+
+Organisations
+	Chillicream (.Net)
+		ttps://chillicream.com/
+
+	Apollo (Node.js)
+		https://www.apollographql.com/
+
+	The Guild (Node.js)
+		https://the-guild.dev/
+
+Features
+
+	Fields
+	Arguments
+	Aliases
+	Fragments
+	Operation Name
+	Variables
+	Directives
+	Inline Fragments
+
+	Scalar Types
+	Enumeration Types
+	Lists and Non-Null
+	Interfaces
+	Union Types
+	Input Types
+
+	Parsing
+	Validation
+	Execution
+	Introspection
+
+	Relay
+		Pagination
+		Global Object Identification
+
+
+	

@@ -1,6 +1,4 @@
-﻿using RocketQL.Core.Tokenizers;
-
-namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
+﻿namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
 
 public class Individual
 {

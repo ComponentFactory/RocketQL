@@ -11,9 +11,33 @@ public record class SchemaNode(DirectiveDefinitionNodeList Directives,
                                EnumTypeDefinitionNodeList EnumTypes, ExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
                                InputObjectTypeDefinitionNodeList InputObjectTypes, ExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
 
-//------------------------------------------------------------------------------
-// Nodes at the top level of a document
-//------------------------------------------------------------------------------
+public class OperationDefinitionNodeList : List<OperationDefinitionNode> { };
+public class FragmentDefinitionNodeList : List<FragmentDefinitionNode> { };
+public class DirectiveDefinitionNodeList : List<DirectiveDefinitionNode> { };
+public class SchemaDefinitionNodeList : List<SchemaDefinitionNode> { };
+public class ExtendSchemaDefinitionNodeList : List<ExtendSchemaDefinitionNode> { };
+public class ScalarTypeDefinitionNodeList : List<ScalarTypeDefinitionNode> { };
+public class ExtendScalarTypeDefinitionNodeList : List<ExtendScalarTypeDefinitionNode> { };
+public class ObjectTypeDefinitionNodeList : List<ObjectTypeDefinitionNode> { };
+public class ExtendObjectTypeDefinitionNodeList : List<ExtendObjectTypeDefinitionNode> { };
+public class InterfaceTypeDefinitionNodeList : List<InterfaceTypeDefinitionNode> { };
+public class ExtendInterfaceTypeDefinitionNodeList : List<ExtendInterfaceTypeDefinitionNode> { };
+public class UnionTypeDefinitionNodeList : List<UnionTypeDefinitionNode> { };
+public class ExtendUnionTypeDefinitionNodeList : List<ExtendUnionTypeDefinitionNode> { };
+public class EnumTypeDefinitionNodeList : List<EnumTypeDefinitionNode> { };
+public class ExtendEnumTypeDefinitionNodeList : List<ExtendEnumTypeDefinitionNode> { };
+public class InputObjectTypeDefinitionNodeList : List<InputObjectTypeDefinitionNode> { };
+public class ExtendInputObjectTypeDefinitionNodeList : List<ExtendInputObjectTypeDefinitionNode> { };
+public class DirectiveNodeList : List<DirectiveNode> { };
+public class EnumValueDefinitionList : List<EnumValueDefinition> { };
+public class FieldDefinitionNodeList : List<FieldDefinitionNode> { };
+public class InputValueDefinitionNodeList : List<InputValueDefinitionNode> { };
+public class ObjectFieldNodeList : List<ObjectFieldNode> { };
+public class OperationTypeDefinitionNodeList : List<OperationTypeDefinitionNode> { };
+public class SelectionDefinitionNodeList : List<SelectionNode> { };
+public class NameList : List<string> { };
+public class VariableDefinitionNodeList : List<VariableDefinitionNode> { };
+
 public record class OperationDefinitionNode(OperationType Operation, string Name, VariableDefinitionNodeList VariableDefinitions, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
 public record class FragmentDefinitionNode(string Name, string TypeCondition, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet);
 public record class ExtendSchemaDefinitionNode(DirectiveNodeList Directives, OperationTypeDefinitionNodeList OperationTypes);
@@ -32,9 +56,6 @@ public record class ExtendInputObjectTypeDefinitionNode(string Name, DirectiveNo
 public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields) : ExtendInputObjectTypeDefinitionNode(Name, Directives, InputFields);
 public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
 
-//------------------------------------------------------------------------------
-// Nodes contained inside other nodes
-//------------------------------------------------------------------------------
 public record class DirectiveNode(string Name, ObjectFieldNodeList Arguments);
 public record class OperationTypeDefinitionNode(OperationType Operation, string NamedType);
 public record class VariableDefinitionNode(string Name, TypeNode Type, ValueNode? DefaultValue, DirectiveNodeList Directives);
@@ -42,43 +63,13 @@ public record class InputValueDefinitionNode(string Description, string Name, Ty
 public record class FieldDefinitionNode(string Description, string Name, InputValueDefinitionNodeList Arguments, TypeNode Type, DirectiveNodeList Directives);
 public record class EnumValueDefinition(string Description, string Name, DirectiveNodeList Directives);
 
-//------------------------------------------------------------------------------
-// SelectionSet can contains fields, fragment spreads and inline fragments
-//------------------------------------------------------------------------------
 public abstract record class SelectionNode();
 public record class FieldSelectionNode(string Alias, string Name, ObjectFieldNodeList Arguments, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet) : SelectionNode();
 public record class FragmentSpreadSelectionNode(string Name, DirectiveNodeList Directives) : SelectionNode();
 public record class InlineFragmentSelectionNode(string TypeCondition, DirectiveNodeList Directives, SelectionDefinitionNodeList SelectionSet) : SelectionNode();
 
-//------------------------------------------------------------------------------
-// Types are specified by name or as a list containing a type
-//------------------------------------------------------------------------------
 public abstract record class TypeNode(bool NonNull);
 public record class TypeNameNode(string Name, bool NonNull) : TypeNode(NonNull);
 public record class TypeListNode(TypeNode Type, bool NonNull) : TypeNode(NonNull);
 
-//------------------------------------------------------------------------------
-// Values
-//------------------------------------------------------------------------------
-public abstract record class ValueNode();
-
-public record class NullValueNode() : ValueNode()
-{
-    public static readonly NullValueNode Null = new();
-}
-
-public record class BooleanValueNode(bool Value) : ValueNode()
-{
-    public static readonly BooleanValueNode True = new(true);
-    public static readonly BooleanValueNode False = new(false);
-}
-
-public record class IntValueNode(string Value) : ValueNode();
-public record class FloatValueNode(string Value) : ValueNode();
-public record class StringValueNode(string Value) : ValueNode();
-public record class EnumValueNode(string Value) : ValueNode();
-public record class ListValueNode(ValueNodeList Values) : ValueNode();
-public record class ObjectValueNode(ObjectFieldNodeList ObjectFields) : ValueNode();
-public record class ObjectFieldNode(string Name, ValueNode Value) : ValueNode();
-public record class VariableValueNode(string Value) : ValueNode();
 

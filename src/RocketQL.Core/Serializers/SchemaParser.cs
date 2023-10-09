@@ -2,32 +2,23 @@
 
 public ref struct SchemaDeserializer
 {
+    private SchemaNode _schema;
     private DocumentTokenizer _tokenizer;
     private string? _description = null;
 
     public SchemaDeserializer(ReadOnlySpan<char> text)
+        : this(new SchemaNode(new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new()), text)
     {
+    }
+
+    public SchemaDeserializer(SchemaNode schema, ReadOnlySpan<char> text)
+    {
+        _schema = schema;
         _tokenizer = new DocumentTokenizer(text);
     }
 
     public SchemaNode Deserialize()
     {
-        DirectiveDefinitionNodeList _directives = new();
-        SchemaDefinitionNodeList _schemas = new();
-        ExtendSchemaDefinitionNodeList _extendSchemas = new();
-        ScalarTypeDefinitionNodeList _scalarTypes = new();
-        ExtendScalarTypeDefinitionNodeList _extendScalarTypes = new();
-        ObjectTypeDefinitionNodeList _objectTypes = new();
-        ExtendObjectTypeDefinitionNodeList _extendObjectTypes = new();
-        InterfaceTypeDefinitionNodeList _interfaceTypes = new();
-        ExtendInterfaceTypeDefinitionNodeList _extendInterfaceTypes = new();
-        UnionTypeDefinitionNodeList _unionTypes = new();
-        ExtendUnionTypeDefinitionNodeList _extendUnionTypes = new();
-        EnumTypeDefinitionNodeList _enumTypes = new();
-        ExtendEnumTypeDefinitionNodeList _extendEnumTypes = new();
-        InputObjectTypeDefinitionNodeList _inputObjectTypes = new();
-        ExtendInputObjectTypeDefinitionNodeList _extendInputObjectTypes = new();
-
         // Move to the first real token
         _tokenizer.Next();
 
@@ -49,28 +40,28 @@ public ref struct SchemaDeserializer
                         case "fragment":
                             throw SyntaxException.QueryNotAllowedInSchema(_tokenizer.Location);
                         case "schema":
-                            _schemas.Add(ParseSchemaDefinition());
+                            _schema.Schemas.Add(ParseSchemaDefinition());
                             break;
                         case "scalar":
-                            _scalarTypes.Add(ParseScalarTypeDefinition());
+                            _schema.ScalarTypes.Add(ParseScalarTypeDefinition());
                             break;
                         case "type":
-                            _objectTypes.Add(ParseObjectTypeDefinition());
+                            _schema.ObjectTypes.Add(ParseObjectTypeDefinition());
                             break;
                         case "interface":
-                            _interfaceTypes.Add(ParseInterfaceTypeDefinition());
+                            _schema.InterfaceTypes.Add(ParseInterfaceTypeDefinition());
                             break;
                         case "union":
-                            _unionTypes.Add(ParseUnionTypeDefinition());
+                            _schema.UnionTypes.Add(ParseUnionTypeDefinition());
                             break;
                         case "enum":
-                            _enumTypes.Add(ParseEnumTypeDefinition());
+                            _schema.EnumTypes.Add(ParseEnumTypeDefinition());
                             break;
                         case "input":
-                            _inputObjectTypes.Add(ParseInputObjectTypeDefinition());
+                            _schema.InputObjectTypes.Add(ParseInputObjectTypeDefinition());
                             break;
                         case "directive":
-                            _directives.Add(ParseDirectiveDefinition());
+                            _schema.Directives.Add(ParseDirectiveDefinition());
                             break;
                         case "extend":
                             {
@@ -78,25 +69,25 @@ public ref struct SchemaDeserializer
                                 switch (_tokenizer.TokenValue)
                                 {
                                     case "schema":
-                                        _extendSchemas.Add(ParseExtendSchemaDefinition());
+                                        _schema.ExtendSchemas.Add(ParseExtendSchemaDefinition());
                                         break;
                                     case "scalar":
-                                        _extendScalarTypes.Add(ParseExtendScalarTypeDefinition());
+                                        _schema.ExtendScalarTypes.Add(ParseExtendScalarTypeDefinition());
                                         break;
                                     case "type":
-                                        _extendObjectTypes.Add(ParseExtendObjectTypeDefinition());
+                                        _schema.ExtendObjectTypes.Add(ParseExtendObjectTypeDefinition());
                                         break;
                                     case "interface":
-                                        _extendInterfaceTypes.Add(ParseExtendInterfaceTypeDefinition());
+                                        _schema.ExtendInterfaceTypes.Add(ParseExtendInterfaceTypeDefinition());
                                         break;
                                     case "union":
-                                        _extendUnionTypes.Add(ParseExtendUnionTypeDefinition());
+                                        _schema.ExtendUnionTypes.Add(ParseExtendUnionTypeDefinition());
                                         break;
                                     case "enum":
-                                        _extendEnumTypes.Add(ParseExtendEnumTypeDefinition());
+                                        _schema.ExtendEnumTypes.Add(ParseExtendEnumTypeDefinition());
                                         break;
                                     case "input":
-                                        _extendInputObjectTypes.Add(ParseExtendInputObjectTypeDefinition());
+                                        _schema.ExtendInputObjectTypes.Add(ParseExtendInputObjectTypeDefinition());
                                         break;
                                     default:
                                         throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
@@ -114,51 +105,7 @@ public ref struct SchemaDeserializer
             }
         }
 
-        return new SchemaNode(_directives,
-                                      _schemas, _extendSchemas,
-                                      _scalarTypes, _extendScalarTypes,
-                                      _objectTypes, _extendObjectTypes,
-                                      _interfaceTypes, _extendInterfaceTypes,
-                                      _unionTypes, _extendUnionTypes,
-                                      _enumTypes, _extendEnumTypes,
-                                      _inputObjectTypes, _extendInputObjectTypes);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationDefinitionNode ParseOperationDefinition()
-    {
-        OperationType operationType = OperationTypeFromTokenValue();
-        MandatoryNext();
-
-        string name = string.Empty;
-        if (_tokenizer.TokenKind == DocumentTokenKind.Name)
-        {
-            name = _tokenizer.TokenValue;
-            MandatoryNext();
-        }
-
-        return new OperationDefinitionNode(operationType,
-                                           name,
-                                           ParseVariablesOptionalDefinition(),
-                                           ParseDirectivesOptional(),
-                                           ParseSelectionSet());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FragmentDefinitionNode ParseFragmentDefinition()
-    {
-        MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
-        if (name == "on")
-            throw SyntaxException.FragmentNameCannotBeOn(_tokenizer.Location);
-
-        MandatoryNext();
-        MandatoryKeyword("on");
-        MandatoryNextToken(DocumentTokenKind.Name);
-        string typeCondition = _tokenizer.TokenValue;
-        MandatoryNext();
-
-        return new FragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet());
+        return _schema;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

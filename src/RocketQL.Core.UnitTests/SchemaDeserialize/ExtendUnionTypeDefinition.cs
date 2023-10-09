@@ -1,5 +1,4 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
-using RocketQL.Core.Serializers;
 
 public class ExtendUnionTypeDefinition
 {

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Xunit.Sdk;
 using System.Collections;
-using RocketQL.Core.Nodes;
 
 namespace RocketQL.Core.UnitTests;
 

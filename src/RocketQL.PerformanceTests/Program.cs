@@ -18,9 +18,9 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<DeserializerBenchmark>();
-            //BenchmarkRunner.Run<TokenizerBenchmark>();
-            //BenchmarkRunner.Run<ParserBenchmark>();
+//            BenchmarkRunner.Run<DeserializerBenchmark>();
+            BenchmarkRunner.Run<TokenizerBenchmark>();
+//            BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
 

@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using RocketQL.Core.Serializers;
-
-namespace RocketQL.Core.UnitTests.RequestDeserialize;
+﻿namespace RocketQL.Core.UnitTests.RequestDeserialize;
 
 public class Operation
 {

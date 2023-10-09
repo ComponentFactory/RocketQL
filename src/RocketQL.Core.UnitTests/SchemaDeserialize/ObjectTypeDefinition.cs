@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using RocketQL.Core.Serializers;
-
-namespace RocketQL.Core.UnitTests.SchemaDeserialize;
+﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
 public class ObjectTypeDefinition
 {
