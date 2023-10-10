@@ -5,7 +5,7 @@ public class ScalarTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Document.SchemaDeserialize("scalar foo");
+        var documentNode = Serialization.SchemaDeserialize("test", "scalar foo");
 
         var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
         Assert.Equal(string.Empty, scalar.Description);
@@ -18,7 +18,7 @@ public class ScalarTypeDefinition
     [InlineData("\"\"\"bar\"\"\" scalar foo")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
         Assert.Equal("bar", scalar.Description);
@@ -29,7 +29,7 @@ public class ScalarTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("scalar foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("test", "scalar foo @bar");
 
         var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
         Assert.Equal(string.Empty, scalar.Description);
@@ -45,10 +45,11 @@ public class ScalarTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

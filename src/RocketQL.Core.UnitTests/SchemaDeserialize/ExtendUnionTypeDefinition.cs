@@ -7,7 +7,7 @@ public class ExtendUnionTypeDefinition
     [InlineData("extend union foo = | bar")]
     public void OneMember(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
@@ -21,7 +21,7 @@ public class ExtendUnionTypeDefinition
     [InlineData("extend union foo = | bar | fizz")]
     public void TwoMembers(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
@@ -36,7 +36,7 @@ public class ExtendUnionTypeDefinition
     [InlineData("extend union foo = | bar | fizz | hello")]
     public void ThreeMembers(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
@@ -50,7 +50,7 @@ public class ExtendUnionTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("extend union foo @bar = fizz");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend union foo @bar = fizz");
 
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
@@ -68,10 +68,11 @@ public class ExtendUnionTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -85,7 +86,7 @@ public class ExtendUnionTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize("extend union foo 42");
+            var documentNode = Serialization.SchemaDeserialize("test", "extend union foo 42");
         }
         catch (SyntaxException ex)
         {

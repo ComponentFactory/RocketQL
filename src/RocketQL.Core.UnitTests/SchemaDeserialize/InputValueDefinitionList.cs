@@ -7,7 +7,7 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: buzz!) on ENUM", true)]
     public void SingleNameType(string schema, bool nonNull)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
@@ -25,7 +25,7 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: [buzz!]!) on ENUM", true, true)]
     public void SingleListType(string schema, bool listNonNull, bool typeNonNull)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
@@ -50,7 +50,7 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: [[buzz!]!]!) on ENUM", true, true, true)]
     public void SingleListListType(string schema, bool outerNonNull, bool innerNonNull, bool typeNonNull)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
@@ -74,7 +74,7 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: buzz, hello:world) on ENUM")]
     public void DoubleNameType(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var arguments = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().Count(2);
         var argument1 = arguments[0];
@@ -102,7 +102,7 @@ public class InputValueDefinitionList
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
@@ -122,10 +122,11 @@ public class InputValueDefinitionList
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Expected token '{expected}' but found '{found}' instead.", ex.Message);
         }
         catch

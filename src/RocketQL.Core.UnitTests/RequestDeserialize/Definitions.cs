@@ -15,7 +15,7 @@ public class Definitions
     {
         try
         {
-            var documentNode = Document.RequestDeserialize(text);
+            var documentNode = Serialization.RequestDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
@@ -39,7 +39,7 @@ public class Definitions
     {
         try
         {
-            var documentNode = Document.RequestDeserialize(text);
+            var documentNode = Serialization.RequestDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {

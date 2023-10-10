@@ -5,7 +5,7 @@ public class ExtendInputObjectTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Document.SchemaDeserialize("extend input foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend input foo { bar: Integer }");
 
         var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
         Assert.Equal("foo", input.Name);
@@ -23,7 +23,7 @@ public class ExtendInputObjectTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("extend input foo @fizz { bar: Integer @buzz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend input foo @fizz { bar: Integer @buzz }");
 
         var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
         Assert.Equal("foo", input.Name);
@@ -51,10 +51,11 @@ public class ExtendInputObjectTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -68,7 +69,7 @@ public class ExtendInputObjectTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize("extend input foo 42");
+            var documentNode = Serialization.SchemaDeserialize("test", "extend input foo 42");
         }
         catch (SyntaxException ex)
         {

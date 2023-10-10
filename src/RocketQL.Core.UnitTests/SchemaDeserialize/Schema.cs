@@ -8,7 +8,7 @@ public class Schema
     [InlineData("schema { subscription: FizzBuzz }", OperationType.SUBSCRIPTION)]
     public void OperationTypes(string schema, OperationType operationType)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var def = documentNode.NotNull().Schemas.NotNull().One();
         Assert.Equal(string.Empty, def.Description);
@@ -23,7 +23,7 @@ public class Schema
     [InlineData("\"\"\"bar\"\"\" schema { query: FizzBuzz }")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var def = documentNode.NotNull().Schemas.NotNull().One();
         Assert.Equal("bar", def.Description);
@@ -36,7 +36,7 @@ public class Schema
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("schema @bar { query: FizzBuzz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "schema @bar { query: FizzBuzz }");
 
         var def = documentNode.NotNull().Schemas.NotNull().One();
         Assert.Equal(string.Empty, def.Description);
@@ -58,10 +58,11 @@ public class Schema
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

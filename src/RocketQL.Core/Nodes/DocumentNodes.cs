@@ -54,7 +54,7 @@ public record class ExtendEnumTypeDefinitionNode(string Name, DirectiveNodeList 
 public record class EnumTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, EnumValueDefinitionList EnumValues) : ExtendEnumTypeDefinitionNode(Name, Directives, EnumValues);
 public record class ExtendInputObjectTypeDefinitionNode(string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields);
 public record class InputObjectTypeDefinitionNode(string Description, string Name, DirectiveNodeList Directives, InputValueDefinitionNodeList InputFields) : ExtendInputObjectTypeDefinitionNode(Name, Directives, InputFields);
-public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations);
+public record class DirectiveDefinitionNode(string Description, string Name, InputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations, Location Location);
 
 public record class DirectiveNode(string Name, ObjectFieldNodeList Arguments);
 public record class OperationTypeDefinitionNode(OperationType Operation, string NamedType);

@@ -156,7 +156,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Small_Deserial()
         {
-            var valueNode = RQL.Serializers.Json.Deserialize(_input);
+            var valueNode = RQL.Serializers.Serialization.JsonDeserialize("test", _input);
         }
     }
 
@@ -265,7 +265,7 @@ namespace DotNetQL.PerformanceTests
         private void RocketQL(string schema)
         {
             var s = string.Empty;
-            var t = new RQL.Tokenizers.DocumentTokenizer(schema);
+            var t = new RQL.Tokenizers.DocumentTokenizer("test", schema);
             while (t.Next())
             {
                 switch (t.TokenKind)
@@ -311,7 +311,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_GitHub_Parse()
         {
-            RQL.Serializers.Document.SchemaDeserialize(_github);
+            RQL.Serializers.Serialization.SchemaDeserialize("test", _github);
         }
 
         [Benchmark]
@@ -329,7 +329,7 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_Intro_Parse()
         {
-            RQL.Serializers.Document.RequestDeserialize(_introspection);
+            RQL.Serializers.Serialization.RequestDeserialize("test", _introspection);
         }
     }
 }

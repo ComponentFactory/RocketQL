@@ -8,7 +8,7 @@ public class Files
     public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var t = new DocumentTokenizer(schema.AsSpan());
+        var t = new DocumentTokenizer("test", schema.AsSpan());
         var s = string.Empty;
         while (t.Next())
         {

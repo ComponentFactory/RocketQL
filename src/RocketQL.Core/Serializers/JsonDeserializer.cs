@@ -5,9 +5,9 @@ public ref struct JsonDeserializer
 {
     private JsonTokenizer _tokenizer;
 
-    public JsonDeserializer(ReadOnlySpan<char> json)
+    public JsonDeserializer(string source, ReadOnlySpan<char> json)
     {
-        _tokenizer = new JsonTokenizer(json);
+        _tokenizer = new JsonTokenizer(source, json);
     }
 
     public ValueNode Deserialize()

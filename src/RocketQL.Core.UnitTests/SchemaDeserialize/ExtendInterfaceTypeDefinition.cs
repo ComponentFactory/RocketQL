@@ -11,7 +11,7 @@ public class ExtendInterfaceTypeDefinition
     [InlineData("extend interface foo implements & bar & fizz & buzz", new string[] { "bar", "fizz", "buzz" })]
     public void ImplementsInterface(string schema, string[] implements)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -25,7 +25,7 @@ public class ExtendInterfaceTypeDefinition
     [Fact]
     public void SingleFieldPlain()
     {
-        var documentNode = Document.SchemaDeserialize("extend interface foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo { bar: Integer }");
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -46,7 +46,7 @@ public class ExtendInterfaceTypeDefinition
     [InlineData("extend interface foo {\"\"\"fizz\"\"\"bar: Integer }")]
     public void SingleFieldWithDescription(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -64,7 +64,7 @@ public class ExtendInterfaceTypeDefinition
     [Fact]
     public void SingleFieldWithDirective()
     {
-        var documentNode = Document.SchemaDeserialize("extend interface foo { bar: Integer @fizz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo { bar: Integer @fizz }");
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -83,7 +83,7 @@ public class ExtendInterfaceTypeDefinition
     [Fact]
     public void SingleFieldWithArgument()
     {
-        var documentNode = Document.SchemaDeserialize("extend interface foo { bar(hello: Integer = 3): Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo { bar(hello: Integer = 3): Integer }");
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -107,7 +107,7 @@ public class ExtendInterfaceTypeDefinition
     [Fact]
     public void TwoFieldsPlain()
     {
-        var documentNode = Document.SchemaDeserialize("extend interface foo { bar: Integer fizz: String }");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo { bar: Integer fizz: String }");
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -131,7 +131,7 @@ public class ExtendInterfaceTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("extend interface foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo @bar");
 
         var type = documentNode.NotNull().ExtendInterfaceTypes.NotNull().One();
         Assert.Equal("foo", type.Name);
@@ -154,10 +154,11 @@ public class ExtendInterfaceTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -171,7 +172,7 @@ public class ExtendInterfaceTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize("extend interface foo 42");
+            var documentNode = Serialization.SchemaDeserialize("test", "extend interface foo 42");
         }
         catch (SyntaxException ex)
         {

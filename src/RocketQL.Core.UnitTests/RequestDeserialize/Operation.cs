@@ -8,7 +8,7 @@ public class Operation
     [InlineData("subscription { foo }", OperationType.SUBSCRIPTION)]
     public void OperationTypes(string schema, OperationType operationType)
     {
-        var documentNode = Document.RequestDeserialize(schema);
+        var documentNode = Serialization.RequestDeserialize("test", schema);
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(operationType, operation.Operation);
@@ -26,7 +26,7 @@ public class Operation
     [Fact]
     public void OperationName()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -44,7 +44,7 @@ public class Operation
     [Fact]
     public void FieldAlias()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo : bar }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo : bar }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -62,7 +62,7 @@ public class Operation
     [Fact]
     public void FieldArgument()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo(bar: 3) }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo(bar: 3) }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -82,7 +82,7 @@ public class Operation
     [Fact]
     public void FieldArgumentUsingVariable()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo(bar: $var) }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo(bar: $var) }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -102,7 +102,7 @@ public class Operation
     [Fact]
     public void FieldDirective()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo @bar }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo @bar }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -121,7 +121,7 @@ public class Operation
     [Fact]
     public void FieldSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo { bar } }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo { bar } }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -143,7 +143,7 @@ public class Operation
     [Fact]
     public void FieldAliasArgumentDirectiveSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo : bar(fizz: 3) @bar { foo2 : bar2(fizz2: 3) @bar2} }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo : bar(fizz: 3) @bar { foo2 : bar2(fizz2: 3) @bar2} }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -171,7 +171,7 @@ public class Operation
     [Fact]
     public void FragmentSpread()
     {
-        var documentNode = Document.RequestDeserialize("query name { ... bar }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { ... bar }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -186,7 +186,7 @@ public class Operation
     [Fact]
     public void FragmentSpreadDirective()
     {
-        var documentNode = Document.RequestDeserialize("query name { ... bar @foo }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { ... bar @foo }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -202,7 +202,7 @@ public class Operation
     [Fact]
     public void InlineFragmentSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("query name { ... { bar } }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { ... { bar } }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -219,7 +219,7 @@ public class Operation
     [Fact]
     public void InlineFragmentOnTypeSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("query name { ... on foo { bar } }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { ... on foo { bar } }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -236,7 +236,7 @@ public class Operation
     [Fact]
     public void InlineFragmentOnTypeDirectiveSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("query name { ... on foo @fizz { bar } }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { ... on foo @fizz { bar } }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -254,7 +254,7 @@ public class Operation
     [Fact]
     public void FieldFragmentSpreadInlineFragment()
     {
-        var documentNode = Document.RequestDeserialize("query name { foo ... bar ... on fizz { buzz } }");
+        var documentNode = Serialization.RequestDeserialize("test", "query name { foo ... bar ... on fizz { buzz } }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -278,7 +278,7 @@ public class Operation
     [Fact]
     public void BareSelectionSet()
     {
-        var documentNode = Document.RequestDeserialize("{ foo }");
+        var documentNode = Serialization.RequestDeserialize("test", "{ foo }");
 
         var operation = documentNode.NotNull().Operations.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -303,7 +303,7 @@ public class Operation
     {
         try
         {
-            var documentNode = Document.RequestDeserialize(text);
+            var documentNode = Serialization.RequestDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
@@ -321,7 +321,7 @@ public class Operation
     {
         try
         {
-            var documentNode = Document.RequestDeserialize(text);
+            var documentNode = Serialization.RequestDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {

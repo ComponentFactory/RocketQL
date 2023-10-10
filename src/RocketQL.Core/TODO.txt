@@ -1,6 +1,9 @@
 ﻿Next
 
-	Validation of raw schema into referenced schema
+	Principles
+		Each 'Schema' must be a valid standalone schema
+		Assumes it is a single target
+
 	Request processing
 		return node that has data and exceptions
 		validate incoming request against schema

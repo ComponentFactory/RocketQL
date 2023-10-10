@@ -5,7 +5,7 @@ public class EnumTypeDefinition
     [Fact]
     public void OneEnum()
     {
-        var documentNode = Document.SchemaDeserialize("enum foo { BUZZ }");
+        var documentNode = Serialization.SchemaDeserialize("test", "enum foo { BUZZ }");
 
         var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
@@ -19,7 +19,7 @@ public class EnumTypeDefinition
     [Fact]
     public void TwoEnums()
     {
-        var documentNode = Document.SchemaDeserialize("enum foo { FIZZ BUZZ }");
+        var documentNode = Serialization.SchemaDeserialize("test", "enum foo { FIZZ BUZZ }");
 
         var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
@@ -38,7 +38,7 @@ public class EnumTypeDefinition
     [Fact]
     public void ThreeEnums()
     {
-        var documentNode = Document.SchemaDeserialize("enum foo { FIZZ BUZZ LAST }");
+        var documentNode = Serialization.SchemaDeserialize("test", "enum foo { FIZZ BUZZ LAST }");
 
         var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
@@ -63,7 +63,7 @@ public class EnumTypeDefinition
     [InlineData("\"\"\"bar\"\"\" enum foo { \"\"\"fizz\"\"\"BUZZ }")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal("bar", enums.Description);
@@ -77,7 +77,7 @@ public class EnumTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("enum foo @bar { BUZZ @fizz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "enum foo @bar { BUZZ @fizz }");
 
         var enums = documentNode.NotNull().EnumTypes.NotNull().One();
         Assert.Equal(string.Empty, enums.Description);
@@ -102,10 +102,11 @@ public class EnumTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

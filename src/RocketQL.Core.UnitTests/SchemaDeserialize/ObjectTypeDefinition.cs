@@ -5,7 +5,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Document.SchemaDeserialize("type foo");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -20,7 +20,7 @@ public class ObjectTypeDefinition
     [InlineData("\"\"\"bar\"\"\" type foo")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal("bar", type.Description);
@@ -39,7 +39,7 @@ public class ObjectTypeDefinition
     [InlineData("type foo implements & bar & fizz & buzz", new string[] { "bar", "fizz", "buzz" })]
     public void ImplementsInterface(string schema, string[] implements)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -54,7 +54,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void SingleFieldPlain()
     {
-        var documentNode = Document.SchemaDeserialize("type foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -76,7 +76,7 @@ public class ObjectTypeDefinition
     [InlineData("type foo {\"\"\"fizz\"\"\"bar: Integer }")]
     public void SingleFieldWithDescription(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -95,7 +95,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void SingleFieldWithDirective()
     {
-        var documentNode = Document.SchemaDeserialize("type foo { bar: Integer @fizz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer @fizz }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -115,7 +115,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void SingleFieldWithArgument()
     {
-        var documentNode = Document.SchemaDeserialize("type foo { bar(hello: Integer = 3): Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar(hello: Integer = 3): Integer }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -140,7 +140,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void TwoFieldsPlain()
     {
-        var documentNode = Document.SchemaDeserialize("type foo { bar: Integer fizz: String }");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer fizz: String }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -165,7 +165,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("type foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("test", "type foo @bar");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -189,10 +189,11 @@ public class ObjectTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

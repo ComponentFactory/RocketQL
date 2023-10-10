@@ -1,3 +1,3 @@
 ﻿namespace RocketQL.Core.Common;
 
-public record struct Location(int Position, int Line, int Column);
+public record struct Location(string Source, int Position, int Line, int Column);

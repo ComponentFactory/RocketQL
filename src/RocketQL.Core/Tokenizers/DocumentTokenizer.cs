@@ -9,6 +9,7 @@ public ref struct DocumentTokenizer
     private static readonly char[] _escChar = new char[(int)EscapeKind.u];
     private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
 
+    private readonly string _source;
     private readonly ReadOnlySpan<char> _text;
     private readonly int _length = 0;
     private readonly StringBuilder _sb;
@@ -100,13 +101,14 @@ public ref struct DocumentTokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
-    public DocumentTokenizer(string text)
-        : this(text.AsSpan())
+    public DocumentTokenizer(string source, string text)
+        : this(source, text.AsSpan())
     {
     }
 
-    public DocumentTokenizer(ReadOnlySpan<char> text)
+    public DocumentTokenizer(string source, ReadOnlySpan<char> text)
     {
+        _source = source;
         _sb = _cachedBuilder.Value!;
 
         if (text.Length == 0)
@@ -124,7 +126,7 @@ public ref struct DocumentTokenizer
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public readonly Location Location => new(_index, LineNumber, ColumnNumber);
+    public readonly Location Location => new Location(_source, _index, LineNumber, ColumnNumber);
 
     public bool Next()
     {
@@ -188,6 +190,7 @@ public ref struct DocumentTokenizer
         _tokenKind = FullTokenKind.EndOfText;
         return false;
     }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ScanNewLine()

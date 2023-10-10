@@ -5,7 +5,7 @@ public class FragmentDefinition
     [Fact]
     public void Minimal()
     {
-        var documentNode = Document.RequestDeserialize("fragment foo on bar { fizz }");
+        var documentNode = Serialization.RequestDeserialize("test", "fragment foo on bar { fizz }");
 
         var fragment = documentNode.NotNull().Fragments.NotNull().One();
         Assert.Equal("foo", fragment.Name);
@@ -22,7 +22,7 @@ public class FragmentDefinition
     [Fact]
     public void FragmentWithDirective()
     {
-        var documentNode = Document.RequestDeserialize("fragment foo on bar @buzz { fizz }");
+        var documentNode = Serialization.RequestDeserialize("test", "fragment foo on bar @buzz { fizz }");
 
         var fragment = documentNode.NotNull().Fragments.NotNull().One();
         Assert.Equal("foo", fragment.Name);
@@ -48,7 +48,7 @@ public class FragmentDefinition
     {
         try
         {
-            var documentNode = Document.RequestDeserialize(text);
+            var documentNode = Serialization.RequestDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
@@ -65,7 +65,7 @@ public class FragmentDefinition
     {
         try
         {
-            var documentNode = Document.RequestDeserialize("fragment on");
+            var documentNode = Serialization.RequestDeserialize("test", "fragment on");
         }
         catch (SyntaxException ex)
         {

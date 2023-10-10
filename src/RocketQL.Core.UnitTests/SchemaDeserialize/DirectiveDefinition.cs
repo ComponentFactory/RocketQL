@@ -8,7 +8,7 @@ public class DirectiveDefinition
     [InlineData("  directive, @ foo, on ,  ENUM")]
     public void Minimum(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -40,7 +40,7 @@ public class DirectiveDefinition
     [InlineData(DirectiveLocations.INPUT_FIELD_DEFINITION)]
     public void SingleLocation(DirectiveLocations location)
     {
-        var documentNode = Document.SchemaDeserialize($"directive @foo on {location}");
+        var documentNode = Serialization.SchemaDeserialize("test", $"directive @foo on {location}");
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -62,7 +62,7 @@ public class DirectiveDefinition
     [InlineData(DirectiveLocations.EXECUTABLE_DRECTIVE_LOCATIONS | DirectiveLocations.TYPE_SYSTEM_DRECTIVE_LOCATIONS, "QUERY | MUTATION | SUBSCRIPTION | FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT | VARIABLE_DEFINITION | SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION")]
     public void MultipleLocations(DirectiveLocations location, string str)
     {
-        var documentNode = Document.SchemaDeserialize($"directive @foo on {str}");
+        var documentNode = Serialization.SchemaDeserialize("test", $"directive @foo on {str}");
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -77,7 +77,7 @@ public class DirectiveDefinition
     [InlineData("directive @foo repeatable on ENUM", true)]
     public void Repeatable(string schema, bool repeatable)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -92,7 +92,7 @@ public class DirectiveDefinition
     [InlineData("\"\"\"bar\"\"\" directive @foo on ENUM")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal("bar", directive.Description);
@@ -105,7 +105,7 @@ public class DirectiveDefinition
     [Fact]
     public void SingleArgumentNameType()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -126,7 +126,7 @@ public class DirectiveDefinition
     [Fact]
     public void SingleArgumentNameTypeWithDefault()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz = 3.14) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz = 3.14) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -149,7 +149,7 @@ public class DirectiveDefinition
     [Fact]
     public void ArgumentWithDirective()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz @hello) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -181,10 +181,11 @@ public class DirectiveDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -202,7 +203,7 @@ public class DirectiveDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
@@ -222,7 +223,7 @@ public class DirectiveDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {

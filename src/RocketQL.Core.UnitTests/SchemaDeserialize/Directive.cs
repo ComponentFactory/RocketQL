@@ -5,7 +5,7 @@ public class Directive
     [Fact]
     public void OneNoArguments()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz @hello) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -24,7 +24,7 @@ public class Directive
     [Fact]
     public void OneWithOneArgument()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3)) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello (world: 3)) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -46,7 +46,7 @@ public class Directive
     [Fact]
     public void OneWithTwoArguments()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -74,7 +74,7 @@ public class Directive
     [Fact]
     public void TwoNoArguments()
     {
-        var documentNode = Document.SchemaDeserialize("directive @foo (bar: fizz @hello @world) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello @world) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
@@ -104,10 +104,11 @@ public class Directive
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -126,7 +127,7 @@ public class Directive
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {

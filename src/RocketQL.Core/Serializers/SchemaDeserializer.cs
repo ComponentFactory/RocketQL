@@ -1,20 +1,24 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public ref struct RequestDeserializer
+public ref struct SchemaDeserializer
 {
+    private SchemaNode _schema;
     private DocumentTokenizer _tokenizer;
     private string? _description = null;
 
-    public RequestDeserializer(ReadOnlySpan<char> text)
+    public SchemaDeserializer(string source, ReadOnlySpan<char> text)
+        : this(source, new SchemaNode(new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new(), new()), text)
     {
-        _tokenizer = new DocumentTokenizer(text);
     }
 
-    public RequestNode Deserialize()
+    public SchemaDeserializer(string source, SchemaNode schema, ReadOnlySpan<char> text)
     {
-        OperationDefinitionNodeList _operations = new();
-        FragmentDefinitionNodeList _fragments = new();
+        _schema = schema;
+        _tokenizer = new DocumentTokenizer(source, text);
+    }
 
+    public SchemaNode Deserialize()
+    {
         // Move to the first real token
         _tokenizer.Next();
 
@@ -33,87 +37,75 @@ public ref struct RequestDeserializer
                         case "query":
                         case "mutation":
                         case "subscription":
-                            _operations.Add(ParseOperationDefinition());
-                            break;
                         case "fragment":
-                            _fragments.Add(ParseFragmentDefinition());
-                            break;
+                            throw SyntaxException.QueryNotAllowedInSchema(_tokenizer.Location);
                         case "schema":
+                            _schema.Schemas.Add(ParseSchemaDefinition());
+                            break;
                         case "scalar":
+                            _schema.ScalarTypes.Add(ParseScalarTypeDefinition());
+                            break;
                         case "type":
+                            _schema.ObjectTypes.Add(ParseObjectTypeDefinition());
+                            break;
                         case "interface":
+                            _schema.InterfaceTypes.Add(ParseInterfaceTypeDefinition());
+                            break;
                         case "union":
+                            _schema.UnionTypes.Add(ParseUnionTypeDefinition());
+                            break;
                         case "enum":
+                            _schema.EnumTypes.Add(ParseEnumTypeDefinition());
+                            break;
                         case "input":
+                            _schema.InputObjectTypes.Add(ParseInputObjectTypeDefinition());
+                            break;
                         case "directive":
-                            throw SyntaxException.DefinintionNotAllowedInOperation(_tokenizer.Location, _tokenizer.TokenValue);
+                            _schema.Directives.Add(ParseDirectiveDefinition());
+                            break;
                         case "extend":
                             {
                                 MandatoryNextToken(DocumentTokenKind.Name);
                                 switch (_tokenizer.TokenValue)
                                 {
                                     case "schema":
+                                        _schema.ExtendSchemas.Add(ParseExtendSchemaDefinition());
+                                        break;
                                     case "scalar":
+                                        _schema.ExtendScalarTypes.Add(ParseExtendScalarTypeDefinition());
+                                        break;
                                     case "type":
+                                        _schema.ExtendObjectTypes.Add(ParseExtendObjectTypeDefinition());
+                                        break;
                                     case "interface":
+                                        _schema.ExtendInterfaceTypes.Add(ParseExtendInterfaceTypeDefinition());
+                                        break;
                                     case "union":
+                                        _schema.ExtendUnionTypes.Add(ParseExtendUnionTypeDefinition());
+                                        break;
                                     case "enum":
+                                        _schema.ExtendEnumTypes.Add(ParseExtendEnumTypeDefinition());
+                                        break;
                                     case "input":
-                                        throw SyntaxException.ExtendDefinintionNotAllowedInOperation(_tokenizer.Location, _tokenizer.TokenValue);
+                                        _schema.ExtendInputObjectTypes.Add(ParseExtendInputObjectTypeDefinition());
+                                        break;
                                     default:
                                         throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                                 }
                             }
+                            break;
                         default:
                             throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
                     }
                     break;
                 case DocumentTokenKind.LeftCurlyBracket:
-                    _operations.Add(new OperationDefinitionNode(OperationType.QUERY, string.Empty, new(), new(), ParseSelectionSet()));
-                    break;
+                    throw SyntaxException.UnnamedQueryNotAllowedInSchema(_tokenizer.Location);
                 default:
                     throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
             }
         }
 
-        return new RequestNode(_operations, _fragments);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationDefinitionNode ParseOperationDefinition()
-    {
-        OperationType operationType = OperationTypeFromTokenValue();
-        MandatoryNext();
-
-        string name = string.Empty;
-        if (_tokenizer.TokenKind == DocumentTokenKind.Name)
-        {
-            name = _tokenizer.TokenValue;
-            MandatoryNext();
-        }
-
-        return new OperationDefinitionNode(operationType,
-                                           name,
-                                           ParseVariablesOptionalDefinition(),
-                                           ParseDirectivesOptional(),
-                                           ParseSelectionSet());
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FragmentDefinitionNode ParseFragmentDefinition()
-    {
-        MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
-        if (name == "on")
-            throw SyntaxException.FragmentNameCannotBeOn(_tokenizer.Location);
-
-        MandatoryNext();
-        MandatoryKeyword("on");
-        MandatoryNextToken(DocumentTokenKind.Name);
-        string typeCondition = _tokenizer.TokenValue;
-        MandatoryNext();
-
-        return new FragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet());
+        return _schema;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -358,6 +350,7 @@ public ref struct RequestDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DirectiveDefinitionNode ParseDirectiveDefinition()
     {
+        var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.At);
         MandatoryNextToken(DocumentTokenKind.Name);
         string name = _tokenizer.TokenValue;
@@ -370,7 +363,8 @@ public ref struct RequestDeserializer
                                            name,
                                            arguments,
                                            repeatable,
-                                           ParseDirectiveLocations());
+                                           ParseDirectiveLocations(),
+                                           location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

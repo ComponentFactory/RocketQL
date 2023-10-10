@@ -5,7 +5,7 @@ public class InputObjectTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Document.SchemaDeserialize("input foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("test", "input foo { bar: Integer }");
 
         var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, input.Description);
@@ -26,7 +26,7 @@ public class InputObjectTypeDefinition
     [InlineData("\"\"\"bar\"\"\" input foo { \"\"\"fizz\"\"\" bar: Integer }")]
     public void Description(string schema)
     {
-        var documentNode = Document.SchemaDeserialize(schema);
+        var documentNode = Serialization.SchemaDeserialize("test", schema);
 
         var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal("bar", input.Description);
@@ -45,7 +45,7 @@ public class InputObjectTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Document.SchemaDeserialize("input foo @fizz { bar: Integer @buzz }");
+        var documentNode = Serialization.SchemaDeserialize("test", "input foo @fizz { bar: Integer @buzz }");
 
         var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, input.Description);
@@ -74,10 +74,11 @@ public class InputObjectTypeDefinition
     {
         try
         {
-            var documentNode = Document.SchemaDeserialize(text);
+            var documentNode = Serialization.SchemaDeserialize("test", text);
         }
         catch (SyntaxException ex)
         {
+            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
