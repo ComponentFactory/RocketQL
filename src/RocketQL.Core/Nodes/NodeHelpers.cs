@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Nodes;
 
-public static class CloneNodes
+public static class NodeHelpers
 {
     public static ValidatedSchemaNode Clone(this ValidatedSchemaNode node)
     {
