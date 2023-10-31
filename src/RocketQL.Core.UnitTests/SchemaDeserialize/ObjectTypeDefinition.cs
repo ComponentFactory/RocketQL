@@ -5,7 +5,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo");
+        var documentNode = Serialization.SchemaDeserialize("type foo");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -20,7 +20,7 @@ public class ObjectTypeDefinition
     [InlineData("\"\"\"bar\"\"\" type foo")]
     public void Description(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal("bar", type.Description);
@@ -39,7 +39,7 @@ public class ObjectTypeDefinition
     [InlineData("type foo implements & bar & fizz & buzz", new string[] { "bar", "fizz", "buzz" })]
     public void ImplementsInterface(string schema, string[] implements)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -54,7 +54,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void SingleFieldPlain()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -65,7 +65,7 @@ public class ObjectTypeDefinition
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
     }
 
@@ -76,7 +76,7 @@ public class ObjectTypeDefinition
     [InlineData("type foo {\"\"\"fizz\"\"\"bar: Integer }")]
     public void SingleFieldWithDescription(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -88,14 +88,14 @@ public class ObjectTypeDefinition
         field.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field.Description);
         Assert.Equal("bar", field.Name);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
     }
 
     [Fact]
     public void SingleFieldWithDirective()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer @fizz }");
+        var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer @fizz }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -105,7 +105,7 @@ public class ObjectTypeDefinition
         var field = type.Fields.NotNull().One();
         field.Arguments.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         var directive = field.Directives.NotNull().One();
         Assert.Equal("fizz", directive.Name);
@@ -115,7 +115,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void SingleFieldWithArgument()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar(hello: Integer = 3): Integer }");
+        var documentNode = Serialization.SchemaDeserialize("type foo { bar(hello: Integer = 3): Integer }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -125,11 +125,11 @@ public class ObjectTypeDefinition
         var field = type.Fields.NotNull().One();
         field.Directives.NotNull().Count(0);
         Assert.Equal("bar", field.Name);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         var argument = field.Arguments.NotNull().One();
         Assert.Equal("hello", argument.Name);
-        TypeNameNode argumentType = (TypeNameNode)argument.Type;
+        SyntaxTypeNameNode argumentType = (SyntaxTypeNameNode)argument.Type;
         Assert.Equal("Integer", argumentType.Name);
         argument.Directives.NotNull().Count(0);
         argument.DefaultValue.NotNull();
@@ -140,7 +140,7 @@ public class ObjectTypeDefinition
     [Fact]
     public void TwoFieldsPlain()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo { bar: Integer fizz: String }");
+        var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer fizz: String }");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -152,20 +152,20 @@ public class ObjectTypeDefinition
         field1.Arguments.NotNull().Count(0);
         field1.Directives.NotNull().Count(0);
         Assert.Equal("bar", field1.Name);
-        TypeNameNode field1Type = (TypeNameNode)field1.Type;
+        SyntaxTypeNameNode field1Type = (SyntaxTypeNameNode)field1.Type;
         Assert.Equal("Integer", field1Type.Name);
         var field2 = type.Fields[1];
         field2.Arguments.NotNull().Count(0);
         field2.Directives.NotNull().Count(0);
         Assert.Equal("fizz", field2.Name);
-        TypeNameNode field2Type = (TypeNameNode)field2.Type;
+        SyntaxTypeNameNode field2Type = (SyntaxTypeNameNode)field2.Type;
         Assert.Equal("String", field2Type.Name);
     }
 
     [Fact]
     public void Directive()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "type foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("type foo @bar");
 
         var type = documentNode.NotNull().ObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, type.Description);
@@ -189,11 +189,10 @@ public class ObjectTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

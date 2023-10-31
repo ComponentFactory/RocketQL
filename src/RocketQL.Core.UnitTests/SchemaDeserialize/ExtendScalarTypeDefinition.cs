@@ -5,7 +5,7 @@ public class ExtendScalarTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend scalar foo");
+        var documentNode = Serialization.SchemaDeserialize("extend scalar foo");
 
         var scalar = documentNode.NotNull().ExtendScalarTypes.NotNull().One();
         Assert.Equal("foo", scalar.Name);
@@ -15,7 +15,7 @@ public class ExtendScalarTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend scalar foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("extend scalar foo @bar");
 
         var scalar = documentNode.NotNull().ExtendScalarTypes.NotNull().One();
         Assert.Equal("foo", scalar.Name);
@@ -31,11 +31,10 @@ public class ExtendScalarTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

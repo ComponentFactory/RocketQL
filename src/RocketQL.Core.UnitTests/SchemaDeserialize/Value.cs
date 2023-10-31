@@ -5,7 +5,7 @@ public class Value
     [Fact]
     public void IntValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = 1) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = 1) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         IntValueNode valueNode = argument.DefaultValue.IsType<IntValueNode>();
@@ -15,7 +15,7 @@ public class Value
     [Fact]
     public void FloatValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = 3.14159) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = 3.14159) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         FloatValueNode valueNode = argument.DefaultValue.IsType<FloatValueNode>();
@@ -25,7 +25,7 @@ public class Value
     [Fact]
     public void StringValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = \"word\") on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = \"word\") on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
@@ -35,7 +35,7 @@ public class Value
     [Fact]
     public void StringValueFromBlockString()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = \"\"\"word\"\"\") on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = \"\"\"word\"\"\") on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         StringValueNode valueNode = argument.DefaultValue.IsType<StringValueNode>();
@@ -47,7 +47,7 @@ public class Value
     [InlineData(false)]
     public void BooleanValue(bool value)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", $"directive @foo (fizz: buzz = {value.ToString().ToLower()}) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize($"directive @foo (fizz: buzz = {value.ToString().ToLower()}) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         BooleanValueNode valueNode = argument.DefaultValue.IsType<BooleanValueNode>();
@@ -57,7 +57,7 @@ public class Value
     [Fact]
     public void NullValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = null) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = null) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         argument.DefaultValue.IsType<NullValueNode>();
@@ -66,7 +66,7 @@ public class Value
     [Fact]
     public void EnumValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = ORANGE) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = ORANGE) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         EnumValueNode valueNode = argument.DefaultValue.IsType<EnumValueNode>();
@@ -76,7 +76,7 @@ public class Value
     [Fact]
     public void ListValueEmpty()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = []) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = []) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
@@ -86,7 +86,7 @@ public class Value
     [Fact]
     public void ListValueOneEntry()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = [3]) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = [3]) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
@@ -100,7 +100,7 @@ public class Value
     [InlineData("directive @foo (fizz: buzz = [3, true null ]) on ENUM")]
     public void ListValueThreeEntries(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
@@ -115,7 +115,7 @@ public class Value
     [Fact]
     public void ListValueListValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = [3 [4]]) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = [3 [4]]) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
@@ -131,7 +131,7 @@ public class Value
     [Fact]
     public void ListValueObjectValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = [3 { hello: null }]) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = [3 { hello: null }]) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ListValueNode valueNode = argument.DefaultValue.IsType<ListValueNode>();
@@ -146,7 +146,7 @@ public class Value
     [Fact]
     public void ObjectValueEmpty()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = {}) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = {}) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectValueNode valueNode = argument.DefaultValue.IsType<ObjectValueNode>();
@@ -156,7 +156,7 @@ public class Value
     [Fact]
     public void ObjectValueOneEntry()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = { world: 42 }) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = { world: 42 }) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
@@ -168,7 +168,7 @@ public class Value
     [Fact]
     public void ObjectValueObjectValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = { world: { hello: 42 } }) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = { world: { hello: 42 } }) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode1 = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
@@ -182,7 +182,7 @@ public class Value
     [Fact]
     public void ObjectValueListValue()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (fizz: buzz = { world: [42] }) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (fizz: buzz = { world: [42] }) on ENUM");
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         ObjectFieldNode fieldNode = argument.DefaultValue.IsType<ObjectValueNode>().ObjectFields.NotNull().One();
@@ -200,7 +200,7 @@ public class Value
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {

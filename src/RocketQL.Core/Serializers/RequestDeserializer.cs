@@ -2,18 +2,25 @@
 
 public ref struct RequestDeserializer
 {
+    private SyntaxRequestNode _request;
     private DocumentTokenizer _tokenizer;
 
-    public RequestDeserializer(string source, ReadOnlySpan<char> text)
+    public RequestDeserializer(ReadOnlySpan<char> text,
+                               [CallerFilePath] string filePath = "",
+                               [CallerMemberName] string memberName = "",
+                               [CallerLineNumber] int lineNumber = 0)
+        : this(text, $"{filePath}, {memberName}, {lineNumber}")
     {
-        _tokenizer = new DocumentTokenizer(source, text);
     }
 
-    public RequestNode Deserialize()
+    public RequestDeserializer(ReadOnlySpan<char> text, string source)
     {
-        OperationDefinitionNodeList _operations = new();
-        FragmentDefinitionNodeList _fragments = new();
+        _request = new SyntaxRequestNode(new(), new());
+        _tokenizer = new DocumentTokenizer(text, source);
+    }
 
+    public SyntaxRequestNode Deserialize()
+    {
         // Move to the first real token
         _tokenizer.Next();
 
@@ -28,10 +35,10 @@ public ref struct RequestDeserializer
                         case "query":
                         case "mutation":
                         case "subscription":
-                            _operations.Add(ParseOperationDefinition());
+                            _request.Operations.Add(ParseOperationDefinition());
                             break;
                         case "fragment":
-                            _fragments.Add(ParseFragmentDefinition());
+                            _request.Fragments.Add(ParseFragmentDefinition());
                             break;
                         case "schema":
                         case "scalar":
@@ -64,18 +71,18 @@ public ref struct RequestDeserializer
                     }
                     break;
                 case DocumentTokenKind.LeftCurlyBracket:
-                    _operations.Add(new OperationDefinitionNode(OperationType.QUERY, string.Empty, new(), new(), ParseSelectionSet()));
+                    _request.Operations.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, string.Empty, new(), new(), ParseSelectionSet()));
                     break;
                 default:
                     throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
             }
         }
 
-        return new RequestNode(_operations, _fragments);
+        return _request;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationDefinitionNode ParseOperationDefinition()
+    private SyntaxOperationDefinitionNode ParseOperationDefinition()
     {
         OperationType operationType = OperationTypeFromTokenValue();
         MandatoryNext();
@@ -87,7 +94,7 @@ public ref struct RequestDeserializer
             MandatoryNext();
         }
 
-        return new OperationDefinitionNode(operationType,
+        return new SyntaxOperationDefinitionNode(operationType,
                                            name,
                                            ParseVariablesOptionalDefinition(),
                                            ParseDirectivesOptional(),
@@ -95,7 +102,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private FragmentDefinitionNode ParseFragmentDefinition()
+    private SyntaxFragmentDefinitionNode ParseFragmentDefinition()
     {
         MandatoryNextToken(DocumentTokenKind.Name);
         string name = _tokenizer.TokenValue;
@@ -108,11 +115,11 @@ public ref struct RequestDeserializer
         string typeCondition = _tokenizer.TokenValue;
         MandatoryNext();
 
-        return new FragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet());
+        return new SyntaxFragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private VariableDefinitionNodeList ParseVariablesOptionalDefinition()
+    private SyntaxVariableDefinitionNodeList ParseVariablesOptionalDefinition()
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
@@ -126,9 +133,9 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private VariableDefinitionNodeList ParseVariableslDefinition()
+    private SyntaxVariableDefinitionNodeList ParseVariableslDefinition()
     {
-        VariableDefinitionNodeList list = new();
+        SyntaxVariableDefinitionNodeList list = new();
 
         do
         {
@@ -138,7 +145,7 @@ public ref struct RequestDeserializer
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
-            list.Add(new VariableDefinitionNode(name,
+            list.Add(new SyntaxVariableDefinitionNode(name,
                                                 ParseType(),
                                                 ParseDefaultValueOptional(),
                                                 ParseDirectivesOptional()));
@@ -149,7 +156,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SelectionDefinitionNodeList ParseSelectionSetOptional()
+    private SyntaxSelectionDefinitionNodeList ParseSelectionSetOptional()
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
             return ParseSelectionSet();
@@ -158,9 +165,9 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SelectionDefinitionNodeList ParseSelectionSet()
+    private SyntaxSelectionDefinitionNodeList ParseSelectionSet()
     {
-        SelectionDefinitionNodeList list = new();
+        SyntaxSelectionDefinitionNodeList list = new();
 
         MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
 
@@ -183,7 +190,7 @@ public ref struct RequestDeserializer
                             MandatoryNext();
                         }
 
-                        list.Add(new FieldSelectionNode(alias,
+                        list.Add(new SyntaxFieldSelectionNode(alias,
                                                         name,
                                                         ParseArgumentsOptional(constant: false),
                                                         ParseDirectivesOptional(),
@@ -201,7 +208,7 @@ public ref struct RequestDeserializer
                             if (name != "on")
                             {
                                 _tokenizer.Next();
-                                list.Add(new FragmentSpreadSelectionNode(name, ParseDirectivesOptional()));
+                                list.Add(new SyntaxFragmentSpreadSelectionNode(name, ParseDirectivesOptional()));
                                 break;
                             }
                             else
@@ -212,7 +219,7 @@ public ref struct RequestDeserializer
                             }
                         }
 
-                        list.Add(new InlineFragmentSelectionNode(name,
+                        list.Add(new SyntaxInlineFragmentSelectionNode(name,
                                                                  ParseDirectivesOptional(),
                                                                  ParseSelectionSet()));
                     }
@@ -287,7 +294,7 @@ public ref struct RequestDeserializer
                 break;
             case DocumentTokenKind.LeftCurlyBracket:
                 {
-                    ObjectFieldNodeList list = new();
+                    SyntaxObjectFieldNodeList list = new();
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
@@ -312,9 +319,9 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DirectiveNodeList ParseDirectivesOptional()
+    private SyntaxDirectiveNodeList ParseDirectivesOptional()
     {
-        DirectiveNodeList list = new();
+        SyntaxDirectiveNodeList list = new();
 
         while (_tokenizer.TokenKind == DocumentTokenKind.At)
         {
@@ -322,16 +329,16 @@ public ref struct RequestDeserializer
             string name = _tokenizer.TokenValue;
             _tokenizer.Next();
 
-            list.Add(new DirectiveNode(name, ParseArgumentsOptional(true)));
+            list.Add(new SyntaxDirectiveNode(name, ParseArgumentsOptional(true)));
         }
 
         return list;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ObjectFieldNodeList ParseArgumentsOptional(bool constant)
+    private SyntaxObjectFieldNodeList ParseArgumentsOptional(bool constant)
     {
-        ObjectFieldNodeList list = new();
+        SyntaxObjectFieldNodeList list = new();
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
@@ -353,7 +360,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private TypeNode ParseType()
+    private SyntaxTypeNode ParseType()
     {
         switch (_tokenizer.TokenKind)
         {
@@ -362,7 +369,7 @@ public ref struct RequestDeserializer
                     var name = _tokenizer.TokenValue;
                     MandatoryNext();
 
-                    return new TypeNameNode(name, OptionalToken(DocumentTokenKind.Exclamation));
+                    return new SyntaxTypeNameNode(name, OptionalToken(DocumentTokenKind.Exclamation));
                 }
             case DocumentTokenKind.LeftSquareBracket:
                 {
@@ -370,7 +377,7 @@ public ref struct RequestDeserializer
                     var listType = ParseType();
                     MandatoryTokenNext(DocumentTokenKind.RightSquareBracket);
 
-                    return new TypeListNode(listType, OptionalToken(DocumentTokenKind.Exclamation));
+                    return new SyntaxTypeListNode(listType, OptionalToken(DocumentTokenKind.Exclamation));
                 }
             default:
                 throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind.ToString());

@@ -5,7 +5,7 @@ public class ExtendInputObjectTypeDefinition
     [Fact]
     public void Minimum()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend input foo { bar: Integer }");
+        var documentNode = Serialization.SchemaDeserialize("extend input foo { bar: Integer }");
 
         var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
         Assert.Equal("foo", input.Name);
@@ -15,7 +15,7 @@ public class ExtendInputObjectTypeDefinition
         Assert.Equal("bar", field.Name);
         field.DefaultValue.IsNull();
         field.Directives.NotNull().Count(0);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         Assert.False(fieldType.NonNull);
     }
@@ -23,7 +23,7 @@ public class ExtendInputObjectTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend input foo @fizz { bar: Integer @buzz }");
+        var documentNode = Serialization.SchemaDeserialize("extend input foo @fizz { bar: Integer @buzz }");
 
         var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
         Assert.Equal("foo", input.Name);
@@ -34,7 +34,7 @@ public class ExtendInputObjectTypeDefinition
         Assert.Equal("bar", field.Name);
         var directive2 = field.Directives.NotNull().One();
         Assert.Equal("buzz", directive2.Name);
-        TypeNameNode fieldType = (TypeNameNode)field.Type;
+        SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         Assert.False(fieldType.NonNull);
     }
@@ -51,11 +51,10 @@ public class ExtendInputObjectTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -69,7 +68,7 @@ public class ExtendInputObjectTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", "extend input foo 42");
+            var documentNode = Serialization.SchemaDeserialize("extend input foo 42");
         }
         catch (SyntaxException ex)
         {

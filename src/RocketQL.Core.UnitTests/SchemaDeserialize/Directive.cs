@@ -5,18 +5,18 @@ public class Directive
     [Fact]
     public void OneNoArguments()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
-        Assert.IsType<TypeNameNode>(directive.Type);
-        TypeNameNode nameNode = (TypeNameNode)directive.Type;
+        Assert.IsType<SyntaxTypeNameNode>(directive.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         Assert.Single(directive.Directives);
-        DirectiveNode directiveNode = directive.Directives[0];
+        SyntaxDirectiveNode directiveNode = directive.Directives[0];
         Assert.Equal("hello", directiveNode.Name);
         directiveNode.Arguments.NotNull().Count(0);
     }
@@ -24,17 +24,17 @@ public class Directive
     [Fact]
     public void OneWithOneArgument()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello (world: 3)) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3)) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
-        Assert.IsType<TypeNameNode>(directive.Type);
-        TypeNameNode nameNode = (TypeNameNode)directive.Type;
+        Assert.IsType<SyntaxTypeNameNode>(directive.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
-        DirectiveNode directiveNode = directive.Directives.NotNull().One();
+        SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
         ObjectFieldNode argument = directiveNode.Arguments.NotNull().One();
         Assert.Equal("world", argument.Name);
@@ -46,17 +46,17 @@ public class Directive
     [Fact]
     public void OneWithTwoArguments()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
-        Assert.IsType<TypeNameNode>(directive.Type);
-        TypeNameNode nameNode = (TypeNameNode)directive.Type;
+        Assert.IsType<SyntaxTypeNameNode>(directive.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
-        DirectiveNode directiveNode = directive.Directives.NotNull().One();
+        SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
         directiveNode.Arguments.NotNull().Count(2);
         ObjectFieldNode argument1 = directiveNode.Arguments[0];
@@ -74,21 +74,21 @@ public class Directive
     [Fact]
     public void TwoNoArguments()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "directive @foo (bar: fizz @hello @world) on ENUM");
+        var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello @world) on ENUM");
 
         var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
-        Assert.IsType<TypeNameNode>(directive.Type);
-        TypeNameNode nameNode = (TypeNameNode)directive.Type;
+        Assert.IsType<SyntaxTypeNameNode>(directive.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
         Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         directive.Directives.NotNull().Count(2);
-        DirectiveNode directiveNode1 = directive.Directives[0];
+        SyntaxDirectiveNode directiveNode1 = directive.Directives[0];
         Assert.Equal("hello", directiveNode1.Name);
         directiveNode1.Arguments.NotNull().Count(0);
-        DirectiveNode directiveNode2 = directive.Directives[1];
+        SyntaxDirectiveNode directiveNode2 = directive.Directives[1];
         Assert.Equal("world", directiveNode2.Name);
         directiveNode2.Arguments.NotNull().Count(0);
     }
@@ -104,11 +104,10 @@ public class Directive
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -127,7 +126,7 @@ public class Directive
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {

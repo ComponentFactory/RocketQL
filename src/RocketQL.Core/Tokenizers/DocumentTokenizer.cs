@@ -101,12 +101,15 @@ public ref struct DocumentTokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
-    public DocumentTokenizer(string source, string text)
-        : this(source, text.AsSpan())
+    public DocumentTokenizer(ReadOnlySpan<char> text,
+                             [CallerFilePath] string filePath = "",
+                             [CallerMemberName] string memberName = "",
+                             [CallerLineNumber] int lineNumber = 0)
+        : this(text, $"{filePath}, {memberName}, {lineNumber}")
     {
     }
 
-    public DocumentTokenizer(string source, ReadOnlySpan<char> text)
+    public DocumentTokenizer(ReadOnlySpan<char> text, string source)
     {
         _source = source;
         _sb = _cachedBuilder.Value!;
@@ -126,7 +129,7 @@ public ref struct DocumentTokenizer
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public readonly Location Location => new Location(_source, _index, LineNumber, ColumnNumber);
+    public readonly Location Location => new Location(_index, LineNumber, ColumnNumber, _source);
 
     public bool Next()
     {

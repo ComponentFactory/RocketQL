@@ -7,7 +7,7 @@ public class Files
     public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
     }
 }
 

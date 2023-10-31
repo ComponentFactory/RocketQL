@@ -1,5 +1,8 @@
 ﻿Next
 
+	https://www.npmjs.com/package/@graphql-schema/validate-schema
+
+
 	Principles
 		Each 'Schema' must be a valid standalone schema
 		Assumes it is a single target

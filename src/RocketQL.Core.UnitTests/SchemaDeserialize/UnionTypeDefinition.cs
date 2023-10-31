@@ -7,7 +7,7 @@ public class UnionTypeDefinition
     [InlineData("union foo = | bar")]
     public void OneMember(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
@@ -22,7 +22,7 @@ public class UnionTypeDefinition
     [InlineData("union foo = | bar | fizz")]
     public void TwoMembers(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
@@ -38,7 +38,7 @@ public class UnionTypeDefinition
     [InlineData("union foo = | bar | fizz | hello")]
     public void ThreeMembers(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
@@ -55,7 +55,7 @@ public class UnionTypeDefinition
     [InlineData("\"\"\"bar\"\"\" union foo = bar")]
     public void Description(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal("bar", union.Description);
@@ -68,7 +68,7 @@ public class UnionTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "union foo @bar = fizz");
+        var documentNode = Serialization.SchemaDeserialize("union foo @bar = fizz");
 
         var union = documentNode.NotNull().UnionTypes.NotNull().One();
         Assert.Equal(string.Empty, union.Description);
@@ -88,11 +88,10 @@ public class UnionTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch

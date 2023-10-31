@@ -23,4 +23,4 @@ public record class ObjectFieldNode(string Name, ValueNode Value) : ValueNode();
 public record class VariableValueNode(string Value) : ValueNode();
 
 public record class ListValueNode(ValueNodeList Values) : ValueNode();
-public record class ObjectValueNode(ObjectFieldNodeList ObjectFields) : ValueNode();
+public record class ObjectValueNode(SyntaxObjectFieldNodeList ObjectFields) : ValueNode();

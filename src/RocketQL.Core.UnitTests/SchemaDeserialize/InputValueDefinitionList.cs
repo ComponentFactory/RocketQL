@@ -7,13 +7,13 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: buzz!) on ENUM", true)]
     public void SingleNameType(string schema, bool nonNull)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<TypeNameNode>(argument.Type);
-        TypeNameNode nameNode = (TypeNameNode)argument.Type;
+        Assert.IsType<SyntaxTypeNameNode>(argument.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
         Assert.Equal("buzz", nameNode.Name);
         Assert.Equal(nonNull, nameNode.NonNull);
     }
@@ -25,16 +25,16 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: [buzz!]!) on ENUM", true, true)]
     public void SingleListType(string schema, bool listNonNull, bool typeNonNull)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<TypeListNode>(argument.Type);
-        TypeListNode listNode = (TypeListNode)argument.Type;
+        Assert.IsType<SyntaxTypeListNode>(argument.Type);
+        SyntaxTypeListNode listNode = (SyntaxTypeListNode)argument.Type;
         Assert.Equal(listNonNull, listNode.NonNull);
-        Assert.IsType<TypeNameNode>(listNode.Type);
-        TypeNameNode nameNode = (TypeNameNode)listNode.Type;
+        Assert.IsType<SyntaxTypeNameNode>(listNode.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)listNode.Type;
         Assert.Equal("buzz", nameNode.Name);
         Assert.Equal(typeNonNull, nameNode.NonNull);
     }
@@ -50,19 +50,19 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: [[buzz!]!]!) on ENUM", true, true, true)]
     public void SingleListListType(string schema, bool outerNonNull, bool innerNonNull, bool typeNonNull)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<TypeListNode>(argument.Type);
-        TypeListNode listNodeOuter = (TypeListNode)argument.Type;
+        Assert.IsType<SyntaxTypeListNode>(argument.Type);
+        SyntaxTypeListNode listNodeOuter = (SyntaxTypeListNode)argument.Type;
         Assert.Equal(outerNonNull, listNodeOuter.NonNull);
-        Assert.IsType<TypeListNode>(listNodeOuter.Type);
-        TypeListNode listNodeInner = (TypeListNode)listNodeOuter.Type;
+        Assert.IsType<SyntaxTypeListNode>(listNodeOuter.Type);
+        SyntaxTypeListNode listNodeInner = (SyntaxTypeListNode)listNodeOuter.Type;
         Assert.Equal(innerNonNull, listNodeInner.NonNull);
-        Assert.IsType<TypeNameNode>(listNodeInner.Type);
-        TypeNameNode nameNode = (TypeNameNode)listNodeInner.Type;
+        Assert.IsType<SyntaxTypeNameNode>(listNodeInner.Type);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)listNodeInner.Type;
         Assert.Equal("buzz", nameNode.Name);
         Assert.Equal(typeNonNull, nameNode.NonNull);
     }
@@ -74,22 +74,22 @@ public class InputValueDefinitionList
     [InlineData("directive @foo (fizz: buzz, hello:world) on ENUM")]
     public void DoubleNameType(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("test", schema);
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var arguments = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().Count(2);
         var argument1 = arguments[0];
         Assert.Equal(string.Empty, argument1.Description);
         Assert.Equal("fizz", argument1.Name);
-        Assert.IsType<TypeNameNode>(argument1.Type);
-        TypeNameNode nameNode1 = (TypeNameNode)argument1.Type;
+        Assert.IsType<SyntaxTypeNameNode>(argument1.Type);
+        SyntaxTypeNameNode nameNode1 = (SyntaxTypeNameNode)argument1.Type;
         Assert.Equal("buzz", nameNode1.Name);
         Assert.False(nameNode1.NonNull);
 
         var argument2 = arguments[1];
         Assert.Equal(string.Empty, argument2.Description);
         Assert.Equal("hello", argument2.Name);
-        Assert.IsType<TypeNameNode>(argument2.Type);
-        TypeNameNode nameNode2 = (TypeNameNode)argument2.Type;
+        Assert.IsType<SyntaxTypeNameNode>(argument2.Type);
+        SyntaxTypeNameNode nameNode2 = (SyntaxTypeNameNode)argument2.Type;
         Assert.Equal("world", nameNode2.Name);
         Assert.False(nameNode2.NonNull);
     }
@@ -102,7 +102,7 @@ public class InputValueDefinitionList
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
@@ -122,11 +122,10 @@ public class InputValueDefinitionList
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Expected token '{expected}' but found '{found}' instead.", ex.Message);
         }
         catch

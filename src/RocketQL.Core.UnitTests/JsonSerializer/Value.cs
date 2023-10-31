@@ -57,7 +57,7 @@ public class Value
     [InlineData("[3, [4.9]]", "[3,[4.9]]")]
     public void ListValue(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node);
 
         Assert.Equal(after, json);
@@ -70,7 +70,7 @@ public class Value
     [InlineData("{\"world\": { \"hello\": 42}}", "{\"world\":{\"hello\":42}}")]
     public void ObjectValue(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node);
 
         Assert.Equal(after, json);
@@ -81,7 +81,7 @@ public class Value
     [InlineData("{\"world\": [1, 2, 3]}", "{\"world\":[1,2,3]}")]
     public void ListValueAndObjectValue(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node);
 
         Assert.Equal(after, json);
@@ -113,7 +113,7 @@ public class Value
         """)]
     public void ListValueFormat(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node, true);
 
         Assert.Equal(after, json);
@@ -144,7 +144,7 @@ public class Value
         """)]
     public void ObjectValueFormat(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node, true);
 
         Assert.Equal(after, json);
@@ -249,7 +249,7 @@ public class Value
         """)]
     public void ListValueAndObjectValueFormat(string before, string after)
     {
-        var node = Serialization.JsonDeserialize("test", before);
+        var node = Serialization.JsonDeserialize(before);
         var json = Serialization.JsonSerialize(node, true);
 
         Assert.Equal(after, json);

@@ -5,13 +5,13 @@ public class FragmentDefinition
     [Fact]
     public void Minimal()
     {
-        var documentNode = Serialization.RequestDeserialize("test", "fragment foo on bar { fizz }");
+        var documentNode = Serialization.RequestDeserialize("fragment foo on bar { fizz }");
 
         var fragment = documentNode.NotNull().Fragments.NotNull().One();
         Assert.Equal("foo", fragment.Name);
         Assert.Equal("bar", fragment.TypeCondition);
         fragment.Directives.NotNull().Count(0);
-        var field = (FieldSelectionNode)fragment.SelectionSet.NotNull().One();
+        var field = (SyntaxFieldSelectionNode)fragment.SelectionSet.NotNull().One();
         Assert.Equal(string.Empty, field.Alias);
         Assert.Equal("fizz", field.Name);
         field.Arguments.NotNull().Count(0);
@@ -22,14 +22,14 @@ public class FragmentDefinition
     [Fact]
     public void FragmentWithDirective()
     {
-        var documentNode = Serialization.RequestDeserialize("test", "fragment foo on bar @buzz { fizz }");
+        var documentNode = Serialization.RequestDeserialize("fragment foo on bar @buzz { fizz }");
 
         var fragment = documentNode.NotNull().Fragments.NotNull().One();
         Assert.Equal("foo", fragment.Name);
         Assert.Equal("bar", fragment.TypeCondition);
         var directive = fragment.Directives.NotNull().One();
         Assert.Equal("buzz", directive.Name);
-        var field = (FieldSelectionNode)fragment.SelectionSet.NotNull().One();
+        var field = (SyntaxFieldSelectionNode)fragment.SelectionSet.NotNull().One();
         Assert.Equal(string.Empty, field.Alias);
         Assert.Equal("fizz", field.Name);
         field.Arguments.NotNull().Count(0);
@@ -48,7 +48,7 @@ public class FragmentDefinition
     {
         try
         {
-            var documentNode = Serialization.RequestDeserialize("test", text);
+            var documentNode = Serialization.RequestDeserialize(text);
         }
         catch (SyntaxException ex)
         {
@@ -65,7 +65,7 @@ public class FragmentDefinition
     {
         try
         {
-            var documentNode = Serialization.RequestDeserialize("test", "fragment on");
+            var documentNode = Serialization.RequestDeserialize("fragment on");
         }
         catch (SyntaxException ex)
         {

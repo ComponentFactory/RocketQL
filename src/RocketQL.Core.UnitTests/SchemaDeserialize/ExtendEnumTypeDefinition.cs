@@ -5,7 +5,7 @@ public class ExtendEnumTypeDefinition
     [Fact]
     public void EnumValues()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend enum foo { BUZZ }");
+        var documentNode = Serialization.SchemaDeserialize("extend enum foo { BUZZ }");
 
         var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
         Assert.Equal("foo", enums.Name);
@@ -19,7 +19,7 @@ public class ExtendEnumTypeDefinition
     [Fact]
     public void Directive()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend enum foo @bar");
+        var documentNode = Serialization.SchemaDeserialize("extend enum foo @bar");
 
         var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
         Assert.Equal("foo", enums.Name);
@@ -32,7 +32,7 @@ public class ExtendEnumTypeDefinition
     [Fact]
     public void EnumValuesAndDirective()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend enum foo @bar { BUZZ }");
+        var documentNode = Serialization.SchemaDeserialize("extend enum foo @bar { BUZZ }");
 
         var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
         Assert.Equal("foo", enums.Name);
@@ -52,7 +52,7 @@ public class ExtendEnumTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
@@ -69,11 +69,10 @@ public class ExtendEnumTypeDefinition
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", "extend enum foo 42");
+            var documentNode = Serialization.SchemaDeserialize("extend enum foo 42");
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Extend enum must specify at least one of directive or enum values.", ex.Message);
         }
         catch

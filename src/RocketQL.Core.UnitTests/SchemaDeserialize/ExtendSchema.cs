@@ -5,7 +5,7 @@ public class ExtendSchema
     [Fact]
     public void DirectiveOnly()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend schema @bar");
+        var documentNode = Serialization.SchemaDeserialize("extend schema @bar");
 
         var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
         var directive = extend.Directives.NotNull().One();
@@ -16,7 +16,7 @@ public class ExtendSchema
     [Fact]
     public void OperationTypesOnly()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend schema { query: bar }");
+        var documentNode = Serialization.SchemaDeserialize("extend schema { query: bar }");
 
         var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
         extend.Directives.NotNull().Count(0);
@@ -28,7 +28,7 @@ public class ExtendSchema
     [Fact]
     public void DirectiveAndOperationTypes()
     {
-        var documentNode = Serialization.SchemaDeserialize("test", "extend schema @bar { query: bar }");
+        var documentNode = Serialization.SchemaDeserialize("extend schema @bar { query: bar }");
 
         var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
         var directive = extend.Directives.NotNull().One();
@@ -45,11 +45,10 @@ public class ExtendSchema
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", text);
+            var documentNode = Serialization.SchemaDeserialize(text);
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal("test", ex.Locations[0].Source);
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
         }
         catch
@@ -63,7 +62,7 @@ public class ExtendSchema
     {
         try
         {
-            var documentNode = Serialization.SchemaDeserialize("test", "extend schema 42");
+            var documentNode = Serialization.SchemaDeserialize("extend schema 42");
         }
         catch (SyntaxException ex)
         {

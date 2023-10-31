@@ -91,12 +91,15 @@ public ref struct JsonTokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
-    public JsonTokenizer(string source, string text)
-        : this(source, text.AsSpan())
+    public JsonTokenizer(ReadOnlySpan<char> text,
+                         [CallerFilePath] string filePath = "",
+                         [CallerMemberName] string memberName = "",
+                         [CallerLineNumber] int lineNumber = 0)
+        : this(text, $"{filePath}, {memberName}, {lineNumber}")
     {
     }
 
-    public JsonTokenizer(string source, ReadOnlySpan<char> text)
+    public JsonTokenizer(ReadOnlySpan<char> text, string source)
     {
         _source = source;
         _sb = _cachedBuilder.Value!;
@@ -116,7 +119,7 @@ public ref struct JsonTokenizer
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public readonly Location Location => new(_source, _index, LineNumber, ColumnNumber);
+    public readonly Location Location => new(_index, LineNumber, ColumnNumber, _source);
 
     public bool Next()
     {

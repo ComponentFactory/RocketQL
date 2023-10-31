@@ -2,28 +2,47 @@
 
 public static class Serialization
 {
-    public static ValueNode JsonDeserialize(string source, string json)
-    {
-        return new JsonDeserializer(source, json).Deserialize();
-    }
-
     public static string JsonSerialize(ValueNode node, bool format = false, int indent = 4)
     {
         return new JsonSerializer(node, format, indent).Serialize();
     }
 
-    public static RequestNode RequestDeserialize(string source, string text)
+    public static ValueNode JsonDeserialize(ReadOnlySpan<char> json,
+                                            [CallerFilePath] string filePath = "",
+                                            [CallerMemberName] string memberName = "",
+                                            [CallerLineNumber] int lineNumber = 0)
     {
-        return new RequestDeserializer(source, text).Deserialize();
+        return new JsonDeserializer(json, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
     }
 
-    public static SchemaNode SchemaDeserialize(string source, string text)
+    public static ValueNode JsonDeserialize(ReadOnlySpan<char> json, string source)
     {
-        return new SchemaDeserializer(source, text).Deserialize();
+        return new JsonDeserializer(json, source).Deserialize();
     }
 
-    public static SchemaNode SchemaDeserialize(string source, SchemaNode schema, string text)
+    public static SyntaxRequestNode RequestDeserialize(ReadOnlySpan<char> text,
+                                                       [CallerFilePath] string filePath = "",
+                                                       [CallerMemberName] string memberName = "",
+                                                       [CallerLineNumber] int lineNumber = 0)
     {
-        return new SchemaDeserializer(source, schema, text).Deserialize();
+        return new RequestDeserializer(text, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
+    }
+
+    public static SyntaxRequestNode RequestDeserialize(ReadOnlySpan<char> text, string source)
+    {
+        return new RequestDeserializer(text, source).Deserialize();
+    }
+
+    public static SyntaxSchemaNode SchemaDeserialize(ReadOnlySpan<char> text,
+                                                     [CallerFilePath] string filePath = "",
+                                                     [CallerMemberName] string memberName = "",
+                                                     [CallerLineNumber] int lineNumber = 0)
+    {
+        return new SchemaDeserializer(text, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
+    }
+
+    public static SyntaxSchemaNode SchemaDeserialize(ReadOnlySpan<char> text, string source)
+    {
+        return new SchemaDeserializer(text, source).Deserialize();
     }
 }

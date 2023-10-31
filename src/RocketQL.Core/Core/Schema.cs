@@ -1,39 +1,50 @@
-﻿namespace RocketQL.Core;
+﻿using RocketQL.Core.Serializers;
+
+namespace RocketQL.Core;
 
 public class Schema
 {
     public Schema()
     {
-        SchemaNode = new(new());
     }
 
-    public Schema(Schema other)
+    public Dictionary<string, DirectiveNode> Directives { get; init; } = new();
+
+    public void Merge(ReadOnlySpan<char> schema,
+                      [CallerFilePath] string filePath = "",
+                      [CallerMemberName] string memberName = "",
+                      [CallerLineNumber] int lineNumber = 0)
     {
-        SchemaNode = other.SchemaNode.Clone();
+        Merge(Serialization.SchemaDeserialize(schema, $"{filePath}, {memberName}, {lineNumber}"));
     }
 
-    public ValidatedSchemaNode SchemaNode { get; init; }
+    public void Merge(ReadOnlySpan<char> schema, string source)
+    {
+        Merge(Serialization.SchemaDeserialize(schema, source));
+    }
 
-    public void Merge(IEnumerable<SchemaNode> schemas)
+    public void Merge(SyntaxSchemaNode schema)
+    {
+        Merge(new SyntaxSchemaNode[] { schema });
+    }
+
+    public void Merge(IEnumerable<SyntaxSchemaNode> schemas)
     {
         foreach (var schema in schemas)
-            Merge(schema);
+        {
+
+        }
     }
 
-    public void Merge(SchemaNode schema)
-    {
-        MergeDirectives(schema.Directives);
-    }
-
-    private void MergeDirectives(DirectiveDefinitionNodeList directives)
+    private void MergeDirective(SyntaxDirectiveDefinitionNodeList directives)
     {
         foreach(var directive in directives) 
         {
             // Each directive must have a unique name
-            if (SchemaNode.Directives.ContainsKey(directive.Name))
+            if (Directives.ContainsKey(directive.Name))
                 throw ValidationException.DirectiveAlreadyDefined(directive.Location, directive.Name);
 
-            SchemaNode.Directives.Add(directive.Name, directive);
+            // 
         }
     }
 }

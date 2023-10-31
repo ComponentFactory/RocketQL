@@ -1,13 +1,20 @@
 ﻿namespace RocketQL.Core.Serializers;
 
 public ref struct JsonDeserializer
-
 {
-    private JsonTokenizer _tokenizer;
+    private JsonTokenizer _tokenizer;              
 
-    public JsonDeserializer(string source, ReadOnlySpan<char> json)
+    public JsonDeserializer(ReadOnlySpan<char> json, 
+                            [CallerFilePath]string filePath = "",
+                            [CallerMemberName] string memberName = "",
+                            [CallerLineNumber] int lineNumber = 0)
+        : this(json, $"{filePath}, {memberName}, {lineNumber}")
     {
-        _tokenizer = new JsonTokenizer(source, json);
+    }
+
+    public JsonDeserializer(ReadOnlySpan<char> json, string source)
+    {
+        _tokenizer = new JsonTokenizer(json, source);
     }
 
     public ValueNode Deserialize()
@@ -58,7 +65,7 @@ public ref struct JsonDeserializer
     {
         MandatoryNext();
 
-        ObjectFieldNodeList values = new();
+        SyntaxObjectFieldNodeList values = new();
 
         while (_tokenizer.TokenKind != JsonTokenKind.RightCurlyBracket)
         {
