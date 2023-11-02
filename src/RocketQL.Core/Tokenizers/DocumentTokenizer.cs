@@ -105,7 +105,7 @@ public ref struct DocumentTokenizer
                              [CallerFilePath] string filePath = "",
                              [CallerMemberName] string memberName = "",
                              [CallerLineNumber] int lineNumber = 0)
-        : this(text, $"{filePath}, {memberName}, {lineNumber}")
+        : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
 

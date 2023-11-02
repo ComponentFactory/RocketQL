@@ -12,7 +12,7 @@ public static class Serialization
                                             [CallerMemberName] string memberName = "",
                                             [CallerLineNumber] int lineNumber = 0)
     {
-        return new JsonDeserializer(json, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
+        return new JsonDeserializer(json, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }
 
     public static ValueNode JsonDeserialize(ReadOnlySpan<char> json, string source)
@@ -25,7 +25,7 @@ public static class Serialization
                                                        [CallerMemberName] string memberName = "",
                                                        [CallerLineNumber] int lineNumber = 0)
     {
-        return new RequestDeserializer(text, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
+        return new RequestDeserializer(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }
 
     public static SyntaxRequestNode RequestDeserialize(ReadOnlySpan<char> text, string source)
@@ -38,7 +38,7 @@ public static class Serialization
                                                      [CallerMemberName] string memberName = "",
                                                      [CallerLineNumber] int lineNumber = 0)
     {
-        return new SchemaDeserializer(text, $"{filePath}, {memberName}, {lineNumber}").Deserialize();
+        return new SchemaDeserializer(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }
 
     public static SyntaxSchemaNode SchemaDeserialize(ReadOnlySpan<char> text, string source)

@@ -5,10 +5,10 @@ public ref struct JsonDeserializer
     private JsonTokenizer _tokenizer;              
 
     public JsonDeserializer(ReadOnlySpan<char> json, 
-                            [CallerFilePath]string filePath = "",
+                            [CallerFilePath] string filePath = "",
                             [CallerMemberName] string memberName = "",
                             [CallerLineNumber] int lineNumber = 0)
-        : this(json, $"{filePath}, {memberName}, {lineNumber}")
+        : this(json, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
 
