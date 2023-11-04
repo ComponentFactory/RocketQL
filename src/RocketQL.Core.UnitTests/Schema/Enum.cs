@@ -1,46 +1,48 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Scalar
+public class Enum
 {
     private static readonly string _foo =
         """
             "description"
-            scalar foo
+            enum foo {
+                FIRST
+                SECOND
+            }
         """;
 
-
     [Fact]
-    public void AddScalarTypes()
+    public void AddEnums()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarTypes(syntaxSchemaNode.ScalarTypes);
+        schema.AddEnumTypes(syntaxSchemaNode.EnumTypes);
         schema.Validate();
 
-        Assert.Single(schema.Scalars);
-        var foo = schema.Scalars["foo"];
+        Assert.Single(schema.Enums);
+        var foo = schema.Enums["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarTypes), foo.Location.Source);
+        Assert.Contains(nameof(AddEnums), foo.Location.Source);
     }
 
     [Fact]
-    public void AddScalarType()
+    public void AddEnum()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarType(syntaxSchemaNode.ScalarTypes[0]);
+        schema.AddEnum(syntaxSchemaNode.EnumTypes[0]);
         schema.Validate();
 
-        Assert.Single(schema.Scalars);
-        var foo = schema.Scalars["foo"];
+        Assert.Single(schema.Enums);
+        var foo = schema.Enums["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarType), foo.Location.Source);
+        Assert.Contains(nameof(AddEnum), foo.Location.Source);
     }
 
     [Fact]
@@ -54,9 +56,9 @@ public class Scalar
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Scalar 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Enum 'foo' is already defined.", ex.Message);
         }
-        catch
+        catch(Exception ex2)
         {
             Assert.Fail("Wrong exception");
         }

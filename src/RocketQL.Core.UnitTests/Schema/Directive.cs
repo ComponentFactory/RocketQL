@@ -1,46 +1,45 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Scalar
+public class Directive
 {
     private static readonly string _foo =
         """
             "description"
-            scalar foo
+            directive @foo on ENUM
         """;
 
-
     [Fact]
-    public void AddScalarTypes()
+    public void AddDirectives()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarTypes(syntaxSchemaNode.ScalarTypes);
+        schema.AddDirectives(syntaxSchemaNode.Directives);
         schema.Validate();
 
-        Assert.Single(schema.Scalars);
-        var foo = schema.Scalars["foo"];
+        Assert.Single(schema.Directives);
+        var foo = schema.Directives["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarTypes), foo.Location.Source);
+        Assert.Contains(nameof(AddDirectives), foo.Location.Source);
     }
 
     [Fact]
-    public void AddScalarType()
+    public void AddDirective()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarType(syntaxSchemaNode.ScalarTypes[0]);
+        schema.AddDirective(syntaxSchemaNode.Directives[0]);
         schema.Validate();
 
-        Assert.Single(schema.Scalars);
-        var foo = schema.Scalars["foo"];
+        Assert.Single(schema.Directives);
+        var foo = schema.Directives["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarType), foo.Location.Source);
+        Assert.Contains(nameof(AddDirective), foo.Location.Source);
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class Scalar
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Scalar 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Directive 'foo' is already defined.", ex.Message);
         }
         catch
         {

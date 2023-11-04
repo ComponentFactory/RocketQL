@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace RocketQL.Core.Base;
 
-public class Schema
+public partial class Schema
 {
     public Schema()
     {
@@ -12,6 +12,7 @@ public class Schema
 
     public DirectiveDefinitions Directives { get; init; } = new();
     public ScalarTypeDefinitions Scalars { get; init; } = new();
+    public EnumTypeDefinitions Enums { get; init; } = new();
 
     public void Merge(ReadOnlySpan<char> schema,
                       [CallerFilePath] string filePath = "",
@@ -37,6 +38,7 @@ public class Schema
         {
             AddDirectives(schema.Directives);
             AddScalarTypes(schema.ScalarTypes);
+            AddEnumTypes(schema.EnumTypes);
         }
     }
 
@@ -55,7 +57,7 @@ public class Schema
         {
             Description = node.Description,
             Name = node.Name,
-            Arguments = ToInputValueDefinitionNodes(node.Arguments),
+            Arguments = ToInputValueDefinitions(node.Arguments),
             Repeatable = node.Repeatable,
             DirectiveLocations = node.DirectiveLocations,
             Location = node.Location
@@ -77,81 +79,29 @@ public class Schema
         {
             Description = node.Description,
             Name = node.Name,
-            Directives = ToDirectiveNodes(node.Directives),
+            Directives = ToDirectives(node.Directives),
             Location = node.Location
         });
     }
 
-    public void Validate()
+    public void AddEnumTypes(IEnumerable<SyntaxEnumTypeDefinitionNode> nodes)
     {
+        foreach (var node in nodes)
+            AddEnum(node);
     }
 
-    private static InputValueDefinitionNodes ToInputValueDefinitionNodes(SyntaxInputValueDefinitionNodeList inputValues)
+    public void AddEnum(SyntaxEnumTypeDefinitionNode node)
     {
-        var nodes = new InputValueDefinitionNodes();
+        if (Enums.ContainsKey(node.Name))
+            throw ValidationException.EnumAlreadyDefined(node.Location, node.Name);
 
-        foreach (var inputValue in inputValues)
+        Enums.Add(node.Name, new()
         {
-            nodes.Add(inputValue.Name, new()
-            {
-                Description = inputValue.Description,
-                Name = inputValue.Name,
-                Type = ToTypeNode(inputValue.Type),
-                DefaultValue = inputValue.DefaultValue,
-                Directives = ToDirectiveNodes(inputValue.Directives),
-                Location = inputValue.Location
-            });
-        }
-
-        return nodes;
-    }
-
-    private static TypeNode ToTypeNode(SyntaxTypeNode node)
-    {
-        return node switch
-        {
-            SyntaxTypeNameNode nameNode => new TypeNameNode() 
-            {
-                 Name = nameNode.Name,
-                 NonNull = nameNode.NonNull,
-                 Location = nameNode.Location,
-            },
-            SyntaxTypeListNode listNode => new TypeListNode() 
-            {
-                Type = ToTypeNode(listNode.Type),
-                Definition = null,
-                NonNull = listNode.NonNull,
-                Location = listNode.Location,
-            },
-            _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)
-        }; ;
-    }
-
-    private static DirectiveNodes ToDirectiveNodes(SyntaxDirectiveNodeList directives)
-    {
-        var nodes = new DirectiveNodes();
-
-        foreach(var directive in directives)
-        {
-            nodes.Add(directive.Name, new()
-            { 
-                Name = directive.Name,
-                Definition = null,
-                Arguments = ToObjectFieldNodes(directive.Arguments),
-                Location = directive.Location
-            });
-        }
-
-        return nodes;
-    }
-
-    private static ObjectFieldNodes ToObjectFieldNodes(SyntaxObjectFieldNodeList fields)
-    {
-        var nodes = new ObjectFieldNodes();
-
-        foreach (var field in fields)
-            nodes.Add(field.Name, field);
-
-        return nodes;
+            Description = node.Description,
+            Name = node.Name,
+            Directives = ToDirectives(node.Directives),
+            EnumValues = ToEnumValues(node.EnumValues),
+            Location = node.Location
+        });
     }
 }
