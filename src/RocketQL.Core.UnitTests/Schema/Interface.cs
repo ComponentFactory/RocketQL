@@ -1,48 +1,54 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Enum
+public class Interface
 {
     private static readonly string _foo =
         """
             "description"
-            enum foo {
-                FIRST
-                SECOND
-            }
+            interface foo { 
+                fizz : Integer
+                buzz : String
+            }  
         """;
 
     [Fact]
-    public void AddEnums()
+    public void AddInterfaceTypes()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddEnumTypes(syntaxSchemaNode.EnumTypes);
+        schema.AddInterfaceTypes(syntaxSchemaNode.InterfaceTypes);
         schema.Validate();
 
-        Assert.Single(schema.Enums);
-        var foo = schema.Enums["foo"];
+        Assert.Single(schema.Interfaces);
+        var foo = schema.Interfaces["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddEnums), foo.Location.Source);
+        Assert.Equal(2, foo.Fields.Count);
+        Assert.NotNull(foo.Fields["fizz"]);
+        Assert.NotNull(foo.Fields["buzz"]);
+        Assert.Contains(nameof(AddInterfaceTypes), foo.Location.Source);
     }
 
     [Fact]
-    public void AddEnum()
+    public void AddInterfaceType()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddEnum(syntaxSchemaNode.EnumTypes[0]);
+        schema.AddInterfaceType(syntaxSchemaNode.InterfaceTypes[0]);
         schema.Validate();
 
-        Assert.Single(schema.Enums);
-        var foo = schema.Enums["foo"];
+        Assert.Single(schema.Interfaces);
+        var foo = schema.Interfaces["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddEnum), foo.Location.Source);
+        Assert.Equal(2, foo.Fields.Count);
+        Assert.NotNull(foo.Fields["fizz"]);
+        Assert.NotNull(foo.Fields["buzz"]);
+        Assert.Contains(nameof(AddInterfaceType), foo.Location.Source);
     }
 
     [Fact]
@@ -56,7 +62,7 @@ public class Enum
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Enum 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Interface 'foo' is already defined.", ex.Message);
         }
         catch
         {

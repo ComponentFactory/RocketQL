@@ -12,6 +12,7 @@ public partial class Schema
 
     public DirectiveDefinitions Directives { get; init; } = new();
     public ScalarTypeDefinitions Scalars { get; init; } = new();
+    public InterfaceTypeDefinitions Interfaces { get; init; } = new();
     public EnumTypeDefinitions Enums { get; init; } = new();
 
     public void Merge(ReadOnlySpan<char> schema,
@@ -38,6 +39,7 @@ public partial class Schema
         {
             AddDirectives(schema.Directives);
             AddScalarTypes(schema.ScalarTypes);
+            AddInterfaceTypes(schema.InterfaceTypes);
             AddEnumTypes(schema.EnumTypes);
         }
     }
@@ -80,6 +82,29 @@ public partial class Schema
             Description = node.Description,
             Name = node.Name,
             Directives = ToDirectives(node.Directives),
+            Location = node.Location
+        });
+    }
+
+
+    public void AddInterfaceTypes(IEnumerable<SyntaxInterfaceTypeDefinitionNode> nodes)
+    {
+        foreach (var node in nodes)
+            AddInterfaceType(node);
+    }
+
+    public void AddInterfaceType(SyntaxInterfaceTypeDefinitionNode node)
+    {
+        if (Interfaces.ContainsKey(node.Name))
+            throw ValidationException.InterfaceAlreadyDefined(node.Location, node.Name);
+
+        Interfaces.Add(node.Name, new()
+        {
+            Description = node.Description,
+            Name = node.Name,
+            ImplementsInterfaces = ToInterfaces(node.ImplementsInterfaces),
+            Directives = ToDirectives(node.Directives),
+            Fields = ToFieldDefinitions(node.Fields),
             Location = node.Location
         });
     }

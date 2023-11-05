@@ -24,6 +24,22 @@ public partial class Schema
         return nodes;
     }
 
+    private static Interfaces ToInterfaces(SyntaxNameList names)
+    {
+        var nodes = new Interfaces();
+
+        foreach (var name in names)
+        {
+            nodes.Add(name, new()
+            {
+                Name = name,
+                Definition = null,
+            });
+        }
+
+        return nodes;
+    }
+
     private static EnumValueDefinitions ToEnumValues(SyntaxEnumValueDefinitionList enumValues)
     {
         var nodes = new EnumValueDefinitions();
@@ -48,6 +64,25 @@ public partial class Schema
 
         foreach (var field in fields)
             nodes.Add(field.Name, field);
+
+        return nodes;
+    }
+
+    private static FieldDefinitions ToFieldDefinitions(SyntaxFieldDefinitionNodeList fields)
+    {
+        var nodes = new FieldDefinitions();
+
+        foreach (var field in fields)
+        {
+            nodes.Add(field.Name, new()
+            {
+                Description = field.Description,
+                Name = field.Name,
+                Arguments = ToInputValueDefinitions(field.Arguments),
+                Type = ToTypeNode(field.Type),
+                Definition = null
+            });
+        }
 
         return nodes;
     }

@@ -2,6 +2,7 @@
 
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class ScalarTypeDefinitions : Dictionary<string, ScalarTypeDefinition> { };
+public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class EnumTypeDefinitions : Dictionary<string, EnumTypeDefinition> { };
 
 public class SchemaLocation
@@ -36,6 +37,34 @@ public class ScalarTypeDefinition : TypeDefinition
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+}
+
+public class InterfaceTypeDefinition : TypeDefinition
+{
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required Interfaces ImplementsInterfaces { get; init; }
+    public required Directives Directives { get; init; }
+    public required FieldDefinitions Fields { get; init; }
+}
+
+public class Interfaces : Dictionary<string, Interface> { };
+
+public class Interface
+{
+    public required string Name { get; init; }
+    public required InterfaceTypeDefinition? Definition { get; set; }
+}
+
+public class FieldDefinitions : Dictionary<string, FieldDefinition> { };
+
+public class FieldDefinition
+{
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required InputValueDefinitions Arguments { get; init; }
+    public required TypeLocation Type { get; init; }
+    public required TypeDefinition? Definition { get; set; }
 }
 
 public class EnumTypeDefinition : TypeDefinition
