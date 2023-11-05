@@ -1,54 +1,54 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Interface
+public class Input
 {
     private static readonly string _foo =
         """
             "description"
-            interface foo { 
+            input foo { 
                 fizz : Integer
                 buzz : String
             }  
         """;
 
     [Fact]
-    public void AddInterfaceTypes()
+    public void AddInputObjectTypes()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddInterfaceTypes(syntaxSchemaNode.InterfaceTypes);
+        schema.AddInputObjectTypes(syntaxSchemaNode.InputObjectTypes);
         schema.Validate();
 
-        Assert.Single(schema.InterfaceTypes);
-        var foo = schema.InterfaceTypes["foo"];
+        Assert.Single(schema.InputObjectTypes);
+        var foo = schema.InputObjectTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.Fields.Count);
-        Assert.NotNull(foo.Fields["fizz"]);
-        Assert.NotNull(foo.Fields["buzz"]);
-        Assert.Contains(nameof(AddInterfaceTypes), foo.Location.Source);
+        Assert.Equal(2, foo.InputFields.Count);
+        Assert.NotNull(foo.InputFields["fizz"]);
+        Assert.NotNull(foo.InputFields["buzz"]);
+        Assert.Contains(nameof(AddInputObjectTypes), foo.Location.Source);
     }
 
     [Fact]
-    public void AddInterfaceType()
+    public void AddInputObjectType()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddInterfaceType(syntaxSchemaNode.InterfaceTypes[0]);
+        schema.AddInputObjectType(syntaxSchemaNode.InputObjectTypes[0]);
         schema.Validate();
 
-        Assert.Single(schema.InterfaceTypes);
-        var foo = schema.InterfaceTypes["foo"];
+        Assert.Single(schema.InputObjectTypes);
+        var foo = schema.InputObjectTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.Fields.Count);
-        Assert.NotNull(foo.Fields["fizz"]);
-        Assert.NotNull(foo.Fields["buzz"]);
-        Assert.Contains(nameof(AddInterfaceType), foo.Location.Source);
+        Assert.Equal(2, foo.InputFields.Count);
+        Assert.NotNull(foo.InputFields["fizz"]);
+        Assert.NotNull(foo.InputFields["buzz"]);
+        Assert.Contains(nameof(AddInputObjectType), foo.Location.Source);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class Interface
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Interface type 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Input object type 'foo' is already defined.", ex.Message);
         }
         catch
         {

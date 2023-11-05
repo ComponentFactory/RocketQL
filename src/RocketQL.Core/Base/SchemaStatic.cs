@@ -40,6 +40,22 @@ public partial class Schema
         return nodes;
     }
 
+    private static MemberTypes ToMemberTypes(SyntaxNameList names)
+    {
+        var nodes = new MemberTypes();
+
+        foreach (var name in names)
+        {
+            nodes.Add(name, new()
+            {
+                Name = name,
+                Definition = null,
+            });
+        }
+
+        return nodes;
+    }
+
     private static EnumValueDefinitions ToEnumValues(SyntaxEnumValueDefinitionList enumValues)
     {
         var nodes = new EnumValueDefinitions();

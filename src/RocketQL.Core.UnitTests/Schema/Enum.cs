@@ -20,11 +20,14 @@ public class Enum
         schema.AddEnumTypes(syntaxSchemaNode.EnumTypes);
         schema.Validate();
 
-        Assert.Single(schema.Enums);
-        var foo = schema.Enums["foo"];
+        Assert.Single(schema.EnumTypes);
+        var foo = schema.EnumTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
+        Assert.Equal(2, foo.EnumValues.Count);
+        Assert.NotNull(foo.EnumValues["FIRST"]);
+        Assert.NotNull(foo.EnumValues["SECOND"]);
         Assert.Contains(nameof(AddEnums), foo.Location.Source);
     }
 
@@ -37,11 +40,14 @@ public class Enum
         schema.AddEnum(syntaxSchemaNode.EnumTypes[0]);
         schema.Validate();
 
-        Assert.Single(schema.Enums);
-        var foo = schema.Enums["foo"];
+        Assert.Single(schema.EnumTypes);
+        var foo = schema.EnumTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
+        Assert.Equal(2, foo.EnumValues.Count);
+        Assert.NotNull(foo.EnumValues["FIRST"]);
+        Assert.NotNull(foo.EnumValues["SECOND"]);
         Assert.Contains(nameof(AddEnum), foo.Location.Source);
     }
 
@@ -56,7 +62,7 @@ public class Enum
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Enum 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Enum type 'foo' is already defined.", ex.Message);
         }
         catch
         {

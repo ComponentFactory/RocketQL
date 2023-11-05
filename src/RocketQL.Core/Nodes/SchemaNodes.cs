@@ -2,8 +2,11 @@
 
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class ScalarTypeDefinitions : Dictionary<string, ScalarTypeDefinition> { };
+public class ObjectTypeDefinitions : Dictionary<string, ObjectTypeDefinition> { };
 public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
+public class UnionTypeDefinitions : Dictionary<string, UnionTypeDefinition> { };
 public class EnumTypeDefinitions : Dictionary<string, EnumTypeDefinition> { };
+public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };
 
 public class SchemaLocation
 { 
@@ -39,6 +42,15 @@ public class ScalarTypeDefinition : TypeDefinition
     public required Directives Directives { get; init; }
 }
 
+public class ObjectTypeDefinition : TypeDefinition
+{
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required Interfaces ImplementsInterfaces { get; init; }
+    public required Directives Directives { get; init; }
+    public required FieldDefinitions Fields { get; init; }
+}
+
 public class InterfaceTypeDefinition : TypeDefinition
 {
     public required string Description { get; init; }
@@ -67,6 +79,23 @@ public class FieldDefinition
     public required TypeDefinition? Definition { get; set; }
 }
 
+
+public class UnionTypeDefinition : TypeDefinition
+{
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required Directives Directives { get; init; }
+    public required MemberTypes MemberTypes { get; init; }
+}
+
+public class MemberTypes : Dictionary<string, MemberType> { };
+
+public class MemberType
+{
+    public required string Name { get; init; }
+    public required ObjectTypeDefinition? Definition { get; set; }
+}
+
 public class EnumTypeDefinition : TypeDefinition
 {
     public required string Description { get; init; }
@@ -82,6 +111,14 @@ public class EnumValueDefinition : SchemaLocation
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+}
+
+public class InputObjectTypeDefinition : TypeDefinition
+{
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required Directives Directives { get; init; }
+    public required InputValueDefinitions InputFields { get; init; }
 }
 
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };

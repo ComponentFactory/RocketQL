@@ -1,46 +1,51 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Scalar
+public class Union
 {
     private static readonly string _foo =
         """
             "description"
-            scalar foo
+            union foo = fizz | buzz
         """;
 
-
     [Fact]
-    public void AddScalarTypes()
+    public void AddUnionTypes()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarTypes(syntaxSchemaNode.ScalarTypes);
+        schema.AddUnionTypes(syntaxSchemaNode.UnionTypes);
         schema.Validate();
 
-        Assert.Single(schema.ScalarTypes);
-        var foo = schema.ScalarTypes["foo"];
+        Assert.Single(schema.UnionTypes);
+        var foo = schema.UnionTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarTypes), foo.Location.Source);
+        Assert.Equal(2, foo.MemberTypes.Count);
+        Assert.NotNull(foo.MemberTypes["fizz"]);
+        Assert.NotNull(foo.MemberTypes["buzz"]);
+        Assert.Contains(nameof(AddUnionTypes), foo.Location.Source);
     }
 
     [Fact]
-    public void AddScalarType()
+    public void AddUnionType()
     {
         var schema = new Schema();
 
         var syntaxSchemaNode = Serialization.SchemaDeserialize(_foo);
-        schema.AddScalarType(syntaxSchemaNode.ScalarTypes[0]);
+        schema.AddUnionType(syntaxSchemaNode.UnionTypes[0]);
         schema.Validate();
 
-        Assert.Single(schema.ScalarTypes);
-        var foo = schema.ScalarTypes["foo"];
+        Assert.Single(schema.UnionTypes);
+        var foo = schema.UnionTypes["foo"];
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarType), foo.Location.Source);
+        Assert.Equal(2, foo.MemberTypes.Count);
+        Assert.NotNull(foo.MemberTypes["fizz"]);
+        Assert.NotNull(foo.MemberTypes["buzz"]);
+        Assert.Contains(nameof(AddUnionType), foo.Location.Source);
     }
 
     [Fact]
@@ -54,7 +59,7 @@ public class Scalar
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Scalar type 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Union type 'foo' is already defined.", ex.Message);
         }
         catch
         {

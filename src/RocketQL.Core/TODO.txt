@@ -3,9 +3,10 @@
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 
 
-	Principles
-		Each 'Schema' must be a valid standalone schema
-		Assumes it is a single target
+	Schema
+	    Add schema
+		Add extend
+		Add validation
 
 	Request processing
 		return node that has data and exceptions
