@@ -1,4 +1,11 @@
-﻿namespace RocketQL.Core.Nodes;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace RocketQL.Core.Nodes;
+
+public class SchemaLocation
+{
+    public required Location Location { get; init; }
+}
 
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class ScalarTypeDefinitions : Dictionary<string, ScalarTypeDefinition> { };
@@ -8,10 +15,41 @@ public class UnionTypeDefinitions : Dictionary<string, UnionTypeDefinition> { };
 public class EnumTypeDefinitions : Dictionary<string, EnumTypeDefinition> { };
 public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };
 
-public class SchemaLocation
-{ 
-    public required Location Location { get; init; } 
+public class SchemaDefinition : SchemaLocation
+{
+    [SetsRequiredMembers]
+    public SchemaDefinition()
+    {
+        Description = string.Empty;
+        Directives = new();
+        OperationTypeDefinitions = new();
+        Location = new Location();
+    }
+
+    public required string Description { get; init; }
+    public required Directives Directives { get; init; }
+    public required OperationTypeDefinitions OperationTypeDefinitions { get; init; }
+
+    public bool IsDefault
+    {
+        get
+        {
+            return (Description == string.Empty) &&
+                   (Directives.Count == 0) &&
+                   (OperationTypeDefinitions.Count == 0) &&
+                   (Location == new Location());
+        }
+    }
 }
+
+public class OperationTypeDefinition : SchemaLocation
+{
+    public required OperationType Operation { get; init; }
+    public required string NamedType { get; init; }
+    public required TypeDefinition? Definition { get; set; }
+}
+
+public class OperationTypeDefinitions : Dictionary<OperationType, OperationTypeDefinition> { };
 
 public class DirectiveDefinition : SchemaLocation
 {
@@ -78,7 +116,6 @@ public class FieldDefinition
     public required TypeLocation Type { get; init; }
     public required TypeDefinition? Definition { get; set; }
 }
-
 
 public class UnionTypeDefinition : TypeDefinition
 {

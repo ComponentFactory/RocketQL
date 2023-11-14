@@ -11,6 +11,8 @@ public class ValidationException : Exception
     public Location[] Locations { get; init; }
 
     public static ValidationException UnrecognizedType(Location location, string name) => new(location, $"Unrecognized type '{name}' encountered.");
+    public static ValidationException SchemaDefinitionAlreadyDefined(Location location) => new(location, $"Schema definition is already defined.");
+    public static ValidationException OperationTypeAlreadyDefined(Location location, OperationType operationType) => new(location, $"Type already defined for '{operationType}' operation.");
     public static ValidationException DirectiveAlreadyDefined(Location location, string name) => new(location, $"Directive '{name}' is already defined.");
     public static ValidationException ScalarAlreadyDefined(Location location, string name) => new(location, $"Scalar type '{name}' is already defined.");
     public static ValidationException ObjectAlreadyDefined(Location location, string name) => new(location, $"Object type '{name}' is already defined.");
