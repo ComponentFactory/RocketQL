@@ -4,9 +4,8 @@
 
 
 	Schema
-		Add extend
-		Add validation
-			Check enums are valid
+		Put everything into internal lists
+		Add validation according to spec and generate dictionary from it
 
 	Request processing
 		return node that has data and exceptions

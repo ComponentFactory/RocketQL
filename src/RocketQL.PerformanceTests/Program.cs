@@ -18,8 +18,8 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-//            BenchmarkRunner.Run<DeserializerBenchmark>();
-//            BenchmarkRunner.Run<TokenizerBenchmark>();
+            BenchmarkRunner.Run<DeserializerBenchmark>();
+            BenchmarkRunner.Run<TokenizerBenchmark>();
             BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
@@ -191,7 +191,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void RocketkQL_GitHub_Token()
+        public void RocketQL_GitHub_Token()
         {
             RocketQL(_github);
         }
