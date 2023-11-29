@@ -4,8 +4,10 @@
 
 
 	Schema
-		Put everything into internal lists
-		Add validation according to spec and generate dictionary from it
+		add simple temp object validation to allow
+
+		Fully test and check the schema validation
+		Full add the schema extend validation
 
 	Request processing
 		return node that has data and exceptions

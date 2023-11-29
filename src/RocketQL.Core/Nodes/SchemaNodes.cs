@@ -21,14 +21,18 @@ public class SchemaDefinition : SchemaLocation
     public SchemaDefinition()
     {
         Description = string.Empty;
-        Directives = new();
-        OperationTypeDefinitions = new();
+        Directives = [];
+        Query = null;
+        Mutation = null;
+        Subscription = null;
         Location = new Location();
     }
 
-    public required string Description { get; init; }
-    public required Directives Directives { get; init; }
-    public required OperationTypeDefinitions OperationTypeDefinitions { get; init; }
+    public string Description { get; set; }
+    public Directives Directives { get; set; }
+    public OperationTypeDefinition? Query { get; set; }
+    public OperationTypeDefinition? Mutation { get; set; }
+    public OperationTypeDefinition? Subscription { get; set; }
 
     public bool IsDefault
     {
@@ -36,7 +40,9 @@ public class SchemaDefinition : SchemaLocation
         {
             return (Description == string.Empty) &&
                    (Directives.Count == 0) &&
-                   (OperationTypeDefinitions.Count == 0) &&
+                   (Query is null) &&
+                   (Mutation is null) &&
+                   (Subscription is null) &&
                    (Location == new Location());
         }
     }
@@ -45,8 +51,7 @@ public class SchemaDefinition : SchemaLocation
 public class OperationTypeDefinition : SchemaLocation
 {
     public required OperationType Operation { get; init; }
-    public required string NamedType { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+    public required ObjectTypeDefinition ObjectTypeDefinition { get; set; }
 }
 
 public class OperationTypeDefinitions : Dictionary<OperationType, OperationTypeDefinition> { };
@@ -64,8 +69,7 @@ public class Directives : Dictionary<string, Directive> { };
 
 public class Directive : SchemaLocation
 {
-    public required string Name { get; init; }
-    public required DirectiveDefinition? Definition { get; set; }
+    public required DirectiveDefinition Definition { get; set; }
     public required ObjectFields Arguments { get; init; }
 }
 
@@ -87,6 +91,7 @@ public class ObjectTypeDefinition : TypeDefinition
     public required Interfaces ImplementsInterfaces { get; init; }
     public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
+    public required ObjectTypeDefinitions UsedByTypes { get; init; }
 }
 
 public class InterfaceTypeDefinition : TypeDefinition
@@ -102,8 +107,7 @@ public class Interfaces : Dictionary<string, Interface> { };
 
 public class Interface
 {
-    public required string Name { get; init; }
-    public required InterfaceTypeDefinition? Definition { get; set; }
+    public required InterfaceTypeDefinition Definition { get; set; }
 }
 
 public class FieldDefinitions : Dictionary<string, FieldDefinition> { };
@@ -113,8 +117,7 @@ public class FieldDefinition
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required InputValueDefinitions Arguments { get; init; }
-    public required TypeLocation Type { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+    public required TypeDefinition Definition { get; set; }
 }
 
 public class UnionTypeDefinition : TypeDefinition
@@ -129,8 +132,7 @@ public class MemberTypes : Dictionary<string, MemberType> { };
 
 public class MemberType
 {
-    public required string Name { get; init; }
-    public required ObjectTypeDefinition? Definition { get; set; }
+    public required ObjectTypeDefinition Definition { get; set; }
 }
 
 public class EnumTypeDefinition : TypeDefinition
@@ -183,6 +185,5 @@ public class TypeName : TypeLocation
 
 public class TypeList : TypeLocation
 {
-    public required TypeLocation Type { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+    public required TypeDefinition Definition { get; set; }
 }

@@ -1,9 +1,9 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public ref struct SchemaDeserializer
+public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
 {
-    private SyntaxSchemaNode _schema;
-    private DocumentTokenizer _tokenizer;
+    private readonly SyntaxSchemaNode _schema = new([], [], [], [], [], [], [], [], [], [], [], [], [], [], []);
+    private DocumentTokenizer _tokenizer = new(text, source);
     private string? _description = null;
 
     public SchemaDeserializer(ReadOnlySpan<char> text,
@@ -12,14 +12,6 @@ public ref struct SchemaDeserializer
                               [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
-    }
-
-    public SchemaDeserializer(ReadOnlySpan<char> text, string source)
-    {
-        _schema = new SyntaxSchemaNode(new(), new(), new(), new(), new(), new(), new(),
-                                       new(), new(), new(), new(), new(), new(), new(), new());
-
-        _tokenizer = new DocumentTokenizer(text, source);
     }
 
     public SyntaxSchemaNode Deserialize()
@@ -121,7 +113,7 @@ public ref struct SchemaDeserializer
         var directives = ParseDirectivesOptional();
         MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
 
-        SyntaxOperationTypeDefinitionNodeList list = new();
+        SyntaxOperationTypeDefinitionNodeList list = [];
 
         do
         {
@@ -148,7 +140,7 @@ public ref struct SchemaDeserializer
         MandatoryNext();
         var directives = ParseDirectivesOptional();
 
-        SyntaxOperationTypeDefinitionNodeList list = new();
+        SyntaxOperationTypeDefinitionNodeList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
         {
@@ -389,7 +381,7 @@ public ref struct SchemaDeserializer
 
         return new SyntaxExtendInputObjectTypeDefinitionNode(name, 
                                                              directives, 
-                                                             inputFields ?? new(), 
+                                                             inputFields ?? [], 
                                                              location);
     }
 
@@ -416,7 +408,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxNameList ParseImplementsInterfacesOptional()
     {
-        SyntaxNameList list = new();
+        SyntaxNameList list = [];
 
         if (OptionalKeyword("implements"))
         {
@@ -439,7 +431,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxVariableDefinitionNodeList ParseVariableslDefinition()
     {
-        SyntaxVariableDefinitionNodeList list = new();
+        SyntaxVariableDefinitionNodeList list = [];
 
         do
         {
@@ -467,13 +459,13 @@ public ref struct SchemaDeserializer
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
             return ParseSelectionSet();
 
-        return new();
+        return [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxSelectionDefinitionNodeList ParseSelectionSet()
     {
-        SyntaxSelectionDefinitionNodeList list = new();
+        SyntaxSelectionDefinitionNodeList list = [];
 
         MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
 
@@ -548,7 +540,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxFieldDefinitionNodeList ParseFieldsOptionalDefinition()
     {
-        SyntaxFieldDefinitionNodeList list = new();
+        SyntaxFieldDefinitionNodeList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
         {
@@ -582,7 +574,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxEnumValueDefinitionList ParseEnumValueTypesOptional()
     {
-        SyntaxEnumValueDefinitionList list = new();
+        SyntaxEnumValueDefinitionList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
         {
@@ -612,7 +604,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxNameList ParseMemberTypesOptional()
     {
-        SyntaxNameList list = new();
+        SyntaxNameList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.Equals)
         {
@@ -644,13 +636,13 @@ public ref struct SchemaDeserializer
             return arguments;
         }
 
-        return new();
+        return [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxInputValueDefinitionNodeList ParseInputValueListDefinition()
     {
-        SyntaxInputValueDefinitionNodeList list = new();
+        SyntaxInputValueDefinitionNodeList list = [];
 
         do
         {
@@ -722,7 +714,7 @@ public ref struct SchemaDeserializer
                 break;
             case DocumentTokenKind.LeftSquareBracket:
                 {
-                    ValueNodeList list = new();
+                    ValueNodeList list = [];
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightSquareBracket)
@@ -733,7 +725,7 @@ public ref struct SchemaDeserializer
                 break;
             case DocumentTokenKind.LeftCurlyBracket:
                 {
-                    SyntaxObjectFieldNodeList list = new();
+                    SyntaxObjectFieldNodeList list = [];
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
@@ -760,7 +752,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxDirectiveNodeList ParseDirectivesOptional()
     {
-        SyntaxDirectiveNodeList list = new();
+        SyntaxDirectiveNodeList list = [];
 
         while (_tokenizer.TokenKind == DocumentTokenKind.At)
         {
@@ -778,7 +770,7 @@ public ref struct SchemaDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxObjectFieldNodeList ParseArgumentsOptional(bool constant)
     {
-        SyntaxObjectFieldNodeList list = new();
+        SyntaxObjectFieldNodeList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
@@ -846,7 +838,7 @@ public ref struct SchemaDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private DirectiveLocations StringToDriveLocations(string location)
+    private readonly DirectiveLocations StringToDriveLocations(string location)
     {
         return location switch
         {
@@ -886,7 +878,7 @@ public ref struct SchemaDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationType OperationTypeFromTokenValue()
+    private readonly OperationType OperationTypeFromTokenValue()
     {
         return _tokenizer.TokenValue switch
         {
@@ -905,7 +897,7 @@ public ref struct SchemaDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MandatoryToken(DocumentTokenKind token)
+    private readonly void MandatoryToken(DocumentTokenKind token)
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.EndOfText)
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
@@ -938,7 +930,7 @@ public ref struct SchemaDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MandatoryKeyword(string keyword)
+    private readonly void MandatoryKeyword(string keyword)
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.EndOfText)
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);

@@ -1,15 +1,7 @@
 ﻿namespace RocketQL.Core;
 
-public class SyntaxException : Exception
+public class SyntaxException(Location location, string message) : RocketException(location, message)
 {
-    public SyntaxException(Location location, string message)
-        : base(message)
-    {
-        Locations = new Location[] { location };
-    }
-
-    public Location[] Locations { get; init; }
-
     public static SyntaxException UnexpectedEndOfFile(Location location) => new(location, "Unexpected end of file encountered.");
     public static SyntaxException UnrecognizedCharacterCode(Location location, char c) => new(location, $"Unrecognized character code '{(int)c}' found.");
     public static SyntaxException UnrecognizedToken(Location location, string tokenKind) => new(location, $"Unrecognized token '{tokenKind}'.");

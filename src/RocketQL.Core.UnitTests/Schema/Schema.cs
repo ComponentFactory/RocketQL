@@ -2,73 +2,30 @@
 
 public class Schemas
 {
-    private static readonly string _valid =
-        """
-            "description"
-            schema { 
-                query: Fizz
-                mutation: Buzz
-                subscription: FizzBuzz
-            }
-        """;
-    
-    private static readonly string _invalid =
-        """
-            "description"
-            schema { 
-                query: Fizz
-                query: Buzz
-            }
-        """;
-
     [Fact]
-    public void AddSchema()
+    public void EmptySchemaMissingQueryOperation()
     {
         var schema = new Schema();
-
-        var syntaxSchemaNode = Serialization.SchemaDeserialize(_valid);
-        schema.AddSchema(syntaxSchemaNode.Schemas[0]);
-        schema.Validate();
-
-        Assert.Equal("description", schema.Definition.Description);
-        Assert.Contains(nameof(AddSchema), schema.Definition.Location.Source);
+        ValidationException exception = Assert.Throws<ValidationException>(() => schema.Validate());
+        Assert.Equal("Schema definition missing mandatory Query operation.", exception.Message);
     }
 
     [Fact]
-    public void SchemaAlreadyDefined()
+    public void SchemaDefinitionCannotBeEmpty()
     {
-        try
-        {
-            var schema = new Schema();
-            schema.Merge(_valid);
-            schema.Merge(_valid);
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal($"Schema definition is already defined.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
+        var schema = new Schema();
+        schema.Add(new SyntaxSchemaDefinitionNode(string.Empty, [], [], new Location()));
+        ValidationException exception = Assert.Throws<ValidationException>(() => schema.Validate());
+        Assert.Equal("Schema definition does not define any operations.", exception.Message);
     }
 
     [Fact]
-    public void OperationTypeAlreadyDefined()
+    public void TwoOperationsCannotHaveSameType()
     {
-        try
-        {
-            var schema = new Schema();
-            schema.Merge(_invalid);
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal($"Type already defined for 'QUERY' operation.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
+        var schema = new Schema();
+        schema.Add("schema { query: a mutation: a }");
+        ValidationException exception = Assert.Throws<ValidationException>(() => schema.Validate());
+        Assert.Equal("Schema definition does not define any operations.", exception.Message);
     }
 }
 
