@@ -9,14 +9,12 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException SchemaDefinitionMissingQuery(Location location) => new(location, $"Schema definition missing mandatory Query operation.");
     public static ValidationException SchemaOperationsNotUnique(Location location, string op1, string op2, string type) => new(location, $"Schema {op1} and {op2} operations cannot have same '{type}' type.");
     public static ValidationException TypeNotDefinedForSchemaOperation(Location location, OperationType operation, string type) => new(location, $"Type '{type}' not defined for the schema operation {operation}.");
-
-    
     public static ValidationException OperationTypeAlreadyDefined(Location location, OperationType operationType) => new(location, $"Type already defined for '{operationType}' operation.");
-    public static ValidationException DirectiveAlreadyDefined(Location location, string name) => new(location, $"Directive '{name}' is already defined.");
-    public static ValidationException ScalarAlreadyDefined(Location location, string name) => new(location, $"Scalar type '{name}' is already defined.");
-    public static ValidationException ObjectAlreadyDefined(Location location, string name) => new(location, $"Object type '{name}' is already defined.");
-    public static ValidationException InterfaceAlreadyDefined(Location location, string name) => new(location, $"Interface type '{name}' is already defined.");
-    public static ValidationException UnionAlreadyDefined(Location location, string name) => new(location, $"Union type '{name}' is already defined.");
-    public static ValidationException EnumAlreadyDefined(Location location, string name) => new(location, $"Enum type '{name}' is already defined.");
-    public static ValidationException InputObjectAlreadyDefined(Location location, string name) => new(location, $"Input object type '{name}' is already defined.");
+    public static ValidationException DirectiveNameAlreadyDefined(Location location, string name) => new(location, $"Directive name '{name}' is already defined.");
+    public static ValidationException ScalarNameAlreadyDefined(Location location, string name) => new(location, $"Scalar type name '{name}' is already defined.");
+    public static ValidationException ObjectNameAlreadyDefined(Location location, string name) => new(location, $"Object type name '{name}' is already defined.");
+    public static ValidationException InterfaceNameAlreadyDefined(Location location, string name) => new(location, $"Interface type name '{name}' is already defined.");
+    public static ValidationException UnionNameAlreadyDefined(Location location, string name) => new(location, $"Union type name '{name}' is already defined.");
+    public static ValidationException EnumNameAlreadyDefined(Location location, string name) => new(location, $"Enum type name '{name}' is already defined.");
+    public static ValidationException InputObjectNameAlreadyDefined(Location location, string name) => new(location, $"Input object type name '{name}' is already defined.");
 }

@@ -4,10 +4,19 @@
 
 
 	Schema
-		add simple temp object validation to allow
+		Add full validation of 
+			schema
+			directives
+			types
+				enum
+				input object
+				interface
+				object
+				scalar
+				union
 
-		Fully test and check the schema validation
-		Full add the schema extend validation
+		Allow extend syntax nodes
+		Apply extend changes and validate
 
 	Request processing
 		return node that has data and exceptions

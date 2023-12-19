@@ -36,5 +36,3 @@ public class SyntaxException(Location location, string message) : RocketExceptio
     public static SyntaxException DefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Operation document cannot contain definition '{definition}'.");
     public static SyntaxException ExtendDefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Operation document cannot contain extend definition '{definition}'.");
 }
-
-

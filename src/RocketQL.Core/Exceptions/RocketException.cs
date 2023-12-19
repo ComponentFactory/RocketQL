@@ -4,5 +4,3 @@ public class RocketException(Location location, string message) : Exception(mess
 {
     public Location[] Locations { get; init; } = [location];
 }
-
-

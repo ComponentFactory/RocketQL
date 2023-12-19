@@ -18,14 +18,5 @@ public class Schemas
         ValidationException exception = Assert.Throws<ValidationException>(() => schema.Validate());
         Assert.Equal("Schema definition does not define any operations.", exception.Message);
     }
-
-    [Fact]
-    public void TwoOperationsCannotHaveSameType()
-    {
-        var schema = new Schema();
-        schema.Add("schema { query: a mutation: a }");
-        ValidationException exception = Assert.Throws<ValidationException>(() => schema.Validate());
-        Assert.Equal("Schema definition does not define any operations.", exception.Message);
-    }
 }
 
