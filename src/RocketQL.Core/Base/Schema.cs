@@ -7,7 +7,6 @@ public class Schema
     public SchemaDefinition Definition { get; protected set; } = new();
     public DirectiveDefinitions Directives { get; init; } = [];
     public TypeDefinitions Types { get; init; } = [];
-
     public bool IsValidated { get; protected set; } = false;
 
     public void Add(ReadOnlySpan<char> schema,
@@ -69,10 +68,12 @@ public class Schema
         try
         {
             ConvertToSchemaNodes();
-            InterlinkSchemaNodes();
-            //ValidateDirectives();
-            //ValidateTypes();
-            //ValidateSchema();
+            InterlinkDirectives();
+            InterlinkTypes();
+            InterlinkSchema();
+            ValidateDirectives();
+            ValidateTypes();
+            ValidateSchema();
             IsValidated = true;
         }
         catch
@@ -84,7 +85,6 @@ public class Schema
 
     private void ConvertToSchemaNodes()
     {
-        // Convert each syntax node into a schema node, checking only for duplicate name errors
         foreach (var node in _syntaxNodes)
         {
             switch (node)
@@ -405,93 +405,117 @@ public class Schema
         return nodes;
     }
 
-    private void InterlinkSchemaNodes()
+    private void InterlinkDirectives()
     {
-        // directives
-        // types
+        foreach(var directive in Directives.Values)
+        {
+
+        }
     }
 
-    //private void ValidateSchema()
-    //{
-    //    // Schema definition can be omitted
-    //    if (Definition.IsDefault)
-    //    {
-    //        // Look for types with names that match the operation, but the type cannot be referenced by any other types
-    //        if (Types.TryGetValue("Query", out var queryTypeDefinition) && (queryTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Query = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.QUERY,
-    //                Definition = queryTypeDefinition,
-    //                Location = queryTypeDefinition.Location,
-    //            };
-    //        }
+    private void InterlinkTypes()
+    {
+        foreach (var type in Types.Values)
+        {
+            switch (type)
+            {
+                case ScalarTypeDefinition scalarType:
+                    // TODO
+                    break;
+                case ObjectTypeDefinition objectType:
+                    // TODO
+                    break;
+                case InterfaceTypeDefinition interfaceType:
+                    // TODO
+                    break;
+                case UnionTypeDefinition unionType:
+                    // TODO
+                    break;
+                case EnumTypeDefinition enumType:
+                    // TODO
+                    break;
+                case InputObjectTypeDefinition inputObjectType:
+                    // TODO
+                    break;
+                default:
+                    throw ValidationException.UnrecognizedType(type);
+            }
+        }
+    }
 
-    //        if (Types.TryGetValue("Mutation", out var mutationTypeDefinition) && (mutationTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Mutation = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.MUTATION,
-    //                Definition = mutationTypeDefinition,
-    //                Location = mutationTypeDefinition.Location,
-    //            };
-    //        }
+    private void InterlinkSchema()
+    {
+    }
 
-    //        if (Types.TryGetValue("Subscription", out var subscriptionTypeDefinition) && (subscriptionTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Subscription = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.SUBSCRIPTION,
-    //                Definition = subscriptionTypeDefinition,
-    //                Location = subscriptionTypeDefinition.Location,
-    //            };
-    //        }
+    private void ValidateDirectives()
+    {
+    }
 
-    //        // Schema must always define the Query root operation
-    //        if (Definition.Query is null)
-    //            throw ValidationException.SchemaDefinitionMissingQuery(Definition.Location);
+    private void ValidateTypes()
+    {
+    }
 
-    //        // Each operation must have a different type
-    //        if (Definition.Mutation is not null)
-    //        {
-    //            if (Definition.Query.Definition == Definition.Mutation.Definition)
-    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Mutation", Definition.Query.Definition.Name);
-    //        }
+    private void ValidateSchema()
+    {
+        //    // Schema definition can be omitted
+        //    if (Definition.IsDefault)
+        //    {
+        //        // Look for types with names that match the operation, but the type cannot be referenced by any other types
+        //        if (Types.TryGetValue("Query", out var queryTypeDefinition) && (queryTypeDefinition.UsedByTypes.Count == 0))
+        //        {
+        //            Definition.Query = new OperationTypeDefinition()
+        //            {
+        //                Operation = OperationType.QUERY,
+        //                Definition = queryTypeDefinition,
+        //                Location = queryTypeDefinition.Location,
+        //            };
+        //        }
 
-    //        if (Definition.Subscription is not null)
-    //        {
-    //            if (Definition.Query.Definition == Definition.Subscription.Definition)
-    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Subscription", Definition.Query.Definition.Name);
+        //        if (Types.TryGetValue("Mutation", out var mutationTypeDefinition) && (mutationTypeDefinition.UsedByTypes.Count == 0))
+        //        {
+        //            Definition.Mutation = new OperationTypeDefinition()
+        //            {
+        //                Operation = OperationType.MUTATION,
+        //                Definition = mutationTypeDefinition,
+        //                Location = mutationTypeDefinition.Location,
+        //            };
+        //        }
 
-    //            if (Definition.Mutation is not null)
-    //            {
-    //                if (Definition.Mutation.Definition == Definition.Subscription.Definition)
-    //                    throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Mutation", "Subscription", Definition.Mutation.Definition.Name);
-    //            }
-    //        }
-    //    }
-    //}
+        //        if (Types.TryGetValue("Subscription", out var subscriptionTypeDefinition) && (subscriptionTypeDefinition.UsedByTypes.Count == 0))
+        //        {
+        //            Definition.Subscription = new OperationTypeDefinition()
+        //            {
+        //                Operation = OperationType.SUBSCRIPTION,
+        //                Definition = subscriptionTypeDefinition,
+        //                Location = subscriptionTypeDefinition.Location,
+        //            };
+        //        }
 
+        //        // Schema must always define the Query root operation
+        //        if (Definition.Query is null)
+        //            throw ValidationException.SchemaDefinitionMissingQuery(Definition.Location);
 
-    //private int ValidateNodes(SyntaxNodeList nodes, bool errors = false)
-    //{
-    //    int processed = 0;
+        //        // Each operation must have a different type
+        //        if (Definition.Mutation is not null)
+        //        {
+        //            if (Definition.Query.Definition == Definition.Mutation.Definition)
+        //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Mutation", Definition.Query.Definition.Name);
+        //        }
 
-    //    for(int i=0; i<nodes.Count; i++)
-    //    {
-    //        if (nodes[i] switch
-    //        {
-    //            SyntaxSchemaDefinitionNode schemaNode => Validate(schemaNode, errors),
-    //            _ => throw ValidationException.UnrecognizedType(nodes[i].Location, nodes[i].GetType().Name)
-    //        })
-    //        {
-    //            nodes.RemoveAt(i--);
-    //            processed++;
-    //        }
-    //    }
+        //        if (Definition.Subscription is not null)
+        //        {
+        //            if (Definition.Query.Definition == Definition.Subscription.Definition)
+        //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Subscription", Definition.Query.Definition.Name);
 
-    //    return processed;
-    //}
+        //            if (Definition.Mutation is not null)
+        //            {
+        //                if (Definition.Mutation.Definition == Definition.Subscription.Definition)
+        //                    throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Mutation", "Subscription", Definition.Mutation.Definition.Name);
+        //            }
+        //        }
+        //    }
+    }
+
 
     //private bool Validate(SyntaxSchemaDefinitionNode schemaNode, bool errors = false) 
     //{ 
