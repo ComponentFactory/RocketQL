@@ -55,6 +55,7 @@ public class DirectiveDefinition : SchemaLocation
     public required bool Repeatable { get; init; }
     public required DirectiveLocations DirectiveLocations { get; init; }
 }
+
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 
 public class Directives : Dictionary<string, Directive> { };
@@ -66,8 +67,10 @@ public class Directive : SchemaLocation
     public required ObjectFields Arguments { get; init; }
 }
 
-public class TypeDefinition : SchemaLocation
-{ 
+public abstract class TypeDefinition : SchemaLocation
+{
+    public abstract bool IsInputType { get; }
+    public abstract bool IsOutputType { get; }
 }
 
 public class TypeDefinitions : Dictionary<string, TypeDefinition> { };
@@ -77,6 +80,9 @@ public class ScalarTypeDefinition : TypeDefinition
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+
+    public override bool IsInputType => true;
+    public override bool IsOutputType => true;
 }
 
 public class ObjectTypeDefinition : TypeDefinition
@@ -86,6 +92,9 @@ public class ObjectTypeDefinition : TypeDefinition
     public required Interfaces ImplementsInterfaces { get; init; }
     public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
+
+    public override bool IsInputType => false;
+    public override bool IsOutputType => true;
 }
 
 public class InterfaceTypeDefinition : TypeDefinition
@@ -95,6 +104,9 @@ public class InterfaceTypeDefinition : TypeDefinition
     public required Interfaces ImplementsInterfaces { get; init; }
     public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
+
+    public override bool IsInputType => false;
+    public override bool IsOutputType => true;
 }
 
 public class Interfaces : Dictionary<string, Interface> { };
@@ -122,6 +134,9 @@ public class UnionTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required MemberTypes MemberTypes { get; init; }
+
+    public override bool IsInputType => false;
+    public override bool IsOutputType => true;
 }
 
 public class MemberTypes : Dictionary<string, MemberType> { };
@@ -138,6 +153,9 @@ public class EnumTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required EnumValueDefinitions EnumValues { get; init; }
+
+    public override bool IsInputType => true;
+    public override bool IsOutputType => true;
 }
 
 public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
@@ -155,6 +173,9 @@ public class InputObjectTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required InputValueDefinitions InputFields { get; init; }
+
+    public override bool IsInputType => true;
+    public override bool IsOutputType => false;
 }
 
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
@@ -173,15 +194,24 @@ public class InputValueDefinition : SchemaLocation
 public abstract class TypeLocation : SchemaLocation
 {
     public required bool NonNull { get; init; }
+
+    public abstract bool IsInputType { get; }
+    public abstract bool IsOutputType { get; }
 }
 
 public class TypeName : TypeLocation
 {
     public required string Name { get; init; }
+    public required TypeDefinition? Definition { get; set; }
+
+    public override bool IsInputType => Definition!.IsInputType;
+    public override bool IsOutputType => Definition!.IsOutputType;
 }
 
 public class TypeList : TypeLocation
 {
     public required TypeLocation Type { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+
+    public override bool IsInputType => Type.IsInputType;
+    public override bool IsOutputType => Type.IsOutputType;
 }

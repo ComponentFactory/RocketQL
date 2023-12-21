@@ -4,6 +4,8 @@
 
 
 	Schema
+		Fix up all the definition links
+
 		Add full validation of 
 			schema
 			directives

@@ -1,60 +1,125 @@
-﻿using RocketQL.Core.Nodes;
-using System.ComponentModel.DataAnnotations;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Schema
+public class Schema
 {
+    private readonly SyntaxNodeList _syntaxNodes = [];
+
+    public SchemaDefinition Definition { get; protected set; } = new();
+    public DirectiveDefinitions Directives { get; init; } = [];
+    public TypeDefinitions Types { get; init; } = [];
+
+    public bool IsValidated { get; protected set; } = false;
+
+    public void Add(ReadOnlySpan<char> schema,
+                    [CallerFilePath] string filePath = "",
+                    [CallerMemberName] string memberName = "",
+                    [CallerLineNumber] int lineNumber = 0)
+    {
+        Add(Serialization.SchemaDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
+    }
+
+    public void Add(ReadOnlySpan<char> schema, string source)
+    {
+        Add(Serialization.SchemaDeserialize(schema, source));
+    }
+
+    public void Add(SyntaxSchemaNode schema)
+    {
+        Add(new SyntaxSchemaNode[] { schema });
+    }
+
+    public void Add(IEnumerable<SyntaxSchemaNode> schemas)
+    {
+        foreach (var schema in schemas)
+        {
+            _syntaxNodes.AddRange(schema.Schemas);
+            _syntaxNodes.AddRange(schema.Directives);
+            _syntaxNodes.AddRange(schema.ScalarTypes);
+            _syntaxNodes.AddRange(schema.ObjectTypes);
+            _syntaxNodes.AddRange(schema.InterfaceTypes);
+            _syntaxNodes.AddRange(schema.UnionTypes);
+            _syntaxNodes.AddRange(schema.EnumTypes);
+            _syntaxNodes.AddRange(schema.InputObjectTypes);
+            _syntaxNodes.AddRange(schema.ExtendSchemas);
+            _syntaxNodes.AddRange(schema.ExtendScalarTypes);
+            _syntaxNodes.AddRange(schema.ExtendObjectTypes);
+            _syntaxNodes.AddRange(schema.ExtendInterfaceTypes);
+            _syntaxNodes.AddRange(schema.ExtendUnionTypes);
+            _syntaxNodes.AddRange(schema.ExtendEnumTypes);
+            _syntaxNodes.AddRange(schema.ExtendInputObjectTypes);
+        }
+    }
+
+    public void Add(SyntaxNode node)
+    {
+        _syntaxNodes.Add(node); 
+        IsValidated = false;
+    }
+
+    public void Add(IEnumerable<SyntaxNode> nodes)
+    {
+        _syntaxNodes.AddRange(nodes);
+        IsValidated = false;
+    }
+
     public void Validate()
     {
+        Clean();
+
         try
         {
-            Clean();
-
-            // Process each syntax node into a schema node, checking only for duplicate name errors
-            foreach (var node in _syntaxNodes)
-            {
-                switch (node)
-                {
-                    case SyntaxSchemaDefinitionNode schemaDefinition:
-                        AddSchemaDefinition(schemaDefinition);
-                        break;
-                    case SyntaxDirectiveDefinitionNode directiveDefinition:
-                        AddDirectiveDefinition(directiveDefinition);
-                        break;
-                    case SyntaxScalarTypeDefinitionNode scalarType:
-                        AddScalarType(scalarType);
-                        break;
-                    case SyntaxObjectTypeDefinitionNode objectType:
-                        AddObjectType(objectType);
-                        break;
-                    case SyntaxInterfaceTypeDefinitionNode interfaceType:
-                        AddInterfaceType(interfaceType);
-                        break;
-                    case SyntaxUnionTypeDefinitionNode unionType:
-                        AddUnionType(unionType);
-                        break;
-                    case SyntaxEnumTypeDefinitionNode enumType:
-                        AddEnumType(enumType);
-                        break;
-                    case SyntaxInputObjectTypeDefinitionNode inputObjectType:
-                        AddInputObjectType(inputObjectType);
-                        break;
-                }
-            }
-
-            //ValidateSchemaOperations();
+            ConvertToSchemaNodes();
+            InterlinkSchemaNodes();
+            //ValidateDirectives();
+            //ValidateTypes();
+            //ValidateSchema();
             IsValidated = true;
         }
-        catch 
+        catch
         {
-            // Remove any partial results
             Clean();
             throw;
         }
     }
 
-    private void AddSchemaDefinition(SyntaxSchemaDefinitionNode schemaDefinition)
+    private void ConvertToSchemaNodes()
+    {
+        // Convert each syntax node into a schema node, checking only for duplicate name errors
+        foreach (var node in _syntaxNodes)
+        {
+            switch (node)
+            {
+                case SyntaxSchemaDefinitionNode schemaDefinition:
+                    ConvertSchemaDefinition(schemaDefinition);
+                    break;
+                case SyntaxDirectiveDefinitionNode directiveDefinition:
+                    ConvertDirectiveDefinition(directiveDefinition);
+                    break;
+                case SyntaxScalarTypeDefinitionNode scalarType:
+                    ConvertScalarType(scalarType);
+                    break;
+                case SyntaxObjectTypeDefinitionNode objectType:
+                    ConvertObjectType(objectType);
+                    break;
+                case SyntaxInterfaceTypeDefinitionNode interfaceType:
+                    ConvertInterfaceType(interfaceType);
+                    break;
+                case SyntaxUnionTypeDefinitionNode unionType:
+                    ConvertUnionType(unionType);
+                    break;
+                case SyntaxEnumTypeDefinitionNode enumType:
+                    ConvertEnumType(enumType);
+                    break;
+                case SyntaxInputObjectTypeDefinitionNode inputObjectType:
+                    ConvertInputObjectType(inputObjectType);
+                    break;
+                default:
+                    throw ValidationException.UnrecognizedType(node);
+            }
+        }
+    }
+
+    private void ConvertSchemaDefinition(SyntaxSchemaDefinitionNode schemaDefinition)
     {
         if (!Definition.IsDefault)
             throw ValidationException.SchemaDefinitionAlreadyDefined(schemaDefinition.Location);
@@ -72,7 +137,7 @@ public partial class Schema
         };
     }
 
-    private void AddDirectiveDefinition(SyntaxDirectiveDefinitionNode directiveDefinition)
+    private void ConvertDirectiveDefinition(SyntaxDirectiveDefinitionNode directiveDefinition)
     {
         if (Directives.ContainsKey(directiveDefinition.Name))
             throw ValidationException.DirectiveNameAlreadyDefined(directiveDefinition.Location, directiveDefinition.Name);
@@ -88,7 +153,7 @@ public partial class Schema
         });
     }
 
-    private void AddScalarType(SyntaxScalarTypeDefinitionNode scalarType)
+    private void ConvertScalarType(SyntaxScalarTypeDefinitionNode scalarType)
     {
         if (Types.ContainsKey(scalarType.Name))
             throw ValidationException.ScalarNameAlreadyDefined(scalarType.Location, scalarType.Name);
@@ -102,7 +167,7 @@ public partial class Schema
         });
     }
 
-    private void AddObjectType(SyntaxObjectTypeDefinitionNode objectType)
+    private void ConvertObjectType(SyntaxObjectTypeDefinitionNode objectType)
     {
         if (Types.ContainsKey(objectType.Name))
             throw ValidationException.ObjectNameAlreadyDefined(objectType.Location, objectType.Name);
@@ -119,7 +184,7 @@ public partial class Schema
     }
 
 
-    private void AddInterfaceType(SyntaxInterfaceTypeDefinitionNode interfaceType)
+    private void ConvertInterfaceType(SyntaxInterfaceTypeDefinitionNode interfaceType)
     {
         if (Types.ContainsKey(interfaceType.Name))
             throw ValidationException.InterfaceNameAlreadyDefined(interfaceType.Location, interfaceType.Name);
@@ -135,7 +200,7 @@ public partial class Schema
         });
     }
 
-    private void AddUnionType(SyntaxUnionTypeDefinitionNode unionType)
+    private void ConvertUnionType(SyntaxUnionTypeDefinitionNode unionType)
     {
         if (Types.ContainsKey(unionType.Name))
             throw ValidationException.UnionNameAlreadyDefined(unionType.Location, unionType.Name);
@@ -150,8 +215,7 @@ public partial class Schema
         });
     }
 
-
-    private void AddEnumType(SyntaxEnumTypeDefinitionNode enumType)
+    private void ConvertEnumType(SyntaxEnumTypeDefinitionNode enumType)
     {
         if (Types.ContainsKey(enumType.Name))
             throw ValidationException.EnumNameAlreadyDefined(enumType.Location, enumType.Name);
@@ -167,7 +231,7 @@ public partial class Schema
     }
 
 
-    public void AddInputObjectType(SyntaxInputObjectTypeDefinitionNode inputObjectType)
+    private void ConvertInputObjectType(SyntaxInputObjectTypeDefinitionNode inputObjectType)
     {
         if (Types.ContainsKey(inputObjectType.Name))
             throw ValidationException.InputObjectNameAlreadyDefined(inputObjectType.Location, inputObjectType.Name);
@@ -181,67 +245,6 @@ public partial class Schema
             Location = inputObjectType.Location
         });
     }
-
-    //private void ValidateSchemaOperations()
-    //{
-    //    // Schema definition can be omitted
-    //    if (Definition.IsDefault)
-    //    {
-    //        // Look for types with names that match the operation, but the type cannot be referenced by any other types
-    //        if (Types.TryGetValue("Query", out var queryTypeDefinition) && (queryTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Query = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.QUERY,
-    //                Definition = queryTypeDefinition,
-    //                Location = queryTypeDefinition.Location,
-    //            };
-    //        }
-
-    //        if (Types.TryGetValue("Mutation", out var mutationTypeDefinition) && (mutationTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Mutation = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.MUTATION,
-    //                Definition = mutationTypeDefinition,
-    //                Location = mutationTypeDefinition.Location,
-    //            };
-    //        }
-
-    //        if (Types.TryGetValue("Subscription", out var subscriptionTypeDefinition) && (subscriptionTypeDefinition.UsedByTypes.Count == 0))
-    //        {
-    //            Definition.Subscription = new OperationTypeDefinition()
-    //            {
-    //                Operation = OperationType.SUBSCRIPTION,
-    //                Definition = subscriptionTypeDefinition,
-    //                Location = subscriptionTypeDefinition.Location,
-    //            };
-    //        }
-
-    //        // Schema must always define the Query root operation
-    //        if (Definition.Query is null)
-    //            throw ValidationException.SchemaDefinitionMissingQuery(Definition.Location);
-
-    //        // Each operation must have a different type
-    //        if (Definition.Mutation is not null)
-    //        {
-    //            if (Definition.Query.Definition == Definition.Mutation.Definition)
-    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Mutation", Definition.Query.Definition.Name);
-    //        }
-
-    //        if (Definition.Subscription is not null)
-    //        {
-    //            if (Definition.Query.Definition == Definition.Subscription.Definition)
-    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Subscription", Definition.Query.Definition.Name);
-
-    //            if (Definition.Mutation is not null)
-    //            {
-    //                if (Definition.Mutation.Definition == Definition.Subscription.Definition)
-    //                    throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Mutation", "Subscription", Definition.Mutation.Definition.Name);
-    //            }
-    //        }
-    //    }
-    //}
 
     private static OperationTypeDefinitions ToOperationTypeDefinitions(SyntaxOperationTypeDefinitionNodeList operationTypes)
     {
@@ -309,13 +312,13 @@ public partial class Schema
             SyntaxTypeNameNode nameNode => new TypeName()
             {
                 Name = nameNode.Name,
+                Definition = null,
                 NonNull = nameNode.NonNull,
                 Location = nameNode.Location,
             },
             SyntaxTypeListNode listNode => new TypeList()
             {
                 Type = ToTypeNode(listNode.Type),
-                Definition = null,
                 NonNull = listNode.NonNull,
                 Location = listNode.Location,
             },
@@ -401,6 +404,74 @@ public partial class Schema
 
         return nodes;
     }
+
+    private void InterlinkSchemaNodes()
+    {
+        // directives
+        // types
+    }
+
+    //private void ValidateSchema()
+    //{
+    //    // Schema definition can be omitted
+    //    if (Definition.IsDefault)
+    //    {
+    //        // Look for types with names that match the operation, but the type cannot be referenced by any other types
+    //        if (Types.TryGetValue("Query", out var queryTypeDefinition) && (queryTypeDefinition.UsedByTypes.Count == 0))
+    //        {
+    //            Definition.Query = new OperationTypeDefinition()
+    //            {
+    //                Operation = OperationType.QUERY,
+    //                Definition = queryTypeDefinition,
+    //                Location = queryTypeDefinition.Location,
+    //            };
+    //        }
+
+    //        if (Types.TryGetValue("Mutation", out var mutationTypeDefinition) && (mutationTypeDefinition.UsedByTypes.Count == 0))
+    //        {
+    //            Definition.Mutation = new OperationTypeDefinition()
+    //            {
+    //                Operation = OperationType.MUTATION,
+    //                Definition = mutationTypeDefinition,
+    //                Location = mutationTypeDefinition.Location,
+    //            };
+    //        }
+
+    //        if (Types.TryGetValue("Subscription", out var subscriptionTypeDefinition) && (subscriptionTypeDefinition.UsedByTypes.Count == 0))
+    //        {
+    //            Definition.Subscription = new OperationTypeDefinition()
+    //            {
+    //                Operation = OperationType.SUBSCRIPTION,
+    //                Definition = subscriptionTypeDefinition,
+    //                Location = subscriptionTypeDefinition.Location,
+    //            };
+    //        }
+
+    //        // Schema must always define the Query root operation
+    //        if (Definition.Query is null)
+    //            throw ValidationException.SchemaDefinitionMissingQuery(Definition.Location);
+
+    //        // Each operation must have a different type
+    //        if (Definition.Mutation is not null)
+    //        {
+    //            if (Definition.Query.Definition == Definition.Mutation.Definition)
+    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Mutation", Definition.Query.Definition.Name);
+    //        }
+
+    //        if (Definition.Subscription is not null)
+    //        {
+    //            if (Definition.Query.Definition == Definition.Subscription.Definition)
+    //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Subscription", Definition.Query.Definition.Name);
+
+    //            if (Definition.Mutation is not null)
+    //            {
+    //                if (Definition.Mutation.Definition == Definition.Subscription.Definition)
+    //                    throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Mutation", "Subscription", Definition.Mutation.Definition.Name);
+    //            }
+    //        }
+    //    }
+    //}
+
 
     //private int ValidateNodes(SyntaxNodeList nodes, bool errors = false)
     //{

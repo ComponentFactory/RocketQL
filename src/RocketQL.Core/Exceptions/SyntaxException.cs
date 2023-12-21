@@ -1,4 +1,4 @@
-﻿namespace RocketQL.Core;
+﻿namespace RocketQL.Core.Exceptions;
 
 public class SyntaxException(Location location, string message) : RocketException(location, message)
 {

@@ -142,7 +142,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void GraphQL_Small_Deserial()
+        public void JsonSerializer_Small_Deserial()
         {
             var inputs = JsonSerializer.Deserialize<Inputs>(_input, _graphQLOptions);
         }
