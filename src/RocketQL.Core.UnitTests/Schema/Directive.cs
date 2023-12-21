@@ -1,4 +1,4 @@
-﻿namespace RocketQL.Core.UnitTests.SchemaTests;
+﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
 public class Directive
 {
