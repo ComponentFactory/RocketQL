@@ -27,7 +27,7 @@ public class Union
     }
 
     [Fact]
-    public void NameAlreadyDefined()
+    public void NodeNameAlreadyDefined()
     {
         try
         {
@@ -40,7 +40,7 @@ public class Union
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Union type name 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Union name 'foo' is already defined.", ex.Message);
         }
         catch
         {

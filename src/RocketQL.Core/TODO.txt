@@ -5,6 +5,14 @@
 
 	Schema
 		Fix up all the definition links
+			schema
+			types
+				enum
+				input object
+				interface
+				object
+				scalar
+				union
 
 		Add full validation of 
 			schema

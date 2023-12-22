@@ -1,11 +1,13 @@
 ﻿namespace RocketQL.Core.Nodes;
 
-public class SchemaLocation
+public abstract class SchemaNode
 {
     public required Location Location { get; init; }
+    public virtual string OutputElement => string.Empty;
+    public virtual string OutputName => string.Empty;
 }
 
-public class SchemaDefinition : SchemaLocation
+public class SchemaDefinition : SchemaNode
 {
     [SetsRequiredMembers]
     public SchemaDefinition()
@@ -38,7 +40,7 @@ public class SchemaDefinition : SchemaLocation
     }
 }
 
-public class OperationTypeDefinition : SchemaLocation
+public class OperationTypeDefinition : SchemaNode
 {
     public required OperationType Operation { get; init; }
     public required string NamedType { get; init; }
@@ -47,27 +49,29 @@ public class OperationTypeDefinition : SchemaLocation
 
 public class OperationTypeDefinitions : Dictionary<OperationType, OperationTypeDefinition> { };
 
-public class DirectiveDefinition : SchemaLocation
+public class DirectiveDefinition : SchemaNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required InputValueDefinitions Arguments { get; init; }
     public required bool Repeatable { get; init; }
     public required DirectiveLocations DirectiveLocations { get; init; }
+    public override string OutputElement => "Directive";
+    public override string OutputName => Name;
 }
 
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 
 public class Directives : Dictionary<string, Directive> { };
 
-public class Directive : SchemaLocation
+public class Directive : SchemaNode
 {
     public required string Name { get; init; }
     public required DirectiveDefinition? Definition { get; set; }
     public required ObjectFields Arguments { get; init; }
 }
 
-public abstract class TypeDefinition : SchemaLocation
+public abstract class TypeDefinition : SchemaNode
 {
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
@@ -80,6 +84,8 @@ public class ScalarTypeDefinition : TypeDefinition
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+    public override string OutputElement => "Scalar";
+    public override string OutputName => Name;
 
     public override bool IsInputType => true;
     public override bool IsOutputType => true;
@@ -92,6 +98,8 @@ public class ObjectTypeDefinition : TypeDefinition
     public required Interfaces ImplementsInterfaces { get; init; }
     public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
+    public override string OutputElement => "Object";
+    public override string OutputName => Name;
 
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
@@ -104,6 +112,8 @@ public class InterfaceTypeDefinition : TypeDefinition
     public required Interfaces ImplementsInterfaces { get; init; }
     public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
+    public override string OutputElement => "Interface";
+    public override string OutputName => Name;
 
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
@@ -134,6 +144,8 @@ public class UnionTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required MemberTypes MemberTypes { get; init; }
+    public override string OutputElement => "Union";
+    public override string OutputName => Name;
 
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
@@ -153,6 +165,8 @@ public class EnumTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required EnumValueDefinitions EnumValues { get; init; }
+    public override string OutputElement => "Enum";
+    public override string OutputName => Name;
 
     public override bool IsInputType => true;
     public override bool IsOutputType => true;
@@ -160,7 +174,7 @@ public class EnumTypeDefinition : TypeDefinition
 
 public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
 
-public class EnumValueDefinition : SchemaLocation
+public class EnumValueDefinition : SchemaNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
@@ -173,6 +187,8 @@ public class InputObjectTypeDefinition : TypeDefinition
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public required InputValueDefinitions InputFields { get; init; }
+    public override string OutputElement => "Input object";
+    public override string OutputName => Name;
 
     public override bool IsInputType => true;
     public override bool IsOutputType => false;
@@ -182,16 +198,18 @@ public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
 
 public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { };
 
-public class InputValueDefinition : SchemaLocation
+public class InputValueDefinition : SchemaNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required TypeLocation Type { get; init; }
     public required ValueNode? DefaultValue { get; init; }
     public required Directives Directives { get; init; }
+    public override string OutputElement => "Argument";
+    public override string OutputName => Name;
 }
 
-public abstract class TypeLocation : SchemaLocation
+public abstract class TypeLocation : SchemaNode
 {
     public required bool NonNull { get; init; }
 

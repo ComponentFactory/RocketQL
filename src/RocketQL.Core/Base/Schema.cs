@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using RocketQL.Core.Nodes;
+
+namespace RocketQL.Core.Base;
 
 public class Schema
 {
@@ -140,13 +142,13 @@ public class Schema
     private void ConvertDirectiveDefinition(SyntaxDirectiveDefinitionNode directiveDefinition)
     {
         if (Directives.ContainsKey(directiveDefinition.Name))
-            throw ValidationException.DirectiveNameAlreadyDefined(directiveDefinition.Location, directiveDefinition.Name);
+            throw ValidationException.NameAlreadyDefined(directiveDefinition.Location, "Directive", directiveDefinition.Name);
 
         Directives.Add(directiveDefinition.Name, new()
         {
             Description = directiveDefinition.Description,
             Name = directiveDefinition.Name,
-            Arguments = ToInputValueDefinitions(directiveDefinition.Arguments),
+            Arguments = ToInputValueDefinitions(directiveDefinition.Arguments, "Directive", directiveDefinition.Name, "Argument"),
             Repeatable = directiveDefinition.Repeatable,
             DirectiveLocations = directiveDefinition.DirectiveLocations,
             Location = directiveDefinition.Location
@@ -156,7 +158,7 @@ public class Schema
     private void ConvertScalarType(SyntaxScalarTypeDefinitionNode scalarType)
     {
         if (Types.ContainsKey(scalarType.Name))
-            throw ValidationException.ScalarNameAlreadyDefined(scalarType.Location, scalarType.Name);
+            throw ValidationException.NameAlreadyDefined(scalarType.Location, "Scalar", scalarType.Name);
 
         Types.Add(scalarType.Name, new ScalarTypeDefinition()
         {
@@ -170,7 +172,7 @@ public class Schema
     private void ConvertObjectType(SyntaxObjectTypeDefinitionNode objectType)
     {
         if (Types.ContainsKey(objectType.Name))
-            throw ValidationException.ObjectNameAlreadyDefined(objectType.Location, objectType.Name);
+            throw ValidationException.NameAlreadyDefined(objectType.Location, "Object", objectType.Name);
 
         Types.Add(objectType.Name, new ObjectTypeDefinition()
         {
@@ -187,7 +189,7 @@ public class Schema
     private void ConvertInterfaceType(SyntaxInterfaceTypeDefinitionNode interfaceType)
     {
         if (Types.ContainsKey(interfaceType.Name))
-            throw ValidationException.InterfaceNameAlreadyDefined(interfaceType.Location, interfaceType.Name);
+            throw ValidationException.NameAlreadyDefined(interfaceType.Location, "Interface", interfaceType.Name);
 
         Types.Add(interfaceType.Name, new InterfaceTypeDefinition()
         {
@@ -203,7 +205,7 @@ public class Schema
     private void ConvertUnionType(SyntaxUnionTypeDefinitionNode unionType)
     {
         if (Types.ContainsKey(unionType.Name))
-            throw ValidationException.UnionNameAlreadyDefined(unionType.Location, unionType.Name);
+            throw ValidationException.NameAlreadyDefined(unionType.Location, "Union", unionType.Name);
 
         Types.Add(unionType.Name, new UnionTypeDefinition()
         {
@@ -218,7 +220,7 @@ public class Schema
     private void ConvertEnumType(SyntaxEnumTypeDefinitionNode enumType)
     {
         if (Types.ContainsKey(enumType.Name))
-            throw ValidationException.EnumNameAlreadyDefined(enumType.Location, enumType.Name);
+            throw ValidationException.NameAlreadyDefined(enumType.Location, "Enum", enumType.Name);
 
         Types.Add(enumType.Name, new EnumTypeDefinition()
         {
@@ -234,14 +236,14 @@ public class Schema
     private void ConvertInputObjectType(SyntaxInputObjectTypeDefinitionNode inputObjectType)
     {
         if (Types.ContainsKey(inputObjectType.Name))
-            throw ValidationException.InputObjectNameAlreadyDefined(inputObjectType.Location, inputObjectType.Name);
+            throw ValidationException.NameAlreadyDefined(inputObjectType.Location, "Input object", inputObjectType.Name);
 
         Types.Add(inputObjectType.Name, new InputObjectTypeDefinition()
         {
             Description = inputObjectType.Description,
             Name = inputObjectType.Name,
             Directives = ToDirectives(inputObjectType.Directives),
-            InputFields = ToInputValueDefinitions(inputObjectType.InputFields),
+            InputFields = ToInputValueDefinitions(inputObjectType.InputFields, "Field", inputObjectType.Name, "Argument"),
             Location = inputObjectType.Location
         });
     }
@@ -285,12 +287,18 @@ public class Schema
         return nodes;
     }
 
-    private static InputValueDefinitions ToInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues)
+    private static InputValueDefinitions ToInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType)
     {
         var nodes = new InputValueDefinitions();
 
         foreach (var inputValue in inputValues)
         {
+            if (inputValue.Name.StartsWith("__"))
+                throw ValidationException.ListEntryDoubleUnderscore(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
+
+            if (nodes.ContainsKey(inputValue.Name))
+                throw ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
+
             nodes.Add(inputValue.Name, new()
             {
                 Description = inputValue.Description,
@@ -396,7 +404,7 @@ public class Schema
             {
                 Description = field.Description,
                 Name = field.Name,
-                Arguments = ToInputValueDefinitions(field.Arguments),
+                Arguments = ToInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name),
                 Type = ToTypeNode(field.Type),
                 Definition = null
             });
@@ -409,9 +417,14 @@ public class Schema
     {
         foreach(var directive in Directives.Values)
         {
+            if (directive.Name.StartsWith("__"))
+                throw ValidationException.NameDoubleUnderscore(directive);
 
+            foreach (var argument in directive.Arguments.Values)
+                InterlinkTypeLocation(argument.Type, argument, directive);
         }
     }
+
 
     private void InterlinkTypes()
     {
@@ -420,7 +433,6 @@ public class Schema
             switch (type)
             {
                 case ScalarTypeDefinition scalarType:
-                    // TODO
                     break;
                 case ObjectTypeDefinition objectType:
                     // TODO
@@ -432,7 +444,7 @@ public class Schema
                     // TODO
                     break;
                 case EnumTypeDefinition enumType:
-                    // TODO
+                    InterlinkEnumType(enumType);
                     break;
                 case InputObjectTypeDefinition inputObjectType:
                     // TODO
@@ -443,8 +455,29 @@ public class Schema
         }
     }
 
+    private void InterlinkEnumType(EnumTypeDefinition enumType)
+    {
+        if (enumType.Name.StartsWith("__"))
+            throw ValidationException.NameDoubleUnderscore(enumType);
+
+        // TODO Link up to directives
+    }
+
     private void InterlinkSchema()
     {
+    }
+
+    private void InterlinkTypeLocation(TypeLocation typeLocation, SchemaNode listNode, SchemaNode parentNode)
+    {
+        if (typeLocation is TypeList typeList)
+            InterlinkTypeLocation(typeList.Type, listNode, parentNode);
+        else if (typeLocation is TypeName typeName)
+        {
+            if (Types.TryGetValue(typeName.Name, out var type))
+                typeName.Definition = type;
+            else
+                throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNode, parentNode);
+        }
     }
 
     private void ValidateDirectives()
@@ -454,6 +487,7 @@ public class Schema
     private void ValidateTypes()
     {
     }
+
 
     private void ValidateSchema()
     {

@@ -30,7 +30,7 @@ public class Object
     }
 
     [Fact]
-    public void NameAlreadyDefined()
+    public void NodeNameAlreadyDefined()
     {
         try
         {
@@ -43,7 +43,7 @@ public class Object
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Object type name 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Object name 'foo' is already defined.", ex.Message);
         }
         catch
         {

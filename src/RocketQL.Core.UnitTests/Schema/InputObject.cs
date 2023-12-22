@@ -30,7 +30,7 @@ public class Input
     }
 
     [Fact]
-    public void NameAlreadyDefined()
+    public void NodeNameAlreadyDefined()
     {
         try
         {
@@ -43,7 +43,7 @@ public class Input
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Input object type name 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Input object name 'foo' is already defined.", ex.Message);
         }
         catch
         {

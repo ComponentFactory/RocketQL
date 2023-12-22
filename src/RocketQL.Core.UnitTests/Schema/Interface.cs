@@ -30,7 +30,7 @@ public class Interface
     }
 
     [Fact]
-    public void NameAlreadyDefined()
+    public void NodeNameAlreadyDefined()
     {
         try
         {
@@ -43,7 +43,7 @@ public class Interface
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Interface type name 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Interface name 'foo' is already defined.", ex.Message);
         }
         catch
         {

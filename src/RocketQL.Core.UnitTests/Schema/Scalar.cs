@@ -24,7 +24,7 @@ public class Scalar
     }
 
     [Fact]
-    public void NameAlreadyDefined()
+    public void NodeNameAlreadyDefined()
     {
         try
         {
@@ -37,7 +37,7 @@ public class Scalar
         }
         catch (ValidationException ex)
         {
-            Assert.Equal($"Scalar type name 'foo' is already defined.", ex.Message);
+            Assert.Equal($"Scalar name 'foo' is already defined.", ex.Message);
         }
         catch
         {

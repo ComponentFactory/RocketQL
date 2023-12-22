@@ -72,7 +72,7 @@ public class ExtendInputObjectTypeDefinition
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend input object type must specify at least one of directive or field list.", ex.Message);
+            Assert.Equal($"Extend input object must specify at least one of directive or field list.", ex.Message);
         }
         catch
         {
