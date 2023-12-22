@@ -69,7 +69,7 @@ public class Schema
 
         try
         {
-            ConvertToSchemaNodes();
+            ConvertToNodes();
             InterlinkDirectives();
             InterlinkTypes();
             InterlinkSchema();
@@ -85,7 +85,7 @@ public class Schema
         }
     }
 
-    private void ConvertToSchemaNodes()
+    private void ConvertToNodes()
     {
         foreach (var node in _syntaxNodes)
         {
@@ -126,12 +126,12 @@ public class Schema
         if (!Definition.IsDefault)
             throw ValidationException.SchemaDefinitionAlreadyDefined(schemaDefinition.Location);
 
-        var operation = ToOperationTypeDefinitions(schemaDefinition.OperationTypes).Values;
+        var operation = ConvertOperationType(schemaDefinition.OperationTypes).Values;
 
         Definition = new()
         {
             Description = schemaDefinition.Description,
-            Directives = ToDirectives(schemaDefinition.Directives),
+            Directives = ConvertDirectives(schemaDefinition.Directives),
             Query = operation.FirstOrDefault(o => o.Operation == OperationType.QUERY),
             Mutation = operation.FirstOrDefault(o => o.Operation == OperationType.MUTATION),
             Subscription = operation.FirstOrDefault(o => o.Operation == OperationType.SUBSCRIPTION),
@@ -148,7 +148,7 @@ public class Schema
         {
             Description = directiveDefinition.Description,
             Name = directiveDefinition.Name,
-            Arguments = ToInputValueDefinitions(directiveDefinition.Arguments, "Directive", directiveDefinition.Name, "Argument"),
+            Arguments = ConvertInputValues(directiveDefinition.Arguments, "Directive", directiveDefinition.Name, "Argument"),
             Repeatable = directiveDefinition.Repeatable,
             DirectiveLocations = directiveDefinition.DirectiveLocations,
             Location = directiveDefinition.Location
@@ -164,7 +164,7 @@ public class Schema
         {
             Description = scalarType.Description,
             Name = scalarType.Name,
-            Directives = ToDirectives(scalarType.Directives),
+            Directives = ConvertDirectives(scalarType.Directives),
             Location = scalarType.Location
         });
     }
@@ -178,13 +178,12 @@ public class Schema
         {
             Description = objectType.Description,
             Name = objectType.Name,
-            ImplementsInterfaces = ToInterfaces(objectType.ImplementsInterfaces),
-            Directives = ToDirectives(objectType.Directives),
-            Fields = ToFieldDefinitions(objectType.Fields),
+            ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces),
+            Directives = ConvertDirectives(objectType.Directives),
+            Fields = ConvertFieldDefinitions(objectType.Fields),
             Location = objectType.Location
         });
     }
-
 
     private void ConvertInterfaceType(SyntaxInterfaceTypeDefinitionNode interfaceType)
     {
@@ -195,9 +194,9 @@ public class Schema
         {
             Description = interfaceType.Description,
             Name = interfaceType.Name,
-            ImplementsInterfaces = ToInterfaces(interfaceType.ImplementsInterfaces),
-            Directives = ToDirectives(interfaceType.Directives),
-            Fields = ToFieldDefinitions(interfaceType.Fields),
+            ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces),
+            Directives = ConvertDirectives(interfaceType.Directives),
+            Fields = ConvertFieldDefinitions(interfaceType.Fields),
             Location = interfaceType.Location
         });
     }
@@ -211,8 +210,8 @@ public class Schema
         {
             Description = unionType.Description,
             Name = unionType.Name,
-            Directives = ToDirectives(unionType.Directives),
-            MemberTypes = ToMemberTypes(unionType.MemberTypes),
+            Directives = ConvertDirectives(unionType.Directives),
+            MemberTypes = ConvertMemberTypes(unionType.MemberTypes),
             Location = unionType.Location
         });
     }
@@ -226,12 +225,11 @@ public class Schema
         {
             Description = enumType.Description,
             Name = enumType.Name,
-            Directives = ToDirectives(enumType.Directives),
-            EnumValues = ToEnumValues(enumType.EnumValues),
+            Directives = ConvertDirectives(enumType.Directives),
+            EnumValues = ConvertEnumValues(enumType.EnumValues),
             Location = enumType.Location
         });
     }
-
 
     private void ConvertInputObjectType(SyntaxInputObjectTypeDefinitionNode inputObjectType)
     {
@@ -242,13 +240,13 @@ public class Schema
         {
             Description = inputObjectType.Description,
             Name = inputObjectType.Name,
-            Directives = ToDirectives(inputObjectType.Directives),
-            InputFields = ToInputValueDefinitions(inputObjectType.InputFields, "Field", inputObjectType.Name, "Argument"),
+            Directives = ConvertDirectives(inputObjectType.Directives),
+            InputFields = ConvertInputValues(inputObjectType.InputFields, "Field", inputObjectType.Name, "Argument"),
             Location = inputObjectType.Location
         });
     }
 
-    private static OperationTypeDefinitions ToOperationTypeDefinitions(SyntaxOperationTypeDefinitionNodeList operationTypes)
+    private static OperationTypeDefinitions ConvertOperationType(SyntaxOperationTypeDefinitionNodeList operationTypes)
     {
         var nodes = new OperationTypeDefinitions();
 
@@ -269,7 +267,7 @@ public class Schema
         return nodes;
     }
 
-    private static Directives ToDirectives(SyntaxDirectiveNodeList directives)
+    private static Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
     {
         var nodes = new Directives();
 
@@ -279,7 +277,7 @@ public class Schema
             {
                 Name = directive.Name,
                 Definition = null,
-                Arguments = ToObjectFieldNodes(directive.Arguments),
+                Arguments = ConvertObjectFields(directive.Arguments),
                 Location = directive.Location
             });
         }
@@ -287,7 +285,7 @@ public class Schema
         return nodes;
     }
 
-    private static InputValueDefinitions ToInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType)
+    private static InputValueDefinitions ConvertInputValues(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType)
     {
         var nodes = new InputValueDefinitions();
 
@@ -303,9 +301,9 @@ public class Schema
             {
                 Description = inputValue.Description,
                 Name = inputValue.Name,
-                Type = ToTypeNode(inputValue.Type),
+                Type = ConvertTypeNode(inputValue.Type),
                 DefaultValue = inputValue.DefaultValue,
-                Directives = ToDirectives(inputValue.Directives),
+                Directives = ConvertDirectives(inputValue.Directives),
                 Location = inputValue.Location
             });
         }
@@ -313,7 +311,7 @@ public class Schema
         return nodes;
     }
 
-    private static TypeLocation ToTypeNode(SyntaxTypeNode node)
+    private static TypeNode ConvertTypeNode(SyntaxTypeNode node)
     {
         return node switch
         {
@@ -326,7 +324,7 @@ public class Schema
             },
             SyntaxTypeListNode listNode => new TypeList()
             {
-                Type = ToTypeNode(listNode.Type),
+                Type = ConvertTypeNode(listNode.Type),
                 NonNull = listNode.NonNull,
                 Location = listNode.Location,
             },
@@ -334,7 +332,7 @@ public class Schema
         }; ;
     }
 
-    private static ObjectFields ToObjectFieldNodes(SyntaxObjectFieldNodeList fields)
+    private static ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields)
     {
         var nodes = new ObjectFields();
 
@@ -344,87 +342,78 @@ public class Schema
         return nodes;
     }
 
-    private static Interfaces ToInterfaces(SyntaxNameList names)
+    private static Interfaces ConvertInterfaces(SyntaxNameList names)
     {
         var nodes = new Interfaces();
 
         foreach (var name in names)
-        {
             nodes.Add(name, new()
             {
                 Name = name,
                 Definition = null,
             });
-        }
 
         return nodes;
     }
 
-    private static MemberTypes ToMemberTypes(SyntaxNameList names)
+    private static MemberTypes ConvertMemberTypes(SyntaxNameList names)
     {
         var nodes = new MemberTypes();
 
         foreach (var name in names)
-        {
             nodes.Add(name, new()
             {
                 Name = name,
                 Definition = null,
             });
-        }
 
         return nodes;
     }
 
-    private static EnumValueDefinitions ToEnumValues(SyntaxEnumValueDefinitionList enumValues)
+    private static EnumValueDefinitions ConvertEnumValues(SyntaxEnumValueDefinitionList enumValues)
     {
         var nodes = new EnumValueDefinitions();
 
         foreach (var enumValue in enumValues)
-        {
             nodes.Add(enumValue.Name, new()
             {
                 Description = enumValue.Description,
                 Name = enumValue.Name,
-                Directives = ToDirectives(enumValue.Directives),
+                Directives = ConvertDirectives(enumValue.Directives),
                 Location = enumValue.Location
             });
-        }
 
         return nodes;
     }
 
-    private static FieldDefinitions ToFieldDefinitions(SyntaxFieldDefinitionNodeList fields)
+    private static FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields)
     {
         var nodes = new FieldDefinitions();
 
         foreach (var field in fields)
-        {
             nodes.Add(field.Name, new()
             {
                 Description = field.Description,
                 Name = field.Name,
-                Arguments = ToInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name),
-                Type = ToTypeNode(field.Type),
+                Arguments = ConvertInputValues(field.Arguments, "Argument", "Field", field.Name),
+                Type = ConvertTypeNode(field.Type),
                 Definition = null
             });
-        }
 
         return nodes;
     }
 
     private void InterlinkDirectives()
     {
-        foreach(var directive in Directives.Values)
+        foreach(var directiveDefinition in Directives.Values)
         {
-            if (directive.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(directive);
-
-            foreach (var argument in directive.Arguments.Values)
-                InterlinkTypeLocation(argument.Type, argument, directive);
+            foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
+            {
+                InterlinkDirectives(argumentDefinition.Directives, argumentDefinition, directiveDefinition);
+                InterlinkTypeNode(argumentDefinition.Type, argumentDefinition, directiveDefinition);
+            }
         }
     }
-
 
     private void InterlinkTypes()
     {
@@ -433,6 +422,7 @@ public class Schema
             switch (type)
             {
                 case ScalarTypeDefinition scalarType:
+                    InterlinkDirectives(scalarType.Directives, scalarType);
                     break;
                 case ObjectTypeDefinition objectType:
                     // TODO
@@ -444,7 +434,7 @@ public class Schema
                     // TODO
                     break;
                 case EnumTypeDefinition enumType:
-                    InterlinkEnumType(enumType);
+                    InterlinkDirectives(enumType.Directives, enumType);
                     break;
                 case InputObjectTypeDefinition inputObjectType:
                     // TODO
@@ -455,22 +445,30 @@ public class Schema
         }
     }
 
-    private void InterlinkEnumType(EnumTypeDefinition enumType)
+    private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
     {
-        if (enumType.Name.StartsWith("__"))
-            throw ValidationException.NameDoubleUnderscore(enumType);
+        foreach (var directive in directives.Values)
+        {
+            if (!Directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
+            {
+                if (grandParentNode is null)
+                    throw ValidationException.UndefinedDirective(directive, parentNode);
+                else
+                    throw ValidationException.UndefinedDirective(directive, parentNode, grandParentNode);
+            }
 
-        // TODO Link up to directives
+            directive.Definition = directiveDefinition;
+        }
     }
 
     private void InterlinkSchema()
     {
     }
 
-    private void InterlinkTypeLocation(TypeLocation typeLocation, SchemaNode listNode, SchemaNode parentNode)
+    private void InterlinkTypeNode(TypeNode typeLocation, SchemaNode listNode, SchemaNode parentNode)
     {
         if (typeLocation is TypeList typeList)
-            InterlinkTypeLocation(typeList.Type, listNode, parentNode);
+            InterlinkTypeNode(typeList.Type, listNode, parentNode);
         else if (typeLocation is TypeName typeName)
         {
             if (Types.TryGetValue(typeName.Name, out var type))
@@ -482,12 +480,54 @@ public class Schema
 
     private void ValidateDirectives()
     {
+        foreach (var directiveDefinition in Directives.Values)
+        {
+            if (directiveDefinition.Name.StartsWith("__"))
+                throw ValidationException.NameDoubleUnderscore(directiveDefinition);
+        }
     }
 
     private void ValidateTypes()
     {
+        foreach (var type in Types.Values)
+        {
+            switch (type)
+            {
+                case ScalarTypeDefinition scalarType:
+                    ValidateScalarType(scalarType);
+                    break;
+                case ObjectTypeDefinition objectType:
+                    // TODO
+                    break;
+                case InterfaceTypeDefinition interfaceType:
+                    // TODO
+                    break;
+                case UnionTypeDefinition unionType:
+                    // TODO
+                    break;
+                case EnumTypeDefinition enumType:
+                    ValidateEnumType(enumType);
+                    break;
+                case InputObjectTypeDefinition inputObjectType:
+                    // TODO
+                    break;
+                default:
+                    throw ValidationException.UnrecognizedType(type);
+            }
+        }
     }
 
+    private void ValidateEnumType(EnumTypeDefinition enumType)
+    {
+        if (enumType.Name.StartsWith("__"))
+            throw ValidationException.NameDoubleUnderscore(enumType);
+    }
+
+    private void ValidateScalarType(ScalarTypeDefinition scalarType)
+    {
+        if (scalarType.Name.StartsWith("__"))
+            throw ValidationException.NameDoubleUnderscore(scalarType);
+    }
 
     private void ValidateSchema()
     {

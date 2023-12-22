@@ -22,5 +22,6 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException ListEntryDuplicateName(Location location, string list, string entryName, string entryType, string name) => new(location, $"{list} '{entryName}' has duplicate {entryType} name '{name}'.");
     public static ValidationException ListEntryDoubleUnderscore(Location location, string list, string entryName, string entryType, string name) => new(location, $"{list} '{entryName}' has {entryType} name '{name}' not allowed to start with two underscores.");
     public static ValidationException UndefinedTypeForListEntry(Location location, string type, SchemaNode listNode, SchemaNode parentNode) => new(location, $"Undefined type '{type}' for {listNode.OutputElement.ToLower()} '{listNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-
+    public static ValidationException UndefinedDirective(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException UndefinedDirective(SchemaNode node, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' of {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}'.");
 }

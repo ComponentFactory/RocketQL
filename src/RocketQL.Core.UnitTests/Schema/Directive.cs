@@ -124,5 +124,26 @@ public class Directive
             Assert.Fail("Wrong exception");
         }
     }
+
+    [Fact]
+    public void UndefinedDirective()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("directive @foo(arg1: String @example) on ENUM");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Undefined directive 'example' defined on argument 'arg1' of directive 'foo'.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

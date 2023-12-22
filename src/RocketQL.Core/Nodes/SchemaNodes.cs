@@ -69,6 +69,8 @@ public class Directive : SchemaNode
     public required string Name { get; init; }
     public required DirectiveDefinition? Definition { get; set; }
     public required ObjectFields Arguments { get; init; }
+    public override string OutputElement => "Directive";
+    public override string OutputName => Name;
 }
 
 public abstract class TypeDefinition : SchemaNode
@@ -134,7 +136,7 @@ public class FieldDefinition
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required InputValueDefinitions Arguments { get; init; }
-    public required TypeLocation Type { get; init; }
+    public required TypeNode Type { get; init; }
     public required TypeDefinition? Definition { get; set; }
 }
 
@@ -202,14 +204,14 @@ public class InputValueDefinition : SchemaNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
-    public required TypeLocation Type { get; init; }
+    public required TypeNode Type { get; init; }
     public required ValueNode? DefaultValue { get; init; }
     public required Directives Directives { get; init; }
     public override string OutputElement => "Argument";
     public override string OutputName => Name;
 }
 
-public abstract class TypeLocation : SchemaNode
+public abstract class TypeNode : SchemaNode
 {
     public required bool NonNull { get; init; }
 
@@ -217,7 +219,7 @@ public abstract class TypeLocation : SchemaNode
     public abstract bool IsOutputType { get; }
 }
 
-public class TypeName : TypeLocation
+public class TypeName : TypeNode
 {
     public required string Name { get; init; }
     public required TypeDefinition? Definition { get; set; }
@@ -226,9 +228,9 @@ public class TypeName : TypeLocation
     public override bool IsOutputType => Definition!.IsOutputType;
 }
 
-public class TypeList : TypeLocation
+public class TypeList : TypeNode
 {
-    public required TypeLocation Type { get; init; }
+    public required TypeNode Type { get; init; }
 
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
