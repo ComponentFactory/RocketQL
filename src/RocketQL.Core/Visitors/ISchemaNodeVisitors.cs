@@ -8,11 +8,11 @@ public interface ISchemaNodeVisitors
         {
             switch (node)
             {
-                case SchemaDefinition schemaDefinition:
-                    VisitSchemaDefinition(schemaDefinition);
+                case SchemaDefinition schema:
+                    VisitSchemaDefinition(schema);
                     break;
-                case DirectiveDefinition directiveDefinition:
-                    VisitDirectiveDefinition(directiveDefinition);
+                case DirectiveDefinition directive:
+                    VisitDirectiveDefinition(directive);
                     break;
                 case ScalarTypeDefinition scalarType:
                     VisitScalarTypeDefinition(scalarType);
@@ -38,8 +38,8 @@ public interface ISchemaNodeVisitors
         }
     }
 
-    void VisitSchemaDefinition(SchemaDefinition schemaDefinition);
-    void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition);
+    void VisitSchemaDefinition(SchemaDefinition schema);
+    void VisitDirectiveDefinition(DirectiveDefinition directive);
     void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType);
     void VisitObjectTypeDefinition(ObjectTypeDefinition objectType);
     void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType);

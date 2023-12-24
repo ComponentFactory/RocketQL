@@ -82,5 +82,47 @@ public class Object
             Assert.Fail("Wrong exception");
         }
     }
+
+    [Fact]
+    public void UndefinedInterface()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("type foo implements example { fizz : Integer }");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Undefined interface 'example' defined on object 'foo'.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Fact]
+    public void InterfaceIsNotAnInterfaceType()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("scalar example type foo implements example { fizz : Integer }");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Cannot implement interface 'example' defined on object 'foo' because it is a 'scalar'.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

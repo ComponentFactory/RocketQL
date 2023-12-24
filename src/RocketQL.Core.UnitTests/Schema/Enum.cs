@@ -82,5 +82,26 @@ public class Enum
             Assert.Fail("Wrong exception");
         }
     }
+
+    [Fact]
+    public void UndefinedDirectiveOnEnumValue()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("enum foo { FIRST @example }");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
 }
 

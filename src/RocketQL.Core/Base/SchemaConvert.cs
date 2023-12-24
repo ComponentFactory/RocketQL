@@ -13,33 +13,33 @@ public partial class Schema
             ((ISyntaxNodeVisitors)this).Visit(_schema._syntaxNodes);
         }
 
-        public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schemaDefinition)
+        public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
         {
             if (_schema.Schemas.Count > 0)
-                throw ValidationException.SchemaDefinitionAlreadyDefined(schemaDefinition.Location);
+                throw ValidationException.SchemaDefinitionAlreadyDefined(schema.Location);
 
             _schema.Schemas.Add(new()
             {
-                Description = schemaDefinition.Description,
-                Directives = ConvertDirectives(schemaDefinition.Directives),
-                Operations = ConvertOperationTypeDefinitions(schemaDefinition.OperationTypes),
-                Location = schemaDefinition.Location
+                Description = schema.Description,
+                Directives = ConvertDirectives(schema.Directives),
+                Operations = ConvertOperationTypeDefinitions(schema.OperationTypes),
+                Location = schema.Location
             });
         }
 
-        public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directiveDefinition)
+        public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)
         {
-            if (_schema.Directives.ContainsKey(directiveDefinition.Name))
-                throw ValidationException.NameAlreadyDefined(directiveDefinition.Location, "Directive", directiveDefinition.Name);
+            if (_schema.Directives.ContainsKey(directive.Name))
+                throw ValidationException.NameAlreadyDefined(directive.Location, "Directive", directive.Name);
 
-            _schema.Directives.Add(directiveDefinition.Name, new()
+            _schema.Directives.Add(directive.Name, new()
             {
-                Description = directiveDefinition.Description,
-                Name = directiveDefinition.Name,
-                Arguments = ConvertInputValueDefinitions(directiveDefinition.Arguments, "Directive", directiveDefinition.Name, "Argument"),
-                Repeatable = directiveDefinition.Repeatable,
-                DirectiveLocations = directiveDefinition.DirectiveLocations,
-                Location = directiveDefinition.Location
+                Description = directive.Description,
+                Name = directive.Name,
+                Arguments = ConvertInputValueDefinitions(directive.Arguments, "Directive", directive.Name, "Argument"),
+                Repeatable = directive.Repeatable,
+                DirectiveLocations = directive.DirectiveLocations,
+                Location = directive.Location
             });
         }
 
@@ -240,6 +240,7 @@ public partial class Schema
                 {
                     Name = name,
                     Definition = null,
+                    Location = new()
                 });
 
             return nodes;

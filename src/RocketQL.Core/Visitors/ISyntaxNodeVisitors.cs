@@ -8,11 +8,11 @@ public interface ISyntaxNodeVisitors
         {
             switch (node)
             {
-                case SyntaxSchemaDefinitionNode schemaDefinition:
-                    VisitSchemaDefinition(schemaDefinition);
+                case SyntaxSchemaDefinitionNode schema:
+                    VisitSchemaDefinition(schema);
                     break;
-                case SyntaxDirectiveDefinitionNode directiveDefinition:
-                    VisitDirectiveDefinition(directiveDefinition);
+                case SyntaxDirectiveDefinitionNode directive:
+                    VisitDirectiveDefinition(directive);
                     break;
                 case SyntaxScalarTypeDefinitionNode scalarType:
                     VisitScalarTypeDefinition(scalarType);
@@ -37,8 +37,8 @@ public interface ISyntaxNodeVisitors
             }
         }
     }
-    void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schemaDefinition);
-    void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directiveDefinition);
+    void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema);
+    void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive);
     void VisitScalarTypeDefinition(SyntaxScalarTypeDefinitionNode scalarType);
     void VisitObjectTypeDefinition(SyntaxObjectTypeDefinitionNode objectType);
     void VisitInterfaceTypeDefinition(SyntaxInterfaceTypeDefinitionNode interfaceType);

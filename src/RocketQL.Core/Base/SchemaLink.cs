@@ -17,12 +17,12 @@ public partial class Schema
             visitor.Visit(_schema.Schemas);
         }
 
-        public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
+        public void VisitDirectiveDefinition(DirectiveDefinition directive)
         {
-            foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
+            foreach (var argument in directive.Arguments.Values)
             {
-                InterlinkDirectives(argumentDefinition.Directives, argumentDefinition, directiveDefinition);
-                InterlinkTypeNode(argumentDefinition.Type, argumentDefinition, directiveDefinition);
+                InterlinkDirectives(argument.Directives, argument, directive);
+                InterlinkTypeNode(argument.Type, argument, directive);
             }
         }
 
@@ -34,26 +34,35 @@ public partial class Schema
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
             InterlinkDirectives(objectType.Directives, objectType);
+            InterlinkInterfaces(objectType.ImplementsInterfaces, objectType);
+            // TODO Fields
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
             InterlinkDirectives(interfaceType.Directives, interfaceType);
+            InterlinkInterfaces(interfaceType.ImplementsInterfaces, interfaceType);
+            // TODO Fields
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
             InterlinkDirectives(unionType.Directives, unionType);
+            // TODO MemberTypes
         }
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
             InterlinkDirectives(enumType.Directives, enumType);
+
+            foreach (var enumValue in enumType.EnumValues.Values)
+                InterlinkDirectives(enumValue.Directives, enumValue, enumType);
         }
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
             InterlinkDirectives(inputObjectType.Directives, inputObjectType);
+            // TODO Input Fields
         }
 
         private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
@@ -69,6 +78,20 @@ public partial class Schema
                 }
 
                 directive.Definition = directiveDefinition;
+            }
+        }
+
+        private void InterlinkInterfaces(Interfaces interfaces, SchemaNode parentNode)
+        {
+            foreach (var interfaceEntry in interfaces.Values)
+            {
+                if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
+                    throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
+
+                if (typeDefinition is InterfaceTypeDefinition interfaceTypeDefinition)
+                    interfaceEntry.Definition = interfaceTypeDefinition;
+                else
+                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
             }
         }
 

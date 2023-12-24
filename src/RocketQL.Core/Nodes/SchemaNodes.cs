@@ -114,10 +114,12 @@ public class Directive : SchemaNode
     public override string OutputName => Name;
 }
 
-public class Interface
+public class Interface : SchemaNode
 {
     public required string Name { get; init; }
     public required InterfaceTypeDefinition? Definition { get; set; }
+    public override string OutputElement => "Interface";
+    public override string OutputName => Name;
 }
 
 public class OperationTypeDefinition : SchemaNode
@@ -147,6 +149,8 @@ public class EnumValueDefinition : SchemaNode
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+    public override string OutputElement => "Enum Value";
+    public override string OutputName => Name;
 }
 
 public class InputObjectTypeDefinition : TypeDefinition
