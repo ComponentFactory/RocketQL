@@ -5,9 +5,9 @@ namespace RocketQL.Core.Exceptions;
 
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
-    public static ValidationException UnrecognizedType(SyntaxNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
-    public static ValidationException UnrecognizedType(TypeDefinition node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
     public static ValidationException UnrecognizedType(Location location, string name) => new(location, $"Unrecognized type '{name}' encountered.");
+    public static ValidationException UnrecognizedType(SyntaxNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
+    public static ValidationException UnrecognizedType(SchemaNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
 
     public static ValidationException SchemaDefinitionAlreadyDefined(Location location) => new(location, $"Schema definition is already defined.");
     public static ValidationException SchemaDefinitionEmpty(Location location) => new(location, "Schema definition does not define any operations.");

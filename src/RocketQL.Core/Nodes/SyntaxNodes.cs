@@ -18,25 +18,6 @@ public record class SyntaxSchemaNode(SyntaxSchemaDefinitionNodeList Schemas,
                                      SyntaxExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
                                      SyntaxExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
 
-public abstract record class SyntaxNode(Location Location) : LocationNode(Location);
-
-public class SyntaxNodeList : List<SyntaxNode> 
-{ 
-    public SyntaxNodeList()
-    { 
-    }
-
-    public SyntaxNodeList(IEnumerable<SyntaxNode> nodes)
-        : base(nodes)
-    {
-    }
-};
-
-public record class SyntaxOperationDefinitionNode(OperationType Operation, string Name, SyntaxVariableDefinitionNodeList VariableDefinitions, SyntaxDirectiveNodeList Directives, SyntaxSelectionDefinitionNodeList SelectionSet, Location Location) : SyntaxNode(Location);
-public record class SyntaxFragmentDefinitionNode(string Name, string TypeCondition, SyntaxDirectiveNodeList Directives, SyntaxSelectionDefinitionNodeList SelectionSet, Location Location) : SyntaxNode(Location);
-public class SyntaxOperationDefinitionNodeList : List<SyntaxOperationDefinitionNode> { };
-public class SyntaxFragmentDefinitionNodeList : List<SyntaxFragmentDefinitionNode> { };
-
 public class SyntaxSchemaDefinitionNodeList : List<SyntaxSchemaDefinitionNode> { };
 public class SyntaxDirectiveDefinitionNodeList : List<SyntaxDirectiveDefinitionNode> { };
 public class SyntaxScalarTypeDefinitionNodeList : List<SyntaxScalarTypeDefinitionNode> { };
@@ -52,7 +33,19 @@ public class SyntaxExtendInterfaceTypeDefinitionNodeList : List<SyntaxExtendInte
 public class SyntaxExtendUnionTypeDefinitionNodeList : List<SyntaxExtendUnionTypeDefinitionNode> { };
 public class SyntaxExtendEnumTypeDefinitionNodeList : List<SyntaxExtendEnumTypeDefinitionNode> { };
 public class SyntaxExtendInputObjectTypeDefinitionNodeList : List<SyntaxExtendInputObjectTypeDefinitionNode> { };
+public class SyntaxOperationDefinitionNodeList : List<SyntaxOperationDefinitionNode> { };
+public class SyntaxFragmentDefinitionNodeList : List<SyntaxFragmentDefinitionNode> { };
+public class SyntaxDirectiveNodeList : List<SyntaxDirectiveNode> { };
+public class SyntaxOperationTypeDefinitionNodeList : List<SyntaxOperationTypeDefinitionNode> { };
+public class SyntaxVariableDefinitionNodeList : List<SyntaxVariableDefinitionNode> { };
+public class SyntaxInputValueDefinitionNodeList : List<SyntaxInputValueDefinitionNode> { };
+public class SyntaxFieldDefinitionNodeList : List<SyntaxFieldDefinitionNode> { };
+public class SyntaxEnumValueDefinitionList : List<SyntaxEnumValueDefinition> { };
+public class SyntaxObjectFieldNodeList : List<ObjectFieldNode> { };
+public class SyntaxSelectionDefinitionNodeList : List<SyntaxSelectionNode> { };
+public class SyntaxNameList : List<string> { };
 
+public abstract record class SyntaxNode(Location Location) : LocationNode(Location);
 public record class SyntaxSchemaDefinitionNode(string Description, SyntaxDirectiveNodeList Directives, SyntaxOperationTypeDefinitionNodeList OperationTypes, Location Location) : SyntaxExtendSchemaDefinitionNode(Directives, OperationTypes, Location);
 public record class SyntaxDirectiveDefinitionNode(string Description, string Name, SyntaxInputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations, Location Location) : SyntaxNode(Location);
 public record class SyntaxScalarTypeDefinitionNode(string Description, string Name, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxExtendScalarTypeDefinitionNode(Name, Directives, Location);
@@ -68,17 +61,8 @@ public record class SyntaxExtendInterfaceTypeDefinitionNode(string Name, SyntaxN
 public record class SyntaxExtendUnionTypeDefinitionNode(string Name, SyntaxDirectiveNodeList Directives, SyntaxNameList MemberTypes, Location Location) : SyntaxNode(Location);
 public record class SyntaxExtendEnumTypeDefinitionNode(string Name, SyntaxDirectiveNodeList Directives, SyntaxEnumValueDefinitionList EnumValues, Location Location) : SyntaxNode(Location);
 public record class SyntaxExtendInputObjectTypeDefinitionNode(string Name, SyntaxDirectiveNodeList Directives, SyntaxInputValueDefinitionNodeList InputFields, Location Location) : SyntaxNode(Location);
-
-public class SyntaxDirectiveNodeList : List<SyntaxDirectiveNode> { };
-public class SyntaxOperationTypeDefinitionNodeList : List<SyntaxOperationTypeDefinitionNode> { };
-public class SyntaxVariableDefinitionNodeList : List<SyntaxVariableDefinitionNode> { };
-public class SyntaxInputValueDefinitionNodeList : List<SyntaxInputValueDefinitionNode> { };
-public class SyntaxFieldDefinitionNodeList : List<SyntaxFieldDefinitionNode> { };
-public class SyntaxEnumValueDefinitionList : List<SyntaxEnumValueDefinition> { };
-public class SyntaxObjectFieldNodeList : List<ObjectFieldNode> { };
-public class SyntaxSelectionDefinitionNodeList : List<SyntaxSelectionNode> { };
-public class SyntaxNameList : List<string> { };
-
+public record class SyntaxOperationDefinitionNode(OperationType Operation, string Name, SyntaxVariableDefinitionNodeList VariableDefinitions, SyntaxDirectiveNodeList Directives, SyntaxSelectionDefinitionNodeList SelectionSet, Location Location) : SyntaxNode(Location);
+public record class SyntaxFragmentDefinitionNode(string Name, string TypeCondition, SyntaxDirectiveNodeList Directives, SyntaxSelectionDefinitionNodeList SelectionSet, Location Location) : SyntaxNode(Location);
 public record class SyntaxDirectiveNode(string Name, SyntaxObjectFieldNodeList Arguments, Location Location) : SyntaxNode(Location);
 public record class SyntaxOperationTypeDefinitionNode(OperationType Operation, string NamedType, Location Location) : SyntaxNode(Location);
 public record class SyntaxVariableDefinitionNode(string Name, SyntaxTypeNode Type, ValueNode? DefaultValue, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxNode(Location);
@@ -94,3 +78,15 @@ public record class SyntaxInlineFragmentSelectionNode(string TypeCondition, Synt
 public abstract record class SyntaxTypeNode(bool NonNull, Location Location) : SyntaxNode(Location);
 public record class SyntaxTypeNameNode(string Name, bool NonNull, Location Location) : SyntaxTypeNode(NonNull, Location);
 public record class SyntaxTypeListNode(SyntaxTypeNode Type, bool NonNull, Location Location) : SyntaxTypeNode(NonNull, Location);
+
+public class SyntaxNodeList : List<SyntaxNode>
+{
+    public SyntaxNodeList()
+    {
+    }
+
+    public SyntaxNodeList(IEnumerable<SyntaxNode> nodes)
+        : base(nodes)
+    {
+    }
+};

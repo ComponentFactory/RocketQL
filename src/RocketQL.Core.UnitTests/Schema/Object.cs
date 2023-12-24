@@ -2,26 +2,16 @@
 
 public class Object
 {
-    private static readonly string _foo =
-        """
-            "description"
-            type foo { 
-                fizz : Integer
-                buzz : String
-            }  
-        """;
-
     [Fact]
     public void AddObjectType()
     {
         var schema = new Schema();
-        schema.Add(_foo);
+        schema.Add("type foo { fizz : Integer buzz : String } ");
         schema.Validate();
 
         Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
         Assert.Equal(2, foo.Fields.Count);
         Assert.NotNull(foo.Fields["fizz"]);
@@ -30,13 +20,13 @@ public class Object
     }
 
     [Fact]
-    public void NodeNameAlreadyDefined()
+    public void ObjectNameAlreadyDefined()
     {
         try
         {
             var schema = new Schema();
-            schema.Add(_foo);
-            schema.Add(_foo);
+            schema.Add("type foo { fizz : Integer buzz : String } ");
+            schema.Add("type foo { fizz : Integer buzz : String } ");
             schema.Validate();
 
             Assert.Fail("Exception expected");
@@ -44,6 +34,48 @@ public class Object
         catch (ValidationException ex)
         {
             Assert.Equal($"Object name 'foo' is already defined.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Fact]
+    public void ObjectNameDoubleUnderscore()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("type __foo { fizz : Integer buzz : String } ");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Object name '__foo' not allowed to start with two underscores.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Fact]
+    public void UndefinedDirective()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("type foo @example { fizz : Integer }");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Undefined directive 'example' defined on object 'foo'.", ex.Message);
         }
         catch
         {
