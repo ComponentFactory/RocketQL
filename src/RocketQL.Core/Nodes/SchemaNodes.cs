@@ -136,6 +136,7 @@ public class FieldDefinition : SchemaNode
     public required InputValueDefinitions Arguments { get; init; }
     public required TypeNode Type { get; init; }
     public required TypeDefinition? Definition { get; set; }
+    public required Directives Directives { get; init; }
     public override string OutputElement => "Field";
     public override string OutputName => Name;
 }

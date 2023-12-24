@@ -62,7 +62,7 @@ public partial class Schema
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
             InterlinkDirectives(inputObjectType.Directives, inputObjectType);
-            // TODO Input Fields
+            InterlinkInputValues(inputObjectType.InputFields, inputObjectType);
         }
 
         private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
@@ -74,7 +74,15 @@ public partial class Schema
                     if (grandParentNode is null)
                         throw ValidationException.UndefinedDirective(directive, parentNode);
                     else
-                        throw ValidationException.UndefinedDirective(directive, parentNode, grandParentNode);
+                    {
+                        var parentNodeElement = grandParentNode switch
+                        {
+                            InputObjectTypeDefinition => "Input field",
+                            _ => parentNode.OutputElement
+                        };
+
+                        throw ValidationException.UndefinedDirective(directive, parentNodeElement, parentNode.OutputName, grandParentNode);
+                    }
                 }
 
                 directive.Definition = directiveDefinition;
@@ -99,7 +107,18 @@ public partial class Schema
         {
             foreach (var field in fields.Values)
             {
+                InterlinkDirectives(field.Directives, field, parentNode);
                 InterlinkTypeNode(field.Type, field, parentNode);
+                InterlinkInputValues(field.Arguments, parentNode);
+            }
+        }
+
+        private void InterlinkInputValues(InputValueDefinitions inputValues, SchemaNode parentNode)
+        {
+            foreach (var inputValue in inputValues.Values)
+            {
+                InterlinkDirectives(inputValue.Directives, inputValue, parentNode);
+                InterlinkTypeNode(inputValue.Type, inputValue, parentNode);
             }
         }
 
@@ -112,7 +131,15 @@ public partial class Schema
                 if (_schema.Types.TryGetValue(typeName.Name, out var type))
                     typeName.Definition = type;
                 else
-                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNode, parentNode);
+                {
+                    var listNodeElement = parentNode switch
+                    {
+                        InputObjectTypeDefinition => "Input field",
+                        _ => listNode.OutputElement
+                    };
+
+                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNodeElement, listNode.OutputName, parentNode);
+                }
             }
         }
 

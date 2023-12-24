@@ -285,9 +285,10 @@ public partial class Schema
                 {
                     Description = field.Description,
                     Name = field.Name,
-                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name),
+                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Field", field.Name, "Argument"),
                     Type = ConvertTypeNode(field.Type),
                     Definition = null,
+                    Directives = ConvertDirectives(field.Directives),
                     Location = field.Location
                 });
 

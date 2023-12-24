@@ -23,8 +23,8 @@ public class Interface
         try
         {
             var schema = new Schema();
-            schema.Add("interface foo { fizz : Integer }");
-            schema.Add("interface foo { fizz : Integer }");
+            schema.Add("interface foo { fizz : Int }");
+            schema.Add("interface foo { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");
@@ -66,7 +66,7 @@ public class Interface
         try
         {
             var schema = new Schema();
-            schema.Add("interface foo @example { fizz : Integer }");
+            schema.Add("interface foo @example { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");
@@ -87,7 +87,7 @@ public class Interface
         try
         {
             var schema = new Schema();
-            schema.Add("interface foo implements example { fizz : Integer }");
+            schema.Add("interface foo implements example { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");
@@ -108,7 +108,7 @@ public class Interface
         try
         {
             var schema = new Schema();
-            schema.Add("scalar example interface foo implements example { fizz : Integer }");
+            schema.Add("scalar example interface foo implements example { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");
