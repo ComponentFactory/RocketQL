@@ -6,10 +6,9 @@ public class Interface
     public void AddInterfaceType()
     {
         var schema = new Schema();
-        schema.Add("interface foo { fizz : Integer }");
+        schema.Add("interface foo { fizz : Int }");
         schema.Validate();
 
-        Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -46,7 +45,7 @@ public class Interface
         try
         {
             var schema = new Schema();
-            schema.Add("interface __foo { fizz : Integer }");
+            schema.Add("interface __foo { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");

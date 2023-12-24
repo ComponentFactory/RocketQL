@@ -9,11 +9,36 @@ public class Scalar
         schema.Add("scalar foo");
         schema.Validate();
 
-        Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as ScalarTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
         Assert.Contains(nameof(AddScalarType), foo.Location.Source);
+    }
+
+    [Theory]
+    [InlineData("Int")]
+    [InlineData("Float")]
+    [InlineData("String")]
+    [InlineData("Boolean")]
+    [InlineData("ID")]
+    public void ScalarNameAlreadyDefinedAsPredefined(string scalar)
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add($"scalar {scalar}");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal($"Scalar name '{scalar}' is already defined.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
     }
 
     [Fact]

@@ -69,6 +69,7 @@ public partial class Schema
 
         try
         {
+            AddPredefinedTypes();
             new SchemaConvert(this).Visit();
             new SchemaLink(this).Visit();
             new SchemaValidate(this).Visit();
@@ -79,6 +80,18 @@ public partial class Schema
             Clean();
             throw;
         }
+    }
+
+    public void AddPredefinedTypes()
+    {
+        foreach(string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
+            Types.Add(scalar, new ScalarTypeDefinition()
+            {
+                Description = string.Empty,
+                Name = scalar,
+                Directives = [],
+                Location = new()
+            });
     }
 
     private void ValidateSchema()

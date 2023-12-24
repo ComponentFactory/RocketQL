@@ -15,7 +15,6 @@ public class Union
         schema.Add(_foo);
         schema.Validate();
 
-        Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("description", foo.Description);

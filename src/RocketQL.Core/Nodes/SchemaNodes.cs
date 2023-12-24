@@ -129,13 +129,15 @@ public class OperationTypeDefinition : SchemaNode
     public required TypeDefinition? Definition { get; set; }
 }
 
-public class FieldDefinition
+public class FieldDefinition : SchemaNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required InputValueDefinitions Arguments { get; init; }
     public required TypeNode Type { get; init; }
     public required TypeDefinition? Definition { get; set; }
+    public override string OutputElement => "Field";
+    public override string OutputName => Name;
 }
 
 public class MemberType

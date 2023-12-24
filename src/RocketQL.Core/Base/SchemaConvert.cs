@@ -287,7 +287,8 @@ public partial class Schema
                     Name = field.Name,
                     Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name),
                     Type = ConvertTypeNode(field.Type),
-                    Definition = null
+                    Definition = null,
+                    Location = field.Location
                 });
 
             return nodes;

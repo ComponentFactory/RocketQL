@@ -6,10 +6,9 @@ public class Object
     public void AddObjectType()
     {
         var schema = new Schema();
-        schema.Add("type foo { fizz : Integer buzz : String } ");
+        schema.Add("type foo { fizz : Int buzz : String } ");
         schema.Validate();
 
-        Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -47,7 +46,7 @@ public class Object
         try
         {
             var schema = new Schema();
-            schema.Add("type __foo { fizz : Integer buzz : String } ");
+            schema.Add("type __foo { fizz : Int buzz : String } ");
             schema.Validate();
 
             Assert.Fail("Exception expected");
@@ -110,14 +109,35 @@ public class Object
         try
         {
             var schema = new Schema();
-            schema.Add("scalar example type foo implements example { fizz : Integer }");
+            schema.Add("type foo implements Int { fizz : Int }");
             schema.Validate();
 
             Assert.Fail("Exception expected");
         }
         catch (ValidationException ex)
         {
-            Assert.Equal("Cannot implement interface 'example' defined on object 'foo' because it is a 'scalar'.", ex.Message);
+            Assert.Equal("Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.", ex.Message);
+        }
+        catch
+        {
+            Assert.Fail("Wrong exception");
+        }
+    }
+
+    [Fact]
+    public void FieldTypeUndefined()
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add("type foo { fizz : Buzz }");
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (ValidationException ex)
+        {
+            Assert.Equal("Undefined type 'Buzz' for field 'fizz' of object 'foo'.", ex.Message);
         }
         catch
         {

@@ -35,14 +35,14 @@ public partial class Schema
         {
             InterlinkDirectives(objectType.Directives, objectType);
             InterlinkInterfaces(objectType.ImplementsInterfaces, objectType);
-            // TODO Fields
+            InterlinkFields(objectType.Fields, objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
             InterlinkDirectives(interfaceType.Directives, interfaceType);
             InterlinkInterfaces(interfaceType.ImplementsInterfaces, interfaceType);
-            // TODO Fields
+            InterlinkFields(interfaceType.Fields, interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -92,6 +92,14 @@ public partial class Schema
                     interfaceEntry.Definition = interfaceTypeDefinition;
                 else
                     throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
+            }
+        }
+
+        private void InterlinkFields(FieldDefinitions fields, SchemaNode parentNode)
+        {
+            foreach (var field in fields.Values)
+            {
+                InterlinkTypeNode(field.Type, field, parentNode);
             }
         }
 

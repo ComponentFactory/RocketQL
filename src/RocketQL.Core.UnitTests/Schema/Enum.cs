@@ -9,7 +9,6 @@ public class Enum
         schema.Add("enum foo { FIRST SECOND }");
         schema.Validate();
 
-        Assert.Single(schema.Types);
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
