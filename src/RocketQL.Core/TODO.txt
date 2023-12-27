@@ -4,8 +4,6 @@
 
 
 	Schema
-		SynxtaxNameList needs locations for each entry so they can be placed in the SchemaNode
-
 		Add full validation of 
 			schema
 			directives

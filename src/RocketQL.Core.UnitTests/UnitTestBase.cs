@@ -15,6 +15,9 @@ public class UnitTestBase
         catch (Exception ex)
         {
             Assert.Equal(message, ex.Message);
+            var validation = Assert.IsType<ValidationException>(ex);
+            Assert.Single(validation.Locations);
+            Assert.NotNull(validation.Locations[0].Source);
         }
     }
 
@@ -32,6 +35,9 @@ public class UnitTestBase
         catch (Exception ex)
         {
             Assert.Equal(message, ex.Message);
+            var validation = Assert.IsType<ValidationException>(ex);
+            Assert.Single(validation.Locations);
+            Assert.NotNull(validation.Locations[0].Source);
         }
     }
 }

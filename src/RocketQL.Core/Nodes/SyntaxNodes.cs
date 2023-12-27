@@ -43,9 +43,10 @@ public class SyntaxFieldDefinitionNodeList : List<SyntaxFieldDefinitionNode> { }
 public class SyntaxEnumValueDefinitionList : List<SyntaxEnumValueDefinition> { };
 public class SyntaxObjectFieldNodeList : List<ObjectFieldNode> { };
 public class SyntaxSelectionDefinitionNodeList : List<SyntaxSelectionNode> { };
-public class SyntaxNameList : List<string> { };
+public class SyntaxNameList : List<SyntaxNameNode> { };
 
 public abstract record class SyntaxNode(Location Location) : LocationNode(Location);
+public record class SyntaxNameNode(string Name, Location Location) : LocationNode(Location);
 public record class SyntaxSchemaDefinitionNode(string Description, SyntaxDirectiveNodeList Directives, SyntaxOperationTypeDefinitionNodeList OperationTypes, Location Location) : SyntaxExtendSchemaDefinitionNode(Directives, OperationTypes, Location);
 public record class SyntaxDirectiveDefinitionNode(string Description, string Name, SyntaxInputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations, Location Location) : SyntaxNode(Location);
 public record class SyntaxScalarTypeDefinitionNode(string Description, string Name, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxExtendScalarTypeDefinitionNode(Name, Directives, Location);

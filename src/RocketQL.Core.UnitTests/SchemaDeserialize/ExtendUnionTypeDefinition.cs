@@ -12,7 +12,7 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
-        Assert.Equal("bar", member);
+        Assert.Equal("bar", member.Name);
         union.Directives.NotNull().Count(0);
     }
 
@@ -26,8 +26,8 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(2);
-        Assert.Equal("bar", union.MemberTypes[0]);
-        Assert.Equal("fizz", union.MemberTypes[1]);
+        Assert.Equal("bar", union.MemberTypes[0].Name);
+        Assert.Equal("fizz", union.MemberTypes[1].Name);
         union.Directives.NotNull().Count(0);
     }
 
@@ -41,9 +41,9 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         var union = documentNode.NotNull().ExtendUnionTypes.NotNull().One();
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(3);
-        Assert.Equal("bar", union.MemberTypes[0]);
-        Assert.Equal("fizz", union.MemberTypes[1]);
-        Assert.Equal("hello", union.MemberTypes[2]);
+        Assert.Equal("bar", union.MemberTypes[0].Name);
+        Assert.Equal("fizz", union.MemberTypes[1].Name);
+        Assert.Equal("hello", union.MemberTypes[2].Name);
         union.Directives.NotNull().Count(0);
     }
 
@@ -57,7 +57,7 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         var directive = union.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
         var member = union.MemberTypes.NotNull().One();
-        Assert.Equal("fizz", member);
+        Assert.Equal("fizz", member.Name);
     }
 
     [Theory]

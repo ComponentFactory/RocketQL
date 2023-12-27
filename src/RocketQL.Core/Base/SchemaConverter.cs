@@ -258,11 +258,11 @@ public partial class Schema
             var nodes = new Interfaces();
 
             foreach (var name in names)
-                nodes.Add(name, new()
+                nodes.Add(name.Name, new()
                 {
-                    Name = name,
+                    Name = name.Name,
                     Definition = null,
-                    Location = new()
+                    Location = name.Location
                 });
 
             return nodes;
@@ -273,11 +273,11 @@ public partial class Schema
             var nodes = new MemberTypes();
 
             foreach (var name in names)
-                nodes.Add(name, new()
+                nodes.Add(name.Name, new()
                 {
-                    Name = name,
+                    Name = name.Name,
                     Definition = null,
-                    Location = new()
+                    Location = name.Location
                 });
 
             return nodes;

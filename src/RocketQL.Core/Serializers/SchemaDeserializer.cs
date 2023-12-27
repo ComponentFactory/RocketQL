@@ -414,13 +414,13 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             OptionalToken(DocumentTokenKind.Ampersand);
             MandatoryToken(DocumentTokenKind.Name);
-            list.Add(_tokenizer.TokenValue);
+            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, _tokenizer.Location));
             _tokenizer.Next();
 
             while (_tokenizer.TokenKind == DocumentTokenKind.Ampersand)
             {
                 MandatoryNextToken(DocumentTokenKind.Name);
-                list.Add(_tokenizer.TokenValue);
+                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, _tokenizer.Location));
                 _tokenizer.Next();
             }
         }
@@ -611,13 +611,13 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             MandatoryNext();
             OptionalToken(DocumentTokenKind.Vertical);
             MandatoryToken(DocumentTokenKind.Name);
-            list.Add(_tokenizer.TokenValue);
+            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, _tokenizer.Location));
             _tokenizer.Next();
 
             while (_tokenizer.TokenKind == DocumentTokenKind.Vertical)
             {
                 MandatoryNextToken(DocumentTokenKind.Name);
-                list.Add(_tokenizer.TokenValue);
+                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, _tokenizer.Location));
                 _tokenizer.Next();
             }
         }

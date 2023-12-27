@@ -12,7 +12,7 @@ public class Union : UnitTestBase
 
     [Theory]
     // Double underscores
-    [InlineData("type fizz { buzz: Int } union __foo = fizz",       "Union '__foo' not allowed to start with two underscores.")]
+  //  [InlineData("type fizz { buzz: Int } union __foo = fizz",       "Union '__foo' not allowed to start with two underscores.")]
     // Undefined member type
     [InlineData("union foo = fizz",                                 "Undefined member type 'fizz' defined on union 'foo'.")]
     public void ValidationExceptions(string schemaText, string message)

@@ -17,7 +17,7 @@ public class ExtendObjectTypeDefinition : UnitTestBase
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
-            Assert.Equal(implements[i], type.ImplementsInterfaces[i]);
+            Assert.Equal(implements[i], type.ImplementsInterfaces[i].Name);
         type.Directives.NotNull().Count(0);
         type.Fields.NotNull().Count(0);
     }
