@@ -1,10 +1,8 @@
-﻿using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
-    private class SchemaConvert(Schema schema) : ISyntaxNodeVisitors
+    private class SchemaConverter(Schema schema) : ISyntaxNodeVisitors
     {
         private readonly Schema _schema = schema;
 
@@ -68,7 +66,7 @@ public partial class Schema
                 Name = objectType.Name,
                 ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces),
                 Directives = ConvertDirectives(objectType.Directives),
-                Fields = ConvertFieldDefinitions(objectType.Fields),
+                Fields = ConvertFieldDefinitions(objectType.Fields, "Object", objectType.Name),
                 Location = objectType.Location
             });
         }
@@ -85,7 +83,7 @@ public partial class Schema
                 Name = interfaceType.Name,
                 ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces),
                 Directives = ConvertDirectives(interfaceType.Directives),
-                Fields = ConvertFieldDefinitions(interfaceType.Fields),
+                Fields = ConvertFieldDefinitions(interfaceType.Fields, "Interface", interfaceType.Name),
                 Location = interfaceType.Location
             });
         }
@@ -138,7 +136,26 @@ public partial class Schema
             });
         }
 
-        private OperationTypeDefinitions ConvertOperationTypeDefinitions(SyntaxOperationTypeDefinitionNodeList operationTypes)
+        private FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string? grandParentNode = null, string? grandParentName = null)
+        {
+            var nodes = new FieldDefinitions();
+
+            foreach (var field in fields)
+                nodes.Add(field.Name, new()
+                {
+                    Description = field.Description,
+                    Name = field.Name,
+                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Field", field.Name, "Argument", grandParentNode, grandParentName),
+                    Type = ConvertTypeNode(field.Type),
+                    Definition = null,
+                    Directives = ConvertDirectives(field.Directives),
+                    Location = field.Location
+                });
+
+            return nodes;
+        }
+
+        private static OperationTypeDefinitions ConvertOperationTypeDefinitions(SyntaxOperationTypeDefinitionNodeList operationTypes)
         {
             var nodes = new OperationTypeDefinitions();
 
@@ -159,7 +176,7 @@ public partial class Schema
             return nodes;
         }
 
-        private Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
+        private static Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
         {
             var nodes = new Directives();
 
@@ -177,14 +194,19 @@ public partial class Schema
             return nodes;
         }
 
-        private InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType)
+        private static InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType, string? grandParentNode = null, string? grandParentName = null)
         {
             var nodes = new InputValueDefinitions();
 
             foreach (var inputValue in inputValues)
             {
                 if (nodes.ContainsKey(inputValue.Name))
-                    throw ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
+                {
+                    if ((grandParentNode is not null) && (grandParentName is not null))
+                        throw ValidationException.ListEntryDuplicateName(inputValue.Location, grandParentNode, grandParentName, parentNode, parentName, listType.ToLower(), inputValue.Name);
+                    else
+                        throw ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
+                }
 
                 nodes.Add(inputValue.Name, new()
                 {
@@ -200,7 +222,7 @@ public partial class Schema
             return nodes;
         }
 
-        private TypeNode ConvertTypeNode(SyntaxTypeNode node)
+        private static TypeNode ConvertTypeNode(SyntaxTypeNode node)
         {
             return node switch
             {
@@ -221,7 +243,7 @@ public partial class Schema
             }; ;
         }
 
-        private ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields)
+        private static ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields)
         {
             var nodes = new ObjectFields();
 
@@ -231,7 +253,7 @@ public partial class Schema
             return nodes;
         }
 
-        private Interfaces ConvertInterfaces(SyntaxNameList names)
+        private static Interfaces ConvertInterfaces(SyntaxNameList names)
         {
             var nodes = new Interfaces();
 
@@ -246,7 +268,7 @@ public partial class Schema
             return nodes;
         }
 
-        private MemberTypes ConvertMemberTypes(SyntaxNameList names)
+        private static MemberTypes ConvertMemberTypes(SyntaxNameList names)
         {
             var nodes = new MemberTypes();
 
@@ -255,6 +277,7 @@ public partial class Schema
                 {
                     Name = name,
                     Definition = null,
+                    Location = new()
                 });
 
             return nodes;
@@ -271,25 +294,6 @@ public partial class Schema
                     Name = enumValue.Name,
                     Directives = ConvertDirectives(enumValue.Directives),
                     Location = enumValue.Location
-                });
-
-            return nodes;
-        }
-
-        private FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields)
-        {
-            var nodes = new FieldDefinitions();
-
-            foreach (var field in fields)
-                nodes.Add(field.Name, new()
-                {
-                    Description = field.Description,
-                    Name = field.Name,
-                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Field", field.Name, "Argument"),
-                    Type = ConvertTypeNode(field.Type),
-                    Definition = null,
-                    Directives = ConvertDirectives(field.Directives),
-                    Location = field.Location
                 });
 
             return nodes;

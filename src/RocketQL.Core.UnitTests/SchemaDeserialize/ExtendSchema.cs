@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class ExtendSchema
+public class ExtendSchema : UnitTestBase
 {
     [Fact]
     public void DirectiveOnly()

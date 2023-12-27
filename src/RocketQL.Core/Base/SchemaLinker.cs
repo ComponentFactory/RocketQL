@@ -1,11 +1,8 @@
-﻿using RocketQL.Core.Nodes;
-using System.Data;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
-    private class SchemaLink(Schema schema) : ISchemaNodeVisitors
+    private class SchemaLinker(Schema schema) : ISchemaNodeVisitors
     {
         private readonly Schema _schema = schema;
 
@@ -48,7 +45,7 @@ public partial class Schema
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
             InterlinkDirectives(unionType.Directives, unionType);
-            // TODO MemberTypes
+            InterlinkMemberTypes(unionType.MemberTypes, unionType);
         }
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
@@ -63,6 +60,10 @@ public partial class Schema
         {
             InterlinkDirectives(inputObjectType.Directives, inputObjectType);
             InterlinkInputValues(inputObjectType.InputFields, inputObjectType);
+        }
+
+        public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
+        {
         }
 
         private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
@@ -143,8 +144,18 @@ public partial class Schema
             }
         }
 
-        public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
+        private void InterlinkMemberTypes(MemberTypes memberTypes, UnionTypeDefinition unionType)
         {
+            foreach (var memberType in memberTypes.Values)
+            {
+                if (!_schema.Types.TryGetValue(memberType.Name, out TypeDefinition? typeDefinition))
+                    throw ValidationException.UndefinedMemberType(memberType, unionType);
+
+                if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
+                    memberType.Definition = objectTypeDefinition;
+                else
+                    throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class Directive
+public class Directive : UnitTestBase
 {
     [Fact]
     public void OneNoArguments()

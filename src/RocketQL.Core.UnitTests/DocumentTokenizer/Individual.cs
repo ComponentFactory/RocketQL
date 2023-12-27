@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
 
-public class Individual
+public class Individual : UnitTestBase
 {
     [Fact]
     public void NullText()

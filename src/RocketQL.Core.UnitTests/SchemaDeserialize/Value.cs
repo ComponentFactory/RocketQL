@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class Value
+public class Value : UnitTestBase
 {
     [Fact]
     public void IntValue()

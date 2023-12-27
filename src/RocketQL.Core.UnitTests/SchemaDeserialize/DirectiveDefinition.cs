@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class DirectiveDefinition
+public class DirectiveDefinition : UnitTestBase
 {
     [Theory]
     [InlineData("directive @foo on ENUM")]

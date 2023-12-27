@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.RequestDeserialize;
 
-public class Operation
+public class Operation : UnitTestBase
 {
     [Theory]
     [InlineData("query { foo }", OperationType.QUERY)]

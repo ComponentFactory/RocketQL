@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class EnumTypeDefinition
+public class EnumTypeDefinition : UnitTestBase
 {
     [Fact]
     public void OneEnum()

@@ -1,12 +1,17 @@
-﻿using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
     private readonly SyntaxNodeList _syntaxNodes = [];
+    private SchemaConverter? _schemaConvert = null;
+    private SchemaLinker? _schemaLink = null;
+    private SchemaValidater? _schemaValidate = null;
 
-    public SchemaDefinitions Schemas { get; init; } = [];
+    private SchemaConverter Converter => _schemaConvert ??= new SchemaConverter(this);
+    private SchemaLinker Linker => _schemaLink ??= new SchemaLinker(this);
+    private SchemaValidater Validater => _schemaValidate ??= new SchemaValidater(this);
+
+    private SchemaDefinitions Schemas { get; init; } = [];
     public DirectiveDefinitions Directives { get; init; } = [];
     public TypeDefinitions Types { get; init; } = [];
     public bool IsValidated { get; protected set; } = false;
@@ -70,9 +75,9 @@ public partial class Schema
         try
         {
             AddPredefinedTypes();
-            new SchemaConvert(this).Visit();
-            new SchemaLink(this).Visit();
-            new SchemaValidate(this).Visit();
+            Converter.Visit();
+            Linker.Visit();
+            Validater.Visit();
             IsValidated = true;
         }
         catch

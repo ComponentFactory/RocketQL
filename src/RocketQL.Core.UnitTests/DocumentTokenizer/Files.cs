@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.DocumentTokenizerTests;
 
-public class Files
+public class Files : UnitTestBase
 {
     [Theory]
     [InlineData("github.graphql")]

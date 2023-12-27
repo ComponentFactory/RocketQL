@@ -1,50 +1,41 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
-public class Union
+public class Union : UnitTestBase
 {
-    private static readonly string _foo =
-        """
-            "description"
-            union foo = fizz | buzz
-        """;
+    [Fact]
+    public void NameAlreadyDefined()
+    {
+        SchemaValidationException("type fizz { buzz: Int } union foo = fizz", 
+                                  "union foo = fizz", 
+                                  "Union 'foo' is already defined.");
+    }
+
+    [Theory]
+    // Double underscores
+    [InlineData("type fizz { buzz: Int } union __foo = fizz",       "Union '__foo' not allowed to start with two underscores.")]
+    // Undefined member type
+    [InlineData("union foo = fizz",                                 "Undefined member type 'fizz' defined on union 'foo'.")]
+    public void ValidationExceptions(string schemaText, string message)
+    {
+        SchemaValidationException(schemaText, message);
+    }
 
     [Fact]
     public void AddUnionType()
     {
         var schema = new Schema();
-        schema.Add(_foo);
+        schema.Add("""
+                   type fizz { buzz: Int }
+                   union foo = fizz
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("description", foo.Description);
         Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.MemberTypes.Count);
+        Assert.Single(foo.MemberTypes);
         Assert.NotNull(foo.MemberTypes["fizz"]);
-        Assert.NotNull(foo.MemberTypes["buzz"]);
         Assert.Contains(nameof(AddUnionType), foo.Location.Source);
-    }
-
-    [Fact]
-    public void NodeNameAlreadyDefined()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add(_foo);
-            schema.Add(_foo);
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal($"Union name 'foo' is already defined.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
     }
 }
 

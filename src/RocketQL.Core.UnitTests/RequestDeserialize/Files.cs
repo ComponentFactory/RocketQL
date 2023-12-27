@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.RequestDeserialize;
 
-public class Files
+public class Files : UnitTestBase
 {
     [Theory]
     [InlineData("introspection.graphql")]

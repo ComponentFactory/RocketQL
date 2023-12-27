@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class Schema
+public class Schema : UnitTestBase
 {
     [Theory]
     [InlineData("schema { query: FizzBuzz }", OperationType.QUERY)]

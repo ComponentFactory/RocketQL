@@ -4,4 +4,7 @@ global using RocketQL.Core.Exceptions;
 global using RocketQL.Core.Nodes;
 global using RocketQL.Core.Serializers;
 global using RocketQL.Core.Tokenizers;
+global using System.Collections;
+global using System.Diagnostics.CodeAnalysis;
 global using Xunit;
+global using Xunit.Sdk;

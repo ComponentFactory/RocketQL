@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class ExtendScalarTypeDefinition
+public class ExtendScalarTypeDefinition : UnitTestBase
 {
     [Fact]
     public void Minimum()

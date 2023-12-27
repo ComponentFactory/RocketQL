@@ -141,10 +141,12 @@ public class FieldDefinition : SchemaNode
     public override string OutputName => Name;
 }
 
-public class MemberType
+public class MemberType : SchemaNode
 {
     public required string Name { get; init; }
     public required ObjectTypeDefinition? Definition { get; set; }
+    public override string OutputElement => "Member Type";
+    public override string OutputName => Name;
 }
 
 public class EnumValueDefinition : SchemaNode

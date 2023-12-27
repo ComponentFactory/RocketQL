@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.RequestDeserialize;
 
-public class Definitions
+public class Definitions : UnitTestBase
 {
     [Theory]
     [InlineData("schema")]

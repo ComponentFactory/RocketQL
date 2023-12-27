@@ -1,7 +1,25 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
-public class Enum
+public class Enum : UnitTestBase
 {
+    [Fact]
+    public void NameAlreadyDefined()
+    {
+        var schemaText = "enum foo { FIRST }";
+        SchemaValidationException(schemaText, schemaText, "Enum 'foo' is already defined.");
+    }
+
+    [Theory]
+    // Double underscores
+    [InlineData("enum __foo { FIRST }",                         "Enum '__foo' not allowed to start with two underscores.")]
+    // Undefined directive
+    [InlineData("enum foo @example { FIRST }",                  "Undefined directive 'example' defined on enum 'foo'.")]
+    [InlineData("enum foo { FIRST @example }",                  "Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.")]
+    public void ValidationExceptions(string schemaText, string message)
+    {
+        SchemaValidationException(schemaText, message);
+    }
+
     [Fact]
     public void AddEnum()
     {
@@ -16,91 +34,6 @@ public class Enum
         Assert.NotNull(foo.EnumValues["FIRST"]);
         Assert.NotNull(foo.EnumValues["SECOND"]);
         Assert.Contains(nameof(AddEnum), foo.Location.Source);
-    }
-
-    [Fact]
-    public void EnumNameAlreadyDefined()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("enum foo { FIRST }");
-            schema.Add("enum foo { FIRST }");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal($"Enum name 'foo' is already defined.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void EnumNameDoubleUnderscore()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("enum __foo { FIRST }");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Enum name '__foo' not allowed to start with two underscores.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void UndefinedDirective()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("enum foo @example { FIRST }");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Undefined directive 'example' defined on enum 'foo'.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void UndefinedDirectiveOnEnumValue()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("enum foo { FIRST @example }");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
     }
 }
 

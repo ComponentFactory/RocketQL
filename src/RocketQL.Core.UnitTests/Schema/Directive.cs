@@ -1,7 +1,29 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
-public class Directive
+public class Directive : UnitTestBase
 {
+    [Fact]
+    public void NameAlreadyDefined()
+    {
+        var schemaText = "directive @foo on ENUM";
+        SchemaValidationException(schemaText, schemaText, "Directive 'foo' is already defined.");
+    }
+
+    [Theory]
+    // Double underscores
+    [InlineData("directive @__foo on ENUM",                                 "Directive '__foo' not allowed to start with two underscores.")]
+    [InlineData("directive @foo(__arg1: String) on ENUM",                   "Directive 'foo' has argument '__arg1' not allowed to start with two underscores.")]
+    // Undefined directive
+    [InlineData("directive @foo(arg1: String @example) on ENUM",            "Undefined directive 'example' defined on argument 'arg1' of directive 'foo'.")]
+    // Undefined types
+    [InlineData("directive @foo(arg1: Fizz) on ENUM",                       "Undefined type 'Fizz' for argument 'arg1' of directive 'foo'.")]
+    // Argument errors
+    [InlineData("directive @foo(arg1: String, arg1: String) on ENUM",     "Directive 'foo' has duplicate argument 'arg1'.")]
+    public void ValidationExceptions(string schemaText, string message)
+    {
+        SchemaValidationException(schemaText, message);
+    }
+
     [Fact]
     public void AddDirective()
     {
@@ -14,136 +36,6 @@ public class Directive
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
         Assert.Contains(nameof(AddDirective), foo.Location.Source);
-    }
-
-    [Fact]
-    public void DirectiveNameAlreadyDefined()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("directive @foo on ENUM");
-            schema.Add("directive @foo on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Directive name 'foo' is already defined.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void DirectiveNameDoubleUnderscore()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("directive @__foo on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Directive name '__foo' not allowed to start with two underscores.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void ArgumentEntryDoubleUnderscore()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("directive @foo(__arg1: String) on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Directive 'foo' has argument name '__arg1' not allowed to start with two underscores.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Theory]
-    [InlineData("arg1: String, arg1: String")]
-    [InlineData("arg1: String, arg2: String, arg1: String")]
-    [InlineData("arg2: String, arg1: String, arg1: String")]
-    public void ArgumentEntryDuplicateName(string arguments)
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add($"directive @foo({arguments}) on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Directive 'foo' has duplicate argument name 'arg1'.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void ArgumentUndefinedType()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("directive @foo(arg1: Fizz) on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Undefined type 'Fizz' for argument 'arg1' of directive 'foo'.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
-    }
-
-    [Fact]
-    public void UndefinedDirective()
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add("directive @foo(arg1: String @example) on ENUM");
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (ValidationException ex)
-        {
-            Assert.Equal("Undefined directive 'example' defined on argument 'arg1' of directive 'foo'.", ex.Message);
-        }
-        catch
-        {
-            Assert.Fail("Wrong exception");
-        }
     }
 }
 

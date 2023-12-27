@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class ExtendInterfaceTypeDefinition
+public class ExtendInterfaceTypeDefinition : UnitTestBase
 {
     [Theory]
     [InlineData("extend interface foo implements bar", new string[] { "bar" })]

@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class UnionTypeDefinition
+public class UnionTypeDefinition : UnitTestBase
 {
     [Theory]
     [InlineData("union foo = bar")]

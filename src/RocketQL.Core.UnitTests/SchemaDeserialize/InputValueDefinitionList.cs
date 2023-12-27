@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class InputValueDefinitionList
+public class InputValueDefinitionList : UnitTestBase
 {
     [Theory]
     [InlineData("directive @foo (fizz: buzz) on ENUM", false)]

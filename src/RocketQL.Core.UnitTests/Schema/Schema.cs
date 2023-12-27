@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaTests;
 
-public class Schemas
+public class Schemas : UnitTestBase
 {
     //[Fact]
     //public void EmptySchemaMissingQueryOperation()

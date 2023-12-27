@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.JsonSerializer;
 
-public class Value
+public class Value : UnitTestBase
 {
     [Fact]
     public void NullValue()

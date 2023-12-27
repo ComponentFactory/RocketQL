@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.JsonDeserialize;
 
-public class Value
+public class Value : UnitTestBase
 {
 
     [Fact]

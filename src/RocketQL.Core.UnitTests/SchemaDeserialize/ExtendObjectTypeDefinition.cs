@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class ExtendObjectTypeDefinition
+public class ExtendObjectTypeDefinition : UnitTestBase
 {
     [Theory]
     [InlineData("extend type foo implements bar", new string[] { "bar" })]

@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
-public class ObjectTypeDefinition
+public class ObjectTypeDefinition : UnitTestBase
 {
     [Fact]
     public void Minimum()

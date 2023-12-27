@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.RequestDeserialize;
 
-public class FragmentDefinition
+public class FragmentDefinition : UnitTestBase
 {
     [Fact]
     public void Minimal()
