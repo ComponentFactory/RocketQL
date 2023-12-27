@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using RocketQL.Core.Nodes;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -154,7 +156,10 @@ public partial class Schema
                 if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
                     memberType.Definition = objectTypeDefinition;
                 else
-                    throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition);
+                {
+                    throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition, 
+                                                                ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an");
+                }
             }
         }
     }

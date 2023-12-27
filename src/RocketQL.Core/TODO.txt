@@ -4,16 +4,16 @@
 
 
 	Schema
+		Add predefined directives that can be used in unit testing the next step
+		Handle directives on types/arguments
+
 		Add full validation of 
 			schema
 			directives
 			types
-				enum
 				input object
 				interface
 				object
-				scalar
-				union
 
 		Allow extend syntax nodes
 		Apply extend changes and validate

@@ -11,10 +11,12 @@ public class Enum : UnitTestBase
 
     [Theory]
     // Double underscores
-    [InlineData("enum __foo { FIRST }",                         "Enum '__foo' not allowed to start with two underscores.")]
+    [InlineData("enum __foo { FIRST }",             "Enum '__foo' not allowed to start with two underscores.")]
     // Undefined directive
-    [InlineData("enum foo @example { FIRST }",                  "Undefined directive 'example' defined on enum 'foo'.")]
-    [InlineData("enum foo { FIRST @example }",                  "Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.")]
+    [InlineData("enum foo @example { FIRST }",      "Undefined directive 'example' defined on enum 'foo'.")]
+    [InlineData("enum foo { FIRST @example }",      "Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.")]
+    // Enum values must be unque
+    [InlineData("enum foo { FIRST FIRST }",         "Enum 'foo' has duplicate definition of value 'FIRST'.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);

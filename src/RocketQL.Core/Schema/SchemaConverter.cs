@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using RocketQL.Core.Nodes;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -110,12 +112,11 @@ public partial class Schema
                 throw ValidationException.NameAlreadyDefined(enumType.Location, "Enum", enumType.Name);
 
             _schema.Types.Add(enumType.Name, new EnumTypeDefinition()
-
             {
                 Description = enumType.Description,
                 Name = enumType.Name,
                 Directives = ConvertDirectives(enumType.Directives),
-                EnumValues = ConvertEnumValueDefinitions(enumType.EnumValues),
+                EnumValues = ConvertEnumValueDefinitions(enumType.Name, enumType.EnumValues),
                 Location = enumType.Location
             });
         }
@@ -283,11 +284,15 @@ public partial class Schema
             return nodes;
         }
 
-        private EnumValueDefinitions ConvertEnumValueDefinitions(SyntaxEnumValueDefinitionList enumValues)
+        private EnumValueDefinitions ConvertEnumValueDefinitions(string enumTypeName, SyntaxEnumValueDefinitionList enumValues)
         {
             var nodes = new EnumValueDefinitions();
 
             foreach (var enumValue in enumValues)
+            {
+                if (nodes.ContainsKey(enumValue.Name))
+                    throw ValidationException.EnumValueAlreadyDefined(enumValue.Location, enumValue.Name, enumTypeName);
+
                 nodes.Add(enumValue.Name, new()
                 {
                     Description = enumValue.Description,
@@ -295,6 +300,7 @@ public partial class Schema
                     Directives = ConvertDirectives(enumValue.Directives),
                     Location = enumValue.Location
                 });
+            }
 
             return nodes;
         }
