@@ -4,16 +4,13 @@
 
 
 	Schema
-		Add predefined directives that can be used in unit testing the next step
-		Handle directives on types/arguments
-
 		Add full validation of 
-			schema
-			directives
 			types
+				object
 				input object
 				interface
-				object
+			directives
+			schema
 
 		Allow extend syntax nodes
 		Apply extend changes and validate
@@ -23,6 +20,9 @@
 		validate incoming request against schema
 			validate document
 			validate variables
+
+		@skip
+		@include
 
 
 Specifications

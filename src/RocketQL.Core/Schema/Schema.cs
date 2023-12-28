@@ -74,7 +74,7 @@ public partial class Schema
 
         try
         {
-            AddPredefinedTypes();
+            AddPredefined();
             Converter.Visit();
             Linker.Visit();
             Validater.Visit();
@@ -87,7 +87,7 @@ public partial class Schema
         }
     }
 
-    public void AddPredefinedTypes()
+    public void AddPredefined()
     {
         foreach(string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
             Types.Add(scalar, new ScalarTypeDefinition()
@@ -97,6 +97,67 @@ public partial class Schema
                 Directives = [],
                 Location = new()
             });
+
+        Directives.Add("deprecated", new DirectiveDefinition()
+        {
+            Description = string.Empty,
+            Name = "deprecated",
+            Repeatable = false,
+            Arguments = new() 
+            { 
+                { "reason", new InputValueDefinition()
+                            {
+                                Description = string.Empty,
+                                Name = "deprecated",
+                                Type = new TypeName()
+                                {
+                                    Name = "String",
+                                    NonNull = false,
+                                    Definition = null,
+                                    Location = new()
+                                },
+                                DefaultValue = new StringValueNode("No longer supported"),
+                                Directives = [],
+                                Location = new(),
+                                ElementUsage = "Argument",
+                            } 
+                }
+            },
+            DirectiveLocations = DirectiveLocations.FIELD_DEFINITION |
+                                 DirectiveLocations.ARGUMENT_DEFINITION |
+                                 DirectiveLocations.INPUT_FIELD_DEFINITION |
+                                 DirectiveLocations.ENUM_VALUE,
+            Location = new()
+        });
+
+        Directives.Add("specifiedBy", new DirectiveDefinition()
+        {
+            Description = string.Empty,
+            Name = "specifiedBy",
+            Repeatable = false,
+            Arguments = new()
+            {
+                { "url", new InputValueDefinition() 
+                         {
+                             Description = string.Empty,
+                             Name = "url",
+                             Type = new TypeName()
+                             {
+                                 Name = "String",
+                                 NonNull = true,
+                                 Definition = null,
+                                 Location = new()
+                             },
+                             DefaultValue = null,
+                             Directives = [],
+                             Location = new(),
+                             ElementUsage = "Argument",
+                         }
+                }
+            },
+            DirectiveLocations = DirectiveLocations.SCALAR,
+            Location = new()
+        });
     }
 
     private void ValidateSchema()

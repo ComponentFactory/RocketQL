@@ -1,4 +1,5 @@
-﻿using RocketQL.Core.Nodes;
+﻿using RocketQL.Core.Enumerations;
+using RocketQL.Core.Nodes;
 
 namespace RocketQL.Core.Base;
 
@@ -36,7 +37,7 @@ public partial class Schema
             {
                 Description = directive.Description,
                 Name = directive.Name,
-                Arguments = ConvertInputValueDefinitions(directive.Arguments, "Directive", directive.Name, "Argument"),
+                Arguments = ConvertInputValueDefinitions(directive.Arguments, "Argument", "Directive", directive.Name, "Argument"),
                 Repeatable = directive.Repeatable,
                 DirectiveLocations = directive.DirectiveLocations,
                 Location = directive.Location
@@ -127,31 +128,34 @@ public partial class Schema
                 throw ValidationException.NameAlreadyDefined(inputObjectType.Location, "Input object", inputObjectType.Name);
 
             _schema.Types.Add(inputObjectType.Name, new InputObjectTypeDefinition()
-
             {
                 Description = inputObjectType.Description,
                 Name = inputObjectType.Name,
                 Directives = ConvertDirectives(inputObjectType.Directives),
-                InputFields = ConvertInputValueDefinitions(inputObjectType.InputFields, "Field", inputObjectType.Name, "Argument"),
+                InputFields = ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field", "Field", inputObjectType.Name, "Argument"),
                 Location = inputObjectType.Location
             });
         }
 
-        private FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string? grandParentNode = null, string? grandParentName = null)
+        private FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)
         {
             var nodes = new FieldDefinitions();
 
             foreach (var field in fields)
+            {
+                if (nodes.ContainsKey(field.Name))
+                    throw ValidationException.ListEntryDuplicateName(field.Location, "Object", parentName, "field", field.Name);
+
                 nodes.Add(field.Name, new()
                 {
                     Description = field.Description,
                     Name = field.Name,
-                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Field", field.Name, "Argument", grandParentNode, grandParentName),
+                    Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name, "Argument", parentNode, parentName),
                     Type = ConvertTypeNode(field.Type),
-                    Definition = null,
                     Directives = ConvertDirectives(field.Directives),
                     Location = field.Location
                 });
+            }
 
             return nodes;
         }
@@ -195,7 +199,13 @@ public partial class Schema
             return nodes;
         }
 
-        private static InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string parentNode, string parentName, string listType, string? grandParentNode = null, string? grandParentName = null)
+        private static InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, 
+                                                                          string elementUsage,
+                                                                          string parentNode, 
+                                                                          string parentName, 
+                                                                          string listType, 
+                                                                          string? grandParentNode = null, 
+                                                                          string? grandParentName = null)
         {
             var nodes = new InputValueDefinitions();
 
@@ -209,14 +219,15 @@ public partial class Schema
                         throw ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
                 }
 
-                nodes.Add(inputValue.Name, new()
+                nodes.Add(inputValue.Name, new InputValueDefinition()
                 {
                     Description = inputValue.Description,
                     Name = inputValue.Name,
                     Type = ConvertTypeNode(inputValue.Type),
                     DefaultValue = inputValue.DefaultValue,
                     Directives = ConvertDirectives(inputValue.Directives),
-                    Location = inputValue.Location
+                    Location = inputValue.Location,
+                    ElementUsage = elementUsage
                 });
             }
 

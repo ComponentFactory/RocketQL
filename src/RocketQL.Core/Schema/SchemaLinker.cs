@@ -77,15 +77,7 @@ public partial class Schema
                     if (grandParentNode is null)
                         throw ValidationException.UndefinedDirective(directive, parentNode);
                     else
-                    {
-                        var parentNodeElement = grandParentNode switch
-                        {
-                            InputObjectTypeDefinition => "Input field",
-                            _ => parentNode.OutputElement
-                        };
-
-                        throw ValidationException.UndefinedDirective(directive, parentNodeElement, parentNode.OutputName, grandParentNode);
-                    }
+                        throw ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode);
                 }
 
                 directive.Definition = directiveDefinition;
@@ -134,15 +126,7 @@ public partial class Schema
                 if (_schema.Types.TryGetValue(typeName.Name, out var type))
                     typeName.Definition = type;
                 else
-                {
-                    var listNodeElement = parentNode switch
-                    {
-                        InputObjectTypeDefinition => "Input field",
-                        _ => listNode.OutputElement
-                    };
-
-                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNodeElement, listNode.OutputName, parentNode);
-                }
+                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNode.OutputElement, listNode.OutputName, parentNode);
             }
         }
 

@@ -135,7 +135,6 @@ public class FieldDefinition : SchemaNode
     public required string Name { get; init; }
     public required InputValueDefinitions Arguments { get; init; }
     public required TypeNode Type { get; init; }
-    public required TypeDefinition? Definition { get; set; }
     public required Directives Directives { get; init; }
     public override string OutputElement => "Field";
     public override string OutputName => Name;
@@ -177,13 +176,15 @@ public class InputValueDefinition : SchemaNode
     public required TypeNode Type { get; init; }
     public required ValueNode? DefaultValue { get; init; }
     public required Directives Directives { get; init; }
-    public override string OutputElement => "Argument";
+    public required string ElementUsage { get; init; }
+    public override string OutputElement => ElementUsage;
     public override string OutputName => Name;
 }
 
 public abstract class TypeNode : SchemaNode
 {
     public required bool NonNull { get; init; }
+    public abstract TypeDefinition? Definition { get; set; }
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
 }
@@ -191,7 +192,7 @@ public abstract class TypeNode : SchemaNode
 public class TypeName : TypeNode
 {
     public required string Name { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+    public required override TypeDefinition? Definition { get; set; }
     public override bool IsInputType => Definition!.IsInputType;
     public override bool IsOutputType => Definition!.IsOutputType;
 }
@@ -199,6 +200,7 @@ public class TypeName : TypeNode
 public class TypeList : TypeNode
 {
     public required TypeNode Type { get; init; }
+    public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
 }

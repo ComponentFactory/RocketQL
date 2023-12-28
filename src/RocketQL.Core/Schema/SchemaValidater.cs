@@ -89,6 +89,12 @@ public partial class Schema
                                                                         parentNode.OutputElement, parentNode.OutputName, 
                                                                         fieldDefinition.OutputElement, fieldDefinition.Name);
 
+                if (fieldDefinition.Type.Definition is null)
+                    throw ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name);
+
+                if (!fieldDefinition.Type.Definition.IsOutputType)
+                    throw ValidationException.TypeIsNotAnOutputType(fieldDefinition, parentNode, fieldDefinition.Type.Definition.OutputName);
+
                 foreach (var argumentDefinition in fieldDefinition.Arguments.Values)
                 {
                     if (argumentDefinition.Name.StartsWith("__"))
@@ -96,6 +102,15 @@ public partial class Schema
                                                                             parentNode.OutputElement, parentNode.OutputName, 
                                                                             fieldDefinition.OutputElement, fieldDefinition.OutputName, 
                                                                             argumentDefinition.OutputElement, argumentDefinition.Name);
+
+                    if (argumentDefinition.Type.Definition is null)
+                        throw ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name);
+
+                    if (!argumentDefinition.Type.Definition.IsOutputType)
+                        throw ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName);
+
+                    if (argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.ContainsKey("deprecated"))
+                        throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
                 }
             }
         }
