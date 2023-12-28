@@ -48,7 +48,7 @@ public class Interface : UnitTestBase
     // Argument errors
     [InlineData("interface foo { fizz(arg1: String, arg1: String): String }",   "Interface 'foo' has field 'fizz' with duplicate argument 'arg1'.")]
     [InlineData("""                
-                input foo { fizz : Int }
+                interface foo { fizz : Int }
                 interface bar { buzz(arg1: foo): String }
                 """,                                                            "Interface 'bar' has field 'buzz' with argument 'arg1' of type 'foo' that is not an input type.")]
     [InlineData("""

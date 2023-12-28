@@ -72,10 +72,22 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(inputObjectType);
 
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)
+            {
                 if (fieldDefinition.Name.StartsWith("__"))
-                    throw ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location, 
-                                                                        inputObjectType.OutputElement, inputObjectType.OutputName, 
+                    throw ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location,
+                                                                        inputObjectType.OutputElement, inputObjectType.OutputName,
                                                                         "Field", fieldDefinition.Name);
+
+                if (fieldDefinition.Type.Definition is null)
+                    throw ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name);
+
+                if (!fieldDefinition.Type.Definition.IsInputType)
+                    throw ValidationException.TypeIsNotAnInputType(fieldDefinition, inputObjectType, fieldDefinition.Type.Definition.OutputName);
+
+                if (fieldDefinition.Type.NonNull && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.ContainsKey("deprecated"))
+                    throw ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType);
+
+            }
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
@@ -108,7 +120,7 @@ public partial class Schema
                     if (argumentDefinition.Type.Definition is null)
                         throw ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name);
 
-                    if (!argumentDefinition.Type.Definition.IsOutputType)
+                    if (!argumentDefinition.Type.Definition.IsInputType)
                         throw ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName);
 
                     if (isObject && argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.ContainsKey("deprecated"))

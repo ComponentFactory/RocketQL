@@ -6,6 +6,7 @@
 	Schema
 		Add full validation of 
 			input object
+				https://spec.graphql.org/draft/#sel-HAHhBXDFABAB5F3rK
 			directives
 			schema
 

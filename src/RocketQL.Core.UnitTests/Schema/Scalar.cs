@@ -7,7 +7,8 @@ public class Scalar : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationException("scalar foo", "scalar foo", "Scalar 'foo' is already defined.");
+        var schemaText = "scalar foo";
+        SchemaValidationException(schemaText, schemaText, "Scalar 'foo' is already defined.");
     }
 
     [Theory]

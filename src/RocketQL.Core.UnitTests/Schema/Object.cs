@@ -49,7 +49,7 @@ public class Object : UnitTestBase
     [InlineData("type foo { fizz(arg1: String, arg1: String): String }",    "Object 'foo' has field 'fizz' with duplicate argument 'arg1'.")]
     [InlineData("type foo { fizz(arg1: String! @deprecated): String }",     "Cannot use @deprecated directive on non-null argument 'arg1' of field 'fizz' of object 'foo'.")]
     [InlineData("""                
-                input foo { fizz : Int }
+                type foo { fizz : Int }
                 type bar { buzz(arg1: foo): String }
                 """,                                                        "Object 'bar' has field 'buzz' with argument 'arg1' of type 'foo' that is not an input type.")]
     [InlineData("""

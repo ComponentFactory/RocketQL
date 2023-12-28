@@ -18,6 +18,12 @@ public class Input : UnitTestBase
     [InlineData("input foo { fizz : Int @example }",                        "Undefined directive 'example' defined on input field 'fizz' of input object 'foo'.")]
     // Undefined types
     [InlineData("input foo { fizz : Buzz }",                                "Undefined type 'Buzz' for input field 'fizz' of input object 'foo'.")]
+    // Type errors
+    [InlineData("input foo { fizz : String! @deprecated }",                 "Cannot use @deprecated directive on non-null input field 'fizz' of input object 'foo'.")]
+    [InlineData("""                
+                type foo { fizz : Int }
+                input bar { buzz: foo }
+                """,                                                        "Input object 'bar' has input field 'buzz' of type 'foo' that is not an input type.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);
