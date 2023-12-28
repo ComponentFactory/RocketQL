@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Linq;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -40,6 +42,8 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
             VisitFieldDefinintions(objectType.Fields.Values, objectType);
+            var interfaceDefinitions = CheckObjectImplementsInterfaces(objectType);
+            CheckObjectHasInterfaceFields(objectType, interfaceDefinitions);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -111,6 +115,65 @@ public partial class Schema
 
                     if (argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.ContainsKey("deprecated"))
                         throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
+                }
+            }
+        }
+
+        private InterfaceTypeDefinitions CheckObjectImplementsInterfaces(ObjectTypeDefinition objectType)
+        {
+            InterfaceTypeDefinitions interfaceDefinitions = [];
+            foreach (var interfaceEntry in objectType.ImplementsInterfaces.Values)
+            {
+                if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
+                    throw ValidationException.UndefinedInterface(interfaceEntry, objectType);
+
+                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
+                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, objectType, typeDefinition);
+
+                interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
+            }
+
+            HashSet<string> processed = [];
+            foreach (var objectImplement in interfaceDefinitions)
+                CheckInterfaceImplemented(interfaceDefinitions, processed, objectImplement.Value, objectType, objectType);
+
+            return interfaceDefinitions;
+        }
+
+        private void CheckInterfaceImplemented(InterfaceTypeDefinitions objectImplements,
+                                               HashSet<string> processed,
+                                               InterfaceTypeDefinition checkInterface,
+                                               SchemaNode parentNode,
+                                               ObjectTypeDefinition objectType)
+        {
+            if (!processed.Contains(checkInterface.Name))
+            {
+                processed.Add(checkInterface.Name);
+
+                if (!_schema.Types.TryGetValue(checkInterface.Name, out TypeDefinition? typeDefinition))
+                    throw ValidationException.UndefinedInterface(checkInterface, parentNode);
+
+                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
+                    throw ValidationException.TypeIsNotAnInterface(checkInterface, parentNode, typeDefinition);
+
+                foreach (var implementsInterface in interfaceTypeDefinition.ImplementsInterfaces.Values)
+                {
+                    if (!objectImplements.ContainsKey(implementsInterface.Name))
+                        throw ValidationException.ObjectMissingImplements(objectType, implementsInterface.Name, checkInterface.Name);
+
+                    CheckInterfaceImplemented(objectImplements, processed, interfaceTypeDefinition, checkInterface, objectType);
+                }
+            }
+        }
+
+        private void CheckObjectHasInterfaceFields(ObjectTypeDefinition objectType, InterfaceTypeDefinitions interfaceDefinitions)
+        {
+            foreach(var interfaceDefinition in interfaceDefinitions.Values)
+            {
+                foreach(var interfaceField in interfaceDefinition.Fields)
+                {
+                    if (!objectType.Fields.TryGetValue(interfaceField.Key, out FieldDefinition? interfaceFieldDefinition))
+                        throw ValidationException.ObjectMissingFieldFromInterface(objectType, interfaceField.Key, interfaceDefinition.Name);
                 }
             }
         }

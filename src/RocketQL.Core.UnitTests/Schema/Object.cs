@@ -22,6 +22,23 @@ public class Object : UnitTestBase
     [InlineData("type foo implements example { fizz : Int }",               "Undefined interface 'example' defined on object 'foo'.")]
     [InlineData("type foo implements Int { fizz : Int }",                   "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.")]
     [InlineData("""
+                interface second  { second: Int }
+                interface first implements second { first: Int }
+                type foo implements first { bar: Int }
+                """,                                                        "Object 'foo' is missing implements 'second' because it is declared on interface 'first'.")]
+    [InlineData("""
+                interface third { third: Int }
+                interface second implements third { second: Int }
+                interface first implements second { first: Int }
+                type foo implements first & second { bar: Int }
+                """,                                                        "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.")]
+    [InlineData("""
+                interface third { third: Int }
+                interface second implements third { second: Int }
+                interface first implements third { first: Int }
+                type foo implements first & second { bar: Int }
+                """,                                                        "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.")]
+    [InlineData("""
                 scalar example
                 type foo implements example { fizz : Int }
                 """,                                                        "Cannot implement interface 'example' defined on object 'foo' because it is a 'scalar'.")]
@@ -41,9 +58,62 @@ public class Object : UnitTestBase
                 input foo { fizz : Int }
                 type bar { buzz: foo }                 
                 """,                                                        "Object 'bar' has field 'buzz' with type 'foo' that is not an output type.")]
+    [InlineData("""
+                interface first { first: Int }
+                type foo implements first { bar: Int }
+                """,                                                        "Object 'foo' is missing field 'first' declared on interface 'first'.")]
+    [InlineData("""
+                interface second { second: Int }
+                interface first implements second { first: Int }
+                type foo implements first & second { bar: Int first: Int }
+                """,                                                        "Object 'foo' is missing field 'second' declared on interface 'second'.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);
+    }
+
+    [Theory]
+    [InlineData("""
+                interface first { first: Int }
+                type foo implements first { bar: Int first: Int }
+                """)]
+    [InlineData("""
+                interface second { second: Int }
+                interface first { first: Int }
+                type foo implements first & second { bar: Int first: Int second: Int }
+                """)]
+    [InlineData("""
+                interface second { second: Int }
+                interface first implements second { first: Int }
+                type foo implements first & second { bar: Int first: Int second: Int }
+                """)]
+    [InlineData("""
+                interface third { third: Int }
+                interface second implements third { second: Int }
+                interface first implements second { first: Int }
+                type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
+                """)]
+    [InlineData("""
+                interface third { third: Int }
+                interface second implements third { second: Int }
+                interface first implements third { first: Int }
+                type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
+                """)]
+    [InlineData("""
+                interface third { third: Int }
+                interface second { second: Int }
+                interface first implements second & third { first: Int }
+                type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
+                """)]
+    public void ImplementsInterface(string schemaText)
+    {
+        var schema = new Schema();
+        schema.Add(schemaText);
+        schema.Validate();
+
+        var foo = schema.Types["foo"] as ObjectTypeDefinition;
+        Assert.NotNull(foo);
+        Assert.Equal("foo", foo.Name);
     }
 
     [Fact]

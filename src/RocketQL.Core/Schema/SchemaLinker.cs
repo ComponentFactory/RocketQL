@@ -91,10 +91,10 @@ public partial class Schema
                 if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
                     throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
 
-                if (typeDefinition is InterfaceTypeDefinition interfaceTypeDefinition)
-                    interfaceEntry.Definition = interfaceTypeDefinition;
-                else
+                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
                     throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
+
+                interfaceEntry.Definition = interfaceTypeDefinition;
             }
         }
 

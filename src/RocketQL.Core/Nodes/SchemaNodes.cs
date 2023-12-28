@@ -3,6 +3,7 @@
 public class SchemaDefinitions : List<SchemaDefinition> { };
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class TypeDefinitions : Dictionary<string, TypeDefinition> { };
+public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class Directives : Dictionary<string, Directive> { };
 public class Interfaces : Dictionary<string, Interface> { };
 public class OperationTypeDefinitions : Dictionary<OperationType, OperationTypeDefinition> { };

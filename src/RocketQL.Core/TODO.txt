@@ -12,6 +12,8 @@
 			directives
 			schema
 
+		Location populated in all exceptions
+
 		Allow extend syntax nodes
 		Apply extend changes and validate
 
