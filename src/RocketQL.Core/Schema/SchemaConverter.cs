@@ -144,7 +144,7 @@ public partial class Schema
             foreach (var field in fields)
             {
                 if (nodes.ContainsKey(field.Name))
-                    throw ValidationException.ListEntryDuplicateName(field.Location, "Object", parentName, "field", field.Name);
+                    throw ValidationException.ListEntryDuplicateName(field.Location, parentNode, parentName, "field", field.Name);
 
                 nodes.Add(field.Name, new()
                 {

@@ -137,25 +137,25 @@ public class Object : UnitTestBase
                 """)]
     [InlineData("""
                 interface second { second: Int }
-                interface first implements second { first: Int }
+                interface first implements second { first: Int second: Int }
                 type foo implements first & second { bar: Int first: Int second: Int }
                 """)]
     [InlineData("""
                 interface third { third: Int }
-                interface second implements third { second: Int }
-                interface first implements second { first: Int }
+                interface second implements third { second: Int third: Int }
+                interface first implements second & third { first: Int second: Int third: Int }
                 type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
                 interface third { third: Int }
-                interface second implements third { second: Int }
-                interface first implements third { first: Int }
+                interface second implements third { second: Int third: Int }
+                interface first implements third { first: Int third: Int }
                 type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
                 interface third { third: Int }
                 interface second { second: Int }
-                interface first implements second & third { first: Int }
+                interface first implements second & third { first: Int second: Int third: Int }
                 type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
@@ -204,13 +204,13 @@ public class Object : UnitTestBase
                 interface second { second: Int }
                 type buzz implements second { second: Int }
                 interface first { bar: second }
-                type foo implements first { bar: buzz }
+                type foo implements first { bar: buzz second: Int }
                 """)]
     [InlineData("""
                 interface second { second: Int }
                 interface buzz implements second { second: Int }
                 interface first { bar: second }
-                type foo implements first { bar: buzz }
+                type foo implements first { bar: buzz second: Int }
                 """)]
     public void ImplementsInterface(string schemaText)
     {

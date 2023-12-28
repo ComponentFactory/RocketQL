@@ -41,8 +41,8 @@ public partial class Schema
             if (objectType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
-            VisitFieldDefinintions(objectType.Fields.Values, objectType);
-            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType), objectType);
+            VisitFieldDefinintions(objectType.Fields.Values, objectType, true);
+            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, true), objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -50,7 +50,8 @@ public partial class Schema
             if (interfaceType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(interfaceType);
 
-            VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType);
+            VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, false);
+            IsValidImplementations(interfaceType.Fields, CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, false), interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -81,7 +82,7 @@ public partial class Schema
         {
         }
 
-        private static void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, SchemaNode parentNode)
+        private static void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, SchemaNode parentNode, bool isObject)
         {
             foreach (var fieldDefinition in fieldDefinitions)
             {
@@ -110,17 +111,20 @@ public partial class Schema
                     if (!argumentDefinition.Type.Definition.IsOutputType)
                         throw ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName);
 
-                    if (argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.ContainsKey("deprecated"))
+                    if (isObject && argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.ContainsKey("deprecated"))
                         throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
                 }
             }
         }
 
-        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, SchemaNode parentNode)
+        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, SchemaNode parentNode, bool isObject)
         {
             InterfaceTypeDefinitions interfaceDefinitions = [];
             foreach (var interfaceEntry in implementsInterfaces.Values)
             {
+                if (!isObject && (interfaceEntry.Name == parentNode.OutputName))
+                    throw ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry);
+
                 if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
                     throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
 
