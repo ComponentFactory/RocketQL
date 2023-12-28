@@ -42,8 +42,7 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
             VisitFieldDefinintions(objectType.Fields.Values, objectType);
-            var interfaceDefinitions = CheckObjectImplementsInterfaces(objectType);
-            CheckObjectHasInterfaceFields(objectType, interfaceDefinitions);
+            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType), objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -72,12 +71,10 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(inputObjectType);
 
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)
-            {
                 if (fieldDefinition.Name.StartsWith("__"))
                     throw ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location, 
                                                                         inputObjectType.OutputElement, inputObjectType.OutputName, 
                                                                         "Field", fieldDefinition.Name);
-            }
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
@@ -119,23 +116,23 @@ public partial class Schema
             }
         }
 
-        private InterfaceTypeDefinitions CheckObjectImplementsInterfaces(ObjectTypeDefinition objectType)
+        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, SchemaNode parentNode)
         {
             InterfaceTypeDefinitions interfaceDefinitions = [];
-            foreach (var interfaceEntry in objectType.ImplementsInterfaces.Values)
+            foreach (var interfaceEntry in implementsInterfaces.Values)
             {
                 if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
-                    throw ValidationException.UndefinedInterface(interfaceEntry, objectType);
+                    throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
 
                 if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, objectType, typeDefinition);
+                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
 
                 interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
             }
 
             HashSet<string> processed = [];
             foreach (var objectImplement in interfaceDefinitions)
-                CheckInterfaceImplemented(interfaceDefinitions, processed, objectImplement.Value, objectType, objectType);
+                CheckInterfaceImplemented(interfaceDefinitions, processed, objectImplement.Value, parentNode, parentNode);
 
             return interfaceDefinitions;
         }
@@ -144,7 +141,7 @@ public partial class Schema
                                                HashSet<string> processed,
                                                InterfaceTypeDefinition checkInterface,
                                                SchemaNode parentNode,
-                                               ObjectTypeDefinition objectType)
+                                               SchemaNode rootNode)
         {
             if (!processed.Contains(checkInterface.Name))
             {
@@ -159,23 +156,101 @@ public partial class Schema
                 foreach (var implementsInterface in interfaceTypeDefinition.ImplementsInterfaces.Values)
                 {
                     if (!objectImplements.ContainsKey(implementsInterface.Name))
-                        throw ValidationException.ObjectMissingImplements(objectType, implementsInterface.Name, checkInterface.Name);
+                        throw ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name);
 
-                    CheckInterfaceImplemented(objectImplements, processed, interfaceTypeDefinition, checkInterface, objectType);
+                    CheckInterfaceImplemented(objectImplements, processed, interfaceTypeDefinition, checkInterface, rootNode);
+                }
+            }
+        }
+        
+
+        private static void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, SchemaNode parentNode)
+        {
+            foreach(var interfaceDefinition in interfaceDefinitions.Values)
+            {
+                foreach(var interfaceField in interfaceDefinition.Fields.Values)
+                {
+                    if (!objectFields.TryGetValue(interfaceField.Name, out FieldDefinition? objectFieldDefinition))
+                        throw ValidationException.TypeMissingFieldFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
+
+                    var nonInterface = objectFieldDefinition.Arguments.ToDictionary();
+
+                    foreach (var argument in interfaceField.Arguments.Values)
+                    {
+                        if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
+                            throw ValidationException.TypeMissingFieldArgumentFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
+
+                        if (!IsSameType(objectFieldArgument.Type, argument.Type))
+                            throw ValidationException.TypeFieldArgumentTypeFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
+
+                        nonInterface.Remove(argument.Name);
+                    }
+
+                    foreach(var nonInterfaceArgument in nonInterface.Values)
+                        if (nonInterfaceArgument.Type.NonNull)
+                            throw ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name);
+
+                    if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
+                        throw ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
                 }
             }
         }
 
-        private void CheckObjectHasInterfaceFields(ObjectTypeDefinition objectType, InterfaceTypeDefinitions interfaceDefinitions)
+        private static bool IsValidImplementationFieldType(TypeNode fieldType, TypeNode implementedType)
         {
-            foreach(var interfaceDefinition in interfaceDefinitions.Values)
+            if (fieldType.NonNull)
             {
-                foreach(var interfaceField in interfaceDefinition.Fields)
-                {
-                    if (!objectType.Fields.TryGetValue(interfaceField.Key, out FieldDefinition? interfaceFieldDefinition))
-                        throw ValidationException.ObjectMissingFieldFromInterface(objectType, interfaceField.Key, interfaceDefinition.Name);
-                }
+                return IsValidImplementationFieldType(fieldType.Clone(nonNull: false), implementedType.Clone(nonNull: false));
             }
+            else if ((fieldType is TypeList fieldTypeList) && (implementedType is TypeList implementedTypeList)) 
+            {
+                return IsValidImplementationFieldType(fieldTypeList.Type, implementedTypeList.Type);
+            }
+
+            return IsSubType(fieldType, implementedType);
+        }
+
+        private static bool IsSubType(TypeNode possibleSubType, TypeNode superType)
+        {
+            if (IsSameType(possibleSubType, superType))
+                return true;
+
+            if ((possibleSubType.Definition is ObjectTypeDefinition possibleObject) && (superType.Definition is UnionTypeDefinition superUnion))
+            {
+                foreach (var memberType in superUnion.MemberTypes)
+                    if (memberType.Value.Definition == possibleObject)
+                        return true;
+            }
+
+            if (superType.Definition is InterfaceTypeDefinition superInterfaceType)
+            {
+                Interfaces? possibleInterfaces = null;
+                if (possibleSubType.Definition is ObjectTypeDefinition possibleObjectType)
+                    possibleInterfaces = possibleObjectType.ImplementsInterfaces;
+                else if (possibleSubType.Definition is InterfaceTypeDefinition possibleInterfaceType)
+                    possibleInterfaces = possibleInterfaceType.ImplementsInterfaces;
+
+                if ((possibleInterfaces is not null) && possibleInterfaces.ContainsKey(superInterfaceType.Name))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsSameType(TypeNode left, TypeNode right)
+        {
+            if ((left is TypeName leftTypeName) && (right is TypeName rightTypeName))
+            {
+                return (leftTypeName.NonNull == rightTypeName.NonNull) &&
+                        (leftTypeName.Definition == rightTypeName.Definition);
+            }
+            else if ((left is TypeList leftTypeList) && (right is TypeList rightTypeList))
+            {
+                return (leftTypeList.NonNull == rightTypeList.NonNull) &&
+                        IsSameType(leftTypeList.Type, rightTypeList.Type);
+            }
+
+            return false;
         }
     }
 }

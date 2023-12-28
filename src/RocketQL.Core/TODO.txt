@@ -6,7 +6,6 @@
 	Schema
 		Add full validation of 
 			types
-				object
 				input object
 				interface
 			directives

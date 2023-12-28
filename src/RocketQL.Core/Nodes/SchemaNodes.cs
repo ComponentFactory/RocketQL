@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Nodes;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Nodes;
 
 public class SchemaDefinitions : List<SchemaDefinition> { };
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
@@ -188,6 +190,7 @@ public abstract class TypeNode : SchemaNode
     public abstract TypeDefinition? Definition { get; set; }
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
+    public abstract TypeNode Clone(bool? nonNull = null);
 }
 
 public class TypeName : TypeNode
@@ -196,6 +199,17 @@ public class TypeName : TypeNode
     public required override TypeDefinition? Definition { get; set; }
     public override bool IsInputType => Definition!.IsInputType;
     public override bool IsOutputType => Definition!.IsOutputType;
+    
+    public override TypeNode Clone(bool? nonNull = null)
+    {
+        return new TypeName()
+        {
+            NonNull = nonNull ?? NonNull,
+            Name = Name,
+            Definition = Definition,
+            Location = Location,
+        };
+    }
 }
 
 public class TypeList : TypeNode
@@ -204,4 +218,15 @@ public class TypeList : TypeNode
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
+
+    public override TypeNode Clone(bool? nonNull = null)
+    {
+        return new TypeList()
+        {
+            NonNull = nonNull ?? NonNull,
+            Type = Type.Clone(),
+            Definition = Definition,
+            Location = Location,
+        };
+    }
 }

@@ -52,6 +52,26 @@ public class Object : UnitTestBase
                 input foo { fizz : Int }
                 type bar { buzz(arg1: foo): String }
                 """,                                                        "Object 'bar' has field 'buzz' with argument 'arg1' of type 'foo' that is not an input type.")]
+    [InlineData("""
+                interface first { bar(args1: Int): Int }
+                type foo implements first { bar: Int }
+                """,                                                        "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.")]
+    [InlineData("""
+                interface first { bar(args1: Int, args2: Int): Int }
+                type foo implements first { bar(args2: Int): Int }
+                """,                                                        "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.")]
+    [InlineData("""
+                interface first { bar(args1: Int): Int }
+                type foo implements first { bar(args1: String): Int }
+                """,                                                        "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.")]
+    [InlineData("""
+                interface first { bar(args1: Int): Int }
+                type foo implements first { bar(args1: Int!): Int }
+                """,                                                        "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.")]
+    [InlineData("""
+                interface first { bar: Int }
+                type foo implements first { bar(args1: Int!): Int }
+                """,                                                        "Object 'foo' field 'bar' argument 'args1' cannot be non-null type because not declared on interface 'first'.")]
     // Field errors
     [InlineData("type foo { fizz: String fizz:String }",                    "Object 'foo' has duplicate field 'fizz'.")]
     [InlineData("""
@@ -67,6 +87,39 @@ public class Object : UnitTestBase
                 interface first implements second { first: Int }
                 type foo implements first & second { bar: Int first: Int }
                 """,                                                        "Object 'foo' is missing field 'second' declared on interface 'second'.")]
+    [InlineData("""
+                interface first { bar: Int! }
+                type foo implements first { bar: Int }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    [InlineData("""
+                interface first { bar: Int }
+                type foo implements first { bar: [Int] }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    [InlineData("""
+                interface first { bar: [Int] }
+                type foo implements first { bar: Int }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    [InlineData("""
+                type aaa { aaa: Int }
+                type bbb { bbb: Int }
+                union ab = aaa
+                interface first { bar: ab }
+                type foo implements first { bar: bbb }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    [InlineData("""
+                interface second { second: Int }
+                interface third { second: Int }
+                type buzz implements third { second: Int }
+                interface first { bar: second }
+                type foo implements first { bar: buzz }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    [InlineData("""
+                interface second { second: Int }
+                interface third { second: Int }
+                interface buzz implements third { second: Int }
+                interface first { bar: second }
+                type foo implements first { bar: buzz }
+                """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);
@@ -104,6 +157,60 @@ public class Object : UnitTestBase
                 interface second { second: Int }
                 interface first implements second & third { first: Int }
                 type foo implements first & second & third { bar: Int first: Int second: Int third: Int }
+                """)]
+    [InlineData("""
+                interface first { bar(args1: Int, args2: String!): Int }
+                type foo implements first { bar(args1: Int, args2: String!): Int }
+                """)]
+    [InlineData("""
+                interface first { bar(args1: Int): Int }
+                type foo implements first { bar(args1: Int, args2: String): Int }
+                """)]
+    [InlineData("""
+                interface first { bar: Int }
+                type foo implements first { bar: Int buzz(args1: Int!): Int }
+                """)]
+    [InlineData("""
+                interface first { bar: Int }
+                type foo implements first { bar: Int! }
+                """)]
+    [InlineData("""
+                interface first { bar: [Int] }
+                type foo implements first { bar: [Int]! }
+                """)]
+    [InlineData("""
+                interface first { bar: [Int] }
+                type foo implements first { bar: [Int!] }
+                """)]
+    [InlineData("""
+                interface first { bar: [Int] }
+                type foo implements first { bar: [Int!]! }
+                """)]
+    [InlineData("""
+                type aaa { aaa: Int }
+                type bbb { bbb: Int }
+                union ab = aaa | bbb
+                interface first { bar: ab }
+                type foo implements first { bar: aaa }
+                """)]
+    [InlineData("""
+                type aaa { aaa: Int }
+                type bbb { bbb: Int }
+                union ab = aaa | bbb
+                interface first { bar: ab }
+                type foo implements first { bar: bbb }
+                """)]
+    [InlineData("""
+                interface second { second: Int }
+                type buzz implements second { second: Int }
+                interface first { bar: second }
+                type foo implements first { bar: buzz }
+                """)]
+    [InlineData("""
+                interface second { second: Int }
+                interface buzz implements second { second: Int }
+                interface first { bar: second }
+                type foo implements first { bar: buzz }
                 """)]
     public void ImplementsInterface(string schemaText)
     {
