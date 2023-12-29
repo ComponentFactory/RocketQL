@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using RocketQL.Core.Nodes;
+using System.Linq;
 
 namespace RocketQL.Core.Base;
 
@@ -21,13 +22,92 @@ public partial class Schema
             if (directiveDefinition.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(directiveDefinition);
 
+            Queue<TypeDefinition> referencedTypes = [];
+            Queue<DirectiveDefinition> referencedDirectives = [];
             foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
             {
                 if (argumentDefinition.Name.StartsWith("__"))
                     throw ValidationException.ListEntryDoubleUnderscore(argumentDefinition.Location, 
                                                                         directiveDefinition.OutputElement, directiveDefinition.OutputName, 
                                                                         argumentDefinition.OutputElement, argumentDefinition.Name);
+
+                if (argumentDefinition.Type.Definition is null)
+                    throw ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name);
+
+                if (!argumentDefinition.Type.Definition.IsInputType)
+                    throw ValidationException.TypeIsNotAnInputType(argumentDefinition, directiveDefinition, argumentDefinition.Type.Definition.OutputName);
+
+                referencedTypes.Enqueue(argumentDefinition.Type.Definition);
+                foreach (var directive in argumentDefinition.Directives.Values)
+                    referencedDirectives.Enqueue(directive.Definition!);
             }
+
+            CheckDirectiveForCircularReference(directiveDefinition, referencedTypes, referencedDirectives);
+        }
+
+        private static void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,
+                                                               Queue<TypeDefinition> referencedTypes,
+                                                               Queue<DirectiveDefinition> referencedDirectives)
+        {
+            if ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
+            {
+                HashSet<TypeDefinition> checkedTypes = [];
+                HashSet<DirectiveDefinition> checkedDirectives = [];
+
+                while ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
+                {
+                    while (referencedDirectives.TryDequeue(out var referencedDirective))
+                    {
+                        if (referencedDirective == directiveDefinition)
+                            throw ValidationException.DirectiveCircularReference(directiveDefinition);
+
+                        foreach (var argumentDefinition in referencedDirective.Arguments.Values)
+                        {
+                            if (!checkedTypes.Contains(argumentDefinition.Type.Definition!))
+                                referencedTypes.Enqueue(argumentDefinition.Type.Definition!);
+
+                            FindDirectives(argumentDefinition.Directives.Values, checkedDirectives, referencedDirectives);
+                        }
+
+                        checkedDirectives.Add(referencedDirective);
+                    }
+
+                    while (referencedTypes.TryDequeue(out var referencedType))
+                    {
+                        switch (referencedType)
+                        {
+                            case ScalarTypeDefinition scalarTypeDefinition:
+                                FindDirectives(scalarTypeDefinition.Directives.Values, checkedDirectives, referencedDirectives);
+                                break;
+                            case EnumTypeDefinition enumTypeDefinition:
+                                FindDirectives(enumTypeDefinition.Directives.Values, checkedDirectives, referencedDirectives);
+                                foreach(var enumValue in enumTypeDefinition.EnumValues.Values)
+                                    FindDirectives(enumValue.Directives.Values, checkedDirectives, referencedDirectives);
+                                break;
+                            case InputObjectTypeDefinition inputObjectTypeDefinition:
+                                FindDirectives(inputObjectTypeDefinition.Directives.Values, checkedDirectives, referencedDirectives);
+                                foreach(var fieldDefinition in inputObjectTypeDefinition.InputFields.Values)
+                                {
+                                    FindDirectives(fieldDefinition.Directives.Values, checkedDirectives, referencedDirectives);
+                                    if (!checkedTypes.Contains(fieldDefinition.Type.Definition!))
+                                        referencedTypes.Enqueue(fieldDefinition.Type.Definition!);
+                                }
+                                break;
+                        }
+
+                        checkedTypes.Add(referencedType);
+                    }
+                }
+            }
+        }
+
+        private static void FindDirectives(IEnumerable<Directive> directives, 
+                                           HashSet<DirectiveDefinition> checkedDirectives, 
+                                           Queue<DirectiveDefinition> referencedDirectives)
+        {
+            foreach (var directive in directives)
+                if (!checkedDirectives.Contains(directive.Definition!))
+                    referencedDirectives.Enqueue(directive.Definition!);
         }
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
@@ -42,7 +122,9 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
             VisitFieldDefinintions(objectType.Fields.Values, objectType, true);
-            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), objectType);
+            IsValidImplementations(objectType.Fields, 
+                                   CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
+                                   objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -51,7 +133,9 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(interfaceType);
 
             VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, false);
-            IsValidImplementations(interfaceType.Fields, CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), interfaceType);
+            IsValidImplementations(interfaceType.Fields, 
+                                   CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
+                                   interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -71,7 +155,7 @@ public partial class Schema
             if (inputObjectType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(inputObjectType);
 
-            HashSet<InputObjectTypeDefinition> referencedInputObjects = [];
+            Queue<InputObjectTypeDefinition> referencedInputObjects = [];
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)
             {
                 if (fieldDefinition.Name.StartsWith("__"))
@@ -89,7 +173,7 @@ public partial class Schema
                     throw ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType);
 
                 if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
-                    referencedInputObjects.Add(referenceInputObject);
+                    referencedInputObjects.Enqueue(referenceInputObject);
             }
 
             CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
@@ -276,35 +360,26 @@ public partial class Schema
             return false;
         }
 
-        private static void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, HashSet<InputObjectTypeDefinition> referencedInputObjects)
+        private static void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, Queue<InputObjectTypeDefinition> referencedInputObjects)
         {
             if (referencedInputObjects.Count > 0)
             {
-                if (referencedInputObjects.Contains(inputObjectType))
-                    throw ValidationException.InputObjectDirectCircularReference(inputObjectType);
-
                 HashSet<InputObjectTypeDefinition> checkedInputObjects = [];
-                while (referencedInputObjects.Count > 0)
+                while (referencedInputObjects.TryDequeue(out var referencedInputObject))
                 {
-                    HashSet<InputObjectTypeDefinition> nextInputObjects = [];
-                    foreach (var referencedInputObject in referencedInputObjects)
-                    {
-                        foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
-                        {
-                            if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
-                            {
-                                if (!checkedInputObjects.Contains(referenceInputObject) && !referencedInputObjects.Contains(referenceInputObject))
-                                    nextInputObjects.Add(referenceInputObject);
-                            }
-                        }
+                    if (referencedInputObject == inputObjectType)
+                        throw ValidationException.InputObjectCircularReference(inputObjectType);
 
-                        checkedInputObjects.Add(referencedInputObject);
+                    foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
+                    {
+                        if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                        {
+                            if (!checkedInputObjects.Contains(referenceInputObject))
+                                referencedInputObjects.Enqueue(referenceInputObject);
+                        }
                     }
 
-                    referencedInputObjects = nextInputObjects;
-
-                    if (referencedInputObjects.Contains(inputObjectType))
-                        throw ValidationException.InputObjectIndirectCircularReference(inputObjectType);
+                    checkedInputObjects.Add(referencedInputObject);
                 }
             }
         }

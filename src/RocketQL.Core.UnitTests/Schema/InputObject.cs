@@ -31,23 +31,23 @@ public class Input : UnitTestBase
                 input foo { fizz: first! }
                 input first { buzz: foo! }
                 
-                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+                """,                                                        "Input object 'foo' has circular reference requiring a non-null value.")]
     [InlineData("""                
                 input foo { fizz: first! }
                 input first { buzz: second! }
                 input second { buzz: foo! }
-                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+                """,                                                        "Input object 'foo' has circular reference requiring a non-null value.")]
     [InlineData("""                
                 input foo { fizz: first! buzz: second! }
                 input first { buzz: second }
                 input second { buzz: foo! }                
-                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+                """,                                                        "Input object 'foo' has circular reference requiring a non-null value.")]
     [InlineData("""                
                 input foo { fizz: first! buzz: second! }
                 input first { buzz: second! }
                 input second { buzz: third! }                
                 input third { buzz: foo! }                
-                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+                """,                                                        "Input object 'foo' has circular reference requiring a non-null value.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);

@@ -7,13 +7,17 @@
 		Add full validation of 
 			directives
 				check usage of directives matches defined allowed locations
+				check repeatable
 			schema
 
 		Location populated in all exceptions
 		Reference count so you know if anything has been used and by what
 
+		Output as text the schema (optional output of built-in directives and scalars)
+
 		Allow extend syntax nodes
 		Apply extend changes and validate
+
 
 	Request processing
 		return node that has data and exceptions
