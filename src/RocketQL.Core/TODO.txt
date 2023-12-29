@@ -5,12 +5,12 @@
 
 	Schema
 		Add full validation of 
-			input object
-				https://spec.graphql.org/draft/#sel-HAHhBXDFABAB5F3rK
 			directives
+				check usage of directives matches defined allowed locations
 			schema
 
 		Location populated in all exceptions
+		Reference count so you know if anything has been used and by what
 
 		Allow extend syntax nodes
 		Apply extend changes and validate

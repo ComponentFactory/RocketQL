@@ -40,4 +40,8 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException TypeFieldArgumentTypeFromInterface(SchemaNode node, string fieldName, string interfaceName, string argumentName) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' field '{fieldName}' argument '{argumentName}' has different type to the declared interface '{interfaceName}'.");
     public static ValidationException TypeFieldArgumentNonNullFromInterface(SchemaNode node, string fieldName, string interfaceName, string argumentName) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' field '{fieldName}' argument '{argumentName}' cannot be non-null type because not declared on interface '{interfaceName}'.");
     public static ValidationException TypeFieldReturnNotCompatibleFromInterface(SchemaNode node, string fieldName, string interfaceName) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' field '{fieldName}' return type not a sub-type of matching field on interface '{interfaceName}'.");
+    public static ValidationException InputObjectDirectCircularReference(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has circular reference requiring a non-null value.");
+    public static ValidationException InputObjectIndirectCircularReference(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has indirect circular reference requiring a non-null value.");
 }
+
+

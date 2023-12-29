@@ -42,7 +42,7 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
             VisitFieldDefinintions(objectType.Fields.Values, objectType, true);
-            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, true), objectType);
+            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -51,7 +51,7 @@ public partial class Schema
                 throw ValidationException.NameDoubleUnderscore(interfaceType);
 
             VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, false);
-            IsValidImplementations(interfaceType.Fields, CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, false), interfaceType);
+            IsValidImplementations(interfaceType.Fields, CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -71,6 +71,7 @@ public partial class Schema
             if (inputObjectType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(inputObjectType);
 
+            HashSet<InputObjectTypeDefinition> referencedInputObjects = [];
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)
             {
                 if (fieldDefinition.Name.StartsWith("__"))
@@ -87,7 +88,11 @@ public partial class Schema
                 if (fieldDefinition.Type.NonNull && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.ContainsKey("deprecated"))
                     throw ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType);
 
+                if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                    referencedInputObjects.Add(referenceInputObject);
             }
+
+            CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
@@ -148,16 +153,16 @@ public partial class Schema
 
             HashSet<string> processed = [];
             foreach (var objectImplement in interfaceDefinitions)
-                CheckInterfaceImplemented(interfaceDefinitions, processed, objectImplement.Value, parentNode, parentNode);
+                CheckTypeImplementsInterface(interfaceDefinitions, processed, objectImplement.Value, parentNode, parentNode);
 
             return interfaceDefinitions;
         }
 
-        private void CheckInterfaceImplemented(InterfaceTypeDefinitions objectImplements,
-                                               HashSet<string> processed,
-                                               InterfaceTypeDefinition checkInterface,
-                                               SchemaNode parentNode,
-                                               SchemaNode rootNode)
+        private void CheckTypeImplementsInterface(InterfaceTypeDefinitions objectImplements,
+                                                  HashSet<string> processed,
+                                                  InterfaceTypeDefinition checkInterface,
+                                                  SchemaNode parentNode,
+                                                  SchemaNode rootNode)
         {
             if (!processed.Contains(checkInterface.Name))
             {
@@ -174,41 +179,43 @@ public partial class Schema
                     if (!objectImplements.ContainsKey(implementsInterface.Name))
                         throw ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name);
 
-                    CheckInterfaceImplemented(objectImplements, processed, interfaceTypeDefinition, checkInterface, rootNode);
+                    CheckTypeImplementsInterface(objectImplements, processed, interfaceTypeDefinition, checkInterface, rootNode);
                 }
             }
         }
-        
 
         private static void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, SchemaNode parentNode)
         {
-            foreach(var interfaceDefinition in interfaceDefinitions.Values)
+            foreach (var interfaceDefinition in interfaceDefinitions.Values)
+                IsValidImplementation(objectFields, interfaceDefinition, parentNode);
+        }
+
+        private static void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, SchemaNode parentNode)
+        {
+            foreach(var interfaceField in interfaceDefinition.Fields.Values)
             {
-                foreach(var interfaceField in interfaceDefinition.Fields.Values)
+                if (!objectFields.TryGetValue(interfaceField.Name, out FieldDefinition? objectFieldDefinition))
+                    throw ValidationException.TypeMissingFieldFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
+
+                var nonInterface = objectFieldDefinition.Arguments.ToDictionary();
+
+                foreach (var argument in interfaceField.Arguments.Values)
                 {
-                    if (!objectFields.TryGetValue(interfaceField.Name, out FieldDefinition? objectFieldDefinition))
-                        throw ValidationException.TypeMissingFieldFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
+                    if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
+                        throw ValidationException.TypeMissingFieldArgumentFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
 
-                    var nonInterface = objectFieldDefinition.Arguments.ToDictionary();
+                    if (!IsSameType(objectFieldArgument.Type, argument.Type))
+                        throw ValidationException.TypeFieldArgumentTypeFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
 
-                    foreach (var argument in interfaceField.Arguments.Values)
-                    {
-                        if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
-                            throw ValidationException.TypeMissingFieldArgumentFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
-
-                        if (!IsSameType(objectFieldArgument.Type, argument.Type))
-                            throw ValidationException.TypeFieldArgumentTypeFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
-
-                        nonInterface.Remove(argument.Name);
-                    }
-
-                    foreach(var nonInterfaceArgument in nonInterface.Values)
-                        if (nonInterfaceArgument.Type.NonNull)
-                            throw ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name);
-
-                    if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
-                        throw ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
+                    nonInterface.Remove(argument.Name);
                 }
+
+                foreach(var nonInterfaceArgument in nonInterface.Values)
+                    if (nonInterfaceArgument.Type.NonNull)
+                        throw ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name);
+
+                if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
+                    throw ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
             }
         }
 
@@ -267,6 +274,39 @@ public partial class Schema
             }
 
             return false;
+        }
+
+        private static void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, HashSet<InputObjectTypeDefinition> referencedInputObjects)
+        {
+            if (referencedInputObjects.Count > 0)
+            {
+                if (referencedInputObjects.Contains(inputObjectType))
+                    throw ValidationException.InputObjectDirectCircularReference(inputObjectType);
+
+                HashSet<InputObjectTypeDefinition> checkedInputObjects = [];
+                while (referencedInputObjects.Count > 0)
+                {
+                    HashSet<InputObjectTypeDefinition> nextInputObjects = [];
+                    foreach (var referencedInputObject in referencedInputObjects)
+                    {
+                        foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
+                        {
+                            if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                            {
+                                if (!checkedInputObjects.Contains(referenceInputObject) && !referencedInputObjects.Contains(referenceInputObject))
+                                    nextInputObjects.Add(referenceInputObject);
+                            }
+                        }
+
+                        checkedInputObjects.Add(referencedInputObject);
+                    }
+
+                    referencedInputObjects = nextInputObjects;
+
+                    if (referencedInputObjects.Contains(inputObjectType))
+                        throw ValidationException.InputObjectIndirectCircularReference(inputObjectType);
+                }
+            }
         }
     }
 }

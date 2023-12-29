@@ -24,9 +24,71 @@ public class Input : UnitTestBase
                 type foo { fizz : Int }
                 input bar { buzz: foo }
                 """,                                                        "Input object 'bar' has input field 'buzz' of type 'foo' that is not an input type.")]
+    [InlineData("""                
+                input foo { fizz: foo! }
+                """,                                                        "Input object 'foo' has circular reference requiring a non-null value.")]
+    [InlineData("""                
+                input foo { fizz: first! }
+                input first { buzz: foo! }
+                
+                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+    [InlineData("""                
+                input foo { fizz: first! }
+                input first { buzz: second! }
+                input second { buzz: foo! }
+                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+    [InlineData("""                
+                input foo { fizz: first! buzz: second! }
+                input first { buzz: second }
+                input second { buzz: foo! }                
+                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
+    [InlineData("""                
+                input foo { fizz: first! buzz: second! }
+                input first { buzz: second! }
+                input second { buzz: third! }                
+                input third { buzz: foo! }                
+                """,                                                        "Input object 'foo' has indirect circular reference requiring a non-null value.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);
+    }
+
+    [Theory]
+    [InlineData("""                
+                input foo { fizz: foo }
+                """)]
+    [InlineData("""                
+                input foo { fizz: [foo!]! }
+                """)]
+    [InlineData("""    
+                input foo { fizz: first! }
+                input first { first: foo }
+                """)]
+    [InlineData("""                
+                input foo { fizz: first! }
+                input first { first: [foo!]! }
+                """)]
+    [InlineData("""                
+                input foo { fizz: first! }
+                input first { first: second! }
+                input second { second: third! }
+                input third { third: foo }
+                """)]
+    [InlineData("""                
+                input foo { fizz: first! }
+                input first { first: [second]! }
+                input second { second: [third!] }
+                input third { third: foo }
+                """)]
+    public void ValidCircularReference(string schemaText)
+    {
+        var schema = new Schema();
+        schema.Add(schemaText);
+        schema.Validate();
+
+        var foo = schema.Types["foo"] as InputObjectTypeDefinition;
+        Assert.NotNull(foo);
+        Assert.Equal("foo", foo.Name);
     }
 
     [Fact]

@@ -141,7 +141,9 @@ public partial class Schema
                     memberType.Definition = objectTypeDefinition;
                 else
                 {
-                    throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition, 
+                    throw ValidationException.TypeIsNotAnObject(memberType, 
+                                                                unionType, 
+                                                                typeDefinition, 
                                                                 ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an");
                 }
             }
