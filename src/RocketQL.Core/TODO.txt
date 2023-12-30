@@ -4,6 +4,9 @@
 
 
 	Schema
+		// Do we need this? Add parent references so you can walk up chain starting from anywhere
+		Reference count so you know if anything has been used and by what
+
 		Add full validation of 
 			directives
 				// DefaultValue definition matches the type
@@ -11,12 +14,8 @@
 
 			schema
 
-		Add parent references so you can walk up chain starting from anywhere
-		Location populated in all exceptions
-		Reference count so you know if anything has been used and by what
-
 		Output as text the schema (optional output of built-in directives and scalars)
-
+		Location populated in all exceptions
 		Allow extend syntax nodes
 		Apply extend changes and validate
 

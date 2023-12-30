@@ -61,7 +61,7 @@ public class Input : UnitTestBase
                 input foo @example @example { fizz : Int }                  
                 """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on input object 'foo'.")]
     [InlineData("""
-                directive @example on FIELD_DEFINITION
+                directive @example on INPUT_FIELD_DEFINITION
                 input foo  { fizz : Int @example @example }                  
                 """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
@@ -69,7 +69,7 @@ public class Input : UnitTestBase
                 input foo @example { fizz : Int }                  
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input object 'foo'.")]
     [InlineData("""
-                directive @example(arg1: Int!) on FIELD_DEFINITION
+                directive @example(arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo  { fizz : Int @example }                  
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
@@ -77,7 +77,7 @@ public class Input : UnitTestBase
                 input foo @example { fizz : Int }                  
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input object 'foo'.")]
     [InlineData("""
-                directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
+                directive @example(arg0: Int arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example }                  
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
@@ -85,7 +85,7 @@ public class Input : UnitTestBase
                 input foo @example(arg1: 123) { fizz : Int }                
                 """,                                                            "Directive 'example' does not define argument 'arg1' provided on input object 'foo'.")]
     [InlineData("""
-                directive @example on FIELD_DEFINITION
+                directive @example on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int  @example(arg1: 123)}                
                 """,                                                            "Directive 'example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
@@ -93,7 +93,7 @@ public class Input : UnitTestBase
                 input foo @example(arg1: 123) { fizz : Int }                
                 """,                                                            "Directive 'example' does not define argument 'arg1' provided on input object 'foo'.")]
     [InlineData("""
-                directive @example(arg0: Int) on FIELD_DEFINITION
+                directive @example(arg0: Int) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example(arg1: 123) }                
                 """,                                                            "Directive 'example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
@@ -101,15 +101,15 @@ public class Input : UnitTestBase
                 input foo @example(arg1: null) { fizz : Int }                
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input object 'foo'.")]
     [InlineData("""
-                directive @example(arg1: Int!) on FIELD_DEFINITION
+                directive @example(arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int  @example(arg1: null) }                
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 directive @example(arg0: Int arg1: Int!) on INPUT_OBJECT
                 input foo @example(arg1: null) { fizz : Int }                
-                """,                                                             "Directive 'example' has mandatory argument 'arg1' that is specified as null on input object 'foo'.")]
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input object 'foo'.")]
     [InlineData("""
-                directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
+                directive @example(arg0: Int arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example(arg1: null) }                
                 """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input field 'fizz' of input object 'foo'.")]
     public void ValidationExceptions(string schemaText, string message)

@@ -108,7 +108,7 @@ public partial class Schema
                 { "reason", new InputValueDefinition()
                             {
                                 Description = string.Empty,
-                                Name = "deprecated",
+                                Name = "reason",
                                 Type = new TypeName()
                                 {
                                     Name = "String",

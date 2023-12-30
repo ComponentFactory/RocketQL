@@ -112,7 +112,7 @@ public partial class Schema
                 if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
                     referencedInputObjects.Enqueue(referenceInputObject);
 
-                CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.FIELD_DEFINITION, fieldDefinition);
+                CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.INPUT_FIELD_DEFINITION, fieldDefinition);
             }
 
             CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);

@@ -107,6 +107,27 @@ public class Directive : UnitTestBase
         SchemaValidationException(schemaText, message);
     }
 
+    [Theory]
+    //[InlineData("""
+    //            type example
+    //            {
+    //                field: String @deprecated
+    //            }
+    //            """)]
+    [InlineData("""
+                type example
+                {
+                    field: String @deprecated(reason: "Assignees can now be mannequins. Use the `assignee` field instead. Removal on 2020-01-01 UTC.")
+                }
+                """)]
+    public void PredefinedDirectives(string schemaText)
+    {
+        var schema = new Schema();
+        schema.Add(schemaText);
+        schema.Validate();
+    }
+
+
     [Fact]
     public void AddDirective()
     {
