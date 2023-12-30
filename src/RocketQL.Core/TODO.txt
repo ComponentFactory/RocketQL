@@ -6,10 +6,12 @@
 	Schema
 		Add full validation of 
 			directives
-				// TODO directive usage constant is valid for type definition including
+				// DefaultValue definition matches the type
+				// Usage value matched the definintion type
 
 			schema
 
+		Add parent references so you can walk up chain starting from anywhere
 		Location populated in all exceptions
 		Reference count so you know if anything has been used and by what
 

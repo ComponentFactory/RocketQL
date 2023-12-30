@@ -137,7 +137,7 @@ public partial class Schema
             });
         }
 
-        private FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)
+        private static FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)
         {
             var nodes = new FieldDefinitions();
 

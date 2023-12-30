@@ -49,17 +49,13 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            if (scalarType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(scalarType);
-
+            scalarType.CheckDoubleUnderscore();
             CheckDirectiveUsage(scalarType.Directives, scalarType, DirectiveLocations.SCALAR);
         }
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            if (objectType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(objectType);
-
+            objectType.CheckDoubleUnderscore();
             CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
             VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
             IsValidImplementations(objectType.Fields, 
@@ -69,9 +65,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            if (interfaceType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(interfaceType);
-
+            interfaceType.CheckDoubleUnderscore();
             CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
             VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
             IsValidImplementations(interfaceType.Fields, 
@@ -81,17 +75,13 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            if (unionType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(unionType);
-
+            unionType.CheckDoubleUnderscore();
             CheckDirectiveUsage(unionType.Directives, unionType, DirectiveLocations.UNION);
         }
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            if (enumType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(enumType);
-
+            enumType.CheckDoubleUnderscore();
             CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
             foreach(var enumValueDefinition in enumType.EnumValues.Values)
                 CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE, enumValueDefinition);
@@ -99,9 +89,7 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            if (inputObjectType.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(inputObjectType);
-
+            inputObjectType.CheckDoubleUnderscore();
             CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
 
             Queue<InputObjectTypeDefinition> referencedInputObjects = [];

@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Nodes;
 
 public class SchemaDefinitions : List<SchemaDefinition> { };
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
@@ -43,70 +41,61 @@ public class DirectiveDefinition : SchemaNode
 
 public abstract class TypeDefinition : SchemaNode
 {
+    public required string Description { get; init; }
+    public required string Name { get; init; }
+    public required Directives Directives { get; init; }
+    public override string OutputName => Name;
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
 }
 
-
 public class ScalarTypeDefinition : TypeDefinition
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
     public override string OutputElement => "Scalar";
-    public override string OutputName => Name;
     public override bool IsInputType => true;
     public override bool IsOutputType => true;
 }
 
 public class ObjectTypeDefinition : TypeDefinition
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
     public required Interfaces ImplementsInterfaces { get; init; }
-    public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
     public override string OutputElement => "Object";
-    public override string OutputName => Name;
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
 }
 
 public class InterfaceTypeDefinition : TypeDefinition
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
     public required Interfaces ImplementsInterfaces { get; init; }
-    public required Directives Directives { get; init; }
     public required FieldDefinitions Fields { get; init; }
     public override string OutputElement => "Interface";
-    public override string OutputName => Name;
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
 }
 
 public class UnionTypeDefinition : TypeDefinition
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
     public required MemberTypes MemberTypes { get; init; }
     public override string OutputElement => "Union";
-    public override string OutputName => Name;
     public override bool IsInputType => false;
     public override bool IsOutputType => true;
 }
 
 public class EnumTypeDefinition : TypeDefinition
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
     public required EnumValueDefinitions EnumValues { get; init; }
     public override string OutputElement => "Enum";
-    public override string OutputName => Name;
     public override bool IsInputType => true;
     public override bool IsOutputType => true;
+}
+
+public class InputObjectTypeDefinition : TypeDefinition
+{
+    public required InputValueDefinitions InputFields { get; init; }
+    public override string OutputElement => "Input object";
+    public override bool IsInputType => true;
+    public override bool IsOutputType => false;
 }
 
 public class Directive : SchemaNode
@@ -159,18 +148,6 @@ public class EnumValueDefinition : SchemaNode
     public required Directives Directives { get; init; }
     public override string OutputElement => "Enum Value";
     public override string OutputName => Name;
-}
-
-public class InputObjectTypeDefinition : TypeDefinition
-{
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
-    public required InputValueDefinitions InputFields { get; init; }
-    public override string OutputElement => "Input object";
-    public override string OutputName => Name;
-    public override bool IsInputType => true;
-    public override bool IsOutputType => false;
 }
 
 public class InputValueDefinition : SchemaNode
