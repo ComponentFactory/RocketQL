@@ -785,7 +785,8 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 list.Add(new ObjectFieldNode(name, ParseValue(constant: constant)));
             }
 
-            MandatoryNext();
+            if (_tokenizer.TokenKind == DocumentTokenKind.RightParenthesis)
+                _tokenizer.Next();
         }
 
         return list;

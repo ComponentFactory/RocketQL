@@ -14,11 +14,7 @@ public class Object : UnitTestBase
     [InlineData("type __foo { fizz : Int }",                                "Object '__foo' not allowed to start with two underscores.")]
     [InlineData("type foo { __fizz : Int }",                                "Object 'foo' has field '__fizz' not allowed to start with two underscores.")]
     [InlineData("type foo { fizz(__arg1: String): String }",                "Object 'foo' has field 'fizz' with argument '__arg1' not allowed to start with two underscores.")]
-    //// Undefined directive
-    [InlineData("type foo @example { fizz : Int }",                         "Undefined directive 'example' defined on object 'foo'.")]
-    [InlineData("type foo { fizz : Int @example }",                         "Undefined directive 'example' defined on field 'fizz' of object 'foo'.")]
-    [InlineData("type foo { fizz(arg1: Int @example) : Int }",              "Undefined directive 'example' defined on argument 'arg1' of object 'foo'.")]
-    //// Implements errors
+    // Implements errors
     [InlineData("type foo implements example { fizz : Int }",               "Undefined interface 'example' defined on object 'foo'.")]
     [InlineData("type foo implements Int { fizz : Int }",                   "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.")]
     [InlineData("""
@@ -120,6 +116,10 @@ public class Object : UnitTestBase
                 interface first { bar: second }
                 type foo implements first { bar: buzz }
                 """,                                                        "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+    // Directive errors
+    [InlineData("type foo @example { fizz : Int }",                         "Undefined directive 'example' defined on object 'foo'.")]
+    [InlineData("type foo { fizz : Int @example }",                         "Undefined directive 'example' defined on field 'fizz' of object 'foo'.")]
+    [InlineData("type foo { fizz(arg1: Int @example) : Int }",              "Undefined directive 'example' defined on argument 'arg1' of object 'foo'.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);

@@ -7,7 +7,7 @@ public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class TypeDefinitions : Dictionary<string, TypeDefinition> { };
 public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };
-public class Directives : Dictionary<string, Directive> { };
+public class Directives : List<Directive> { };
 public class Interfaces : Dictionary<string, Interface> { };
 public class OperationTypeDefinitions : Dictionary<OperationType, OperationTypeDefinition> { };
 public class FieldDefinitions : Dictionary<string, FieldDefinition> { };

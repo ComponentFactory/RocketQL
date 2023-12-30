@@ -38,6 +38,37 @@ public class ScalarTypeDefinition : UnitTestBase
         Assert.Equal("bar", directive.Name);
     }
 
+    [Fact]
+    public void DirectiveWithArgument()
+    {
+        var documentNode = Serialization.SchemaDeserialize("scalar foo @bar(arg1: 123)");
+
+        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("foo", scalar.Name);
+        var directive = scalar.Directives.NotNull().One();
+        Assert.Equal("bar", directive.Name);
+        var argument = directive.Arguments.NotNull().One();
+        Assert.Equal("arg1", argument.Name);
+    }
+
+    [Fact]
+    public void DirectiveWithTowArguments()
+    {
+        var documentNode = Serialization.SchemaDeserialize("scalar foo @bar(arg1: 123, arg2: true)");
+
+        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("foo", scalar.Name);
+        var directive = scalar.Directives.NotNull().One();
+        Assert.Equal("bar", directive.Name);
+        Assert.Equal(2, directive.Arguments.Count);
+        var argument1 = directive.Arguments.NotNull()[0];
+        Assert.Equal("arg1", argument1.Name);
+        var argument2 = directive.Arguments.NotNull()[1];
+        Assert.Equal("arg2", argument2.Name);
+    }
+
     [Theory]
     [InlineData("scalar")]
     [InlineData("scalar foo @")]

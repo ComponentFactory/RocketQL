@@ -187,7 +187,7 @@ public partial class Schema
 
             foreach (var directive in directives)
             {
-                nodes.Add(directive.Name, new()
+                nodes.Add(new()
                 {
                     Name = directive.Name,
                     Definition = null,

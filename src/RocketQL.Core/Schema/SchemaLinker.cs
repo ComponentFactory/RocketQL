@@ -70,7 +70,7 @@ public partial class Schema
 
         private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
         {
-            foreach (var directive in directives.Values)
+            foreach (var directive in directives)
             {
                 if (!_schema.Directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
                 {
