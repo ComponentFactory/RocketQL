@@ -40,16 +40,22 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException TypeFieldReturnNotCompatibleFromInterface(SchemaNode node, string fieldName, string interfaceName) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' field '{fieldName}' return type not a sub-type of matching field on interface '{interfaceName}'.");
     public static ValidationException InputObjectCircularReference(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has circular reference requiring a non-null value.");
     public static ValidationException DirectiveCircularReference(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has circular reference to itself.");
-    public static ValidationException DirectiveNotAllowedLocation(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not specified for use on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' location.");
-    public static ValidationException DirectiveNotAllowedLocation(SchemaNode node, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not specified for use on {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' location.");
-    public static ValidationException DirectiveNotRepeatable(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not repeatable but has been applied multiple times on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveNotRepeatable(SchemaNode node, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not repeatable but has been applied multiple times on {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, SchemaNode grandParentNode) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException DirectiveNotAllowedLocation(SchemaNode node, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not specified for use on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' location.");
+    public static ValidationException DirectiveNotRepeatable(SchemaNode node, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not repeatable but has been applied multiple times on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+
+    private static string ExpandNodesOf(SchemaNode?[] extraNodes)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        foreach (var extraNode in extraNodes.Reverse())
+            if (extraNode is not null)
+                sb.Append($"{extraNode.OutputElement.ToLower()} '{extraNode.OutputName}' of ");
+
+        return sb.ToString();
+    }
 }
 
 

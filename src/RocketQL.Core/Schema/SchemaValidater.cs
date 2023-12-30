@@ -40,6 +40,8 @@ public partial class Schema
                 referencedTypes.Enqueue(argumentDefinition.Type.Definition);
                 foreach (var directive in argumentDefinition.Directives)
                     referencedDirectives.Enqueue(directive.Definition!);
+
+                CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION, argumentDefinition);
             }
 
             CheckDirectiveForCircularReference(directiveDefinition, referencedTypes, referencedDirectives);
@@ -58,7 +60,8 @@ public partial class Schema
             if (objectType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(objectType);
 
-            VisitFieldDefinintions(objectType.Fields.Values, objectType, true);
+            CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
+            VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
             IsValidImplementations(objectType.Fields, 
                                    CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
                                    objectType);
@@ -69,7 +72,8 @@ public partial class Schema
             if (interfaceType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(interfaceType);
 
-            VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, false);
+            CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
+            VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
             IsValidImplementations(interfaceType.Fields, 
                                    CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
                                    interfaceType);
@@ -98,6 +102,8 @@ public partial class Schema
             if (inputObjectType.Name.StartsWith("__"))
                 throw ValidationException.NameDoubleUnderscore(inputObjectType);
 
+            CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
+
             Queue<InputObjectTypeDefinition> referencedInputObjects = [];
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)
             {
@@ -117,6 +123,8 @@ public partial class Schema
 
                 if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
                     referencedInputObjects.Enqueue(referenceInputObject);
+
+                CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.FIELD_DEFINITION, fieldDefinition);
             }
 
             CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
@@ -191,7 +199,11 @@ public partial class Schema
                     referencedDirectives.Enqueue(directive.Definition!);
         }
 
-        private void CheckDirectiveUsage(Directives directives, SchemaNode parentNode, DirectiveLocations directiveLocations, SchemaNode? grandParent = null)
+        private void CheckDirectiveUsage(Directives directives, 
+                                         SchemaNode parentNode, 
+                                         DirectiveLocations directiveLocations, 
+                                         SchemaNode? grandParent = null, 
+                                         SchemaNode? greatGrandParent = null)
         {
             HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
@@ -200,20 +212,10 @@ public partial class Schema
                     throw ValidationException.UnrecognizedType(directive);
 
                 if ((directiveDefinition.DirectiveLocations & directiveLocations) != directiveLocations)
-                {
-                    if (grandParent is not null)
-                        throw ValidationException.DirectiveNotAllowedLocation(directive, parentNode, grandParent);
-                    else
-                        throw ValidationException.DirectiveNotAllowedLocation(directive, parentNode);
-                }
+                    throw ValidationException.DirectiveNotAllowedLocation(directive, parentNode, grandParent, greatGrandParent);
 
                 if (checkedDirectives.Contains(directiveDefinition) && !directiveDefinition.Repeatable)
-                {
-                    if (grandParent is not null)
-                        throw ValidationException.DirectiveNotRepeatable(directive, parentNode, grandParent);
-                    else
-                        throw ValidationException.DirectiveNotRepeatable(directive, parentNode);
-                }
+                    throw ValidationException.DirectiveNotRepeatable(directive, parentNode, grandParent, greatGrandParent);
 
                 var checkedArguments = directive.Arguments.ToDictionary();
                 foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
@@ -221,20 +223,10 @@ public partial class Schema
                     if (argumentDefinition.Type.NonNull && argumentDefinition.DefaultValue is null)
                     {
                         if (!checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
-                        {
-                            if (grandParent is not null)
-                                throw ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent);
-                            else
-                                throw ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode);
-                        }
+                            throw ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent);
 
                         if (checkedArgument.Value is NullValueNode)
-                        {
-                            if (grandParent is not null)
-                                throw ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode, grandParent);
-                            else
-                                throw ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode);
-                        }
+                            throw ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent);
                     }
 
                     checkedArguments.Remove(argumentDefinition.Name);
@@ -243,19 +235,14 @@ public partial class Schema
                 if (checkedArguments.Count > 0)
                 {
                     foreach (var checkArgument in checkedArguments)
-                    {
-                        if (grandParent is not null)
-                            throw ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode, grandParent);
-                        else
-                            throw ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode);
-                    }
+                            throw ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode, grandParent, greatGrandParent);
                 }
 
                 checkedDirectives.Add(directiveDefinition);
             }
         }
 
-        private static void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, SchemaNode parentNode, bool isObject)
+        private void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, SchemaNode parentNode, bool isObject)
         {
             foreach (var fieldDefinition in fieldDefinitions)
             {
@@ -269,6 +256,8 @@ public partial class Schema
 
                 if (!fieldDefinition.Type.Definition.IsOutputType)
                     throw ValidationException.TypeIsNotAnOutputType(fieldDefinition, parentNode, fieldDefinition.Type.Definition.OutputName);
+
+                CheckDirectiveUsage(fieldDefinition.Directives, parentNode, DirectiveLocations.FIELD_DEFINITION, fieldDefinition);
 
                 foreach (var argumentDefinition in fieldDefinition.Arguments.Values)
                 {
@@ -286,6 +275,8 @@ public partial class Schema
 
                     if (isObject && argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
                         throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
+
+                    CheckDirectiveUsage(argumentDefinition.Directives, parentNode, DirectiveLocations.ARGUMENT_DEFINITION, fieldDefinition, argumentDefinition);
                 }
             }
         }

@@ -7,14 +7,7 @@
 		Add full validation of 
 			directives
 				// TODO directive usage constant is valid for type definition including
-				check usage of directives matches defined allowed locations
-				check repeatable
-				check non-null arguments are provided
-					object
-					interface
-					input object
-					directive
-					schema
+
 			schema
 
 		Location populated in all exceptions

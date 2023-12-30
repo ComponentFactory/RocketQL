@@ -14,10 +14,6 @@ public class Interface : UnitTestBase
     [InlineData("interface __foo { fizz : Int }",                               "Interface '__foo' not allowed to start with two underscores.")]
     [InlineData("interface foo { __fizz : Int }",                               "Interface 'foo' has field '__fizz' not allowed to start with two underscores.")]
     [InlineData("interface foo { fizz(__arg1: String): String }",               "Interface 'foo' has field 'fizz' with argument '__arg1' not allowed to start with two underscores.")]
-    // Undefined directive
-    [InlineData("interface foo @example { fizz : Int }",                        "Undefined directive 'example' defined on interface 'foo'.")]
-    [InlineData("interface foo { fizz : Int @example }",                        "Undefined directive 'example' defined on field 'fizz' of interface 'foo'.")]
-    [InlineData("interface foo { fizz(arg1: Int @example) : Int }",             "Undefined directive 'example' defined on argument 'arg1' of interface 'foo'.")]
     // Implements errors
     [InlineData("interface foo implements example { fizz : Int }",              "Undefined interface 'example' defined on interface 'foo'.")]
     [InlineData("interface foo implements Int { fizz : Int }",                  "Cannot implement interface 'Int' defined on interface 'foo' because it is a 'scalar'.")]
@@ -119,7 +115,106 @@ public class Interface : UnitTestBase
                 interface first { bar: second }
                 interface foo implements first { bar: buzz }
                 """,                                                            "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
-
+    // Directive errors
+    [InlineData("interface foo @example { fizz : Int }",                        "Undefined directive 'example' defined on interface 'foo'.")]
+    [InlineData("interface foo { fizz : Int @example }",                        "Undefined directive 'example' defined on field 'fizz' of interface 'foo'.")]
+    [InlineData("interface foo { fizz(arg1: Int @example) : Int }",             "Undefined directive 'example' defined on argument 'arg1' of interface 'foo'.")]
+    [InlineData("""
+                directive @example on ENUM
+                interface foo @example { fizz : Int }                    
+                """,                                                            "Directive 'example' is not specified for use on interface 'foo' location.")]
+    [InlineData("""
+                directive @example on ENUM
+                interface foo { fizz : Int @example }                    
+                """,                                                            "Directive 'example' is not specified for use on field 'fizz' of interface 'foo' location.")]
+    [InlineData("""
+                directive @example on ENUM
+                interface foo { fizz(arg: Int @example) : Int }                    
+                """,                                                            "Directive 'example' is not specified for use on argument 'arg' of field 'fizz' of interface 'foo' location.")]
+    [InlineData("""
+                directive @example on INTERFACE
+                interface foo @example @example { fizz : Int }                  
+                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on interface 'foo'.")]
+    [InlineData("""
+                directive @example on FIELD_DEFINITION
+                interface foo  { fizz : Int @example @example }                  
+                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example @example) : Int }                  
+                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on INTERFACE
+                interface foo @example { fizz : Int }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on FIELD_DEFINITION
+                interface foo  { fizz : Int @example }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example) : Int }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on INTERFACE
+                interface foo @example { fizz : Int }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
+                interface foo { fizz : Int @example }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example) : Int }                  
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example on INTERFACE
+                interface foo @example(arg1: 123) { fizz : Int }                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on interface 'foo'.")]
+    [InlineData("""
+                directive @example on FIELD_DEFINITION
+                interface foo { fizz : Int  @example(arg1: 123)}                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example(arg1: 123)) : Int }                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int) on INTERFACE
+                interface foo @example(arg1: 123) { fizz : Int }                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int) on FIELD_DEFINITION
+                interface foo { fizz : Int @example(arg1: 123) }                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int) on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int  @example(arg1: 123)) : Int }                
+                """,                                                            "Directive 'example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on INTERFACE
+                interface foo @example(arg1: null) { fizz : Int }                
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on FIELD_DEFINITION
+                interface foo { fizz : Int  @example(arg1: null) }                
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg1: Int!) on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example(arg1: null)) : Int }                
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on INTERFACE
+                interface foo @example(arg1: null) { fizz : Int }                
+                """,                                                             "Directive 'example' has mandatory argument 'arg1' that is specified as null on interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
+                interface foo { fizz : Int @example(arg1: null) }                
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of interface 'foo'.")]
+    [InlineData("""
+                directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
+                interface foo { fizz(arg: Int @example(arg1: null)) : Int }                
+                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of interface 'foo'.")]
     public void ValidationExceptions(string schemaText, string message)
     {
         SchemaValidationException(schemaText, message);
