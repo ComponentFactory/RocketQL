@@ -346,15 +346,20 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         string name = _tokenizer.TokenValue;
         _tokenizer.Next();
         var directives = ParseDirectivesOptional();
-        MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
-        var inputFields = ParseInputValueListDefinition();
-        MandatoryToken(DocumentTokenKind.RightCurlyBracket);
-        _tokenizer.Next();
+
+        SyntaxInputValueDefinitionNodeList? inputFields = null;
+        if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
+        {
+            MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
+            inputFields = ParseInputValueListDefinition();
+            MandatoryToken(DocumentTokenKind.RightCurlyBracket);
+            _tokenizer.Next();
+        }
 
         return new SyntaxInputObjectTypeDefinitionNode(UseTopLevelDescription(),
                                                        name,
                                                        directives,
-                                                       inputFields,
+                                                       inputFields ?? [],
                                                        location);
     }
 
@@ -822,7 +827,9 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DirectiveLocations ParseDirectiveLocations()
     {
-        MandatoryNextToken(DocumentTokenKind.Name);
+        MandatoryNext();
+        OptionalToken(DocumentTokenKind.Vertical);
+        MandatoryToken(DocumentTokenKind.Name);
         DirectiveLocations directiveLocations = StringToDriveLocations(_tokenizer.TokenValue);
 
         if (_tokenizer.Next())

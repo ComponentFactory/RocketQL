@@ -94,6 +94,16 @@ public class Directive : UnitTestBase
     }
 
     [Theory]
+    [InlineData("directive @foo on ENUM")]
+    [InlineData("directive @foo on | ENUM")]
+    [InlineData("directive @foo on ENUM | INTERFACE")]
+    [InlineData("directive @foo on | ENUM | INTERFACE")]
+    public void Locations(string schemaText)
+    {
+        Serialization.SchemaDeserialize(schemaText);
+    }
+
+    [Theory]
     [InlineData("directive @foo (bar: fizz @")]
     [InlineData("directive @foo (bar: fizz @hello")]
     [InlineData("directive @foo (bar: fizz @hello (")]

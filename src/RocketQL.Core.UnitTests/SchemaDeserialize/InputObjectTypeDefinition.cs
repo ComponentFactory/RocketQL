@@ -5,6 +5,18 @@ public class InputObjectTypeDefinition : UnitTestBase
     [Fact]
     public void Minimum()
     {
+        var documentNode = Serialization.SchemaDeserialize("input foo");
+
+        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
+        Assert.Equal(string.Empty, input.Description);
+        Assert.Equal("foo", input.Name);
+        input.Directives.NotNull().Count(0);
+        input.InputFields.NotNull().Count(0);
+    }
+
+    [Fact]
+    public void SingleField()
+    {
         var documentNode = Serialization.SchemaDeserialize("input foo { bar: Integer }");
 
         var input = documentNode.NotNull().InputObjectTypes.NotNull().One();

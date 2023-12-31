@@ -26,10 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestFiles\github.graphql">
+    <None Update="TestFiles\kitchensink-schema.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestFiles\introspection.graphql">
+    <None Update="TestFiles\github-schema.graphql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\introspection-query.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,7 +1,12 @@
 ﻿Next
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
-
+	
+	Request
+		allow variables in operation
+		allow variables as input values instead of a constant
+		why is 'field4?' allowed in the reference implementation?
+'
 
 	Schema
 		// Do we need this? Add parent references so you can walk up chain starting from anywhere

@@ -3,6 +3,17 @@
 public class EnumTypeDefinition : UnitTestBase
 {
     [Fact]
+    public void Minimum()
+    {
+        var documentNode = Serialization.SchemaDeserialize("enum foo");
+
+        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("foo", enums.Name);
+        enums.EnumValues.NotNull().Count(0);
+    }
+
+    [Fact]
     public void OneEnum()
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo { BUZZ }");

@@ -3,7 +3,8 @@
 public class Files : UnitTestBase
 {
     [Theory]
-    [InlineData("github.graphql")]
+    [InlineData("github-schema.graphql")]
+    [InlineData("kitchensink-schema.graphql")]
     public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
