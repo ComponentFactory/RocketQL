@@ -137,6 +137,23 @@ public class Union : UnitTestBase
     }
 
     [Fact]
+    public void ReferenceCreated()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   type foo { first: Int }
+                   union bar = foo
+                   """);
+        schema.Validate();
+
+        var foo = schema.Types["foo"];
+        Assert.NotNull(foo);
+        var union = schema.Types["bar"];
+        Assert.NotNull(union);
+        foo.References.NotNull().One();
+    }
+
+    [Fact]
     public void AddUnionType()
     {
         var schema = new Schema();

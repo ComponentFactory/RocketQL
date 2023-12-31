@@ -81,6 +81,7 @@ public partial class Schema
                 }
 
                 directive.Definition = directiveDefinition;
+                directiveDefinition.References.Add(directive);
             }
         }
 
@@ -95,6 +96,7 @@ public partial class Schema
                     throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
 
                 interfaceEntry.Definition = interfaceTypeDefinition;
+                interfaceTypeDefinition.References.Add(interfaceEntry);
             }
         }
 
@@ -124,7 +126,10 @@ public partial class Schema
             else if (typeLocation is TypeName typeName)
             {
                 if (_schema.Types.TryGetValue(typeName.Name, out var type))
+                {
                     typeName.Definition = type;
+                    type.References.Add(typeName);
+                }
                 else
                     throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNode.OutputElement, listNode.OutputName, parentNode);
             }
@@ -138,7 +143,10 @@ public partial class Schema
                     throw ValidationException.UndefinedMemberType(memberType, unionType);
 
                 if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
+                {
                     memberType.Definition = objectTypeDefinition;
+                    objectTypeDefinition.References.Add(memberType);
+                }
                 else
                 {
                     throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition, 

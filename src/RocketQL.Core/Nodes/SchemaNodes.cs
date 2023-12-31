@@ -26,6 +26,7 @@ public class SchemaDefinition : SchemaNode
     public required string Description { get; set; }
     public required Directives Directives { get; set; }
     public required OperationTypeDefinitions Operations { get; set; }
+    public SchemaNode? Parent { get; set; }
 }
 
 public class DirectiveDefinition : SchemaNode
@@ -37,6 +38,7 @@ public class DirectiveDefinition : SchemaNode
     public required DirectiveLocations DirectiveLocations { get; init; }
     public override string OutputElement => "Directive";
     public override string OutputName => Name;
+    public readonly List<SchemaNode> References = [];
 }
 
 public abstract class TypeDefinition : SchemaNode
@@ -47,6 +49,7 @@ public abstract class TypeDefinition : SchemaNode
     public override string OutputName => Name;
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
+    public readonly List<SchemaNode> References = [];
 }
 
 public class ScalarTypeDefinition : TypeDefinition

@@ -108,18 +108,8 @@ public class Directive : UnitTestBase
     }
 
     [Theory]
-    //[InlineData("""
-    //            type example
-    //            {
-    //                field: String @deprecated
-    //            }
-    //            """)]
-    [InlineData("""
-                type example
-                {
-                    field: String @deprecated(reason: "Assignees can now be mannequins. Use the `assignee` field instead. Removal on 2020-01-01 UTC.")
-                }
-                """)]
+    [InlineData("type example { field: String @deprecated }")]
+    [InlineData("""type example { field: String @deprecated(reason: "Example") } """)]
     public void PredefinedDirectives(string schemaText)
     {
         var schema = new Schema();
@@ -127,6 +117,22 @@ public class Directive : UnitTestBase
         schema.Validate();
     }
 
+    [Fact]
+    public void ReferenceCreated()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   directive @foo on SCALAR
+                   scalar bar @foo
+                   """);
+        schema.Validate();
+
+        var foo = schema.Directives["foo"];
+        Assert.NotNull(foo);
+        var bar = schema.Types["bar"];
+        Assert.NotNull(bar);
+        foo.References.NotNull().One();
+    }
 
     [Fact]
     public void AddDirective()

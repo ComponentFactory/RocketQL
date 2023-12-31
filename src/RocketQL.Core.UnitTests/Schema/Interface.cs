@@ -323,6 +323,23 @@ public class Interface : UnitTestBase
     }
 
     [Fact]
+    public void ReferenceCreated()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   interface foo { first: Int }
+                   type bar implements foo { first: Int }
+                   """);
+        schema.Validate();
+
+        var foo = schema.Types["foo"];
+        Assert.NotNull(foo);
+        var bar = schema.Types["bar"];
+        Assert.NotNull(bar);
+        foo.References.NotNull().One();
+    }
+
+    [Fact]
     public void AddInterfaceType()
     {
         var schema = new Schema();

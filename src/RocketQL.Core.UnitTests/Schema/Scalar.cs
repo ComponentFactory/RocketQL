@@ -113,6 +113,26 @@ public class Scalar : UnitTestBase
     }
 
     [Fact]
+    public void ReferenceCreated()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   scalar foo
+                   type bar1 { first: foo }
+                   type bar2 { first(arg: foo): Int }
+                   interface bar3 { first: foo }
+                   interface bar4 { first(arg: foo): Int }
+                   input bar5 { first: foo }
+                   directive @bar6(arg: foo) on ENUM
+                   """);
+        schema.Validate();
+
+        var foo = schema.Types["foo"];
+        Assert.NotNull(foo);
+        foo.References.NotNull().Count(6);
+    }
+
+    [Fact]
     public void AddScalarType()
     {
         var schema = new Schema();

@@ -2,16 +2,13 @@
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 	
-	Request
-		allow variables in operation
-		allow variables as input values instead of a constant
-		why is 'field4?' allowed in the reference implementation?
-'
 
 	Schema
-		// Do we need this? Add parent references so you can walk up chain starting from anywhere
-		Reference count so you know if anything has been used and by what
+		// TO INVESTIGATE
+		Do we need this? Add parent references so you can walk up chain starting from anywhere
 
+		Parent linkages between all elements of hierarchy
+		
 		Add full validation of 
 			directives
 				// DefaultValue definition matches the type
@@ -23,6 +20,11 @@
 		Location populated in all exceptions
 		Allow extend syntax nodes
 		Apply extend changes and validate
+
+	Request
+		allow variables in operation
+		allow variables as input values instead of a constant
+		why is 'field4?' allowed in the reference implementation?
 
 
 	Request processing
