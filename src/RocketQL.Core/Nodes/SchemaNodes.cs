@@ -17,6 +17,7 @@ public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { 
 public abstract class SchemaNode
 {
     public required Location Location { get; init; }
+    public SchemaNode? Parent { get; set; }
     public virtual string OutputElement => string.Empty;
     public virtual string OutputName => string.Empty;
 }
@@ -26,7 +27,6 @@ public class SchemaDefinition : SchemaNode
     public required string Description { get; set; }
     public required Directives Directives { get; set; }
     public required OperationTypeDefinitions Operations { get; set; }
-    public SchemaNode? Parent { get; set; }
 }
 
 public class DirectiveDefinition : SchemaNode

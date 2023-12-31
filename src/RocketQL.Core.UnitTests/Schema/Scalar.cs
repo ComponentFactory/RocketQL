@@ -133,16 +133,19 @@ public class Scalar : UnitTestBase
     }
 
     [Fact]
-    public void AddScalarType()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("scalar foo");
+        schema.Add("""
+                   scalar foo @specifiedBy(url: "Example")
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as ScalarTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddScalarType), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var directive = foo.Directives.NotNull().One();
+        Assert.Equal(foo, directive.Parent);
     }
 }
 

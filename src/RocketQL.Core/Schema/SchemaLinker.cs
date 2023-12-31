@@ -20,8 +20,10 @@ public partial class Schema
         {
             foreach (var argument in directive.Arguments.Values)
             {
+                argument.Parent = directive;
+
                 InterlinkDirectives(argument.Directives, argument, directive);
-                InterlinkTypeNode(argument.Type, argument, directive);
+                InterlinkTypeNode(argument.Type, argument, directive, argument);
             }
         }
 
@@ -34,14 +36,14 @@ public partial class Schema
         {
             InterlinkDirectives(objectType.Directives, objectType);
             InterlinkInterfaces(objectType.ImplementsInterfaces, objectType);
-            InterlinkFields(objectType.Fields, objectType);
+            InterlinkFields(objectType.Fields, objectType, objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
             InterlinkDirectives(interfaceType.Directives, interfaceType);
             InterlinkInterfaces(interfaceType.ImplementsInterfaces, interfaceType);
-            InterlinkFields(interfaceType.Fields, interfaceType);
+            InterlinkFields(interfaceType.Fields, interfaceType, interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -55,13 +57,17 @@ public partial class Schema
             InterlinkDirectives(enumType.Directives, enumType);
 
             foreach (var enumValue in enumType.EnumValues.Values)
+            {
+                enumValue.Parent = enumType;
+
                 InterlinkDirectives(enumValue.Directives, enumValue, enumType);
+            }
         }
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
             InterlinkDirectives(inputObjectType.Directives, inputObjectType);
-            InterlinkInputValues(inputObjectType.InputFields, inputObjectType);
+            InterlinkInputValues(inputObjectType.InputFields, inputObjectType, inputObjectType);
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
@@ -72,12 +78,14 @@ public partial class Schema
         {
             foreach (var directive in directives)
             {
+                directive.Parent = parentNode;
+
                 if (!_schema.Directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
                 {
-                    if (grandParentNode is null)
-                        throw ValidationException.UndefinedDirective(directive, parentNode);
-                    else
+                    if (grandParentNode is not null)
                         throw ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode);
+                    else
+                        throw ValidationException.UndefinedDirective(directive, parentNode);
                 }
 
                 directive.Definition = directiveDefinition;
@@ -89,6 +97,8 @@ public partial class Schema
         {
             foreach (var interfaceEntry in interfaces.Values)
             {
+                interfaceEntry.Parent = parentNode;
+
                 if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
                     throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
 
@@ -100,38 +110,42 @@ public partial class Schema
             }
         }
 
-        private void InterlinkFields(FieldDefinitions fields, SchemaNode parentNode)
+        private void InterlinkFields(FieldDefinitions fields, SchemaNode parentNode, SchemaNode rootNode)
         {
             foreach (var field in fields.Values)
             {
-                InterlinkDirectives(field.Directives, field, parentNode);
-                InterlinkTypeNode(field.Type, field, parentNode);
-                InterlinkInputValues(field.Arguments, parentNode);
+                field.Parent = parentNode;
+
+                InterlinkDirectives(field.Directives, field, rootNode);
+                InterlinkTypeNode(field.Type, field, rootNode, field);
+                InterlinkInputValues(field.Arguments, field, rootNode);
             }
         }
 
-        private void InterlinkInputValues(InputValueDefinitions inputValues, SchemaNode parentNode)
+        private void InterlinkInputValues(InputValueDefinitions inputValues, SchemaNode parentNode, SchemaNode rootNode)
         {
             foreach (var inputValue in inputValues.Values)
             {
-                InterlinkDirectives(inputValue.Directives, inputValue, parentNode);
-                InterlinkTypeNode(inputValue.Type, inputValue, parentNode);
+                inputValue.Parent = parentNode;
+
+                InterlinkDirectives(inputValue.Directives, inputValue, rootNode);
+                InterlinkTypeNode(inputValue.Type, inputValue, rootNode, inputValue);
             }
         }
 
-        private void InterlinkTypeNode(TypeNode typeLocation, SchemaNode listNode, SchemaNode parentNode)
+        private void InterlinkTypeNode(TypeNode typeLocation, SchemaNode parentNode, SchemaNode rootNode, SchemaNode typeParentNode)
         {
+            typeLocation.Parent = typeParentNode;
+
             if (typeLocation is TypeList typeList)
-                InterlinkTypeNode(typeList.Type, listNode, parentNode);
+                InterlinkTypeNode(typeList.Type, parentNode, rootNode, typeList);
             else if (typeLocation is TypeName typeName)
             {
-                if (_schema.Types.TryGetValue(typeName.Name, out var type))
-                {
-                    typeName.Definition = type;
-                    type.References.Add(typeName);
-                }
-                else
-                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, listNode.OutputElement, listNode.OutputName, parentNode);
+                if (!_schema.Types.TryGetValue(typeName.Name, out var type))
+                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode);
+
+                typeName.Definition = type;
+                type.References.Add(typeName);
             }
         }
 
@@ -139,6 +153,8 @@ public partial class Schema
         {
             foreach (var memberType in memberTypes.Values)
             {
+                memberType.Parent = unionType; 
+
                 if (!_schema.Types.TryGetValue(memberType.Name, out TypeDefinition? typeDefinition))
                     throw ValidationException.UndefinedMemberType(memberType, unionType);
 

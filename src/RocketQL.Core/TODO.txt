@@ -7,14 +7,12 @@
 		// TO INVESTIGATE
 		Do we need this? Add parent references so you can walk up chain starting from anywhere
 
-		Parent linkages between all elements of hierarchy
-		
 		Add full validation of 
+			schema
 			directives
 				// DefaultValue definition matches the type
 				// Usage value matched the definintion type
 
-			schema
 
 		Output as text the schema (optional output of built-in directives and scalars)
 		Location populated in all exceptions

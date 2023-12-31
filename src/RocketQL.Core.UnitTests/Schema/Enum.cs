@@ -170,20 +170,33 @@ public class Enum : UnitTestBase
         Assert.Equal("foo", foo.Name);
     }
 
+
     [Fact]
-    public void AddEnum()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("enum foo { FIRST SECOND }");
+        schema.Add("""
+                   directive @d1 on ENUM
+                   directive @d2 on ENUM_VALUE
+                   enum foo @d1 
+                   {
+                       BAR @d2
+                   }
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.EnumValues.Count);
-        Assert.NotNull(foo.EnumValues["FIRST"]);
-        Assert.NotNull(foo.EnumValues["SECOND"]);
-        Assert.Contains(nameof(AddEnum), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var d1 = foo.Directives.NotNull().One();
+        Assert.Equal("d1", d1.Name);
+        Assert.Equal(foo, d1.Parent);
+        var field = foo.EnumValues["BAR"];
+        Assert.NotNull(field);
+        Assert.Equal(foo, field.Parent);
+        var d2 = field.Directives.NotNull().One();
+        Assert.Equal("d2", d2.Name);
+        Assert.Equal(field, d2.Parent);
     }
 }
 

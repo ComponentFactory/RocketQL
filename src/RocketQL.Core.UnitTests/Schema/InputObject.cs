@@ -156,17 +156,31 @@ public class Input : UnitTestBase
     }
 
     [Fact]
-    public void AddInputObjectType()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("input foo { fizz: Int }");
+        schema.Add("""
+                   directive @d1 on INPUT_OBJECT
+                   directive @d2 on INPUT_FIELD_DEFINITION
+                   input foo @d1 
+                   {
+                       bar: [Int] @d2
+                   }
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.NotNull(foo.InputFields["fizz"]);
-        Assert.Contains(nameof(AddInputObjectType), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var d1 = foo.Directives.NotNull().One();
+        Assert.Equal("d1", d1.Name);
+        Assert.Equal(foo, d1.Parent);
+        var field = foo.InputFields["bar"];
+        Assert.NotNull(field);
+        Assert.Equal(foo, field.Parent);
+        var d2 = field.Directives.NotNull().One();
+        Assert.Equal("d2", d2.Name);
+        Assert.Equal(field, d2.Parent);
     }
 }
 

@@ -340,17 +340,38 @@ public class Interface : UnitTestBase
     }
 
     [Fact]
-    public void AddInterfaceType()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("interface foo { fizz : Int }");
+        schema.Add("""
+                   directive @d1 on INTERFACE
+                   directive @d2 on FIELD_DEFINITION
+                   directive @d3(fizz: Int) on ARGUMENT_DEFINITION
+                   interface foo @d1
+                   {
+                       bar(arg: Int @d3(fizz: 4)): [Int] @d2
+                   }
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.Single(foo.Fields);
-        Assert.NotNull(foo.Fields["fizz"]);
-        Assert.Contains(nameof(AddInterfaceType), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var d1 = foo.Directives.NotNull().One();
+        Assert.Equal("d1", d1.Name);
+        Assert.Equal(foo, d1.Parent);
+        var field = foo.Fields["bar"];
+        Assert.NotNull(field);
+        Assert.Equal(foo, field.Parent);
+        var d2 = field.Directives.NotNull().One();
+        Assert.Equal("d2", d2.Name);
+        Assert.Equal(field, d2.Parent);
+        var argument = field.Arguments["arg"];
+        Assert.NotNull(argument);
+        Assert.Equal(field, argument.Parent);
+        Assert.Equal(argument, argument.Type.Parent);
+        var d3 = argument.Directives.NotNull().One();
+        Assert.Equal("d3", d3.Name);
+        Assert.Equal(argument, d3.Parent);
     }
 }

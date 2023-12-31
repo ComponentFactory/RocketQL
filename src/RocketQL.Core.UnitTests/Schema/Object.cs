@@ -320,19 +320,44 @@ public class Object : UnitTestBase
     }
 
     [Fact]
-    public void AddObjectType()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("type foo { fizz : Int buzz : String }");
+        schema.Add("""
+                   directive @d1 on OBJECT
+                   directive @d2 on FIELD_DEFINITION
+                   directive @d3(fizz: Int) on ARGUMENT_DEFINITION
+                   interface first { first: Int }
+                   type foo implements first @d1 
+                   {
+                       bar(arg: Int @d3(fizz: 4)): [Int] @d2
+                       first: Int
+                   }
+                   """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.Fields.Count);
-        Assert.NotNull(foo.Fields["fizz"]);
-        Assert.NotNull(foo.Fields["buzz"]);
-        Assert.Contains(nameof(AddObjectType), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var d1 = foo.Directives.NotNull().One();
+        Assert.Equal("d1", d1.Name);
+        Assert.Equal(foo, d1.Parent);
+        var field = foo.Fields["bar"];
+        Assert.NotNull(field);
+        Assert.Equal(foo, field.Parent);
+        var d2 = field.Directives.NotNull().One();
+        Assert.Equal("d2", d2.Name);
+        Assert.Equal(field, d2.Parent);
+        var argument = field.Arguments["arg"];
+        Assert.NotNull(argument);
+        Assert.Equal(field, argument.Parent);
+        Assert.Equal(argument, argument.Type.Parent);
+        var d3 = argument.Directives.NotNull().One();
+        Assert.Equal("d3", d3.Name);
+        Assert.Equal(argument, d3.Parent);
+        var first = foo.ImplementsInterfaces["first"];
+        Assert.NotNull(first);
+        Assert.Equal(foo, first.Parent);
     }
 }
 

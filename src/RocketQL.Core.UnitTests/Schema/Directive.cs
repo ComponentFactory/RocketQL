@@ -135,16 +135,28 @@ public class Directive : UnitTestBase
     }
 
     [Fact]
-    public void AddDirective()
+    public void ParentLinkage()
     {
         var schema = new Schema();
-        schema.Add("directive @foo on ENUM");
+        schema.Add("""
+                   directive @foo(arg: [Int] @deprecated(reason: "Example")) on ENUM
+                   """);
         schema.Validate();
 
-        var foo = schema.Directives["foo"];
+        var foo = schema.Directives["foo"] as DirectiveDefinition;
         Assert.NotNull(foo);
-        Assert.Equal("foo", foo.Name);
-        Assert.Contains(nameof(AddDirective), foo.Location.Source);
+        Assert.Null(foo.Parent);
+        var argument = foo.Arguments["arg"];
+        Assert.Equal(foo, argument.Parent);
+        var typeList =  argument.Type as TypeList;
+        Assert.NotNull(typeList);
+        Assert.Equal(argument, typeList.Parent);
+        var typeName = typeList.Type as TypeName;
+        Assert.NotNull(typeName);
+        Assert.Equal(typeList, typeName.Parent);
+        var directive = argument.Directives.NotNull().One();
+        Assert.NotNull(directive);
+        Assert.Equal(argument, directive.Parent);
     }
 }
 
