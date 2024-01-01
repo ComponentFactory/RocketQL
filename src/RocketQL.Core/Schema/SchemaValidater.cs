@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using System.Linq;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -57,6 +54,10 @@ public partial class Schema
         {
             objectType.CheckDoubleUnderscore();
             CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
+
+            if (objectType.Fields.Count == 0)
+                throw ValidationException.AtLeastOne(objectType, "field");
+
             VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
             IsValidImplementations(objectType.Fields, 
                                    CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
@@ -67,6 +68,10 @@ public partial class Schema
         {
             interfaceType.CheckDoubleUnderscore();
             CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
+
+            if (interfaceType.Fields.Count == 0)
+                throw ValidationException.AtLeastOne(interfaceType, "field");
+
             VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
             IsValidImplementations(interfaceType.Fields, 
                                    CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
@@ -83,7 +88,11 @@ public partial class Schema
         {
             enumType.CheckDoubleUnderscore();
             CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
-            foreach(var enumValueDefinition in enumType.EnumValues.Values)
+
+            if (enumType.EnumValues.Count == 0)
+                throw ValidationException.AtLeastOne(enumType, "enum value");
+
+            foreach (var enumValueDefinition in enumType.EnumValues.Values)
                 CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE, enumValueDefinition);
         }
 
@@ -91,6 +100,9 @@ public partial class Schema
         {
             inputObjectType.CheckDoubleUnderscore();
             CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
+
+            if (inputObjectType.InputFields.Count == 0)
+                throw ValidationException.AtLeastOne(inputObjectType, "input field");
 
             Queue<InputObjectTypeDefinition> referencedInputObjects = [];
             foreach (var fieldDefinition in inputObjectType.InputFields.Values)

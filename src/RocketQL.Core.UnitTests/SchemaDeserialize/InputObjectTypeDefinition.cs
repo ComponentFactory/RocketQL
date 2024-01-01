@@ -2,10 +2,12 @@
 
 public class InputObjectTypeDefinition : UnitTestBase
 {
-    [Fact]
-    public void Minimum()
+    [Theory]
+    [InlineData("input foo")]
+    [InlineData("input foo { }")]
+    public void Minimum(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("input foo");
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
         Assert.Equal(string.Empty, input.Description);

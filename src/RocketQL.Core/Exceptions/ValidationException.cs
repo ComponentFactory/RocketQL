@@ -25,6 +25,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException UndefinedInterface(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException InterfaceCannotImplmentOwnInterface(SchemaNode node) => new(node.Location, $"Interface '{node.OutputName}' cannnot implement itself.");
     public static ValidationException UndefinedMemberType(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined member type '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException AtLeastOne(SchemaNode node, string target) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' must have at least one {target}.");
     public static ValidationException TypeIsNotAnInterface(SchemaNode node, SchemaNode parentNode, SchemaNode actualNode) => new(node.Location, $"Cannot implement interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' because it is a '{actualNode.OutputElement.ToLower()}'.");
     public static ValidationException TypeIsNotAnObject(SchemaNode node, SchemaNode parentNode, SchemaNode actualNode, string article) => new(node.Location, $"Cannot reference member type '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' because it is {article} {actualNode.OutputElement.ToLower()}.");
     public static ValidationException TypeIsNotAnOutputType(SchemaNode node, SchemaNode parentNode, string errorType) => new(node.Location, $"{parentNode.OutputElement} '{parentNode.OutputName}' has {node.OutputElement.ToLower()} '{node.OutputName}' with type '{errorType}' that is not an output type.");
@@ -45,7 +46,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-
+    
     private static string ExpandNodesOf(SchemaNode?[] extraNodes)
     {
         StringBuilder sb = new StringBuilder();

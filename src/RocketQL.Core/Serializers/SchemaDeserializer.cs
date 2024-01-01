@@ -551,7 +551,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             MandatoryNext();
 
-            do
+            while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
             {
                 var location = _tokenizer.Location;
                 var description = OptionalString();
@@ -568,7 +568,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                                                        ParseDirectivesOptional(),
                                                        location));
 
-            } while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket);
+            } 
 
             _tokenizer.Next();
         }
@@ -585,7 +585,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             MandatoryNext();
 
-            do
+            while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
             {
                 var location = _tokenizer.Location;
                 var description = OptionalString();
@@ -597,8 +597,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                                                        name,
                                                        ParseDirectivesOptional(),
                                                        location));
-
-            } while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket);
+            } 
 
             _tokenizer.Next();
         }
@@ -649,7 +648,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         SyntaxInputValueDefinitionNodeList list = [];
 
-        do
+        while (_tokenizer.TokenKind == DocumentTokenKind.Name || _tokenizer.TokenKind == DocumentTokenKind.StringValue)
         {
             var location = _tokenizer.Location;
             var description = OptionalString();
@@ -664,8 +663,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                                                         ParseDefaultValueOptional(),
                                                         ParseDirectivesOptional(),
                                                         location));
-
-        } while (_tokenizer.TokenKind == DocumentTokenKind.Name || _tokenizer.TokenKind == DocumentTokenKind.StringValue);
+        } 
 
         return list;
     }

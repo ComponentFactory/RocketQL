@@ -10,6 +10,9 @@ public class Object : UnitTestBase
     }
 
     [Theory]
+    // At least one field
+    [InlineData("type foo",                                                     "Object 'foo' must have at least one field.")]
+    [InlineData("type foo {}",                                                  "Object 'foo' must have at least one field.")]
     // Double underscores
     [InlineData("type __foo { fizz : Int }",                                    "Object '__foo' not allowed to start with two underscores.")]
     [InlineData("type foo { __fizz : Int }",                                    "Object 'foo' has field '__fizz' not allowed to start with two underscores.")]
@@ -360,4 +363,3 @@ public class Object : UnitTestBase
         Assert.Equal(foo, first.Parent);
     }
 }
-

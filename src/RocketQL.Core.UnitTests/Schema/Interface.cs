@@ -10,6 +10,9 @@ public class Interface : UnitTestBase
     }
 
     [Theory]
+    // At least one field
+    [InlineData("interface foo",                                                "Interface 'foo' must have at least one field.")]
+    [InlineData("interface foo {}",                                             "Interface 'foo' must have at least one field.")]
     // Double underscores
     [InlineData("interface __foo { fizz : Int }",                               "Interface '__foo' not allowed to start with two underscores.")]
     [InlineData("interface foo { __fizz : Int }",                               "Interface 'foo' has field '__fizz' not allowed to start with two underscores.")]

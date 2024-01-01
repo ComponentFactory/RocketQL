@@ -10,6 +10,9 @@ public class Input : UnitTestBase
     }
 
     [Theory]
+    // At least one field
+    [InlineData("input foo",                                                    "Input object 'foo' must have at least one input field.")]
+    [InlineData("input foo {}",                                                 "Input object 'foo' must have at least one input field.")]
     // Double underscores   
     [InlineData("input __foo { fizz : Int }",                                   "Input object '__foo' not allowed to start with two underscores.")]
     [InlineData("input foo { __fizz : Int }",                                   "Input object 'foo' has field '__fizz' not allowed to start with two underscores.")]

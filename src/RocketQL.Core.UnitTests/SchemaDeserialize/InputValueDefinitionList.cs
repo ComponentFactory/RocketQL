@@ -115,7 +115,7 @@ public class InputValueDefinitionList : UnitTestBase
     }
 
     [Theory]
-    [InlineData("directive @foo (42", DocumentTokenKind.Name, DocumentTokenKind.IntValue)]
+    [InlineData("directive @foo (42", DocumentTokenKind.RightParenthesis, DocumentTokenKind.IntValue)]
     [InlineData("directive @foo (bar 42", DocumentTokenKind.Colon, DocumentTokenKind.IntValue)]
     [InlineData("directive @foo (bar: fizz 42", DocumentTokenKind.RightParenthesis, DocumentTokenKind.IntValue)]
     public void ExpectedTokenNotFound(string text, DocumentTokenKind expected, DocumentTokenKind found)

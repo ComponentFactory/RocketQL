@@ -1,9 +1,13 @@
-﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
+﻿using RocketQL.Core.Base;
+
+namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
 public class EnumTypeDefinition : UnitTestBase
 {
-    [Fact]
-    public void Minimum()
+    [Theory]
+    [InlineData("enum foo")]
+    [InlineData("enum foo { }")]
+    public void Minimum(string schema)
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo");
 

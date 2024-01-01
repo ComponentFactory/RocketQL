@@ -2,22 +2,11 @@
 
 public class ObjectTypeDefinition : UnitTestBase
 {
-    [Fact]
-    public void Minimum()
-    {
-        var documentNode = Serialization.SchemaDeserialize("type foo");
-
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
-        Assert.Equal(string.Empty, type.Description);
-        Assert.Equal("foo", type.Name);
-        type.ImplementsInterfaces.NotNull().Count(0);
-        type.Directives.NotNull().Count(0);
-        type.Fields.NotNull().Count(0);
-    }
-
     [Theory]
     [InlineData("\"bar\" type foo")]
     [InlineData("\"\"\"bar\"\"\" type foo")]
+    [InlineData("\"bar\" type foo { }")]
+    [InlineData("\"\"\"bar\"\"\" type foo { }")]
     public void Description(string schema)
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
