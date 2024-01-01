@@ -91,74 +91,92 @@ public class Enum : UnitTestBase
 
     [Theory]
     [InlineData("""
+                type Query { query: Int }
                 directive @example on ENUM
                 enum foo @example { FIRST }                     
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example on ENUM_VALUE
                 enum foo { FIRST @example }                     
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM
                 enum foo @example { FIRST }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM_VALUE
                 enum foo { FIRST @example }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int arg1: String arg2: Float) on ENUM
                 enum foo @example { FIRST }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int arg1: String arg2: Float) on ENUM_VALUE
                 enum foo { FIRST @example }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM
                 enum foo @example(arg0: 5) { FIRST }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM_VALUE
                 enum foo { FIRST @example(arg0: 5) }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM
                 enum foo @example(arg0: null) { FIRST }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on ENUM_VALUE
                 enum foo { FIRST @example(arg0: null) }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) on ENUM
                 enum foo @example(arg0: 5) { FIRST }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) on ENUM_VALUE
                 enum foo { FIRST @example(arg0: 5) }                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on ENUM
                 enum foo @example(arg0: 5) { FIRST }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on ENUM_VALUE
                 enum foo { FIRST @example(arg0: 5) }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on ENUM
                 enum foo @example(arg0: 5) @example(arg0: 6) @example(arg0: 7) { FIRST }               
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on ENUM_VALUE
                 enum foo { FIRST @example(arg0: 5) @example(arg0: 6) @example(arg0: 7) }               
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int! arg1: String! arg2: Float!) on ENUM
                 enum foo @example(arg0: 5, arg1: "hello" arg2: 3.14) { FIRST }                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int! arg1: String! arg2: Float!) on ENUM_VALUE
                 enum foo { FIRST @example(arg0: 5, arg1: "hello" arg2: 3.14) }                    
                 """)]
@@ -179,6 +197,7 @@ public class Enum : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @d1 on ENUM
                    directive @d2 on ENUM_VALUE
                    enum foo @d1 

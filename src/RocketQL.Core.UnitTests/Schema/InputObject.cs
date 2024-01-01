@@ -122,26 +122,32 @@ public class Input : UnitTestBase
 
     [Theory]
     [InlineData("""                
+                type Query { query: Int }
                 input foo { fizz: foo }
                 """)]
     [InlineData("""                
+                type Query { query: Int }
                 input foo { fizz: [foo!]! }
                 """)]
     [InlineData("""    
+                type Query { query: Int }
                 input foo { fizz: first! }
                 input first { first: foo }
                 """)]
     [InlineData("""                
+                type Query { query: Int }
                 input foo { fizz: first! }
                 input first { first: [foo!]! }
                 """)]
     [InlineData("""                
+                type Query { query: Int }
                 input foo { fizz: first! }
                 input first { first: second! }
                 input second { second: third! }
                 input third { third: foo }
                 """)]
     [InlineData("""                
+                type Query { query: Int }
                 input foo { fizz: first! }
                 input first { first: [second]! }
                 input second { second: [third!] }
@@ -163,6 +169,7 @@ public class Input : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @d1 on INPUT_OBJECT
                    directive @d2 on INPUT_FIELD_DEFINITION
                    input foo @d1 

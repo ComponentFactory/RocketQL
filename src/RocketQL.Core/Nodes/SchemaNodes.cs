@@ -18,8 +18,17 @@ public abstract class SchemaNode
 {
     public required Location Location { get; init; }
     public SchemaNode? Parent { get; set; }
-    public virtual string OutputElement => string.Empty;
+    public virtual string OutputElement => "Schema";
     public virtual string OutputName => string.Empty;
+}
+
+public class SchemaRoot : SchemaNode
+{
+    public required string Description { get; set; }
+    public required Directives Directives { get; set; }
+    public required OperationTypeDefinition? Query { get; set; }
+    public required OperationTypeDefinition? Mutation { get; set; }
+    public required OperationTypeDefinition? Subscription { get; set; }
 }
 
 public class SchemaDefinition : SchemaNode

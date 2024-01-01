@@ -115,7 +115,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
 
         SyntaxOperationTypeDefinitionNodeList list = [];
 
-        do
+        while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
         {
             var operationLocation = _tokenizer.Location;
             MandatoryToken(DocumentTokenKind.Name);
@@ -126,8 +126,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             MandatoryNext();
 
             list.Add(new SyntaxOperationTypeDefinitionNode(operationType, namedType, operationLocation));
-
-        } while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket);
+        } 
 
         _tokenizer.Next();
         return new SyntaxSchemaDefinitionNode(UseTopLevelDescription(), directives, list, schemaLocation);

@@ -81,46 +81,55 @@ public class Union : UnitTestBase
 
     [Theory]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example on UNION
                 union foo @example = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int) on UNION
                 union foo @example = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: String arg2: Float) on UNION
                 union foo @example = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int) on UNION
                 union foo @example(arg0: 5) = fizz                  
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int) on UNION
                 union foo @example(arg0: null) = fizz                  
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int!) on UNION
                 union foo @example(arg0: 5) = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int!) repeatable on UNION
                 union foo @example(arg0: 5) = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int!) repeatable on UNION
                 union foo @example(arg0: 5) @example(arg0: 6) @example(arg0: 7) = fizz                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type fizz { buzz: Int }
                 directive @example(arg0: Int! arg1: String! arg2: Float!) on UNION
                 union foo @example(arg0: 5, arg1: "hello" arg2: 3.14) = fizz                   
@@ -141,6 +150,7 @@ public class Union : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    type foo { first: Int }
                    union bar = foo
                    """);
@@ -158,6 +168,7 @@ public class Union : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @d1 on UNION
                    type fizz { b1: Int }
                    union foo @d1 = fizz

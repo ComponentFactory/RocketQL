@@ -66,38 +66,47 @@ public class Scalar : UnitTestBase
 
     [Theory]
     [InlineData("""
+                type Query { query: Int }
                 directive @example on SCALAR
                 scalar foo @example                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on SCALAR
                 scalar foo @example                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int arg1: String arg2: Float) on SCALAR
                 scalar foo @example                    
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on SCALAR
                 scalar foo @example(arg0: 5)                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int) on SCALAR
                 scalar foo @example(arg0: null)                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) on SCALAR
                 scalar foo @example(arg0: 5)                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on SCALAR
                 scalar foo @example(arg0: 5)                   
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int!) repeatable on SCALAR
                 scalar foo @example(arg0: 5) @example(arg0: 6) @example(arg0: 7)               
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 directive @example(arg0: Int! arg1: String! arg2: Float!) on SCALAR
                 scalar foo @example(arg0: 5, arg1: "hello" arg2: 3.14)                   
                 """)]
@@ -117,6 +126,7 @@ public class Scalar : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    scalar foo
                    type bar1 { first: foo }
                    type bar2 { first(arg: foo): Int }
@@ -137,6 +147,7 @@ public class Scalar : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    scalar foo @specifiedBy(url: "Example")
                    """);
         schema.Validate();

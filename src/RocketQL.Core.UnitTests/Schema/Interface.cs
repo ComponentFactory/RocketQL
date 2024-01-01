@@ -226,69 +226,84 @@ public class Interface : UnitTestBase
 
     [Theory]
     [InlineData("""
+                type Query { query: Int }
                 interface foo { fizz(arg1: String! @deprecated): String }            
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { first: Int }
                 interface foo implements first { bar: Int first: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface second { second: Int }
                 interface first { first: Int }
                 interface foo implements first & second { bar: Int first: Int second: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface second { second: Int }
                 interface first implements second { first: Int second: Int }
                 interface foo implements first & second { bar: Int first: Int second: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface third { third: Int }
                 interface second implements third { second: Int third: Int }
                 interface first implements second & third { first: Int second: Int third: Int }
                 interface foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface third { third: Int }
                 interface second implements third { second: Int third: Int }
                 interface first implements third { first: Int third: Int }
                 interface foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface third { third: Int }
                 interface second { second: Int }
                 interface first implements second & third { first: Int second: Int third: Int }
                 interface foo implements first & second & third { bar: Int first: Int second: Int third: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar(args1: Int, args2: String!): Int }
                 interface foo implements first { bar(args1: Int, args2: String!): Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar(args1: Int): Int }
                 interface foo implements first { bar(args1: Int, args2: String): Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar: Int }
                 interface foo implements first { bar: Int buzz(args1: Int!): Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar: Int }
                 interface foo implements first { bar: Int! }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar: [Int] }
                 interface foo implements first { bar: [Int]! }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar: [Int] }
                 interface foo implements first { bar: [Int!] }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface first { bar: [Int] }
                 interface foo implements first { bar: [Int!]! }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type aaa { aaa: Int }
                 type bbb { bbb: Int }
                 union ab = aaa | bbb
@@ -296,6 +311,7 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: aaa }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 type aaa { aaa: Int }
                 type bbb { bbb: Int }
                 union ab = aaa | bbb
@@ -303,12 +319,14 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: bbb }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface second { second: Int }
                 type buzz implements second { second: Int }
                 interface first { bar: second }
                 interface foo implements first { bar: buzz second: Int }
                 """)]
     [InlineData("""
+                type Query { query: Int }
                 interface second { second: Int }
                 interface buzz implements second { second: Int }
                 interface first { bar: second }
@@ -330,6 +348,7 @@ public class Interface : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    interface foo { first: Int }
                    type bar implements foo { first: Int }
                    """);
@@ -347,6 +366,7 @@ public class Interface : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @d1 on INTERFACE
                    directive @d2 on FIELD_DEFINITION
                    directive @d3(fizz: Int) on ARGUMENT_DEFINITION

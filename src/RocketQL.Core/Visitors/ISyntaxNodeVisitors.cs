@@ -33,7 +33,7 @@ public interface ISyntaxNodeVisitors
                     VisitInputObjectTypeDefinition(inputObjectType);
                     break;
                 default:
-                    throw ValidationException.UnrecognizedType(node);
+                    throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString());
             }
         }
     }

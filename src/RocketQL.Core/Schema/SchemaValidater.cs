@@ -132,6 +132,41 @@ public partial class Schema
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
+            if (schemaDefinition.Operations.Count == 0)
+                throw ValidationException.SchemaDefinitionEmpty(schemaDefinition);
+
+            schemaDefinition.Operations.TryGetValue(OperationType.QUERY, out var query);
+            schemaDefinition.Operations.TryGetValue(OperationType.MUTATION, out var mutation);
+            schemaDefinition.Operations.TryGetValue(OperationType.SUBSCRIPTION, out var subscription);
+
+            if (query is null)
+                throw ValidationException.SchemaDefinitionMissingQuery(schemaDefinition);
+
+            if (query.Definition is not ObjectTypeDefinition)
+                throw ValidationException.SchemaOperationTypeNotObject(query, query.Definition!);
+
+            if (mutation is not null)
+            {
+                if (mutation.Definition is not ObjectTypeDefinition)
+                    throw ValidationException.SchemaOperationTypeNotObject(mutation, mutation.Definition!);
+    
+                if (mutation.Definition == query.Definition)
+                    throw ValidationException.SchemaOperationsNotUnique(query, mutation);
+            }
+
+            if (subscription is not null)
+            {
+                if (subscription.Definition is not ObjectTypeDefinition)
+                    throw ValidationException.SchemaOperationTypeNotObject(subscription, subscription.Definition!);
+
+                if (subscription.Definition == query.Definition)
+                    throw ValidationException.SchemaOperationsNotUnique(query, subscription);
+            }
+
+            if ((mutation is not null) && (subscription is not null) && (mutation.Definition == subscription.Definition))
+                throw ValidationException.SchemaOperationsNotUnique(mutation, subscription);
+
+            CheckDirectiveUsage(schemaDefinition.Directives, schemaDefinition, DirectiveLocations.SCHEMA);
         }
 
         private static void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,

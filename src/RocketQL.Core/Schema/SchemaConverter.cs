@@ -167,7 +167,7 @@ public partial class Schema
             foreach (var operationType in operationTypes)
             {
                 if (nodes.ContainsKey(operationType.Operation))
-                    throw ValidationException.OperationTypeAlreadyDefined(operationType.Location, operationType.Operation);
+                    throw ValidationException.SchemaDefinitionMultipleOperation(operationType.Location, operationType.Operation);
 
                 nodes.Add(operationType.Operation, new()
                 {

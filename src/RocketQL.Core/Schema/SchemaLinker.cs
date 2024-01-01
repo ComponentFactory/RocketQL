@@ -59,7 +59,6 @@ public partial class Schema
             foreach (var enumValue in enumType.EnumValues.Values)
             {
                 enumValue.Parent = enumType;
-
                 InterlinkDirectives(enumValue.Directives, enumValue, enumType);
             }
         }
@@ -72,6 +71,15 @@ public partial class Schema
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
+            InterlinkDirectives(schemaDefinition.Directives, schemaDefinition);
+
+            foreach(var operationTypeDefinition in schemaDefinition.Operations.Values)
+            {
+                if (!_schema.Types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
+                    throw ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition);
+
+                operationTypeDefinition.Definition = typeDefinition;
+            }
         }
 
         private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)

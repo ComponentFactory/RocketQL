@@ -108,8 +108,14 @@ public class Directive : UnitTestBase
     }
 
     [Theory]
-    [InlineData("type example { field: String @deprecated }")]
-    [InlineData("""type example { field: String @deprecated(reason: "Example") } """)]
+    [InlineData("""
+                type Query { query: Int }
+                type example { field: String @deprecated }
+                """)]
+    [InlineData("""
+                type Query { query: Int }
+                type example { field: String @deprecated(reason: "Example") } 
+                """)]
     public void PredefinedDirectives(string schemaText)
     {
         var schema = new Schema();
@@ -122,6 +128,7 @@ public class Directive : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @foo on SCALAR
                    scalar bar @foo
                    """);
@@ -139,6 +146,7 @@ public class Directive : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("""
+                   type Query { query: Int }
                    directive @foo(arg: [Int] @deprecated(reason: "Example")) on ENUM
                    """);
         schema.Validate();

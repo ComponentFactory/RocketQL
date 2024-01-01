@@ -1,17 +1,22 @@
-﻿namespace RocketQL.Core.Exceptions;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Exceptions;
 
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
     public static ValidationException UnrecognizedType(Location location, string name) => new(location, $"Unrecognized type '{name}' encountered.");
-    public static ValidationException UnrecognizedType(SyntaxNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
     public static ValidationException UnrecognizedType(SchemaNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
-    public static ValidationException SchemaDefinitionAlreadyDefined(Location location) => new(location, $"Schema definition is already defined.");
-    public static ValidationException SchemaDefinitionEmpty(Location location) => new(location, "Schema definition does not define any operations.");
-    public static ValidationException SchemaOperationAlreadyDefined(Location location, OperationType operation) => new(location, $"Schema definition already defines the {operation} operation.");
-    public static ValidationException SchemaDefinitionMissingQuery(Location location) => new(location, $"Schema definition missing mandatory Query operation.");
-    public static ValidationException SchemaOperationsNotUnique(Location location, string op1, string op2, string type) => new(location, $"Schema {op1} and {op2} operations cannot have same '{type}' type.");
-    public static ValidationException TypeNotDefinedForSchemaOperation(Location location, OperationType operation, string type) => new(location, $"Type '{type}' not defined for the schema operation {operation}.");
-    public static ValidationException OperationTypeAlreadyDefined(Location location, OperationType operationType) => new(location, $"Type already defined for '{operationType}' operation.");
+    public static ValidationException SchemaDefinitionAlreadyDefined(Location location) => new(location, $"Schema is already defined.");
+    public static ValidationException SchemaDefinitionEmpty(SchemaNode node) => new(node.Location, "Schema definition must have at least one operation type.");
+    public static ValidationException SchemaDefinitionMissingQuery(SchemaNode node) => new(node.Location, $"Schema definition missing mandatory query operation.");
+    public static ValidationException SchemaDefinitionMultipleOperation(Location location, OperationType operation) => new(location, $"Schema defines the {operation.ToString().ToLower()} operation more than once.");
+    public static ValidationException SchemaOperationsNotUnique(OperationTypeDefinition left, OperationTypeDefinition right) => new(right.Location, $"Schema operations {left.Operation.ToString().ToLower()} and {right.Operation.ToString().ToLower()} cannot have the same '{left.NamedType}' type.");
+    public static ValidationException SchemaOperationTypeNotObject(OperationTypeDefinition node, SchemaNode type) => new(node.Location, $"Schema operation {node.Operation.ToString().ToLower()} '{node.NamedType}' has type {type.OutputElement.ToLower()} instead of object type.");
+    public static ValidationException AutoSchemaQueryMissing() => new(new Location(), "Cannot auto generate schema because 'Query' type missing.");
+    public static ValidationException AutoSchemaOperationNotObject(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' is type {node.OutputElement.ToLower()} instead of object type.");
+    public static ValidationException AutoSchemaOperationReferenced(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' type is referenced from other types instead of being a top level type.");
+
+    public static ValidationException TypeNotDefinedForSchemaOperation(OperationTypeDefinition node) => new(node.Location, $"Type '{node.NamedType}' not defined for the schema operation {node.Operation.ToString().ToLower()}.");
     public static ValidationException NameDoubleUnderscore(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' not allowed to start with two underscores.");
     public static ValidationException NameAlreadyDefined(Location location, string target, string name) => new(location, $"{target} '{name}' is already defined.");
     public static ValidationException EnumValueAlreadyDefined(Location location, string enumValue, string enumTypeName) => new(location, $"Enum '{enumTypeName}' has duplicate definition of value '{enumValue}'.");    
@@ -20,7 +25,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException ListEntryDoubleUnderscore(Location location, string list, string entryName, string entryType, string name) => new(location, $"{list} '{entryName}' has {entryType.ToLower()} '{name}' not allowed to start with two underscores.");
     public static ValidationException ListEntryDoubleUnderscore(Location location, string type,  string typeName, string list, string entryName, string entryType, string name) => new(location, $"{type} '{typeName}' has {list.ToLower()} '{entryName}' with {entryType.ToLower()} '{name}' not allowed to start with two underscores.");
     public static ValidationException UndefinedTypeForListEntry(Location location, string type, string listNodeElement, string listNodeName, SchemaNode parentNode) => new(location, $"Undefined type '{type}' for {listNodeElement.ToLower()} '{listNodeName}' of {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException UndefinedDirective(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
+    public static ValidationException UndefinedDirective(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()}{OptionalQuotedName(parentNode)}.");
     public static ValidationException UndefinedDirective(SchemaNode node, string parentNodeElement, string parentNodeName, SchemaNode grandParentNode) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNodeElement.ToLower()} '{parentNodeName}' of {grandParentNode.OutputElement.ToLower()} '{grandParentNode.OutputName}'.");
     public static ValidationException UndefinedInterface(SchemaNode node, SchemaNode parentNode) => new(node.Location, $"Undefined interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException InterfaceCannotImplmentOwnInterface(SchemaNode node) => new(node.Location, $"Interface '{node.OutputName}' cannnot implement itself.");
@@ -47,6 +52,13 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     
+    private static string OptionalQuotedName(SchemaNode node)
+    {
+        if (string.IsNullOrWhiteSpace(node.OutputName))
+            return string.Empty;
+        else
+            return $" '{node.OutputName}'";
+    }
     private static string ExpandNodesOf(SchemaNode?[] extraNodes)
     {
         StringBuilder sb = new StringBuilder();

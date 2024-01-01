@@ -3,6 +3,13 @@
 public class Schema : UnitTestBase
 {
     [Theory]
+    [InlineData("schema { }")]
+    public void Minimum(string schema)
+    {
+        Serialization.SchemaDeserialize(schema);
+    }
+
+    [Theory]
     [InlineData("schema { query: FizzBuzz }", OperationType.QUERY)]
     [InlineData("schema { mutation: FizzBuzz }", OperationType.MUTATION)]
     [InlineData("schema { subscription: FizzBuzz }", OperationType.SUBSCRIPTION)]

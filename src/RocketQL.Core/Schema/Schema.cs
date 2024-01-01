@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Data.SqlTypes;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -11,6 +13,7 @@ public partial class Schema
     private SchemaLinker Linker => _schemaLink ??= new SchemaLinker(this);
     private SchemaValidater Validater => _schemaValidate ??= new SchemaValidater(this);
 
+    private SchemaRoot? Root { get; set; }
     private SchemaDefinitions Schemas { get; init; } = [];
     public DirectiveDefinitions Directives { get; init; } = [];
     public TypeDefinitions Types { get; init; } = [];
@@ -78,12 +81,72 @@ public partial class Schema
             Converter.Visit();
             Linker.Visit();
             Validater.Visit();
+            ValidateSchema();
             IsValidated = true;
         }
         catch
         {
             Clean();
             throw;
+        }
+    }
+
+    private void ValidateSchema()
+    {
+        if (Schemas.Count == 1)
+        {
+            Root = new SchemaRoot()
+            {
+                Description = Schemas[0].Description,
+                Directives = Schemas[0].Directives,
+                Query = Schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
+                Mutation = Schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
+                Subscription = Schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
+                Location = Schemas[0].Location,
+            };
+        }
+        else
+        {
+            Types.TryGetValue("Query", out var queryTypeDefinition);
+            Types.TryGetValue("Mutation", out var mutationTypeDefinition);
+            Types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
+
+            if (queryTypeDefinition is null)
+                throw ValidationException.AutoSchemaQueryMissing();
+
+            if (queryTypeDefinition is not ObjectTypeDefinition)
+                throw ValidationException.AutoSchemaOperationNotObject(queryTypeDefinition, "Query");
+
+            if (!AllReferencesWithinType(queryTypeDefinition))
+                throw ValidationException.AutoSchemaOperationReferenced(queryTypeDefinition, "Query");
+
+            if (mutationTypeDefinition is not null)
+            {
+                if (mutationTypeDefinition is not ObjectTypeDefinition)
+                    throw ValidationException.AutoSchemaOperationNotObject(mutationTypeDefinition, "Mutation");
+
+                if (!AllReferencesWithinType(mutationTypeDefinition))
+                    throw ValidationException.AutoSchemaOperationReferenced(mutationTypeDefinition, "Mutation");
+            }
+
+            if (subscriptionTypeDefinition is not null)
+            {
+                if (subscriptionTypeDefinition is not ObjectTypeDefinition)
+                    throw ValidationException.AutoSchemaOperationNotObject(subscriptionTypeDefinition, "Subscription");
+
+                if (!AllReferencesWithinType(subscriptionTypeDefinition))
+                    throw ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription");
+            }
+
+            Root = new SchemaRoot()
+            {
+                Description = string.Empty,
+                Directives = [],
+                Query = OperationTypeFromObjectType(queryTypeDefinition, OperationType.QUERY),
+                Mutation = OperationTypeFromObjectType(mutationTypeDefinition, OperationType.MUTATION),
+                Subscription = OperationTypeFromObjectType(subscriptionTypeDefinition, OperationType.SUBSCRIPTION),
+                Location = queryTypeDefinition.Location,
+            };
         }
     }
 
@@ -159,123 +222,38 @@ public partial class Schema
             Location = new()
         });
     }
-
-    private void ValidateSchema()
+    private static bool AllReferencesWithinType(TypeDefinition root)
     {
-        //    // Schema definition can be omitted
-        //    if (Definition.IsDefault)
-        //    {
-        //        // Look for types with names that match the operation, but the type cannot be referenced by any other types
-        //        if (Types.TryGetValue("Query", out var queryTypeDefinition) && (queryTypeDefinition.UsedByTypes.Count == 0))
-        //        {
-        //            Definition.Query = new OperationTypeDefinition()
-        //            {
-        //                Operation = OperationType.QUERY,
-        //                Definition = queryTypeDefinition,
-        //                Location = queryTypeDefinition.Location,
-        //            };
-        //        }
+        foreach (var reference in root.References)
+        {
+            var checkReference = reference;
+            while (checkReference.Parent != null)
+                checkReference = checkReference.Parent;
 
-        //        if (Types.TryGetValue("Mutation", out var mutationTypeDefinition) && (mutationTypeDefinition.UsedByTypes.Count == 0))
-        //        {
-        //            Definition.Mutation = new OperationTypeDefinition()
-        //            {
-        //                Operation = OperationType.MUTATION,
-        //                Definition = mutationTypeDefinition,
-        //                Location = mutationTypeDefinition.Location,
-        //            };
-        //        }
+            if (checkReference != root)
+                return false;
+        }
 
-        //        if (Types.TryGetValue("Subscription", out var subscriptionTypeDefinition) && (subscriptionTypeDefinition.UsedByTypes.Count == 0))
-        //        {
-        //            Definition.Subscription = new OperationTypeDefinition()
-        //            {
-        //                Operation = OperationType.SUBSCRIPTION,
-        //                Definition = subscriptionTypeDefinition,
-        //                Location = subscriptionTypeDefinition.Location,
-        //            };
-        //        }
-
-        //        // Schema must always define the Query root operation
-        //        if (Definition.Query is null)
-        //            throw ValidationException.SchemaDefinitionMissingQuery(Definition.Location);
-
-        //        // Each operation must have a different type
-        //        if (Definition.Mutation is not null)
-        //        {
-        //            if (Definition.Query.Definition == Definition.Mutation.Definition)
-        //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Mutation", Definition.Query.Definition.Name);
-        //        }
-
-        //        if (Definition.Subscription is not null)
-        //        {
-        //            if (Definition.Query.Definition == Definition.Subscription.Definition)
-        //                throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Query", "Subscription", Definition.Query.Definition.Name);
-
-        //            if (Definition.Mutation is not null)
-        //            {
-        //                if (Definition.Mutation.Definition == Definition.Subscription.Definition)
-        //                    throw ValidationException.SchemaOperationsNotUnique(Definition.Location, "Mutation", "Subscription", Definition.Mutation.Definition.Name);
-        //            }
-        //        }
-        //    }
+        return true;
     }
 
+    private static OperationTypeDefinition? OperationTypeFromObjectType(TypeDefinition? typeDefinition, OperationType operationType)
+    {
+        if (typeDefinition is null)
+            return null;
 
-    //private bool Validate(SyntaxSchemaDefinitionNode schemaNode, bool errors = false) 
-    //{ 
-    //    // Only allowed a single schema definition
-    //    if (!Definition.IsDefault)
-    //        throw ValidationException.SchemaDefinitionAlreadyDefined(schemaNode.Location);
-
-    //    // Cannot have an empty schema definition
-    //    if (schemaNode.OperationTypes.Count == 0)
-    //        throw ValidationException.SchemaDefinitionEmpty(schemaNode.Location);
-
-    //    // Resolve the operations
-    //    Dictionary<OperationType, OperationTypeDefinition> operations = [];
-    //    foreach (var operation in schemaNode.OperationTypes)
-    //    {
-    //        // Cannot define the same operation twice
-    //        if (operations.ContainsKey(operation.Operation))
-    //            throw ValidationException.SchemaOperationAlreadyDefined(operation.Location, operation.Operation);
-
-    //        // The object type might not have been defined yet
-    //        if (!ObjectTypes.TryGetValue(operation.NamedType, out var typeDefinition))
-    //        {
-    //            if (errors)
-    //                _validationErrors.Add(ValidationException.TypeNotDefinedForSchemaOperation(operation.Location, operation.Operation, operation.NamedType));
-
-    //            return false;
-    //        }
-    //    }
-
-    //    // Must define the query operation
-    //    if (!operations.TryGetValue(OperationType.QUERY, out var queryType))
-    //        throw ValidationException.SchemaDefinitionMissingQuery(schemaNode.Location);
-
-    //    // Other operations are optional
-    //    operations.TryGetValue(OperationType.MUTATION, out var mutatationType);
-    //    operations.TryGetValue(OperationType.SUBSCRIPTION, out var subscriptionType);
-
-    //    // Resolve all the directives
-    //    // TODO
-
-    //    Definition = new()
-    //    {
-    //        Description = schemaNode.Description,
-    //        Directives = [], // TODO
-    //        Query = queryType,
-    //        Mutation = mutatationType,
-    //        Subscription = subscriptionType,
-    //        Location = schemaNode.Location,
-    //    };
-
-    //    return true;
-    //}
+        return new OperationTypeDefinition()
+        {
+            Definition = typeDefinition,
+            Operation = operationType,
+            NamedType = typeDefinition.Name,
+            Location = typeDefinition.Location,
+        };
+    }
 
     private void Clean()
     {
+        Root = null;
         Schemas.Clear();
         Directives.Clear();
         Types.Clear();
