@@ -13,7 +13,6 @@ public class Directive : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         Assert.Single(directive.Directives);
         SyntaxDirectiveNode directiveNode = directive.Directives[0];
@@ -32,7 +31,6 @@ public class Directive : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
@@ -54,7 +52,6 @@ public class Directive : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);
@@ -82,7 +79,6 @@ public class Directive : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(directive.DefaultValue);
         directive.Directives.NotNull().Count(2);
         SyntaxDirectiveNode directiveNode1 = directive.Directives[0];

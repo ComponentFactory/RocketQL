@@ -76,9 +76,10 @@ public record class SyntaxFieldSelectionNode(string Alias, string Name, SyntaxOb
 public record class SyntaxFragmentSpreadSelectionNode(string Name, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxSelectionNode(Location);
 public record class SyntaxInlineFragmentSelectionNode(string TypeCondition, SyntaxDirectiveNodeList Directives, SyntaxSelectionDefinitionNodeList SelectionSet, Location Location) : SyntaxSelectionNode(Location);
 
-public abstract record class SyntaxTypeNode(bool NonNull, Location Location) : SyntaxNode(Location);
-public record class SyntaxTypeNameNode(string Name, bool NonNull, Location Location) : SyntaxTypeNode(NonNull, Location);
-public record class SyntaxTypeListNode(SyntaxTypeNode Type, bool NonNull, Location Location) : SyntaxTypeNode(NonNull, Location);
+public abstract record class SyntaxTypeNode(Location Location) : SyntaxNode(Location);
+public record class SyntaxTypeNameNode(string Name, Location Location) : SyntaxTypeNode(Location);
+public record class SyntaxTypeNonNullNode(SyntaxTypeNode Type, Location Location) : SyntaxTypeNode(Location);
+public record class SyntaxTypeListNode(SyntaxTypeNode Type, Location Location) : SyntaxTypeNode(Location);
 
 public class SyntaxNodeList : List<SyntaxNode>
 {

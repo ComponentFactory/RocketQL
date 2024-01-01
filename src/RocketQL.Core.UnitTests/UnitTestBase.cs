@@ -2,7 +2,36 @@
 
 public class UnitTestBase
 {
-    public void SchemaValidationException(string schemaTest, string message)
+    protected static void CheckTypeName(SyntaxTypeNode node, string typeName, bool nonNullWrapper)
+    {
+        if (nonNullWrapper)
+        {
+            Assert.IsType<SyntaxTypeNonNullNode>(node);
+            node = ((SyntaxTypeNonNullNode)node).Type;
+            Assert.NotNull(node);
+        }
+
+        Assert.IsType<SyntaxTypeNameNode>(node);
+        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)node;
+        Assert.Equal(typeName, nameNode.Name);
+    }
+
+    protected static SyntaxTypeNode CheckTypeList(SyntaxTypeNode node, bool nonNullWrapper)
+    {
+        if (nonNullWrapper)
+        {
+            Assert.IsType<SyntaxTypeNonNullNode>(node);
+            node = ((SyntaxTypeNonNullNode)node).Type;
+            Assert.NotNull(node);
+        }
+
+        Assert.IsType<SyntaxTypeListNode>(node);
+        node = ((SyntaxTypeListNode)node).Type;
+        Assert.NotNull(node);
+        return node;
+    }
+
+    protected static void SchemaValidationException(string schemaTest, string message)
     {
         try
         {
@@ -20,7 +49,7 @@ public class UnitTestBase
         }
     }
 
-    public void SchemaValidationException(string schemaTest1, string schemaTest2, string message)
+    protected static void SchemaValidationException(string schemaTest1, string schemaTest2, string message)
     {
         try
         {

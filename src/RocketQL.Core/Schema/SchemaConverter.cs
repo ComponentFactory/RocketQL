@@ -242,13 +242,16 @@ public partial class Schema
                 {
                     Name = nameNode.Name,
                     Definition = null,
-                    NonNull = nameNode.NonNull,
                     Location = nameNode.Location,
+                },
+                SyntaxTypeNonNullNode nonNullNode => new TypeNonNull()
+                {
+                    Type = ConvertTypeNode(nonNullNode.Type),
+                    Location = nonNullNode.Location,
                 },
                 SyntaxTypeListNode listNode => new TypeList()
                 {
                     Type = ConvertTypeNode(listNode.Type),
-                    NonNull = listNode.NonNull,
                     Location = listNode.Location,
                 },
                 _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)

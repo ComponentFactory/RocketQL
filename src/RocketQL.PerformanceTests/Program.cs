@@ -18,8 +18,8 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<DeserializerBenchmark>();
             BenchmarkRunner.Run<TokenizerBenchmark>();
+            BenchmarkRunner.Run<DeserializerBenchmark>();
             BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
@@ -312,6 +312,14 @@ namespace DotNetQL.PerformanceTests
         public void RocketQL_GitHub_Parse()
         {
             RQL.Serializers.Serialization.SchemaDeserialize(_github);
+        }
+
+        [Benchmark]
+        public void RocketQL_GitHub_Validate()
+        {
+            var schema = new RQL.Base.Schema();
+            schema.Add(_github);
+            schema.Validate();
         }
 
         [Benchmark]

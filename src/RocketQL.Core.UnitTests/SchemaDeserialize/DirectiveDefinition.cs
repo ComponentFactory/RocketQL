@@ -119,7 +119,6 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(argument.DefaultValue);
     }
 
@@ -140,7 +139,6 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.NotNull(argument.DefaultValue);
         FloatValueNode floatValueNode = argument.DefaultValue.IsType<FloatValueNode>();
         Assert.Equal("3.14", floatValueNode.Value);
@@ -163,7 +161,6 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
         Assert.Equal("fizz", nameNode.Name);
-        Assert.False(nameNode.NonNull);
         Assert.Null(argument.DefaultValue);
         SyntaxDirectiveNode directiveNode = argument.Directives.NotNull().One();
         Assert.Equal("hello", directiveNode.Name);

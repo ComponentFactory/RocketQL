@@ -804,8 +804,12 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                     var location = _tokenizer.Location;
                     var name = _tokenizer.TokenValue;
                     MandatoryNext();
+                    SyntaxTypeNode ret = new SyntaxTypeNameNode(name, location);
 
-                    return new SyntaxTypeNameNode(name, OptionalToken(DocumentTokenKind.Exclamation), location);
+                    if (OptionalToken(DocumentTokenKind.Exclamation))
+                        ret = new SyntaxTypeNonNullNode(ret, location);
+
+                    return ret;
                 }
             case DocumentTokenKind.LeftSquareBracket:
                 {
@@ -813,8 +817,12 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                     MandatoryNext();
                     var listType = ParseType();
                     MandatoryTokenNext(DocumentTokenKind.RightSquareBracket);
+                    SyntaxTypeNode ret = new SyntaxTypeListNode(listType, location);
 
-                    return new SyntaxTypeListNode(listType, OptionalToken(DocumentTokenKind.Exclamation), location);
+                    if (OptionalToken(DocumentTokenKind.Exclamation))
+                        ret = new SyntaxTypeNonNullNode(ret, location);
+
+                    return ret;
                 }
             default:
                 throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind.ToString());

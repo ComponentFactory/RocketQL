@@ -17,7 +17,6 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
         field.Directives.NotNull().Count(0);
         SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
-        Assert.False(fieldType.NonNull);
     }
 
     [Fact]
@@ -36,7 +35,6 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
         Assert.Equal("buzz", directive2.Name);
         SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
-        Assert.False(fieldType.NonNull);
     }
 
     [Theory]

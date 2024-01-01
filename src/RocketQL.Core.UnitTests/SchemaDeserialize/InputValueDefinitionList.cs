@@ -12,10 +12,7 @@ public class InputValueDefinitionList : UnitTestBase
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<SyntaxTypeNameNode>(argument.Type);
-        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
-        Assert.Equal("buzz", nameNode.Name);
-        Assert.Equal(nonNull, nameNode.NonNull);
+        CheckTypeName(argument.Type, "buzz", nonNull);
     }
 
     [Theory]
@@ -30,13 +27,8 @@ public class InputValueDefinitionList : UnitTestBase
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<SyntaxTypeListNode>(argument.Type);
-        SyntaxTypeListNode listNode = (SyntaxTypeListNode)argument.Type;
-        Assert.Equal(listNonNull, listNode.NonNull);
-        Assert.IsType<SyntaxTypeNameNode>(listNode.Type);
-        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)listNode.Type;
-        Assert.Equal("buzz", nameNode.Name);
-        Assert.Equal(typeNonNull, nameNode.NonNull);
+        var contained = CheckTypeList(argument.Type, listNonNull);
+        CheckTypeName(contained, "buzz", typeNonNull);
     }
 
     [Theory]
@@ -55,16 +47,9 @@ public class InputValueDefinitionList : UnitTestBase
         var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
-        Assert.IsType<SyntaxTypeListNode>(argument.Type);
-        SyntaxTypeListNode listNodeOuter = (SyntaxTypeListNode)argument.Type;
-        Assert.Equal(outerNonNull, listNodeOuter.NonNull);
-        Assert.IsType<SyntaxTypeListNode>(listNodeOuter.Type);
-        SyntaxTypeListNode listNodeInner = (SyntaxTypeListNode)listNodeOuter.Type;
-        Assert.Equal(innerNonNull, listNodeInner.NonNull);
-        Assert.IsType<SyntaxTypeNameNode>(listNodeInner.Type);
-        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)listNodeInner.Type;
-        Assert.Equal("buzz", nameNode.Name);
-        Assert.Equal(typeNonNull, nameNode.NonNull);
+        var contained1 = CheckTypeList(argument.Type, outerNonNull);
+        var contained2 = CheckTypeList(contained1, innerNonNull);
+        CheckTypeName(contained2, "buzz", typeNonNull);
     }
 
     [Theory]
@@ -83,7 +68,6 @@ public class InputValueDefinitionList : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(argument1.Type);
         SyntaxTypeNameNode nameNode1 = (SyntaxTypeNameNode)argument1.Type;
         Assert.Equal("buzz", nameNode1.Name);
-        Assert.False(nameNode1.NonNull);
 
         var argument2 = arguments[1];
         Assert.Equal(string.Empty, argument2.Description);
@@ -91,7 +75,6 @@ public class InputValueDefinitionList : UnitTestBase
         Assert.IsType<SyntaxTypeNameNode>(argument2.Type);
         SyntaxTypeNameNode nameNode2 = (SyntaxTypeNameNode)argument2.Type;
         Assert.Equal("world", nameNode2.Name);
-        Assert.False(nameNode2.NonNull);
     }
 
     [Theory]

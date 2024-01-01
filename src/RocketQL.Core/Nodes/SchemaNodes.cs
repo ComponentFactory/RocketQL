@@ -176,11 +176,9 @@ public class InputValueDefinition : SchemaNode
 
 public abstract class TypeNode : SchemaNode
 {
-    public required bool NonNull { get; init; }
     public abstract TypeDefinition? Definition { get; set; }
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
-    public abstract TypeNode Clone(bool? nonNull = null);
 }
 
 public class TypeName : TypeNode
@@ -189,17 +187,14 @@ public class TypeName : TypeNode
     public required override TypeDefinition? Definition { get; set; }
     public override bool IsInputType => Definition!.IsInputType;
     public override bool IsOutputType => Definition!.IsOutputType;
-    
-    public override TypeNode Clone(bool? nonNull = null)
-    {
-        return new TypeName()
-        {
-            NonNull = nonNull ?? NonNull,
-            Name = Name,
-            Definition = Definition,
-            Location = Location,
-        };
-    }
+}
+
+public class TypeNonNull : TypeNode
+{
+    public required TypeNode Type { get; init; }
+    public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
+    public override bool IsInputType => Type.IsInputType;
+    public override bool IsOutputType => Type.IsOutputType;
 }
 
 public class TypeList : TypeNode
@@ -208,15 +203,4 @@ public class TypeList : TypeNode
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
-
-    public override TypeNode Clone(bool? nonNull = null)
-    {
-        return new TypeList()
-        {
-            NonNull = nonNull ?? NonNull,
-            Type = Type.Clone(),
-            Definition = Definition,
-            Location = Location,
-        };
-    }
 }

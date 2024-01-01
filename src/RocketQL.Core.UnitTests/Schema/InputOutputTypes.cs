@@ -122,21 +122,35 @@ public class InputOutputTypes : UnitTestBase
         Assert.True(typeDefinition.IsInputType == input);
         Assert.True(typeDefinition.IsOutputType == output);
 
-        var listNode = new TypeList()
+        TypeNode node = new TypeName()
         {
-            Type = new TypeName()
-            {
-                Name = "",
-                NonNull = innerNonNull,
-                Definition = typeDefinition,
-                Location = new()
-            },
-            NonNull = outerNonNull,
+            Name = "",
+            Definition = typeDefinition,
             Location = new()
         };
 
-        Assert.True(listNode.IsInputType == input);
-        Assert.True(listNode.IsOutputType == output);
+        if (innerNonNull)
+            node = new TypeNonNull()
+            {
+                Type = node,
+                Location = new()
+            };
+
+        node = new TypeList()
+        {
+            Type = node,
+            Location = new()
+        };
+
+        if (outerNonNull)
+            node = new TypeNonNull()
+            { 
+                Type = node,
+                Location = new() 
+            };
+
+        Assert.True(node.IsInputType == input);
+        Assert.True(node.IsOutputType == output);
     }
 }
 

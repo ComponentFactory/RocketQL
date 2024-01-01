@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Serializers;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Serializers;
 
 public ref struct RequestDeserializer
 {
@@ -389,8 +391,12 @@ public ref struct RequestDeserializer
                     var location = _tokenizer.Location;
                     var name = _tokenizer.TokenValue;
                     MandatoryNext();
+                    SyntaxTypeNode ret = new SyntaxTypeNameNode(name, location);
+                    
+                    if (OptionalToken(DocumentTokenKind.Exclamation))
+                        ret = new SyntaxTypeNonNullNode(ret, location);
 
-                    return new SyntaxTypeNameNode(name, OptionalToken(DocumentTokenKind.Exclamation), location);
+                    return ret;
                 }
             case DocumentTokenKind.LeftSquareBracket:
                 {
@@ -398,8 +404,12 @@ public ref struct RequestDeserializer
                     MandatoryNext();
                     var listType = ParseType();
                     MandatoryTokenNext(DocumentTokenKind.RightSquareBracket);
+                    SyntaxTypeNode ret = new SyntaxTypeListNode(listType, location);
 
-                    return new SyntaxTypeListNode(listType, OptionalToken(DocumentTokenKind.Exclamation), location);
+                    if (OptionalToken(DocumentTokenKind.Exclamation))
+                        ret = new SyntaxTypeNonNullNode(ret, location);
+
+                    return ret;
                 }
             default:
                 throw SyntaxException.TypeMustBeNameOrList(_tokenizer.Location, _tokenizer.TokenKind.ToString());

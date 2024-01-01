@@ -121,10 +121,10 @@ public partial class Schema
                 if (!fieldDefinition.Type.Definition.IsInputType)
                     throw ValidationException.TypeIsNotAnInputType(fieldDefinition, inputObjectType, fieldDefinition.Type.Definition.OutputName);
 
-                if (fieldDefinition.Type.NonNull && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "deprecated").Any())
+                if ((fieldDefinition.Type is TypeNonNull) && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "deprecated").Any())
                     throw ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType);
 
-                if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                if ((fieldDefinition.Type is TypeNonNull fieldNonNull) && ((fieldNonNull.Type is TypeName) && (fieldNonNull.Type.Definition is InputObjectTypeDefinition referenceInputObject)))
                     referencedInputObjects.Enqueue(referenceInputObject);
 
                 CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.INPUT_FIELD_DEFINITION, fieldDefinition);
@@ -258,7 +258,7 @@ public partial class Schema
                 var checkedArguments = directive.Arguments.ToDictionary();
                 foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
                 {
-                    if (argumentDefinition.Type.NonNull && argumentDefinition.DefaultValue is null)
+                    if (argumentDefinition.Type is TypeNonNull && argumentDefinition.DefaultValue is null)
                     {
                         if (!checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
                             throw ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent);
@@ -311,7 +311,7 @@ public partial class Schema
                     if (!argumentDefinition.Type.Definition.IsInputType)
                         throw ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName);
 
-                    if (isObject && argumentDefinition.Type.NonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
+                    if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
                         throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
 
                     CheckDirectiveUsage(argumentDefinition.Directives, parentNode, DirectiveLocations.ARGUMENT_DEFINITION, fieldDefinition, argumentDefinition);
@@ -396,7 +396,7 @@ public partial class Schema
                 }
 
                 foreach(var nonInterfaceArgument in nonInterface.Values)
-                    if (nonInterfaceArgument.Type.NonNull)
+                    if (nonInterfaceArgument.Type is TypeNonNull)
                         throw ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name);
 
                 if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
@@ -406,9 +406,9 @@ public partial class Schema
 
         private static bool IsValidImplementationFieldType(TypeNode fieldType, TypeNode implementedType)
         {
-            if (fieldType.NonNull)
+            if (fieldType is TypeNonNull nonNullField)
             {
-                return IsValidImplementationFieldType(fieldType.Clone(nonNull: false), implementedType.Clone(nonNull: false));
+                return IsValidImplementationFieldType(nonNullField.Type, (implementedType is TypeNonNull noNullImplement) ? noNullImplement.Type : implementedType);
             }
             else if ((fieldType is TypeList fieldTypeList) && (implementedType is TypeList implementedTypeList)) 
             {
@@ -449,13 +449,15 @@ public partial class Schema
         {
             if ((left is TypeName leftTypeName) && (right is TypeName rightTypeName))
             {
-                return (leftTypeName.NonNull == rightTypeName.NonNull) &&
-                        (leftTypeName.Definition == rightTypeName.Definition);
+                return (leftTypeName.Definition == rightTypeName.Definition);
+            }
+            else if ((left is TypeNonNull leftTypeNonNull) && (right is TypeNonNull rightTypeNonNull))
+            {
+                return  IsSameType(leftTypeNonNull.Type, rightTypeNonNull.Type);
             }
             else if ((left is TypeList leftTypeList) && (right is TypeList rightTypeList))
             {
-                return (leftTypeList.NonNull == rightTypeList.NonNull) &&
-                        IsSameType(leftTypeList.Type, rightTypeList.Type);
+                return IsSameType(leftTypeList.Type, rightTypeList.Type);
             }
 
             return false;
@@ -473,7 +475,7 @@ public partial class Schema
 
                     foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
                     {
-                        if ((fieldDefinition.Type.NonNull && (fieldDefinition.Type is TypeName)) && (fieldDefinition.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                        if ((fieldDefinition.Type is TypeNonNull nonNullField) && (nonNullField.Type is TypeName) && (nonNullField.Type.Definition is InputObjectTypeDefinition referenceInputObject))
                         {
                             if (!checkedInputObjects.Contains(referenceInputObject))
                                 referencedInputObjects.Enqueue(referenceInputObject);

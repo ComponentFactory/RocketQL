@@ -142,7 +142,23 @@ public partial class Schema
         }
     }
 
-    public void AddPredefinedDirectives()
+    public void Reset()
+    {
+        _syntaxNodes.Clear();
+        Clean();
+    }
+
+
+    private void Clean()
+    {
+        Root = null;
+        Schemas.Clear();
+        Directives.Clear();
+        Types.Clear();
+        IsValidated = false;
+    }
+
+    private void AddPredefinedDirectives()
     {
         Directives.Add("deprecated", new DirectiveDefinition()
         {
@@ -158,7 +174,6 @@ public partial class Schema
                                 Type = new TypeName()
                                 {
                                     Name = "String",
-                                    NonNull = false,
                                     Definition = null,
                                     Location = new()
                                 },
@@ -187,11 +202,14 @@ public partial class Schema
                          {
                              Description = string.Empty,
                              Name = "url",
-                             Type = new TypeName()
+                             Type = new TypeNonNull()
                              {
-                                 Name = "String",
-                                 NonNull = true,
-                                 Definition = null,
+                                 Type =    new TypeName()                          
+                                 {
+                                     Name = "String",
+                                     Definition = null,
+                                     Location = new()
+                                 },
                                  Location = new()
                              },
                              DefaultValue = null,
@@ -206,7 +224,7 @@ public partial class Schema
         });
     }
 
-    public void AddPredefinedScalars()
+    private void AddPredefinedScalars()
     {
         foreach (string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
             Types.Add(scalar, new ScalarTypeDefinition()
@@ -218,6 +236,7 @@ public partial class Schema
      
             });
     }
+
     private static bool AllReferencesWithinType(TypeDefinition root)
     {
         foreach (var reference in root.References)
@@ -245,14 +264,5 @@ public partial class Schema
             NamedType = typeDefinition.Name,
             Location = typeDefinition.Location,
         };
-    }
-
-    private void Clean()
-    {
-        Root = null;
-        Schemas.Clear();
-        Directives.Clear();
-        Types.Clear();
-        IsValidated = false;
     }
 }

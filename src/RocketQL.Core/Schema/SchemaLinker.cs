@@ -148,6 +148,8 @@ public partial class Schema
 
             if (typeLocation is TypeList typeList)
                 InterlinkTypeNode(typeList.Type, parentNode, rootNode, typeList);
+            if (typeLocation is TypeNonNull typeNonNull)
+                InterlinkTypeNode(typeNonNull.Type, parentNode, rootNode, typeNonNull);
             else if (typeLocation is TypeName typeName)
             {
                 if (!_schema.Types.TryGetValue(typeName.Name, out var type))
