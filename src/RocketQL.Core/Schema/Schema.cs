@@ -142,12 +142,18 @@ public partial class Schema
         }
     }
 
+    public string Print()
+    {
+        var printer = new SchemaPrinter(this);
+        printer.Visit();
+        return printer.ToString();
+    }
+
     public void Reset()
     {
         _syntaxNodes.Clear();
         Clean();
     }
-
 
     private void Clean()
     {

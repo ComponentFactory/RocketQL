@@ -11,7 +11,6 @@
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
-		Location populated in all exceptions
 		Output as text the schema (optional output of built-in directives and scalars)
 
 		Allow extend syntax nodes

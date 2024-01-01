@@ -46,6 +46,7 @@ public class UnitTestBase
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
             Assert.Single(validation.Locations);
+            Assert.NotNull(ex.Source);
         }
     }
 
@@ -65,6 +66,7 @@ public class UnitTestBase
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
             Assert.Single(validation.Locations);
+            Assert.NotNull(ex.Source);
         }
     }
 }
