@@ -1,6 +1,4 @@
-﻿using RocketQL.Core.Base;
-
-namespace RocketQL.Core.UnitTests.SchemaDeserialize;
+﻿namespace RocketQL.Core.UnitTests.SchemaDeserialize;
 
 public class EnumTypeDefinition : UnitTestBase
 {

@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.UnitTests.SchemaValidation;
+﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
 public class InputOutputTypes : UnitTestBase
 {

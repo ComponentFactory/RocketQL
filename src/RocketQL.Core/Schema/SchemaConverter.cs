@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Enumerations;
-using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {

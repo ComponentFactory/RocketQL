@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-
-namespace RocketQL.Core.UnitTests.SchemaValidation;
+﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
 public class Scalar : UnitTestBase
 {

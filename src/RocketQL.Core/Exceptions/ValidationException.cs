@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Exceptions;
+﻿namespace RocketQL.Core.Exceptions;
 
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
