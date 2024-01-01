@@ -5,6 +5,9 @@ namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
+    private SchemaConverter? _schemaConvert = null;
+    private SchemaConverter Converter => _schemaConvert ??= new SchemaConverter(this);
+
     private class SchemaConverter(Schema schema) : ISyntaxNodeVisitors
     {
         private readonly Schema _schema = schema;

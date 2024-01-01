@@ -4,6 +4,9 @@ namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
+    private SchemaLinker? _schemaLink = null;
+    private SchemaLinker Linker => _schemaLink ??= new SchemaLinker(this);
+
     private class SchemaLinker(Schema schema) : ISchemaNodeVisitors
     {
         private readonly Schema _schema = schema;

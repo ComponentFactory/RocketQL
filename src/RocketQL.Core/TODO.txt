@@ -7,12 +7,9 @@
 		// TO INVESTIGATE
 		Do we need this? Add parent references so you can walk up chain starting from anywhere
 
-		Add full validation of 
-			schema
-			directives
-				// DefaultValue definition matches the type
-				// Usage value matched the definintion type
-
+		directives
+			// DefaultValue definition matches the type
+			// Usage value matched the definintion type
 
 		Make non-null a wrapper and not a property
 		Location populated in all exceptions

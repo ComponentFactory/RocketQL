@@ -5,15 +5,8 @@ namespace RocketQL.Core.Base;
 public partial class Schema
 {
     private readonly SyntaxNodeList _syntaxNodes = [];
-    private SchemaConverter? _schemaConvert = null;
-    private SchemaLinker? _schemaLink = null;
-    private SchemaValidater? _schemaValidate = null;
 
-    private SchemaConverter Converter => _schemaConvert ??= new SchemaConverter(this);
-    private SchemaLinker Linker => _schemaLink ??= new SchemaLinker(this);
-    private SchemaValidater Validater => _schemaValidate ??= new SchemaValidater(this);
-
-    private SchemaRoot? Root { get; set; }
+    public SchemaRoot? Root { get; set; }
     private SchemaDefinitions Schemas { get; init; } = [];
     public DirectiveDefinitions Directives { get; init; } = [];
     public TypeDefinitions Types { get; init; } = [];
@@ -30,6 +23,18 @@ public partial class Schema
     public void Add(ReadOnlySpan<char> schema, string source)
     {
         Add(Serialization.SchemaDeserialize(schema, source));
+    }
+
+    public void Add(SyntaxNode node)
+    {
+        _syntaxNodes.Add(node);
+        IsValidated = false;
+    }
+
+    public void Add(IEnumerable<SyntaxNode> nodes)
+    {
+        _syntaxNodes.AddRange(nodes);
+        IsValidated = false;
     }
 
     public void Add(SyntaxSchemaNode schema)
@@ -59,25 +64,14 @@ public partial class Schema
         }
     }
 
-    public void Add(SyntaxNode node)
-    {
-        _syntaxNodes.Add(node); 
-        IsValidated = false;
-    }
-
-    public void Add(IEnumerable<SyntaxNode> nodes)
-    {
-        _syntaxNodes.AddRange(nodes);
-        IsValidated = false;
-    }
-
     public void Validate()
     {
         Clean();
 
         try
         {
-            AddPredefined();
+            AddPredefinedDirectives();
+            AddPredefinedScalars();
             Converter.Visit();
             Linker.Visit();
             Validater.Visit();
@@ -150,24 +144,15 @@ public partial class Schema
         }
     }
 
-    public void AddPredefined()
+    public void AddPredefinedDirectives()
     {
-        foreach(string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
-            Types.Add(scalar, new ScalarTypeDefinition()
-            {
-                Description = string.Empty,
-                Name = scalar,
-                Directives = [],
-                Location = new()
-            });
-
         Directives.Add("deprecated", new DirectiveDefinition()
         {
             Description = string.Empty,
             Name = "deprecated",
             Repeatable = false,
-            Arguments = new() 
-            { 
+            Arguments = new()
+            {
                 { "reason", new InputValueDefinition()
                             {
                                 Description = string.Empty,
@@ -183,7 +168,7 @@ public partial class Schema
                                 Directives = [],
                                 Location = new(),
                                 ElementUsage = "Argument",
-                            } 
+                            }
                 }
             },
             DirectiveLocations = DirectiveLocations.FIELD_DEFINITION |
@@ -200,7 +185,7 @@ public partial class Schema
             Repeatable = false,
             Arguments = new()
             {
-                { "url", new InputValueDefinition() 
+                { "url", new InputValueDefinition()
                          {
                              Description = string.Empty,
                              Name = "url",
@@ -221,6 +206,19 @@ public partial class Schema
             DirectiveLocations = DirectiveLocations.SCALAR,
             Location = new()
         });
+    }
+
+    public void AddPredefinedScalars()
+    {
+        foreach (string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
+            Types.Add(scalar, new ScalarTypeDefinition()
+            {
+                Description = string.Empty,
+                Name = scalar,
+                Directives = [],
+                Location = new()
+     
+            });
     }
     private static bool AllReferencesWithinType(TypeDefinition root)
     {

@@ -2,6 +2,9 @@
 
 public partial class Schema
 {
+    private SchemaValidater? _schemaValidate = null;
+    private SchemaValidater Validater => _schemaValidate ??= new SchemaValidater(this);
+
     private class SchemaValidater(Schema schema) : ISchemaNodeVisitors
     {
         private readonly Schema _schema = schema;
