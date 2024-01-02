@@ -1,0 +1,70 @@
+﻿schema @directiveAll
+{
+    query: typeAll
+}
+
+type typeAll implements interface1 & interface2 @directiveAll
+{
+    one: Int
+    two: Int @directiveAll
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+interface interface1
+{
+    one: Int
+}
+
+interface interface2
+{
+    two: Int
+}
+
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+    one: Int
+    two: Int @directiveAll
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+    name: String
+    age: Int
+    alive: Boolean
+}
+
+input inputAll @directiveAll
+{
+    one: Int
+    two: Int = 5 @directiveAll
+    four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+enum enumAll @directiveAll
+{
+    FIRST @directiveAll
+    SECOND
+    THIRD
+}
+
+scalar scalarAll @directiveAll
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | TYPE_SYSTEM_DRECTIVE_LOCATIONS
+

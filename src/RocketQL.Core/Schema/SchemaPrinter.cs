@@ -1,18 +1,33 @@
 ﻿using RocketQL.Core.Nodes;
-using System.Xml;
 
 namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
+    private static SchemaPrintOptions _defaultPrintOptions = new();
+
+    public string Print()
+    {
+        return Print(_defaultPrintOptions);
+    }
+
+    public string Print(SchemaPrintOptions options)
+    {
+        var printer = new SchemaPrinter(this);
+        printer.Visit(options);
+        return printer.ToString();
+    }
+
     private class SchemaPrinter(Schema schema) : ISchemaNodeVisitors
     {
         private readonly Schema _schema = schema;
         private readonly StringBuilder _builder = new();
-        private int _indent = 0;
+        private SchemaPrintOptions _options = _defaultPrintOptions;
+        private int _indent;
 
-        public void Visit()
+        public void Visit(SchemaPrintOptions options)
         {
+            _options = options;
             ISchemaNodeVisitors visitor = this;
             visitor.Visit(_schema.Schemas);
             visitor.Visit(_schema.Types.Values.Where(t => t is ObjectTypeDefinition));
@@ -26,6 +41,9 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
+            if (directiveDefinition.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(directiveDefinition.Description);
             StartLine();
             Print($"directive @{directiveDefinition.Name}");
@@ -91,6 +109,9 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
+            if (scalarType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(scalarType.Description);
             StartLine();
             Print($"scalar {scalarType.Name}");
@@ -101,6 +122,9 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
+            if (objectType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(objectType.Description);
             StartLine();
             Print($"type {objectType.Name}");
@@ -187,6 +211,9 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
+            if (interfaceType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(interfaceType.Description);
             StartLine();
             Print($"interface {interfaceType.Name}");
@@ -274,6 +301,9 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
+            if (unionType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(unionType.Description);
             StartLine();
             Print($"union {unionType.Name}");
@@ -300,6 +330,9 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
+            if (enumType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(enumType.Description);
             StartLine();
             Print($"enum {enumType.Name}");
@@ -332,6 +365,9 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
+            if (inputObjectType.IsPredefined && !_options.PrintPredefined)
+                return;
+
             PrintDescription(inputObjectType.Description);
             StartLine();
             Print($"input {inputObjectType.Name}");
@@ -394,9 +430,9 @@ public partial class Schema
             return _builder.ToString();
         }
 
-        private static bool IsDescriptionEmpty(string description)
+        private bool IsDescriptionEmpty(string description)
         {
-            return string.IsNullOrEmpty(description);
+            return !_options.PrintDescriptions || string.IsNullOrEmpty(description);
         }
 
         private static bool IsDescriptionMultiline(string description)
@@ -526,7 +562,7 @@ public partial class Schema
 
         private void StartIndent() => _indent++;
         private void EndIndent() => _indent--;
-        private void StartLine() => _builder.Append(new string(' ', _indent * 4));
+        private void StartLine() => _builder.Append(new string(' ', _indent * _options.Indent));
         private void EndLine() => _builder.AppendLine("");
         private void Print(string text) => _builder.Append(text);
         private void PrintBlankLine() => PrintLine("");

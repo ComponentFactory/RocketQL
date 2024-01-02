@@ -45,6 +45,7 @@ public class DirectiveDefinition : SchemaNode
     public required InputValueDefinitions Arguments { get; init; }
     public required bool Repeatable { get; init; }
     public required DirectiveLocations DirectiveLocations { get; init; }
+    public bool IsPredefined { get; init; }
     public override string OutputElement => "Directive";
     public override string OutputName => Name;
     public readonly List<SchemaNode> References = [];
@@ -55,6 +56,7 @@ public abstract class TypeDefinition : SchemaNode
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
+    public bool IsPredefined { get; init; }
     public override string OutputName => Name;
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }

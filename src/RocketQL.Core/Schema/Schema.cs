@@ -142,13 +142,6 @@ public partial class Schema
         }
     }
 
-    public string Print()
-    {
-        var printer = new SchemaPrinter(this);
-        printer.Visit();
-        return printer.ToString();
-    }
-
     public void Reset()
     {
         _syntaxNodes.Clear();
@@ -194,7 +187,8 @@ public partial class Schema
                                  DirectiveLocations.ARGUMENT_DEFINITION |
                                  DirectiveLocations.INPUT_FIELD_DEFINITION |
                                  DirectiveLocations.ENUM_VALUE,
-            Location = new()
+            Location = new(),
+            IsPredefined = true
         });
 
         Directives.Add("specifiedBy", new DirectiveDefinition()
@@ -226,7 +220,8 @@ public partial class Schema
                 }
             },
             DirectiveLocations = DirectiveLocations.SCALAR,
-            Location = new()
+            Location = new(),
+            IsPredefined = true
         });
     }
 
@@ -238,8 +233,8 @@ public partial class Schema
                 Description = string.Empty,
                 Name = scalar,
                 Directives = [],
-                Location = new()
-     
+                Location = new(),
+                IsPredefined = true
             });
     }
 
