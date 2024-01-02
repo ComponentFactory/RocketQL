@@ -1,0 +1,135 @@
+﻿"schema description"
+schema @directiveAll
+{
+    query: typeAll
+}
+
+"""
+Query multiline comment that should 
+be output over several lines when printee
+"""
+type typeAll implements interface1 & interface2 @directiveAll
+{
+    "one description"
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+interface interface1
+{
+    one: Int
+}
+
+interface interface2
+{
+    two: Int
+}
+
+"""
+Interface multiline comment that should 
+be output over several lines when printee
+"""
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+    "one description"
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+"Example union"
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+    name: String
+    age: Int
+    alive: Boolean
+}
+
+"""
+Input multiline comment that should 
+be output over several lines when printee
+"""
+input inputAll @directiveAll
+{
+    "one description"
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int = 5 @directiveAll
+    
+    four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+"Example enumeration"
+enum enumAll @directiveAll
+{
+    "numero 1"
+    FIRST @directiveAll
+    
+    "numero 2"
+    SECOND
+    
+    "numero 3"
+    THIRD
+}
+
+scalar Int
+
+scalar Float
+
+scalar String
+
+scalar Boolean
+
+scalar ID
+
+"Scalar union"
+scalar scalarAll @directiveAll
+
+directive @deprecated
+(
+    reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+directive @specifiedBy
+(
+    url: String!
+) on SCALAR
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | TYPE_SYSTEM_DRECTIVE_LOCATIONS
+
