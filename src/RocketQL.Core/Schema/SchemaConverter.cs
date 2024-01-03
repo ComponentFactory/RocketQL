@@ -144,6 +144,11 @@ public partial class Schema
 
             if (!(typeDefinition is ScalarTypeDefinition scalarType))
                 throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Scalar");
+
+            if (extendScalarType.Directives.Count == 0)
+                throw ValidationException.ExtendScalarDirectiveMandatory(extendScalarType.Location, extendScalarType.Name);
+
+            scalarType.Directives.AddRange(ConvertDirectives(extendScalarType.Directives));
         }
 
         private static FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)

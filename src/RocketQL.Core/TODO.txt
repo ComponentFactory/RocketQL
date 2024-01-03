@@ -11,10 +11,7 @@
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
-		Use Definition instead of looking up types in validatoib
-
 		Allow extend syntax nodes
-			scalar
 			enum
 			union
 			object
@@ -22,8 +19,8 @@
 			input object
 			schema
 
-		Apply extend changes and validate
 		All kitchen sink to sceham validation Files unit test now that extend is added
+		Add basic schema with extends and the check the validated printed output has no extends
 		Allow multiple exceptions but some are catastrophic
 
 	Request

@@ -53,7 +53,8 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    
+    public static ValidationException ExtendScalarDirectiveMandatory(Location location, string name) => new(location, $"Extend scalar '{name}' must specify at least one directive.");
+
     private static string OptionalQuotedName(SchemaNode node)
     {
         if (string.IsNullOrWhiteSpace(node.OutputName))
