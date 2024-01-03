@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using RocketQL.Core.Nodes;
+using System.Xml;
 
 namespace RocketQL.Core.Base;
 
@@ -148,6 +149,76 @@ public partial class Schema
 
     private void AddBuiltInDirectives()
     {
+        Directives.Add("include", new DirectiveDefinition()
+        {
+            Description = "Directs the executor to include this field or fragment only when the `if` argument is true",
+            Name = "include",
+            Repeatable = false,
+            Arguments = new()
+            {
+                { "if", new InputValueDefinition()
+                        {
+                            Description = "Included when true.",
+                            Name = "if",
+                            Type = new TypeNonNull()
+                            {
+                                Type = new TypeName()
+                                {
+                                    Name = "Boolean",
+                                    Definition = null,
+                                    Location = new()
+                                },
+                                 Location = new()
+                            },
+                            DefaultValue = null,
+                            Directives = [],
+                            Location = new(),
+                            ElementUsage = "Argument",
+                        }
+                }
+            },
+            DirectiveLocations = DirectiveLocations.FIELD |
+                                 DirectiveLocations.FRAGMENT_SPREAD |
+                                 DirectiveLocations.INLINE_FRAGMENT,
+            Location = new(),
+            IsBuiltIn = true
+        });
+
+        Directives.Add("skip", new DirectiveDefinition()
+        {
+            Description = "Directs the executor to skip this field or fragment when the `if` argument is true.",
+            Name = "skip",
+            Repeatable = false,
+            Arguments = new()
+            {
+                { "if", new InputValueDefinition()
+                        {
+                            Description = "Skipped when true.",
+                            Name = "if",
+                            Type = new TypeNonNull()
+                            {
+                                Type = new TypeName()
+                                {
+                                    Name = "Boolean",
+                                    Definition = null,
+                                    Location = new()
+                                },
+                                 Location = new()
+                            },
+                            DefaultValue = null,
+                            Directives = [],
+                            Location = new(),
+                            ElementUsage = "Argument",
+                        }
+                }
+            },
+            DirectiveLocations = DirectiveLocations.FIELD |
+                                 DirectiveLocations.FRAGMENT_SPREAD |
+                                 DirectiveLocations.INLINE_FRAGMENT,
+            Location = new(),
+            IsBuiltIn = true
+        });
+
         Directives.Add("deprecated", new DirectiveDefinition()
         {
             Description = "Marks the field, argument, input field or enum value as deprecated.",
@@ -193,7 +264,7 @@ public partial class Schema
                              Name = "url",
                              Type = new TypeNonNull()
                              {
-                                 Type =    new TypeName()                          
+                                 Type = new TypeName()                          
                                  {
                                      Name = "String",
                                      Definition = null,
