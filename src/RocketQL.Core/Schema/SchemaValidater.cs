@@ -246,17 +246,17 @@ public partial class Schema
             HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
             {
-                if (!_schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
+                if (directive.Definition is null)
                     throw ValidationException.UnrecognizedType(directive);
 
-                if ((directiveDefinition.DirectiveLocations & directiveLocations) != directiveLocations)
+                if ((directive.Definition.DirectiveLocations & directiveLocations) != directiveLocations)
                     throw ValidationException.DirectiveNotAllowedLocation(directive, parentNode, grandParent, greatGrandParent);
 
-                if (checkedDirectives.Contains(directiveDefinition) && !directiveDefinition.Repeatable)
+                if (checkedDirectives.Contains(directive.Definition) && !directive.Definition.Repeatable)
                     throw ValidationException.DirectiveNotRepeatable(directive, parentNode, grandParent, greatGrandParent);
 
                 var checkedArguments = directive.Arguments.ToDictionary();
-                foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
+                foreach (var argumentDefinition in directive.Definition.Arguments.Values)
                 {
                     if (argumentDefinition.Type is TypeNonNull && argumentDefinition.DefaultValue is null)
                     {
@@ -276,7 +276,7 @@ public partial class Schema
                             throw ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode, grandParent, greatGrandParent);
                 }
 
-                checkedDirectives.Add(directiveDefinition);
+                checkedDirectives.Add(directive.Definition);
             }
         }
 
@@ -327,11 +327,8 @@ public partial class Schema
                 if (!isObject && (interfaceEntry.Name == parentNode.OutputName))
                     throw ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry);
 
-                if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
-                    throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
-
-                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
+                if (interfaceEntry.Definition is not InterfaceTypeDefinition interfaceTypeDefinition)
+                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, interfaceEntry.Definition!);
 
                 interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
             }
@@ -353,18 +350,12 @@ public partial class Schema
             {
                 processed.Add(checkInterface.Name);
 
-                if (!_schema.Types.TryGetValue(checkInterface.Name, out TypeDefinition? typeDefinition))
-                    throw ValidationException.UndefinedInterface(checkInterface, parentNode);
-
-                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    throw ValidationException.TypeIsNotAnInterface(checkInterface, parentNode, typeDefinition);
-
-                foreach (var implementsInterface in interfaceTypeDefinition.ImplementsInterfaces.Values)
+                foreach (var implementsInterface in checkInterface.ImplementsInterfaces.Values)
                 {
                     if (!objectImplements.ContainsKey(implementsInterface.Name))
                         throw ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name);
 
-                    CheckTypeImplementsInterface(objectImplements, processed, interfaceTypeDefinition, checkInterface, rootNode);
+                    CheckTypeImplementsInterface(objectImplements, processed, checkInterface, checkInterface, rootNode);
                 }
             }
         }

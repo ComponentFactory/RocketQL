@@ -5,14 +5,25 @@
 
 	Schema
 		// TO INVESTIGATE
-		Do we need this? Add parent references so you can walk up chain starting from anywhere
+		Do we need this?
 
 		directives
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
+		Use Definition instead of looking up types in validatoib
+
 		Allow extend syntax nodes
+			schema
+			enum
+			input object
+			interface
+			object
+			scalar
+			union
+
 		Apply extend changes and validate
+
 		All kitchen sink to sceham validation Files unit test now that extend is added
 
 	Request

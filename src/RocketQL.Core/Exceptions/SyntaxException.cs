@@ -25,7 +25,7 @@ public class SyntaxException(Location location, string message) : RocketExceptio
     public static SyntaxException TokenNotAllowedHere(Location location, string found) => new(location, $"Token '{found}' not allowed in this position.");
     public static SyntaxException SelectionSetInvalidToken(Location location, string found) => new(location, $"Found token '{found}' instead of either a name or spread operator inside the selection set.");
     public static SyntaxException FragmentNameCannotBeOn(Location location) => new(location, "Fragment name cannot be the keyword 'on'.");
-    public static SyntaxException ExtendSchemaMissingAtLeastOne(Location location) => new(location, "Extend scheme must specify at least one directive or operation types.");
+    public static SyntaxException ExtendSchemaMissingAtLeastOne(Location location) => new(location, "Extend scheme must specify at least one directive or operation type.");
     public static SyntaxException ExtendObjectTypeMissingAtLeastOne(Location location) => new(location, "Extend object must specify at least one of interface, directive or field set.");
     public static SyntaxException ExtendInterfaceTypeMissingAtLeastOne(Location location) => new(location, "Extend interface must specify at least one of interface, directive or field set.");
     public static SyntaxException ExtendUnionTypeMissingAtLeastOne(Location location) => new(location, "Extend union must specify at least one of directive or member types.");
