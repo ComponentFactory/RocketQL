@@ -11,8 +11,6 @@
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
-		Output as text the schema (optional output of built-in directives and scalars)
-
 		Allow extend syntax nodes
 		Apply extend changes and validate
 		All kitchen sink to sceham validation Files unit test now that extend is added

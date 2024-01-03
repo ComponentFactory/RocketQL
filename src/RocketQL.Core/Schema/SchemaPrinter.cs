@@ -23,11 +23,14 @@ public partial class Schema
         private readonly Schema _schema = schema;
         private readonly StringBuilder _builder = new();
         private SchemaPrintOptions _options = _defaultPrintOptions;
-        private int _indent;
+        private char _indentCharacter = ' ';
+        private int _indents;
 
         public void Visit(SchemaPrintOptions options)
         {
             _options = options;
+            _indentCharacter = _options.IndentCharacter == PrintIndentCharacter.Space ? ' ' : '\t';
+
             ISchemaNodeVisitors visitor = this;
             visitor.Visit(_schema.Schemas);
             visitor.Visit(_schema.Types.Values.Where(t => t is ObjectTypeDefinition));
@@ -93,13 +96,17 @@ public partial class Schema
             DirectiveLocations[] locations = Enum.GetValues<DirectiveLocations>();
             foreach(var location in locations)
             {
-                if ((directiveDefinition.DirectiveLocations & location) == location)
+                var locationName = Enum.GetName(location)!;
+                if (!locationName.Contains("_LOCATIONS"))
                 {
-                    if (!firstLocation)
-                        Print(" | ");
+                    if ((directiveDefinition.DirectiveLocations & location) == location)
+                    {
+                        if (!firstLocation)
+                            Print(" | ");
 
-                    Print(Enum.GetName<DirectiveLocations>(location)!);
-                    firstLocation = false;
+                        Print(locationName);
+                        firstLocation = false;
+                    }
                 }
             }
 
@@ -560,9 +567,9 @@ public partial class Schema
             }
         }
 
-        private void StartIndent() => _indent++;
-        private void EndIndent() => _indent--;
-        private void StartLine() => _builder.Append(new string(' ', _indent * _options.Indent));
+        private void StartIndent() => _indents++;
+        private void EndIndent() => _indents--;
+        private void StartLine() => _builder.Append(new string(_indentCharacter, _indents * _options.IndentCount));
         private void EndLine() => _builder.AppendLine("");
         private void Print(string text) => _builder.Append(text);
         private void PrintBlankLine() => PrintLine("");

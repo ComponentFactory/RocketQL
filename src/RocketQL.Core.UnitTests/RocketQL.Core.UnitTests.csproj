@@ -41,4 +41,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Schema\__snapshots__\" />
+  </ItemGroup>
+
 </Project>
