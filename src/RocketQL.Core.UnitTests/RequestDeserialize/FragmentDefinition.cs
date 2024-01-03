@@ -7,7 +7,9 @@ public class FragmentDefinition : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("fragment foo on bar { fizz }");
 
-        var fragment = documentNode.NotNull().Fragments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxFragmentDefinitionNode>(definition);
+        var fragment = ((SyntaxFragmentDefinitionNode)definition);
         Assert.Equal("foo", fragment.Name);
         Assert.Equal("bar", fragment.TypeCondition);
         fragment.Directives.NotNull().Count(0);
@@ -24,7 +26,9 @@ public class FragmentDefinition : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("fragment foo on bar @buzz { fizz }");
 
-        var fragment = documentNode.NotNull().Fragments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxFragmentDefinitionNode>(definition);
+        var fragment = ((SyntaxFragmentDefinitionNode)definition);
         Assert.Equal("foo", fragment.Name);
         Assert.Equal("bar", fragment.TypeCondition);
         var directive = fragment.Directives.NotNull().One();

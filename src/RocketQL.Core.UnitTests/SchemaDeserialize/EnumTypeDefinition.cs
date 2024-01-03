@@ -9,7 +9,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo");
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(0);
@@ -20,7 +22,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo { BUZZ }");
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
@@ -34,7 +38,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo { FIZZ BUZZ }");
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(2);
@@ -53,7 +59,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo { FIZZ BUZZ LAST }");
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(3);
@@ -78,7 +86,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal("bar", enums.Description);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
@@ -92,7 +102,9 @@ public class EnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("enum foo @bar { BUZZ @fizz }");
 
-        var enums = documentNode.NotNull().EnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxEnumTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, enums.Description);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();

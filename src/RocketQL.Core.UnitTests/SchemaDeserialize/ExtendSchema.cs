@@ -7,7 +7,9 @@ public class ExtendSchema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend schema @bar");
 
-        var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendSchemaDefinitionNode>(definition);
+        var extend = ((SyntaxExtendSchemaDefinitionNode)definition);
         var directive = extend.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
         extend.OperationTypes.NotNull().Count(0);
@@ -18,7 +20,9 @@ public class ExtendSchema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend schema { query: bar }");
 
-        var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendSchemaDefinitionNode>(definition);
+        var extend = ((SyntaxExtendSchemaDefinitionNode)definition);
         extend.Directives.NotNull().Count(0);
         var operation = extend.OperationTypes.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
@@ -30,7 +34,9 @@ public class ExtendSchema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend schema @bar { query: bar }");
 
-        var extend = documentNode.NotNull().ExtendSchemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendSchemaDefinitionNode>(definition);
+        var extend = ((SyntaxExtendSchemaDefinitionNode)definition);
         var directive = extend.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
         var operation = extend.OperationTypes.NotNull().One();

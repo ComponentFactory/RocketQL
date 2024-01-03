@@ -22,19 +22,19 @@ public class Object : UnitTestBase
     [InlineData("type foo implements Int { fizz : Int }",                       "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.")]
     [InlineData("""
                 interface second  { second: Int }
-                interface first implements second { first: Int }
+                interface first implements second { first: Int second: Int }
                 type foo implements first { bar: Int }
                 """,                                                            "Object 'foo' is missing implements 'second' because it is declared on interface 'first'.")]
     [InlineData("""
                 interface third { third: Int }
-                interface second implements third { second: Int }
-                interface first implements second { first: Int }
+                interface second implements third { second: Int third: Int }
+                interface first implements second & third { first: Int second: Int third: Int }
                 type foo implements first & second { bar: Int }
-                """,                                                            "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.")]
+                """,                                                            "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.")]
     [InlineData("""
                 interface third { third: Int }
-                interface second implements third { second: Int }
-                interface first implements third { first: Int }
+                interface second implements third { second: Int third: Int }
+                interface first implements third { first: Int third: Int }
                 type foo implements first & second { bar: Int }
                 """,                                                            "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.")]
     [InlineData("""
@@ -83,9 +83,9 @@ public class Object : UnitTestBase
                 """,                                                            "Object 'foo' is missing field 'first' declared on interface 'first'.")]
     [InlineData("""
                 interface second { second: Int }
-                interface first implements second { first: Int }
+                interface first implements second { first: Int second: Int }
                 type foo implements first & second { bar: Int first: Int }
-                """,                                                            "Object 'foo' is missing field 'second' declared on interface 'second'.")]
+                """,                                                            "Object 'foo' is missing field 'second' declared on interface 'first'.")]
     [InlineData("""
                 interface first { bar: Int! }
                 type foo implements first { bar: Int }

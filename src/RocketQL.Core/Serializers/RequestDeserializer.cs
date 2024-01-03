@@ -4,7 +4,7 @@ namespace RocketQL.Core.Serializers;
 
 public ref struct RequestDeserializer
 {
-    private SyntaxRequestNode _request;
+    private readonly SyntaxNodeList _nodes;
     private DocumentTokenizer _tokenizer;
 
     public RequestDeserializer(ReadOnlySpan<char> text,
@@ -17,11 +17,11 @@ public ref struct RequestDeserializer
 
     public RequestDeserializer(ReadOnlySpan<char> text, string source)
     {
-        _request = new SyntaxRequestNode(new(), new());
+        _nodes = [];
         _tokenizer = new DocumentTokenizer(text, source);
     }
 
-    public SyntaxRequestNode Deserialize()
+    public SyntaxNodeList Deserialize()
     {
         // Move to the first real token
         _tokenizer.Next();
@@ -37,10 +37,10 @@ public ref struct RequestDeserializer
                         case "query":
                         case "mutation":
                         case "subscription":
-                            _request.Operations.Add(ParseOperationDefinition());
+                            _nodes.Add(ParseOperationDefinition());
                             break;
                         case "fragment":
-                            _request.Fragments.Add(ParseFragmentDefinition());
+                            _nodes.Add(ParseFragmentDefinition());
                             break;
                         case "schema":
                         case "scalar":
@@ -73,19 +73,14 @@ public ref struct RequestDeserializer
                     }
                     break;
                 case DocumentTokenKind.LeftCurlyBracket:
-                    _request.Operations.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, 
-                                                                              string.Empty, 
-                                                                              new(), 
-                                                                              new(), 
-                                                                              ParseSelectionSet(), 
-                                                                              _tokenizer.Location));
+                    _nodes.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, string.Empty, [], [], ParseSelectionSet(), _tokenizer.Location));
                     break;
                 default:
                     throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
             }
         }
 
-        return _request;
+        return _nodes;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

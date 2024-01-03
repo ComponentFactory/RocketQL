@@ -13,7 +13,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
@@ -27,7 +29,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend type foo { bar: Integer }");
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -48,7 +52,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -66,7 +72,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend type foo { bar: Integer @fizz }");
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -85,7 +93,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend type foo { bar(hello: Integer = 3): Integer }");
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -109,7 +119,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend type foo { bar: Integer fizz: String }");
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -133,7 +145,9 @@ public class ExtendObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend type foo @bar");
 
-        var type = documentNode.NotNull().ExtendObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxExtendObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

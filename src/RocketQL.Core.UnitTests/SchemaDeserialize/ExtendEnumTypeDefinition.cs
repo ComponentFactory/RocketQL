@@ -7,7 +7,9 @@ public class ExtendEnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend enum foo { BUZZ }");
 
-        var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal(string.Empty, enumValue.Description);
@@ -21,7 +23,9 @@ public class ExtendEnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend enum foo @bar");
 
-        var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
         Assert.Equal("bar", typeDirective.Name);
@@ -34,7 +38,9 @@ public class ExtendEnumTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend enum foo @bar { BUZZ }");
 
-        var enums = documentNode.NotNull().ExtendEnumTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendEnumTypeDefinitionNode>(definition);
+        var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
         Assert.Equal("bar", typeDirective.Name);
@@ -43,6 +49,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         Assert.Equal(string.Empty, enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
     }
+
     [Theory]
     [InlineData("extend enum")]
     [InlineData("extend enum foo {")]

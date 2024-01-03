@@ -7,7 +7,9 @@ public class ScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("scalar foo");
 
-        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, scalar.Description);
         Assert.Equal("foo", scalar.Name);
         scalar.Directives.NotNull().Count(0);
@@ -20,7 +22,9 @@ public class ScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
         Assert.Equal("bar", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         scalar.Directives.NotNull().Count(0);
@@ -31,7 +35,9 @@ public class ScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("scalar foo @bar");
 
-        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
@@ -43,7 +49,9 @@ public class ScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("scalar foo @bar(arg1: 123)");
 
-        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
@@ -57,7 +65,9 @@ public class ScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("scalar foo @bar(arg1: 123, arg2: true)");
 
-        var scalar = documentNode.NotNull().ScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();

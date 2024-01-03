@@ -7,7 +7,9 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend input foo { bar: Integer }");
 
-        var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxExtendInputObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
         var field = input.InputFields.NotNull().One();
@@ -24,7 +26,9 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend input foo @fizz { bar: Integer @buzz }");
 
-        var input = documentNode.NotNull().ExtendInputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxExtendInputObjectTypeDefinitionNode)definition);
         Assert.Equal("foo", input.Name);
         var directive1 = input.Directives.NotNull().One();
         Assert.Equal("fizz", directive1.Name);

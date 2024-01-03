@@ -11,7 +11,7 @@ public partial class Schema
 
         public void Visit()
         {
-            ((ISyntaxNodeVisitors)this).Visit(_schema._syntaxNodes);
+            ((ISyntaxNodeVisitors)this).Visit(_schema._nodes);
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
@@ -135,6 +135,15 @@ public partial class Schema
                 InputFields = ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field", "Field", inputObjectType.Name, "Argument"),
                 Location = inputObjectType.Location
             });
+        }
+
+        public void VisitExtendScalarDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
+        {
+            if (!_schema.Types.TryGetValue(extendScalarType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendScalarType.Location, "Scalar", extendScalarType.Name);
+
+            if (!(typeDefinition is ScalarTypeDefinition scalarType))
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Scalar");
         }
 
         private static FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)

@@ -7,7 +7,9 @@ public class Directive : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
@@ -25,7 +27,9 @@ public class Directive : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3)) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
@@ -46,7 +50,9 @@ public class Directive : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello (world: 3, second: true)) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
@@ -73,7 +79,9 @@ public class Directive : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello @world) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);

@@ -14,17 +14,17 @@
 		Use Definition instead of looking up types in validatoib
 
 		Allow extend syntax nodes
-			schema
-			enum
-			input object
-			interface
-			object
 			scalar
+			enum
 			union
+			object
+			interface
+			input object
+			schema
 
 		Apply extend changes and validate
-
 		All kitchen sink to sceham validation Files unit test now that extend is added
+		Allow multiple exceptions but some are catastrophic
 
 	Request
 		allow variables in operation

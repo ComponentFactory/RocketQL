@@ -17,7 +17,9 @@ public class Schema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var def = documentNode.NotNull().Schemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxSchemaDefinitionNode>(definition);
+        var def = ((SyntaxSchemaDefinitionNode)definition);
         Assert.Equal(string.Empty, def.Description);
         def.Directives.NotNull().Count(0);
         var operation = def.OperationTypes.NotNull().One();
@@ -32,7 +34,9 @@ public class Schema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var def = documentNode.NotNull().Schemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxSchemaDefinitionNode>(definition);
+        var def = ((SyntaxSchemaDefinitionNode)definition);
         Assert.Equal("bar", def.Description);
         def.Directives.NotNull().Count(0);
         var operation = def.OperationTypes.NotNull().One();
@@ -45,7 +49,9 @@ public class Schema : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("schema @bar { query: FizzBuzz }");
 
-        var def = documentNode.NotNull().Schemas.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxSchemaDefinitionNode>(definition);
+        var def = ((SyntaxSchemaDefinitionNode)definition);
         Assert.Equal(string.Empty, def.Description);
         var directive = def.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

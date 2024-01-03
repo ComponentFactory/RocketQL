@@ -9,7 +9,9 @@ public class UnionTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var union = documentNode.NotNull().UnionTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
+        var union = ((SyntaxUnionTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
@@ -24,7 +26,9 @@ public class UnionTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var union = documentNode.NotNull().UnionTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
+        var union = ((SyntaxUnionTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(2);
@@ -40,7 +44,9 @@ public class UnionTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var union = documentNode.NotNull().UnionTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
+        var union = ((SyntaxUnionTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(3);
@@ -57,7 +63,9 @@ public class UnionTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var union = documentNode.NotNull().UnionTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
+        var union = ((SyntaxUnionTypeDefinitionNode)definition);
         Assert.Equal("bar", union.Description);
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
@@ -70,7 +78,9 @@ public class UnionTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("union foo @bar = fizz");
 
-        var union = documentNode.NotNull().UnionTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
+        var union = ((SyntaxUnionTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, union.Description);
         Assert.Equal("foo", union.Name);
         var directive = union.Directives.NotNull().One();

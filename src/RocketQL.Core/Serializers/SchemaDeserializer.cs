@@ -2,7 +2,7 @@
 
 public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
 {
-    private readonly SyntaxSchemaNode _schema = new([], [], [], [], [], [], [], [], [], [], [], [], [], [], []);
+    private readonly SyntaxNodeList _nodes = [];
     private DocumentTokenizer _tokenizer = new(text, source);
     private string? _description = null;
 
@@ -14,7 +14,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
     }
 
-    public SyntaxSchemaNode Deserialize()
+    public SyntaxNodeList Deserialize()
     {
         // Move to the first real token
         _tokenizer.Next();
@@ -37,28 +37,28 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                         case "fragment":
                             throw SyntaxException.QueryNotAllowedInSchema(_tokenizer.Location);
                         case "schema":
-                            _schema.Schemas.Add(ParseSchemaDefinition());
+                            _nodes.Add(ParseSchemaDefinition());
                             break;
                         case "scalar":
-                            _schema.ScalarTypes.Add(ParseScalarTypeDefinition());
+                            _nodes.Add(ParseScalarTypeDefinition());
                             break;
                         case "type":
-                            _schema.ObjectTypes.Add(ParseObjectTypeDefinition());
+                            _nodes.Add(ParseObjectTypeDefinition());
                             break;
                         case "interface":
-                            _schema.InterfaceTypes.Add(ParseInterfaceTypeDefinition());
+                            _nodes.Add(ParseInterfaceTypeDefinition());
                             break;
                         case "union":
-                            _schema.UnionTypes.Add(ParseUnionTypeDefinition());
+                            _nodes.Add(ParseUnionTypeDefinition());
                             break;
                         case "enum":
-                            _schema.EnumTypes.Add(ParseEnumTypeDefinition());
+                            _nodes.Add(ParseEnumTypeDefinition());
                             break;
                         case "input":
-                            _schema.InputObjectTypes.Add(ParseInputObjectTypeDefinition());
+                            _nodes.Add(ParseInputObjectTypeDefinition());
                             break;
                         case "directive":
-                            _schema.Directives.Add(ParseDirectiveDefinition());
+                            _nodes.Add(ParseDirectiveDefinition());
                             break;
                         case "extend":
                             {
@@ -66,25 +66,25 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                                 switch (_tokenizer.TokenValue)
                                 {
                                     case "schema":
-                                        _schema.ExtendSchemas.Add(ParseExtendSchemaDefinition());
+                                        _nodes.Add(ParseExtendSchemaDefinition());
                                         break;
                                     case "scalar":
-                                        _schema.ExtendScalarTypes.Add(ParseExtendScalarTypeDefinition());
+                                        _nodes.Add(ParseExtendScalarTypeDefinition());
                                         break;
                                     case "type":
-                                        _schema.ExtendObjectTypes.Add(ParseExtendObjectTypeDefinition());
+                                        _nodes.Add(ParseExtendObjectTypeDefinition());
                                         break;
                                     case "interface":
-                                        _schema.ExtendInterfaceTypes.Add(ParseExtendInterfaceTypeDefinition());
+                                        _nodes.Add(ParseExtendInterfaceTypeDefinition());
                                         break;
                                     case "union":
-                                        _schema.ExtendUnionTypes.Add(ParseExtendUnionTypeDefinition());
+                                        _nodes.Add(ParseExtendUnionTypeDefinition());
                                         break;
                                     case "enum":
-                                        _schema.ExtendEnumTypes.Add(ParseExtendEnumTypeDefinition());
+                                        _nodes.Add(ParseExtendEnumTypeDefinition());
                                         break;
                                     case "input":
-                                        _schema.ExtendInputObjectTypes.Add(ParseExtendInputObjectTypeDefinition());
+                                        _nodes.Add(ParseExtendInputObjectTypeDefinition());
                                         break;
                                     default:
                                         throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
@@ -102,7 +102,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             }
         }
 
-        return _schema;
+        return _nodes;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

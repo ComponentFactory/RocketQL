@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Visitors;
+﻿using RocketQL.Core.Base;
+
+namespace RocketQL.Core.Visitors;
 
 public interface ISyntaxNodeVisitors
 {
@@ -32,6 +34,9 @@ public interface ISyntaxNodeVisitors
                 case SyntaxInputObjectTypeDefinitionNode inputObjectType:
                     VisitInputObjectTypeDefinition(inputObjectType);
                     break;
+                case SyntaxExtendScalarTypeDefinitionNode extendscalarType:
+                    VisitExtendScalarDefinition(extendscalarType);
+                    break;
                 default:
                     throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString());
             }
@@ -45,4 +50,5 @@ public interface ISyntaxNodeVisitors
     void VisitUnionTypeDefinition(SyntaxUnionTypeDefinitionNode unionType);
     void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType);
     void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType);
+    void VisitExtendScalarDefinition(SyntaxExtendScalarTypeDefinitionNode extendscalarType);
 }

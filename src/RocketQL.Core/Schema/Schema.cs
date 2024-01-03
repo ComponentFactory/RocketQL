@@ -2,7 +2,7 @@
 
 public partial class Schema
 {
-    private readonly SyntaxNodeList _syntaxNodes = [];
+    private readonly SyntaxNodeList _nodes = [];
 
     public SchemaRoot? Root { get; set; }
     private SchemaDefinitions Schemas { get; init; } = [];
@@ -25,41 +25,28 @@ public partial class Schema
 
     public void Add(SyntaxNode node)
     {
-        _syntaxNodes.Add(node);
+        _nodes.Add(node);
         IsValidated = false;
     }
 
     public void Add(IEnumerable<SyntaxNode> nodes)
     {
-        _syntaxNodes.AddRange(nodes);
+        _nodes.AddRange(nodes);
         IsValidated = false;
     }
 
-    public void Add(SyntaxSchemaNode schema)
+    public void Add(SyntaxNodeList nodes)
     {
-        Add(new SyntaxSchemaNode[] { schema });
+        _nodes.AddRange(nodes);
+        IsValidated = false;
     }
 
-    public void Add(IEnumerable<SyntaxSchemaNode> schemas)
+    public void Add(IEnumerable<SyntaxNodeList> schemas)
     {
-        foreach (var schema in schemas)
-        {
-            _syntaxNodes.AddRange(schema.Schemas);
-            _syntaxNodes.AddRange(schema.Directives);
-            _syntaxNodes.AddRange(schema.ScalarTypes);
-            _syntaxNodes.AddRange(schema.ObjectTypes);
-            _syntaxNodes.AddRange(schema.InterfaceTypes);
-            _syntaxNodes.AddRange(schema.UnionTypes);
-            _syntaxNodes.AddRange(schema.EnumTypes);
-            _syntaxNodes.AddRange(schema.InputObjectTypes);
-            _syntaxNodes.AddRange(schema.ExtendSchemas);
-            _syntaxNodes.AddRange(schema.ExtendScalarTypes);
-            _syntaxNodes.AddRange(schema.ExtendObjectTypes);
-            _syntaxNodes.AddRange(schema.ExtendInterfaceTypes);
-            _syntaxNodes.AddRange(schema.ExtendUnionTypes);
-            _syntaxNodes.AddRange(schema.ExtendEnumTypes);
-            _syntaxNodes.AddRange(schema.ExtendInputObjectTypes);
-        }
+        foreach (var nodes in schemas)
+            _nodes.AddRange(nodes);
+
+        IsValidated = false;
     }
 
     public void Validate()
@@ -144,7 +131,7 @@ public partial class Schema
 
     public void Reset()
     {
-        _syntaxNodes.Clear();
+        _nodes.Clear();
         Clean();
     }
 

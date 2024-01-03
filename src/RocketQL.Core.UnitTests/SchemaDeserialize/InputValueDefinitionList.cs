@@ -9,7 +9,10 @@ public class InputValueDefinitionList : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
+        var argument = directive.Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         CheckTypeName(argument.Type, "buzz", nonNull);
@@ -24,7 +27,10 @@ public class InputValueDefinitionList : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
+        var argument = directive.Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         var contained = CheckTypeList(argument.Type, listNonNull);
@@ -44,7 +50,10 @@ public class InputValueDefinitionList : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var argument = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
+        var argument = directive.Arguments.NotNull().One();
         Assert.Equal(string.Empty, argument.Description);
         Assert.Equal("fizz", argument.Name);
         var contained1 = CheckTypeList(argument.Type, outerNonNull);
@@ -61,7 +70,10 @@ public class InputValueDefinitionList : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var arguments = documentNode.NotNull().Directives.NotNull().One().Arguments.NotNull().Count(2);
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
+        var arguments = directive.Arguments.NotNull();
         var argument1 = arguments[0];
         Assert.Equal(string.Empty, argument1.Description);
         Assert.Equal("fizz", argument1.Name);

@@ -9,7 +9,9 @@ public class InputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
@@ -21,7 +23,9 @@ public class InputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("input foo { bar: Integer }");
 
-        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
@@ -41,7 +45,9 @@ public class InputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
         Assert.Equal("bar", input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
@@ -59,7 +65,9 @@ public class InputObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("input foo @fizz { bar: Integer @buzz }");
 
-        var input = documentNode.NotNull().InputObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
+        var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, input.Description);
         Assert.Equal("foo", input.Name);
         var directive1 = input.Directives.NotNull().One();

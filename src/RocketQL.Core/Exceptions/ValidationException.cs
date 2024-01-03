@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Exceptions;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Exceptions;
 
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
@@ -13,10 +15,12 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException AutoSchemaQueryMissing() => new(new Location(), "Cannot auto generate schema because 'Query' type missing.");
     public static ValidationException AutoSchemaOperationNotObject(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' is type {node.OutputElement.ToLower()} instead of object type.");
     public static ValidationException AutoSchemaOperationReferenced(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' type is referenced from other types instead of being a top level type.");
-
+    public static ValidationException ExtendSchemaNotDefined(Location location) => new(location, $"Cannot extend schema because non is currently defined.");
     public static ValidationException TypeNotDefinedForSchemaOperation(OperationTypeDefinition node) => new(node.Location, $"Type '{node.NamedType}' not defined for the schema operation {node.Operation.ToString().ToLower()}.");
     public static ValidationException NameDoubleUnderscore(SchemaNode node) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' not allowed to start with two underscores.");
     public static ValidationException NameAlreadyDefined(Location location, string target, string name) => new(location, $"{target} '{name}' is already defined.");
+    public static ValidationException TypeNotDefinedForExtend(Location location, string typeName, string name) => new(location, $"{typeName} '{name}' cannot be extended because it is not defined.");
+    public static ValidationException IncorrectTypeForExtend(SchemaNode node, string typeName) => new(node.Location, $"Extend {typeName.ToLower()} cannot be used to extend {node.OutputElement} '{node.OutputName}'.");    
     public static ValidationException EnumValueAlreadyDefined(Location location, string enumValue, string enumTypeName) => new(location, $"Enum '{enumTypeName}' has duplicate definition of value '{enumValue}'.");    
     public static ValidationException ListEntryDuplicateName(Location location, string list, string entryName, string entryType, string name) => new(location, $"{list} '{entryName}' has duplicate {entryType} '{name}'.");
     public static ValidationException ListEntryDuplicateName(Location location, string type, string typeName, string list, string entryName, string entryType, string name) => new(location, $"{type} '{typeName}' has {list.ToLower()} '{entryName}' with duplicate {entryType} '{name}'.");

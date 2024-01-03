@@ -7,7 +7,9 @@ public class ExtendScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend scalar foo");
 
-        var scalar = documentNode.NotNull().ExtendScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxExtendScalarTypeDefinitionNode)definition);
         Assert.Equal("foo", scalar.Name);
         scalar.Directives.NotNull().Count(0);
     }
@@ -17,7 +19,9 @@ public class ExtendScalarTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("extend scalar foo @bar");
 
-        var scalar = documentNode.NotNull().ExtendScalarTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxExtendScalarTypeDefinitionNode>(definition);
+        var scalar = ((SyntaxExtendScalarTypeDefinitionNode)definition);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

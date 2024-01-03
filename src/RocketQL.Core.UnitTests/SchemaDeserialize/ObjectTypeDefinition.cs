@@ -11,7 +11,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal("bar", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -30,7 +32,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
@@ -45,7 +49,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer }");
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -67,7 +73,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -86,7 +94,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer @fizz }");
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -106,7 +116,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("type foo { bar(hello: Integer = 3): Integer }");
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -131,7 +143,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("type foo { bar: Integer fizz: String }");
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
@@ -156,7 +170,9 @@ public class ObjectTypeDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("type foo @bar");
 
-        var type = documentNode.NotNull().ObjectTypes.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
+        var type = ((SyntaxObjectTypeDefinitionNode)definition);
         Assert.Equal(string.Empty, type.Description);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();

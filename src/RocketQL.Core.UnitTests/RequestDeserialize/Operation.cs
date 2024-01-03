@@ -10,7 +10,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize(schema);
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(operationType, operation.Operation);
         Assert.Equal(string.Empty, operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -28,7 +30,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -46,7 +50,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo : bar }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -64,7 +70,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo(bar: 3) }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -84,7 +92,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo(bar: $var) }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -104,7 +114,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo @bar }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -123,7 +135,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo { bar } }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -145,7 +159,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo : bar(fizz: 3) @bar { foo2 : bar2(fizz2: 3) @bar2} }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -173,7 +189,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { ... bar }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -188,7 +206,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { ... bar @foo }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -204,7 +224,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { ... { bar } }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -221,7 +243,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { ... on foo { bar } }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -238,7 +262,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { ... on foo @fizz { bar } }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -256,7 +282,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("query name { foo ... bar ... on fizz { buzz } }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("name", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
@@ -280,7 +308,9 @@ public class Operation : UnitTestBase
     {
         var documentNode = Serialization.RequestDeserialize("{ foo }");
 
-        var operation = documentNode.NotNull().Operations.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxOperationDefinitionNode>(definition);
+        var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal(string.Empty, operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);

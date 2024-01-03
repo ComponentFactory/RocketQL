@@ -10,7 +10,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -42,7 +44,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize($"directive @foo on {location}");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -64,7 +68,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize($"directive @foo on {str}");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -79,7 +85,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -94,7 +102,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize(schema);
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("bar", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
@@ -107,7 +117,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
@@ -127,7 +139,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz = 3.14) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
@@ -149,7 +163,9 @@ public class DirectiveDefinition : UnitTestBase
     {
         var documentNode = Serialization.SchemaDeserialize("directive @foo (bar: fizz @hello) on ENUM");
 
-        var directive = documentNode.NotNull().Directives.NotNull().One();
+        var definition = documentNode.NotNull().One();
+        Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
+        var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal(string.Empty, directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);

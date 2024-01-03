@@ -1,23 +1,6 @@
 ﻿namespace RocketQL.Core.Nodes;
 
-public record class SyntaxRequestNode(SyntaxOperationDefinitionNodeList Operations, SyntaxFragmentDefinitionNodeList Fragments);
-
-public record class SyntaxSchemaNode(SyntaxSchemaDefinitionNodeList Schemas,
-                                     SyntaxDirectiveDefinitionNodeList Directives,
-                                     SyntaxScalarTypeDefinitionNodeList ScalarTypes,
-                                     SyntaxObjectTypeDefinitionNodeList ObjectTypes,
-                                     SyntaxInterfaceTypeDefinitionNodeList InterfaceTypes,
-                                     SyntaxUnionTypeDefinitionNodeList UnionTypes,
-                                     SyntaxEnumTypeDefinitionNodeList EnumTypes,
-                                     SyntaxInputObjectTypeDefinitionNodeList InputObjectTypes,
-                                     SyntaxExtendSchemaDefinitionNodeList ExtendSchemas,
-                                     SyntaxExtendScalarTypeDefinitionNodeList ExtendScalarTypes,
-                                     SyntaxExtendObjectTypeDefinitionNodeList ExtendObjectTypes,
-                                     SyntaxExtendInterfaceTypeDefinitionNodeList ExtendInterfaceTypes,
-                                     SyntaxExtendUnionTypeDefinitionNodeList ExtendUnionTypes,
-                                     SyntaxExtendEnumTypeDefinitionNodeList ExtendEnumTypes,
-                                     SyntaxExtendInputObjectTypeDefinitionNodeList ExtendInputObjectTypes);
-
+public class SyntaxNodeList : List<SyntaxNode> { };
 public class SyntaxSchemaDefinitionNodeList : List<SyntaxSchemaDefinitionNode> { };
 public class SyntaxDirectiveDefinitionNodeList : List<SyntaxDirectiveDefinitionNode> { };
 public class SyntaxScalarTypeDefinitionNodeList : List<SyntaxScalarTypeDefinitionNode> { };
@@ -81,14 +64,3 @@ public record class SyntaxTypeNameNode(string Name, Location Location) : SyntaxT
 public record class SyntaxTypeNonNullNode(SyntaxTypeNode Type, Location Location) : SyntaxTypeNode(Location);
 public record class SyntaxTypeListNode(SyntaxTypeNode Type, Location Location) : SyntaxTypeNode(Location);
 
-public class SyntaxNodeList : List<SyntaxNode>
-{
-    public SyntaxNodeList()
-    {
-    }
-
-    public SyntaxNodeList(IEnumerable<SyntaxNode> nodes)
-        : base(nodes)
-    {
-    }
-};
