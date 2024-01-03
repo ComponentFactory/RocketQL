@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Xml;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -55,8 +57,8 @@ public partial class Schema
 
         try
         {
-            AddPredefinedDirectives();
-            AddPredefinedScalars();
+            AddBuiltInDirectives();
+            AddBuiltInScalars();
             Converter.Visit();
             Linker.Visit();
             Validater.Visit();
@@ -144,18 +146,18 @@ public partial class Schema
         IsValidated = false;
     }
 
-    private void AddPredefinedDirectives()
+    private void AddBuiltInDirectives()
     {
         Directives.Add("deprecated", new DirectiveDefinition()
         {
-            Description = string.Empty,
+            Description = "Marks the field, argument, input field or enum value as deprecated.",
             Name = "deprecated",
             Repeatable = false,
             Arguments = new()
             {
                 { "reason", new InputValueDefinition()
                             {
-                                Description = string.Empty,
+                                Description = "The reason for the deprecation",
                                 Name = "reason",
                                 Type = new TypeName()
                                 {
@@ -175,19 +177,19 @@ public partial class Schema
                                  DirectiveLocations.INPUT_FIELD_DEFINITION |
                                  DirectiveLocations.ENUM_VALUE,
             Location = new(),
-            IsPredefined = true
+            IsBuiltIn = true
         });
 
         Directives.Add("specifiedBy", new DirectiveDefinition()
         {
-            Description = string.Empty,
+            Description = "Exposes a URL that specifies the behaviour of this scalar.",
             Name = "specifiedBy",
             Repeatable = false,
             Arguments = new()
             {
                 { "url", new InputValueDefinition()
                          {
-                             Description = string.Empty,
+                             Description =   "The URL that specifies the behaviour of this scalar.",
                              Name = "url",
                              Type = new TypeNonNull()
                              {
@@ -208,21 +210,45 @@ public partial class Schema
             },
             DirectiveLocations = DirectiveLocations.SCALAR,
             Location = new(),
-            IsPredefined = true
+            IsBuiltIn = true
         });
     }
 
-    private void AddPredefinedScalars()
+    private void AddBuiltInScalars()
     {
-        foreach (string scalar in new string[] { "Int", "Float", "String", "Boolean", "ID" })
-            Types.Add(scalar, new ScalarTypeDefinition()
+        foreach (var scalarPair in new[] { 
+            ("Int",     """
+                        The `Int` scalar type represents non-fractional signed whole numeric values. 
+                        Int can represent values between -(2^31) and 2^31 - 1.
+                        """), 
+            ("Float",   """
+                        The `Float` scalar type represents signed double-precision fractional values as specified 
+                        by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
+                        """), 
+            ("String",  """
+                        The `String` scalar type represents textual data, represented as UTF-8 character sequences. 
+                        The String type is most often used by GraphQL to represent free-form human-readable text.
+                        """), 
+            ("Boolean", """
+                        The `Boolean` scalar type represents `true` or `false`.
+                        """), 
+            ("ID",      """
+                        The `ID` scalar type represents a unique identifier, often used to refetch an object or as 
+                        key for a cache. The ID type appears in a JSON response as a String; however, it is not 
+                        intended to be human-readable. When expected as an input type, any string (such as `"4"`) 
+                        or integer (such as `4`) input value will be accepted as an ID.
+                        """) 
+        })
+        {
+            Types.Add(scalarPair.Item1, new ScalarTypeDefinition()
             {
-                Description = string.Empty,
-                Name = scalar,
+                Description = scalarPair.Item2,
+                Name = scalarPair.Item1,
                 Directives = [],
                 Location = new(),
-                IsPredefined = true
+                IsBuiltIn = true
             });
+        }
     }
 
     private static bool AllReferencesWithinType(TypeDefinition root)

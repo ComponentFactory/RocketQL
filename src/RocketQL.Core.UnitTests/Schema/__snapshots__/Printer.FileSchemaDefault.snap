@@ -1,4 +1,6 @@
-﻿"schema description"
+﻿"""
+schema description
+"""
 schema @directiveAll
 {
     query: typeAll
@@ -6,11 +8,13 @@ schema @directiveAll
 
 """
 Query multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 type typeAll implements interface1 & interface2 @directiveAll
 {
-    "one description"
+    """
+    one description
+    """
     one: Int
     
     """
@@ -42,11 +46,13 @@ interface interface2
 
 """
 Interface multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 interface interfaceAll implements interface1 & interface2 @directiveAll
 {
-    "one description"
+    """
+    one description
+    """
     one: Int
     
     """
@@ -66,7 +72,9 @@ interface interfaceAll implements interface1 & interface2 @directiveAll
     ): Int
 }
 
-"Example union"
+"""
+Example union
+"""
 union unionAll @directiveAll = typeAll
 
 input compound
@@ -78,11 +86,13 @@ input compound
 
 """
 Input multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 input inputAll @directiveAll
 {
-    "one description"
+    """
+    one description
+    """
     one: Int
     
     """
@@ -95,20 +105,30 @@ input inputAll @directiveAll
     four: compound = { name: "bob", age: 42, alive: true } @directiveAll
 }
 
-"Example enumeration"
+"""
+Example enumeration
+"""
 enum enumAll @directiveAll
 {
-    "numero 1"
+    """
+    numero 1
+    """
     FIRST @directiveAll
     
-    "numero 2"
+    """
+    numero 2
+    """
     SECOND
     
-    "numero 3"
+    """
+    numero 3
+    """
     THIRD
 }
 
-"Scalar union"
+"""
+Scalar union
+"""
 scalar scalarAll @directiveAll
 
 directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION

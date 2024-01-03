@@ -11,7 +11,7 @@ directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITIO
 
 """
 Query multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 type typeAll implements interface1 & interface2 @directiveAll
 {
@@ -31,7 +31,7 @@ type typeAll implements interface1 & interface2 @directiveAll
 
 """
 Interface multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 interface interfaceAll implements interface1 & interface2 @directiveAll
 {
@@ -51,7 +51,7 @@ interface interfaceAll implements interface1 & interface2 @directiveAll
 
 """
 Input multiline comment that should 
-be output over several lines when printee
+be output over several lines when printed
 """
 input inputAll @directiveAll
 {

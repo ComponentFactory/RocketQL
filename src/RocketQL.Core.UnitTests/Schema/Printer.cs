@@ -58,7 +58,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { PrintPredefined = true });
+        string print = schema.Print(new SchemaPrintOptions() { PrintBuiltIn = true });
         print.MatchSnapshot();
     }
 }

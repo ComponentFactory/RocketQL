@@ -44,7 +44,7 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
-            if (directiveDefinition.IsPredefined && !_options.PrintPredefined)
+            if (directiveDefinition.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(directiveDefinition.Description);
@@ -116,7 +116,7 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            if (scalarType.IsPredefined && !_options.PrintPredefined)
+            if (scalarType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(scalarType.Description);
@@ -129,7 +129,7 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            if (objectType.IsPredefined && !_options.PrintPredefined)
+            if (objectType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(objectType.Description);
@@ -218,7 +218,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            if (interfaceType.IsPredefined && !_options.PrintPredefined)
+            if (interfaceType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(interfaceType.Description);
@@ -308,7 +308,7 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            if (unionType.IsPredefined && !_options.PrintPredefined)
+            if (unionType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(unionType.Description);
@@ -337,7 +337,7 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            if (enumType.IsPredefined && !_options.PrintPredefined)
+            if (enumType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(enumType.Description);
@@ -372,7 +372,7 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            if (inputObjectType.IsPredefined && !_options.PrintPredefined)
+            if (inputObjectType.IsBuiltIn && !_options.PrintBuiltIn)
                 return;
 
             PrintDescription(inputObjectType.Description);
@@ -451,15 +451,10 @@ public partial class Schema
         {
             if (!IsDescriptionEmpty(description))
             {
-                if (IsDescriptionMultiline(description))
-                {
-                    PrintLine($"\"\"\"");
-                    foreach (var line in description.Split('\n'))
-                        PrintLine(line);
-                    PrintLine($"\"\"\"");
-                }
-                else
-                    PrintLine($"\"{description}\"");
+                PrintLine($"\"\"\"");
+                foreach (var line in description.Split('\n'))
+                    PrintLine(line.Replace("\r", ""));
+                PrintLine($"\"\"\"");
             }
         }
 
