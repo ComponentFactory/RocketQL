@@ -44,8 +44,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SchemaValidate\__snapshots__\" />
-  </ItemGroup>
-
 </Project>

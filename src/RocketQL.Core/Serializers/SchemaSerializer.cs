@@ -1,10 +1,10 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public class SchemaSerializer(Schema schema)
+public ref struct SchemaSerializer(Schema schema)
 {
     private static SchemaSerializeOptions _defaultOptions = new();
 
-    public string Serialize(SchemaSerializeOptions? options = null)
+    public readonly string Serialize(SchemaSerializeOptions? options = null)
     {
         var printer = new SchemaSerialize(schema);
         printer.Visit(options ?? _defaultOptions);

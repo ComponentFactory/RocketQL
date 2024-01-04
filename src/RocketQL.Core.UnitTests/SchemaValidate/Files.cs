@@ -11,6 +11,8 @@ public class Files : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
+        string print = Serialization.SchemaSerialize(schema);
+        print.MatchSnapshot();
     }
 }
 
