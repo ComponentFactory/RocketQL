@@ -1,10 +1,10 @@
-﻿global using RocketQL.Core.Enumerations;
+﻿global using RocketQL.Core.Base;
+global using RocketQL.Core.Enumerations;
 global using RocketQL.Core.Exceptions;
 global using RocketQL.Core.Extensions;
 global using RocketQL.Core.Nodes;
 global using RocketQL.Core.Serializers;
 global using RocketQL.Core.Tokenizers;
 global using RocketQL.Core.Visitors;
-global using System.Diagnostics.CodeAnalysis;
 global using System.Runtime.CompilerServices;
 global using System.Text;

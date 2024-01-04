@@ -1,0 +1,683 @@
+﻿schema @directiveAll
+{
+    query: typeAll
+}
+
+type typeAll implements interface1 & interface2 @directiveAll
+{
+    one: Int
+    two: Int @directiveAll
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+interface interface1
+{
+    one: Int
+}
+
+interface interface2
+{
+    two: Int
+}
+
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+    one: Int
+    two: Int @directiveAll
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+    name: String
+    age: Int
+    alive: Boolean
+}
+
+input inputAll @directiveAll
+{
+    one: Int
+    two: Int = 5 @directiveAll
+    four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+enum enumAll @directiveAll
+{
+    FIRST @directiveAll
+    SECOND
+    THIRD
+}
+
+scalar scalarAll @directiveAll
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+"""
+schema description
+"""
+schema @directiveAll
+{
+  query: typeAll
+}
+
+"""
+Query multiline comment that should 
+be output over several lines when printed
+"""
+type typeAll implements interface1 & interface2 @directiveAll
+{
+  """
+  one description
+  """
+  one: Int
+  
+  """
+  two description over
+  multiple lines of
+  the output text
+  """
+  two: Int @directiveAll
+  
+  three
+  (
+    arg1: Int = 5 @directiveAll
+  ): Int
+  four
+  (
+    arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+  ): Int
+}
+
+interface interface1
+{
+  one: Int
+}
+
+interface interface2
+{
+  two: Int
+}
+
+"""
+Interface multiline comment that should 
+be output over several lines when printed
+"""
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+  """
+  one description
+  """
+  one: Int
+  
+  """
+  two description over
+  multiple lines of
+  the output text
+  """
+  two: Int @directiveAll
+  
+  three
+  (
+    arg1: Int = 5 @directiveAll
+  ): Int
+  four
+  (
+    arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+  ): Int
+}
+
+"""
+Example union
+"""
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+  name: String
+  age: Int
+  alive: Boolean
+}
+
+"""
+Input multiline comment that should 
+be output over several lines when printed
+"""
+input inputAll @directiveAll
+{
+  """
+  one description
+  """
+  one: Int
+  
+  """
+  two description over
+  multiple lines of
+  the output text
+  """
+  two: Int = 5 @directiveAll
+  
+  four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+"""
+Example enumeration
+"""
+enum enumAll @directiveAll
+{
+  """
+  numero 1
+  """
+  FIRST @directiveAll
+  
+  """
+  numero 2
+  """
+  SECOND
+  
+  """
+  numero 3
+  """
+  THIRD
+}
+
+"""
+Scalar union
+"""
+scalar scalarAll @directiveAll
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+"""
+schema description
+"""
+schema @directiveAll
+{
+    query: typeAll
+}
+
+"""
+Query multiline comment that should 
+be output over several lines when printed
+"""
+type typeAll implements interface1 & interface2 @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+interface interface1
+{
+    one: Int
+}
+
+interface interface2
+{
+    two: Int
+}
+
+"""
+Interface multiline comment that should 
+be output over several lines when printed
+"""
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+"""
+Example union
+"""
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+    name: String
+    age: Int
+    alive: Boolean
+}
+
+"""
+Input multiline comment that should 
+be output over several lines when printed
+"""
+input inputAll @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int = 5 @directiveAll
+    
+    four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+"""
+Example enumeration
+"""
+enum enumAll @directiveAll
+{
+    """
+    numero 1
+    """
+    FIRST @directiveAll
+    
+    """
+    numero 2
+    """
+    SECOND
+    
+    """
+    numero 3
+    """
+    THIRD
+}
+
+"""
+The `Int` scalar type represents non-fractional signed whole numeric values. 
+Int can represent values between -(2^31) and 2^31 - 1.
+"""
+scalar Int
+
+"""
+The `Float` scalar type represents signed double-precision fractional values as specified 
+by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
+"""
+scalar Float
+
+"""
+The `String` scalar type represents textual data, represented as UTF-8 character sequences. 
+The String type is most often used by GraphQL to represent free-form human-readable text.
+"""
+scalar String
+
+"""
+The `Boolean` scalar type represents `true` or `false`.
+"""
+scalar Boolean
+
+"""
+The `ID` scalar type represents a unique identifier, often used to refetch an object or as 
+key for a cache. The ID type appears in a JSON response as a String; however, it is not 
+intended to be human-readable. When expected as an input type, any string (such as `"4"`) 
+or integer (such as `4`) input value will be accepted as an ID.
+"""
+scalar ID
+
+"""
+Scalar union
+"""
+scalar scalarAll @directiveAll
+
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true
+"""
+directive @include
+(
+    """
+    Included when true.
+    """
+    if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
+directive @skip
+(
+    """
+    Skipped when true.
+    """
+    if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+Marks the field, argument, input field or enum value as deprecated.
+"""
+directive @deprecated
+(
+    """
+    The reason for the deprecation
+    """
+    reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+"""
+Exposes a URL that specifies the behaviour of this scalar.
+"""
+directive @specifiedBy
+(
+    """
+    The URL that specifies the behaviour of this scalar.
+    """
+    url: String!
+) on SCALAR
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+schema
+{
+    query: Query
+}
+
+"""
+Only Schema, Query and Int should be printed
+"""
+type Query
+{
+    fizz: Int
+}
+
+"""
+The `Int` scalar type represents non-fractional signed whole numeric values. 
+Int can represent values between -(2^31) and 2^31 - 1.
+"""
+scalar Int
+
+"""
+schema description
+"""
+schema @directiveAll
+{
+    query: typeAll
+}
+
+"""
+Query multiline comment that should 
+be output over several lines when printed
+"""
+type typeAll implements interface1 & interface2 @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+interface interface1
+{
+    one: Int
+}
+
+interface interface2
+{
+    two: Int
+}
+
+"""
+Interface multiline comment that should 
+be output over several lines when printed
+"""
+interface interfaceAll implements interface1 & interface2 @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int @directiveAll
+    
+    three
+    (
+        arg1: Int = 5 @directiveAll
+    ): Int
+    four
+    (
+        arg1: compound = { name: "bob", age: 42, alive: true } @directiveAll
+    ): Int
+}
+
+"""
+Example union
+"""
+union unionAll @directiveAll = typeAll
+
+input compound
+{
+    name: String
+    age: Int
+    alive: Boolean
+}
+
+"""
+Input multiline comment that should 
+be output over several lines when printed
+"""
+input inputAll @directiveAll
+{
+    """
+    one description
+    """
+    one: Int
+    
+    """
+    two description over
+    multiple lines of
+    the output text
+    """
+    two: Int = 5 @directiveAll
+    
+    four: compound = { name: "bob", age: 42, alive: true } @directiveAll
+}
+
+"""
+Example enumeration
+"""
+enum enumAll @directiveAll
+{
+    """
+    numero 1
+    """
+    FIRST @directiveAll
+    
+    """
+    numero 2
+    """
+    SECOND
+    
+    """
+    numero 3
+    """
+    THIRD
+}
+
+"""
+Scalar union
+"""
+scalar scalarAll @directiveAll
+
+directive @directiveAll repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+schema
+{
+    query: Query
+}
+
+"""
+Only Schema, Query and Int should be printed
+"""
+type Query
+{
+    fizz: Int
+}
+
+type unref3
+{
+    fizz: Int
+}
+
+interface unref4
+{
+    fizz: Int
+}
+
+union unref5
+
+input unref7
+{
+    fizz: Int
+}
+
+enum unref6
+{
+    FIZZ
+}
+
+"""
+The `Int` scalar type represents non-fractional signed whole numeric values. 
+Int can represent values between -(2^31) and 2^31 - 1.
+"""
+scalar Int
+
+"""
+The `Float` scalar type represents signed double-precision fractional values as specified 
+by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
+"""
+scalar Float
+
+"""
+The `String` scalar type represents textual data, represented as UTF-8 character sequences. 
+The String type is most often used by GraphQL to represent free-form human-readable text.
+"""
+scalar String
+
+"""
+The `Boolean` scalar type represents `true` or `false`.
+"""
+scalar Boolean
+
+"""
+The `ID` scalar type represents a unique identifier, often used to refetch an object or as 
+key for a cache. The ID type appears in a JSON response as a String; however, it is not 
+intended to be human-readable. When expected as an input type, any string (such as `"4"`) 
+or integer (such as `4`) input value will be accepted as an ID.
+"""
+scalar ID
+
+scalar unref2
+
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true
+"""
+directive @include
+(
+    """
+    Included when true.
+    """
+    if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
+directive @skip
+(
+    """
+    Skipped when true.
+    """
+    if: Boolean!
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+Marks the field, argument, input field or enum value as deprecated.
+"""
+directive @deprecated
+(
+    """
+    The reason for the deprecation
+    """
+    reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+"""
+Exposes a URL that specifies the behaviour of this scalar.
+"""
+directive @specifiedBy
+(
+    """
+    The URL that specifies the behaviour of this scalar.
+    """
+    url: String!
+) on SCALAR
+
+directive @unref1 on ENUM
+

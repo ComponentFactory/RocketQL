@@ -18,6 +18,10 @@ public partial class Schema
             visitor.Visit(_schema.Schemas);
         }
 
+        public void VisitSchemaDefinition(SchemaRoot schemaRoot)
+        {
+        }
+
         public void VisitSchemaDefinition(SchemaDefinition schema)
         {
             VisitDirectives(schema.Directives);

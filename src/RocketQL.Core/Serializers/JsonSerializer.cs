@@ -1,7 +1,6 @@
 ﻿namespace RocketQL.Core.Serializers;
 
 public ref struct JsonSerializer
-
 {
     private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
 

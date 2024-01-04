@@ -1,6 +1,6 @@
-﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
+﻿namespace RocketQL.Core.UnitTests.SchemaSerialize;
 
-public class Printer : UnitTestBase
+public class Serialize : UnitTestBase
 {
     [Theory]
     [InlineData("printer-schema.graphql")]
@@ -10,7 +10,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print();
+        string print = Serialization.SchemaSerialize(schema);
         print.MatchSnapshot();
     }
 
@@ -22,7 +22,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IndentCount = 2 });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCount = 2 });
         print.MatchSnapshot();
     }
 
@@ -34,7 +34,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IndentCharacter = PrintIndentCharacter.Tab, IndentCount = 2 });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCharacter = PrintIndentCharacter.Tab, IndentCount = 2 });
         print.MatchSnapshot();
     }
 
@@ -46,7 +46,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IncludeDescription = false });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeDescription = false });
         print.MatchSnapshot();
     }
 
@@ -58,7 +58,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IncludeBuiltIn = true });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true });
         print.MatchSnapshot();
     }
 
@@ -70,7 +70,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IncludeBuiltIn = true, IncludeUnrooted = false });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = false });
         print.MatchSnapshot();
     }
 
@@ -82,7 +82,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IncludeBuiltIn = true, IncludeUnrooted = true });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = true });
         print.MatchSnapshot();
     }
 }

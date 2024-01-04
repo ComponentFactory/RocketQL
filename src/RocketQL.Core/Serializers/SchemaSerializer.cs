@@ -1,38 +1,36 @@
-﻿using RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Serializers;
 
-namespace RocketQL.Core.Base;
-
-public partial class Schema
+public class SchemaSerializer(Schema schema)
 {
-    private static SchemaPrintOptions _defaultPrintOptions = new();
+    private static SchemaSerializeOptions _defaultOptions = new();
 
-    public string Print()
+    public string Serialize(SchemaSerializeOptions? options = null)
     {
-        return Print(_defaultPrintOptions);
-    }
-
-    public string Print(SchemaPrintOptions options)
-    {
-        var printer = new SchemaPrinter(this);
-        printer.Visit(options);
+        var printer = new SchemaSerialize(schema);
+        printer.Visit(options ?? _defaultOptions);
         return printer.ToString();
     }
 
-    private class SchemaPrinter(Schema schema) : ISchemaNodeVisitors
+    private class SchemaSerialize(Schema schema) : ISchemaNodeVisitors
     {
+        private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
+
         private readonly Schema _schema = schema;
-        private readonly StringBuilder _builder = new();
-        private SchemaPrintOptions _options = _defaultPrintOptions;
+        private readonly StringBuilder _builder = _cachedBuilder.Value!;
+        private SchemaSerializeOptions _options = _defaultOptions;
         private char _indentCharacter = ' ';
         private int _indents;
 
-        public void Visit(SchemaPrintOptions options)
+        public void Visit(SchemaSerializeOptions options)
         {
+            if (!_schema.IsValidated)
+                throw ValidationException.CannotSerializeInvalidSchema();
+
             _options = options;
             _indentCharacter = _options.IndentCharacter == PrintIndentCharacter.Space ? ' ' : '\t';
 
             ISchemaNodeVisitors visitor = this;
-            visitor.Visit(_schema.Schemas);
+            visitor.Visit(_schema.Root!);
             visitor.Visit(_schema.Types.Values.Where(t => t is ObjectTypeDefinition));
             visitor.Visit(_schema.Types.Values.Where(t => t is InterfaceTypeDefinition));
             visitor.Visit(_schema.Types.Values.Where(t => t is UnionTypeDefinition));
@@ -95,7 +93,7 @@ public partial class Schema
 
             bool firstLocation = true;
             DirectiveLocations[] locations = Enum.GetValues<DirectiveLocations>();
-            foreach(var location in locations)
+            foreach (var location in locations)
             {
                 var locationName = Enum.GetName(location)!;
                 if (!locationName.Contains("_LOCATIONS"))
@@ -421,25 +419,35 @@ public partial class Schema
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
+        { 
+        }
+
+        public void VisitSchemaDefinition(SchemaRoot schemaRoot)
         {
-            PrintDescription(schemaDefinition.Description);
+            PrintDescription(schemaRoot.Description);
             StartLine();
             Print($"schema");
-            PrintDirectives(schemaDefinition.Directives);
+            PrintDirectives(schemaRoot.Directives);
             EndLine();
 
             PrintLine("{");
             StartIndent();
 
-            foreach (var operation in schemaDefinition.Operations.Values)
-                PrintLine($"{operation.Operation.ToString().ToLower()}: {operation.NamedType}");
+            if (schemaRoot.Query is not null)
+                PrintLine($"{schemaRoot.Query.Operation.ToString().ToLower()}: {schemaRoot.Query.NamedType}");
+
+            if (schemaRoot.Mutation is not null)
+                PrintLine($"{schemaRoot.Mutation.Operation.ToString().ToLower()}: {schemaRoot.Mutation.NamedType}");
+
+            if (schemaRoot.Subscription is not null)
+                PrintLine($"{schemaRoot.Subscription.Operation.ToString().ToLower()}: {schemaRoot.Subscription.NamedType}");
 
             EndIndent();
             PrintLine("}");
             PrintBlankLine();
         }
 
-        public override string ToString() 
+        public override string ToString()
         {
             return _builder.ToString();
         }

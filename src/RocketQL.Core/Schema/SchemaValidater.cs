@@ -134,6 +134,10 @@ public partial class Schema
             CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
         }
 
+        public void VisitSchemaDefinition(SchemaRoot schemaRoot)
+        {
+        }
+
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
             if (schemaDefinition.Operations.Count == 0)

@@ -70,6 +70,10 @@ public partial class Schema
             InterlinkInputValues(inputObjectType.InputFields, inputObjectType, inputObjectType);
         }
 
+        public void VisitSchemaDefinition(SchemaRoot schemaRoot)
+        {
+        }
+
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
             InterlinkDirectives(schemaDefinition.Directives, schemaDefinition);

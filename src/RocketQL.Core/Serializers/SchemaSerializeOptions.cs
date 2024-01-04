@@ -1,7 +1,6 @@
-﻿
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Serializers;
 
-public class SchemaPrintOptions
+public class SchemaSerializeOptions
 {
     public PrintIndentCharacter IndentCharacter { get; set; } = PrintIndentCharacter.Space;
     public int IndentCount { get; set; } = 4;

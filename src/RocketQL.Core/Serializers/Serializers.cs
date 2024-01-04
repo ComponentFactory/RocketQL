@@ -33,6 +33,11 @@ public static class Serialization
         return new RequestDeserializer(text, source).Deserialize();
     }
 
+    public static string SchemaSerialize(Schema schema, SchemaSerializeOptions? options = null)
+    {
+        return new SchemaSerializer(schema).Serialize(options);
+    }
+
     public static SyntaxNodeList SchemaDeserialize(ReadOnlySpan<char> text,
                                                    [CallerFilePath] string filePath = "",
                                                    [CallerMemberName] string memberName = "",

@@ -12,6 +12,9 @@ public interface ISchemaNodeVisitors
     {
         switch (node)
         {
+            case SchemaRoot schemaRoot:
+                VisitSchemaDefinition(schemaRoot);
+                break;
             case SchemaDefinition schema:
                 VisitSchemaDefinition(schema);
                 break;
@@ -41,6 +44,7 @@ public interface ISchemaNodeVisitors
         }
     }
 
+    void VisitSchemaDefinition(SchemaRoot schemaRoot);
     void VisitSchemaDefinition(SchemaDefinition schema);
     void VisitDirectiveDefinition(DirectiveDefinition directive);
     void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType);
