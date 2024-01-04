@@ -446,7 +446,7 @@ public partial class Schema
 
         private bool IsDescriptionEmpty(string description)
         {
-            return !_options.IncludeDescriptions || string.IsNullOrEmpty(description);
+            return !_options.IncludeDescription || string.IsNullOrEmpty(description);
         }
 
         private void PrintDescription(string description)

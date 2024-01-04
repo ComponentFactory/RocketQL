@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestFiles\printer-unreferenced-schema.graphql">
+    <None Update="TestFiles\printer-unrooted-schema.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\printer-schema.graphql">

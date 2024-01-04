@@ -46,7 +46,7 @@ public class Printer : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = schema.Print(new SchemaPrintOptions() { IncludeDescriptions = false });
+        string print = schema.Print(new SchemaPrintOptions() { IncludeDescription = false });
         print.MatchSnapshot();
     }
 
@@ -63,7 +63,7 @@ public class Printer : UnitTestBase
     }
 
     [Theory]
-    [InlineData("printer-unreferenced-schema.graphql")]
+    [InlineData("printer-unrooted-schema.graphql")]
     public void FileSchemaExcludeUnrooted(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
@@ -75,7 +75,7 @@ public class Printer : UnitTestBase
     }
 
     [Theory]
-    [InlineData("printer-unreferenced-schema.graphql")]
+    [InlineData("printer-unrooted-schema.graphql")]
     public void FileSchemaIncludeUnrooted(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
