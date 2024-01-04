@@ -1,0 +1,10 @@
+"Only schema should be printed"
+type Query { fizz: Int }
+
+directive @unref1 on ENUM
+scalar unref2
+type unref3 { fizz: Int }
+interface unref4 { fizz: Int }
+union unref5
+enum unref6 { FIZZ }
+input unref7 { fizz: Int }

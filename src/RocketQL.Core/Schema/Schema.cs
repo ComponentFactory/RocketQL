@@ -63,72 +63,13 @@ public partial class Schema
             Converter.Visit();
             Linker.Visit();
             Validater.Visit();
-            ValidateSchema();
+            Rooter.Visit();
             IsValidated = true;
         }
         catch
         {
             Clean();
             throw;
-        }
-    }
-
-    private void ValidateSchema()
-    {
-        if (Schemas.Count == 1)
-        {
-            Root = new SchemaRoot()
-            {
-                Description = Schemas[0].Description,
-                Directives = Schemas[0].Directives,
-                Query = Schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
-                Mutation = Schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
-                Subscription = Schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
-                Location = Schemas[0].Location,
-            };
-        }
-        else
-        {
-            Types.TryGetValue("Query", out var queryTypeDefinition);
-            Types.TryGetValue("Mutation", out var mutationTypeDefinition);
-            Types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
-
-            if (queryTypeDefinition is null)
-                throw ValidationException.AutoSchemaQueryMissing();
-
-            if (queryTypeDefinition is not ObjectTypeDefinition)
-                throw ValidationException.AutoSchemaOperationNotObject(queryTypeDefinition, "Query");
-
-            if (!AllReferencesWithinType(queryTypeDefinition))
-                throw ValidationException.AutoSchemaOperationReferenced(queryTypeDefinition, "Query");
-
-            if (mutationTypeDefinition is not null)
-            {
-                if (mutationTypeDefinition is not ObjectTypeDefinition)
-                    throw ValidationException.AutoSchemaOperationNotObject(mutationTypeDefinition, "Mutation");
-
-                if (!AllReferencesWithinType(mutationTypeDefinition))
-                    throw ValidationException.AutoSchemaOperationReferenced(mutationTypeDefinition, "Mutation");
-            }
-
-            if (subscriptionTypeDefinition is not null)
-            {
-                if (subscriptionTypeDefinition is not ObjectTypeDefinition)
-                    throw ValidationException.AutoSchemaOperationNotObject(subscriptionTypeDefinition, "Subscription");
-
-                if (!AllReferencesWithinType(subscriptionTypeDefinition))
-                    throw ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription");
-            }
-
-            Root = new SchemaRoot()
-            {
-                Description = string.Empty,
-                Directives = [],
-                Query = OperationTypeFromObjectType(queryTypeDefinition, OperationType.QUERY),
-                Mutation = OperationTypeFromObjectType(mutationTypeDefinition, OperationType.MUTATION),
-                Subscription = OperationTypeFromObjectType(subscriptionTypeDefinition, OperationType.SUBSCRIPTION),
-                Location = queryTypeDefinition.Location,
-            };
         }
     }
 
@@ -335,19 +276,5 @@ public partial class Schema
         }
 
         return true;
-    }
-
-    private static OperationTypeDefinition? OperationTypeFromObjectType(TypeDefinition? typeDefinition, OperationType operationType)
-    {
-        if (typeDefinition is null)
-            return null;
-
-        return new OperationTypeDefinition()
-        {
-            Definition = typeDefinition,
-            Operation = operationType,
-            NamedType = typeDefinition.Name,
-            Location = typeDefinition.Location,
-        };
     }
 }

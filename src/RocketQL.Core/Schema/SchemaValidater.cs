@@ -15,6 +15,7 @@ public partial class Schema
             visitor.Visit(_schema.Directives.Values);
             visitor.Visit(_schema.Types.Values);
             visitor.Visit(_schema.Schemas);
+            ValidateSchema();
         }
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
@@ -145,12 +146,12 @@ public partial class Schema
             if (query is null)
                 throw ValidationException.SchemaDefinitionMissingQuery(schemaDefinition);
 
-            if (query.Definition is not ObjectTypeDefinition)
+            if (!(query.Definition is ObjectTypeDefinition))
                 throw ValidationException.SchemaOperationTypeNotObject(query, query.Definition!);
 
             if (mutation is not null)
             {
-                if (mutation.Definition is not ObjectTypeDefinition)
+                if (!(mutation.Definition is ObjectTypeDefinition))
                     throw ValidationException.SchemaOperationTypeNotObject(mutation, mutation.Definition!);
     
                 if (mutation.Definition == query.Definition)
@@ -159,7 +160,7 @@ public partial class Schema
 
             if (subscription is not null)
             {
-                if (subscription.Definition is not ObjectTypeDefinition)
+                if (!(subscription.Definition is ObjectTypeDefinition))
                     throw ValidationException.SchemaOperationTypeNotObject(subscription, subscription.Definition!);
 
                 if (subscription.Definition == query.Definition)
@@ -170,6 +171,107 @@ public partial class Schema
                 throw ValidationException.SchemaOperationsNotUnique(mutation, subscription);
 
             CheckDirectiveUsage(schemaDefinition.Directives, schemaDefinition, DirectiveLocations.SCHEMA);
+        }
+
+        private void ValidateSchema()
+        {
+            if (_schema.Schemas.Count == 1)
+            {
+                _schema.Root = new SchemaRoot()
+                {
+                    Description = _schema.Schemas[0].Description,
+                    Directives = _schema.Schemas[0].Directives,
+                    Query = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
+                    Mutation = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
+                    Subscription = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
+                    Location = _schema.Schemas[0].Location,
+                };
+            }
+            else
+            {
+                _schema.Types.TryGetValue("Query", out var queryTypeDefinition);
+                _schema.Types.TryGetValue("Mutation", out var mutationTypeDefinition);
+                _schema.Types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
+
+                if (queryTypeDefinition is null)
+                    throw ValidationException.AutoSchemaQueryMissing();
+
+                if (queryTypeDefinition is not ObjectTypeDefinition)
+                    throw ValidationException.AutoSchemaOperationNotObject(queryTypeDefinition, "Query");
+
+                if (!AllReferencesWithinType(queryTypeDefinition))
+                    throw ValidationException.AutoSchemaOperationReferenced(queryTypeDefinition, "Query");
+
+                if (mutationTypeDefinition is not null)
+                {
+                    if (mutationTypeDefinition is not ObjectTypeDefinition)
+                        throw ValidationException.AutoSchemaOperationNotObject(mutationTypeDefinition, "Mutation");
+
+                    if (!AllReferencesWithinType(mutationTypeDefinition))
+                        throw ValidationException.AutoSchemaOperationReferenced(mutationTypeDefinition, "Mutation");
+                }
+
+                if (subscriptionTypeDefinition is not null)
+                {
+                    if (subscriptionTypeDefinition is not ObjectTypeDefinition)
+                        throw ValidationException.AutoSchemaOperationNotObject(subscriptionTypeDefinition, "Subscription");
+
+                    if (!AllReferencesWithinType(subscriptionTypeDefinition))
+                        throw ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription");
+                }
+
+                _schema.Root = new SchemaRoot()
+                {
+                    Description = string.Empty,
+                    Directives = [],
+                    Query = OperationTypeFromObjectType(queryTypeDefinition as ObjectTypeDefinition, OperationType.QUERY),
+                    Mutation = OperationTypeFromObjectType(mutationTypeDefinition as ObjectTypeDefinition, OperationType.MUTATION),
+                    Subscription = OperationTypeFromObjectType(subscriptionTypeDefinition as ObjectTypeDefinition, OperationType.SUBSCRIPTION),
+                    Location = queryTypeDefinition.Location,
+                };
+
+                OperationTypeDefinitions operations = [];
+
+                if (_schema.Root.Query is not null)
+                {
+                    operations.Add(_schema.Root.Query.Operation, _schema.Root.Query);
+                    queryTypeDefinition.References.Add(_schema.Root.Query);
+                }
+
+                if ((_schema.Root.Mutation is not null) && (mutationTypeDefinition is not null))
+                {
+                    operations.Add(_schema.Root.Mutation.Operation, _schema.Root.Mutation);
+                    mutationTypeDefinition.References.Add(_schema.Root.Mutation);
+                }
+
+                if ((_schema.Root.Subscription is not null) && (subscriptionTypeDefinition is not null))
+                {
+                    operations.Add(_schema.Root.Subscription.Operation, _schema.Root.Subscription);
+                    subscriptionTypeDefinition.References.Add(_schema.Root.Subscription);
+                }
+
+                _schema.Schemas.Add(new SchemaDefinition()
+                {
+                    Description = _schema.Root.Description,
+                    Directives = _schema.Root.Directives,
+                    Operations = operations,
+                    Location = _schema.Root.Location
+                });
+            }
+        }
+
+        private static OperationTypeDefinition? OperationTypeFromObjectType(ObjectTypeDefinition? typeDefinition, OperationType operationType)
+        {
+            if (typeDefinition is null)
+                return null;
+
+            return new OperationTypeDefinition()
+            {
+                Definition = typeDefinition,
+                Operation = operationType,
+                NamedType = typeDefinition.Name,
+                Location = typeDefinition.Location,
+            };
         }
 
         private static void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,

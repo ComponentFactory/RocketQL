@@ -44,7 +44,8 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
-            if (directiveDefinition.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((directiveDefinition.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!directiveDefinition.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(directiveDefinition.Description);
@@ -116,7 +117,8 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            if (scalarType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((scalarType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!scalarType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(scalarType.Description);
@@ -129,7 +131,8 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            if (objectType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((objectType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!objectType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(objectType.Description);
@@ -218,7 +221,8 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            if (interfaceType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((interfaceType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!interfaceType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(interfaceType.Description);
@@ -308,7 +312,8 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            if (unionType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((unionType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!unionType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(unionType.Description);
@@ -337,7 +342,8 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            if (enumType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((enumType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!enumType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(enumType.Description);
@@ -372,7 +378,8 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            if (inputObjectType.IsBuiltIn && !_options.PrintBuiltIn)
+            if ((inputObjectType.IsBuiltIn && !_options.IncludeBuiltIn) ||
+                (!inputObjectType.IsRooted && !_options.IncludeUnrooted))
                 return;
 
             PrintDescription(inputObjectType.Description);
@@ -439,12 +446,7 @@ public partial class Schema
 
         private bool IsDescriptionEmpty(string description)
         {
-            return !_options.PrintDescriptions || string.IsNullOrEmpty(description);
-        }
-
-        private static bool IsDescriptionMultiline(string description)
-        {
-            return description.Contains('\n');
+            return !_options.IncludeDescriptions || string.IsNullOrEmpty(description);
         }
 
         private void PrintDescription(string description)

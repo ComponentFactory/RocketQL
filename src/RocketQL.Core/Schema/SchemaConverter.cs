@@ -80,7 +80,6 @@ public partial class Schema
                 throw ValidationException.NameAlreadyDefined(interfaceType.Location, "Interface", interfaceType.Name);
 
             _schema.Types.Add(interfaceType.Name, new InterfaceTypeDefinition()
-
             {
                 Description = interfaceType.Description,
                 Name = interfaceType.Name,
@@ -97,7 +96,6 @@ public partial class Schema
                 throw ValidationException.NameAlreadyDefined(unionType.Location, "Union", unionType.Name);
 
             _schema.Types.Add(unionType.Name, new UnionTypeDefinition()
-
             {
                 Description = unionType.Description,
                 Name = unionType.Name,

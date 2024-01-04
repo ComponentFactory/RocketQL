@@ -79,7 +79,10 @@ public partial class Schema
                 if (!_schema.Types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
                     throw ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition);
 
-                operationTypeDefinition.Definition = typeDefinition;
+                if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
+                    throw ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition);
+
+                operationTypeDefinition.Definition = typeDefinition as ObjectTypeDefinition;
             }
         }
 
@@ -98,7 +101,7 @@ public partial class Schema
                 }
 
                 directive.Definition = directiveDefinition;
-                directiveDefinition.References.Add(directive);
+                directiveDefinition.References.Add(directive!);
             }
         }
 
@@ -115,7 +118,7 @@ public partial class Schema
                     throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
 
                 interfaceEntry.Definition = interfaceTypeDefinition;
-                interfaceTypeDefinition.References.Add(interfaceEntry);
+                interfaceTypeDefinition.References.Add(interfaceEntry!);
             }
         }
 

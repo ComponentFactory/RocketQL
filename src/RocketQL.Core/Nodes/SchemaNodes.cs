@@ -1,5 +1,6 @@
 ﻿namespace RocketQL.Core.Nodes;
 
+public class SchemaNodes : List<SchemaNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
 public class TypeDefinitions : Dictionary<string, TypeDefinition> { };
@@ -46,9 +47,10 @@ public class DirectiveDefinition : SchemaNode
     public required bool Repeatable { get; init; }
     public required DirectiveLocations DirectiveLocations { get; init; }
     public bool IsBuiltIn { get; init; }
+    public bool IsRooted { get; set; }
+    public Directives References { get; init; } = [];
     public override string OutputElement => "Directive";
     public override string OutputName => Name;
-    public readonly List<SchemaNode> References = [];
 }
 
 public abstract class TypeDefinition : SchemaNode
@@ -57,10 +59,11 @@ public abstract class TypeDefinition : SchemaNode
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public bool IsBuiltIn { get; init; }
+    public bool IsRooted { get; set; }
+    public SchemaNodes References { get; init; } = [];
     public override string OutputName => Name;
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
-    public readonly List<SchemaNode> References = [];
 }
 
 public class ScalarTypeDefinition : TypeDefinition
@@ -133,7 +136,7 @@ public class OperationTypeDefinition : SchemaNode
 {
     public required OperationType Operation { get; init; }
     public required string NamedType { get; init; }
-    public required TypeDefinition? Definition { get; set; }
+    public required ObjectTypeDefinition? Definition { get; set; }
 }
 
 public class FieldDefinition : SchemaNode
