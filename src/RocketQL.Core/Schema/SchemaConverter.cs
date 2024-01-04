@@ -2,8 +2,8 @@
 
 public partial class Schema
 {
-    private SchemaConverter? _schemaConvert = null;
-    private SchemaConverter Converter => _schemaConvert ??= new SchemaConverter(this);
+    private SchemaConverter? _schemaConverter = null;
+    private SchemaConverter Converter => _schemaConverter ??= new SchemaConverter(this);
 
     private class SchemaConverter(Schema schema) : ISyntaxNodeVisitors
     {

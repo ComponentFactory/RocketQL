@@ -2,8 +2,8 @@
 
 public partial class Schema
 {
-    private SchemaLinker? _schemaLink = null;
-    private SchemaLinker Linker => _schemaLink ??= new SchemaLinker(this);
+    private SchemaLinker? _schemaLinker = null;
+    private SchemaLinker Linker => _schemaLinker ??= new SchemaLinker(this);
 
     private class SchemaLinker(Schema schema) : ISchemaNodeVisitors
     {

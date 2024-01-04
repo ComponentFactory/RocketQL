@@ -21,7 +21,7 @@
 			input object
 			schema
 
-		All kitchen sink to sceham validation Files unit test now that extend is added
+		All kitchen sink to schema validation Files unit test now that extend is added
 		Add basic schema with extends and the check the validated printed output has no extends
 		Allow multiple exceptions but some are catastrophic
 

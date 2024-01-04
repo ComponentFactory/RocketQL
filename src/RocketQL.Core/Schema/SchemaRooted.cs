@@ -5,10 +5,10 @@ namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
-    private SchemaRooter? _schemaRoot = null;
-    private SchemaRooter Rooter => _schemaRoot ??= new SchemaRooter(this);
+    private SchemaRooted? _schemaRooted = null;
+    private SchemaRooted Rooter => _schemaRooted ??= new SchemaRooted(this);
 
-    private class SchemaRooter(Schema schema) : ISchemaNodeVisitors
+    private class SchemaRooted(Schema schema) : ISchemaNodeVisitors
     {
         private readonly Schema _schema = schema;
 
