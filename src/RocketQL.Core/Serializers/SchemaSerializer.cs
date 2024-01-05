@@ -28,6 +28,7 @@ public ref struct SchemaSerializer(Schema schema)
 
             _options = options;
             _indentCharacter = _options.IndentCharacter == PrintIndentCharacter.Space ? ' ' : '\t';
+            _builder.Clear();
 
             ISchemaNodeVisitors visitor = this;
             visitor.Visit(_schema.Root!);

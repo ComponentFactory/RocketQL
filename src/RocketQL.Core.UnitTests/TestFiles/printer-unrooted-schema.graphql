@@ -1,10 +1,10 @@
 "Only Schema, Query and Int should be printed"
 type Query { fizz: Int }
 
-directive @unref1 on ENUM
-scalar unref2
-type unref3 { fizz: Int }
-interface unref4 { fizz: Int }
-union unref5
-enum unref6 { FIZZ }
-input unref7 { fizz: Int }
+directive @unref1 on SCALAR | OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT
+scalar unref2 @unref1
+type unref3 @unref1 { fizz: Int }
+interface unref4 @unref1 { fizz: Int }
+union unref5 @unref1
+enum unref6 @unref1 { FIZZ }
+input unref7 @unref1 { fizz: Int }
