@@ -15,7 +15,7 @@ public class Enum : UnitTestBase
     [InlineData("enum foo {}",                                          "Enum 'foo' must have at least one enum value.")]
     // Double underscores
     [InlineData("enum __foo { FIRST }",                                 "Enum '__foo' not allowed to start with two underscores.")]
-    // Enum values must be unque
+    // Enum values must be unique
     [InlineData("enum foo { FIRST FIRST }",                             "Enum 'foo' has duplicate definition of value 'FIRST'.")]
     // Directive errors
     [InlineData("enum foo @example { FIRST }",                          "Undefined directive 'example' defined on enum 'foo'.")]

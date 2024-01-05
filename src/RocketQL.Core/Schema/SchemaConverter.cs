@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -144,9 +146,54 @@ public partial class Schema
                 throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Scalar");
 
             if (extendScalarType.Directives.Count == 0)
-                throw ValidationException.ExtendScalarDirectiveMandatory(extendScalarType.Location, extendScalarType.Name);
+                throw ValidationException.ExtendScalarMandatory(extendScalarType.Location, extendScalarType.Name);
 
             scalarType.Directives.AddRange(ConvertDirectives(extendScalarType.Directives));
+        }
+
+        public void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType)
+        {
+            if (!_schema.Types.TryGetValue(extendEnumType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendEnumType.Location, "Enum", extendEnumType.Name);
+
+            if (!(typeDefinition is EnumTypeDefinition enumType))
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Enum");
+
+            if ((extendEnumType.Directives.Count == 0) && (extendEnumType.EnumValues.Count == 0))
+                throw ValidationException.ExtendEnumMandatory(extendEnumType.Location, extendEnumType.Name);
+
+            if (extendEnumType.Directives.Count > 0)
+                enumType.Directives.AddRange(ConvertDirectives(extendEnumType.Directives));
+
+            if (extendEnumType.EnumValues.Count > 0)
+            {
+                HashSet<string> extendValues = [];
+                foreach(var extendEnumValue in extendEnumType.EnumValues)
+                {
+                    if (extendValues.Contains(extendEnumValue.Name))
+                        throw ValidationException.ExtendEnumValueAlreadyDefined(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name);
+
+                    if (!enumType.EnumValues.TryGetValue(extendEnumValue.Name, out var existingEnumValue))
+                    {
+                        enumType.EnumValues.Add(extendEnumValue.Name, new()
+                        {
+                            Description = extendEnumValue.Description,
+                            Name = extendEnumValue.Name,
+                            Directives = ConvertDirectives(extendEnumValue.Directives),
+                            Location = extendEnumValue.Location
+                        });
+                    }
+                    else 
+                    {
+                        if (extendEnumValue.Directives.Count == 0)
+                            throw ValidationException.ExtendExistingEnumValueWithoutDirective(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name);
+
+                        existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
+                    }
+
+                    extendValues.Add(extendEnumValue.Name);
+                }
+            }
         }
 
         private static FieldDefinitions ConvertFieldDefinitions(SyntaxFieldDefinitionNodeList fields, string parentNode, string parentName)

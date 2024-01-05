@@ -72,7 +72,7 @@ public class ExtendSchema : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend scheme must specify at least one directive or operation type.", ex.Message);
+            Assert.Equal($"Extend scheme must specify at least one directive or operation.", ex.Message);
         }
         catch
         {

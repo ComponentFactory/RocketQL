@@ -97,7 +97,7 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend union must specify at least one of directive or member types.", ex.Message);
+            Assert.Equal($"Extend union must specify at least one of directive or member type.", ex.Message);
         }
         catch
         {

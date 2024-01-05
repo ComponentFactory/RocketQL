@@ -74,7 +74,7 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend input object must specify at least one of directive or field list.", ex.Message);
+            Assert.Equal($"Extend input object must specify at least one of directive or field.", ex.Message);
         }
         catch
         {

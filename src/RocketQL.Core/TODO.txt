@@ -11,8 +11,6 @@
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
-		Walk roots to ensure we know all types referenced by anything, use that to decide on print outputting
-
 		Allow extend syntax nodes
 			enum
 			union

@@ -189,7 +189,7 @@ public class ExtendObjectTypeDefinition : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend object must specify at least one of interface, directive or field set.", ex.Message);
+            Assert.Equal($"Extend object must specify at least one of interface, directive or field.", ex.Message);
         }
         catch
         {

@@ -41,6 +41,9 @@ public interface ISyntaxNodeVisitors
             case SyntaxExtendScalarTypeDefinitionNode extendscalarType:
                 VisitExtendScalarDefinition(extendscalarType);
                 break;
+            case SyntaxExtendEnumTypeDefinitionNode extendEnumType:
+                VisitExtendEnumDefinition(extendEnumType);
+                break;
             default:
                 throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString());
         }
@@ -55,4 +58,5 @@ public interface ISyntaxNodeVisitors
     void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType);
     void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType);
     void VisitExtendScalarDefinition(SyntaxExtendScalarTypeDefinitionNode extendscalarType);
+    void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType);
 }

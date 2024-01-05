@@ -17,7 +17,6 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         enumValue.Directives.NotNull().Count(0);
     }
 
-
     [Fact]
     public void Directive()
     {
@@ -80,7 +79,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Extend enum must specify at least one of directive or enum values.", ex.Message);
+            Assert.Equal($"Extend enum must specify at least one of directive or enum value.", ex.Message);
         }
         catch
         {

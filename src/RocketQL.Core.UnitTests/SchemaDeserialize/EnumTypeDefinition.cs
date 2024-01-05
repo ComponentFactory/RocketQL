@@ -7,7 +7,7 @@ public class EnumTypeDefinition : UnitTestBase
     [InlineData("enum foo { }")]
     public void Minimum(string schema)
     {
-        var documentNode = Serialization.SchemaDeserialize("enum foo");
+        var documentNode = Serialization.SchemaDeserialize(schema);
 
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
