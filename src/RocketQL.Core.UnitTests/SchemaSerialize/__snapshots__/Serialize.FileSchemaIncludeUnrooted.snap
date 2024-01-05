@@ -11,26 +11,32 @@ type Query
     fizz: Int
 }
 
-type unref3 @unref1
+type unref3 implements unref4 @unref1
 {
-    fizz: Int
+    fizz
+    (
+        arg: unref2 @unref1
+    ): unref2 @unref1
 }
 
 interface unref4 @unref1
 {
-    fizz: Int
+    fizz
+    (
+        arg: unref2 @unref1
+    ): unref2 @unref1
 }
 
-union unref5 @unref1
+union unref5 @unref1 = unref3
 
 input unref7 @unref1
 {
-    fizz: Int
+    fizz: unref2 @unref1
 }
 
 enum unref6 @unref1
 {
-    FIZZ
+    FIZZ @unref1
 }
 
 """
@@ -64,7 +70,9 @@ or integer (such as `4`) input value will be accepted as an ID.
 """
 scalar ID
 
-scalar unref2 @unref1
+scalar unref0
+
+scalar unref2 @unref1(arg: "arg")
 
 """
 Directs the executor to include this field or fragment only when the `if` argument is true
@@ -110,5 +118,8 @@ directive @specifiedBy
     url: String!
 ) on SCALAR
 
-directive @unref1 on SCALAR | OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT
+directive @unref1
+(
+    arg: unref0
+) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
