@@ -22,7 +22,7 @@ public class ExtendScalar : UnitTestBase
     }
 
     [Fact]
-    public void AddDirective()
+    public void AddDirectiveToScalar()
     {
         var schema = new Schema();
         schema.Add("""

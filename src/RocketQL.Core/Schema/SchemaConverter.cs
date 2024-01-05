@@ -137,12 +137,43 @@ public partial class Schema
             });
         }
 
-        public void VisitExtendScalarDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
+        public void VisitExtendSchemaDefinition(SyntaxExtendSchemaDefinitionNode extendSchema)
+        {
+            if (_schema.Schemas.Count == 0)
+                throw ValidationException.SchemaNotDefinedForExtend(extendSchema.Location);
+
+            if ((extendSchema.Directives.Count == 0) && (extendSchema.OperationTypes.Count == 0))
+                throw ValidationException.ExtendSchemaMandatory(extendSchema.Location);
+
+            var schemaType = _schema.Schemas[0];
+
+            if (extendSchema.Directives.Count > 0)
+                schemaType.Directives.AddRange(ConvertDirectives(extendSchema.Directives));
+
+            if (extendSchema.OperationTypes.Count > 0)
+            {
+                foreach(var operationType in extendSchema.OperationTypes)
+                {
+                    if (schemaType.Operations.TryGetValue(operationType.Operation, out _))
+                        throw ValidationException.ExtendSchemaOperationAlreadyDefined(operationType.Location, operationType.Operation);
+
+                    schemaType.Operations.Add(operationType.Operation, new()
+                    {
+                        Operation = operationType.Operation,
+                        NamedType = operationType.NamedType,
+                        Definition = null,
+                        Location = operationType.Location
+                    });
+                }
+            }
+        }
+
+        public void VisitExtendScalarTypeDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
         {
             if (!_schema.Types.TryGetValue(extendScalarType.Name, out var typeDefinition))
                 throw ValidationException.TypeNotDefinedForExtend(extendScalarType.Location, "Scalar", extendScalarType.Name);
 
-            if (!(typeDefinition is ScalarTypeDefinition scalarType))
+            if (typeDefinition is not ScalarTypeDefinition scalarType)
                 throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Scalar");
 
             if (extendScalarType.Directives.Count == 0)
@@ -151,12 +182,119 @@ public partial class Schema
             scalarType.Directives.AddRange(ConvertDirectives(extendScalarType.Directives));
         }
 
+        public void VisitExtendObjectTypeDefinition(SyntaxExtendObjectTypeDefinitionNode extendObjectType)
+        {
+            if (!_schema.Types.TryGetValue(extendObjectType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendObjectType.Location, "Object", extendObjectType.Name);
+
+            if (typeDefinition is not ObjectTypeDefinition objectType)
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Object");
+
+            if ((extendObjectType.ImplementsInterfaces.Count == 0) &&
+                (extendObjectType.Directives.Count == 0) &&
+                (extendObjectType.Fields.Count == 0))
+                throw ValidationException.ExtendObjectInterfaceMandatory(extendObjectType.Location, objectType.OutputElement, extendObjectType.Name);
+
+            if (extendObjectType.Directives.Count > 0)
+                objectType.Directives.AddRange(ConvertDirectives(extendObjectType.Directives));
+
+            if (extendObjectType.ImplementsInterfaces.Count > 0)
+            {
+                foreach (var extendImplementsInterface in extendObjectType.ImplementsInterfaces)
+                {
+                    if (objectType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
+                        throw ValidationException.ExtendImplementAlreadyDefined(extendImplementsInterface.Location, 
+                                                                                "Extend object", 
+                                                                                extendObjectType.Name, 
+                                                                                extendImplementsInterface.Name);
+
+                    objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new()
+                    {
+                        Name = extendImplementsInterface.Name,
+                        Definition = null,
+                        Location = extendImplementsInterface.Location
+                    });
+                }
+            }
+
+            ExtendFieldsWithArguments(extendObjectType.Name, extendObjectType.Fields, objectType.Fields, "Extend object");
+        }
+
+        public void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType)
+        {
+            if (!_schema.Types.TryGetValue(extendInterfaceType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendInterfaceType.Location, "Interface", extendInterfaceType.Name);
+
+            if (typeDefinition is not InterfaceTypeDefinition interfaceType)
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Interface");
+
+            if ((extendInterfaceType.ImplementsInterfaces.Count == 0) &&
+                (extendInterfaceType.Directives.Count == 0) &&
+                (extendInterfaceType.Fields.Count == 0))
+                throw ValidationException.ExtendObjectInterfaceMandatory(extendInterfaceType.Location, interfaceType.OutputElement, extendInterfaceType.Name);
+
+            if (extendInterfaceType.Directives.Count > 0)
+                interfaceType.Directives.AddRange(ConvertDirectives(extendInterfaceType.Directives));
+
+            if (extendInterfaceType.ImplementsInterfaces.Count > 0)
+            {
+                foreach (var extendImplementsInterface in extendInterfaceType.ImplementsInterfaces)
+                {
+                    if (interfaceType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
+                        throw ValidationException.ExtendImplementAlreadyDefined(extendImplementsInterface.Location, 
+                                                                                "Extend interface", 
+                                                                                extendInterfaceType.Name, 
+                                                                                extendImplementsInterface.Name);
+
+                    interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new()
+                    {
+                        Name = extendImplementsInterface.Name,
+                        Definition = null,
+                        Location = extendImplementsInterface.Location
+                    });
+                }
+            }
+
+            ExtendFieldsWithArguments(extendInterfaceType.Name, extendInterfaceType.Fields, interfaceType.Fields, "Extend interface");
+        }
+
+        public void VisitExtendUnionTypeDefinition(SyntaxExtendUnionTypeDefinitionNode extendUnionType)
+        {
+            if (!_schema.Types.TryGetValue(extendUnionType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendUnionType.Location, "Union", extendUnionType.Name);
+
+            if (typeDefinition is not UnionTypeDefinition unionType)
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Union");
+
+            if ((extendUnionType.Directives.Count == 0) && (extendUnionType.MemberTypes.Count == 0))
+                throw ValidationException.ExtendUnionMandatory(extendUnionType.Location, extendUnionType.Name);
+
+            if (extendUnionType.Directives.Count > 0)
+                unionType.Directives.AddRange(ConvertDirectives(extendUnionType.Directives));
+
+            if (extendUnionType.MemberTypes.Count > 0)
+            {
+                foreach (var extendMemberType in extendUnionType.MemberTypes)
+                {
+                    if (unionType.MemberTypes.TryGetValue(extendMemberType.Name, out _))
+                        throw ValidationException.ExtendUnionAlreadyDefined(extendUnionType.Location, extendMemberType.Name, extendUnionType.Name);
+
+                    unionType.MemberTypes.Add(extendMemberType.Name, new()
+                    {
+                        Name = extendMemberType.Name,
+                        Definition = null,
+                        Location = extendMemberType.Location
+                    });
+                }
+            }
+        }
+
         public void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType)
         {
             if (!_schema.Types.TryGetValue(extendEnumType.Name, out var typeDefinition))
                 throw ValidationException.TypeNotDefinedForExtend(extendEnumType.Location, "Enum", extendEnumType.Name);
 
-            if (!(typeDefinition is EnumTypeDefinition enumType))
+            if (typeDefinition is not EnumTypeDefinition enumType)
                 throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Enum");
 
             if ((extendEnumType.Directives.Count == 0) && (extendEnumType.EnumValues.Count == 0))
@@ -186,12 +324,141 @@ public partial class Schema
                     else 
                     {
                         if (extendEnumValue.Directives.Count == 0)
-                            throw ValidationException.ExtendExistingEnumValueWithoutDirective(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name);
+                            throw ValidationException.ExtendExistingEnumValueUnchanged(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name);
 
                         existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
                     }
 
                     extendValues.Add(extendEnumValue.Name);
+                }
+            }
+        }
+
+        public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
+        {
+            if (!_schema.Types.TryGetValue(extendInputObjectType.Name, out var typeDefinition))
+                throw ValidationException.TypeNotDefinedForExtend(extendInputObjectType.Location, "Input object", extendInputObjectType.Name);
+
+            if (typeDefinition is not InputObjectTypeDefinition inputObjectType)
+                throw ValidationException.IncorrectTypeForExtend(typeDefinition, "Input object");
+
+            if ((extendInputObjectType.Directives.Count == 0) && (extendInputObjectType.InputFields.Count == 0))
+                throw ValidationException.ExtendInputObjectMandatory(extendInputObjectType.Location, inputObjectType.OutputElement, extendInputObjectType.Name);
+
+            if (extendInputObjectType.Directives.Count > 0)
+                inputObjectType.Directives.AddRange(ConvertDirectives(extendInputObjectType.Directives));
+
+            ExtendInputFields(extendInputObjectType.Name, extendInputObjectType.InputFields, inputObjectType.InputFields, "Extend input object");
+        }
+
+        private void ExtendFieldsWithArguments(string extendName, SyntaxFieldDefinitionNodeList extendFields, FieldDefinitions existingFields, string errorType)
+        {
+            if (extendFields.Count > 0)
+            {
+                HashSet<string> fieldNames = [];
+                foreach (var extendField in extendFields)
+                {
+                    if (fieldNames.Contains(extendField.Name))
+                        throw ValidationException.ExtendFieldAlreadyDefined(extendField.Location, extendField.Name, errorType, extendName);
+
+                    if (!existingFields.TryGetValue(extendField.Name, out var existingField))
+                    {
+                        existingFields.Add(extendField.Name, new()
+                        {
+                            Description = extendField.Description,
+                            Name = extendField.Name,
+                            Arguments = ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
+                            Type = ConvertTypeNode(extendField.Type),
+                            Directives = ConvertDirectives(extendField.Directives),
+                            Location = extendField.Location
+                        });
+                    }
+                    else
+                    {
+                        var changed = false;
+
+                        if (extendField.Directives.Count > 0)
+                        {
+                            existingField.Directives.AddRange(ConvertDirectives(extendField.Directives));
+                            changed = true;
+                        }
+
+                        HashSet<string> argumentNames = [];
+                        foreach (var extendArgument in extendField.Arguments)
+                        {
+                            if (argumentNames.Contains(extendArgument.Name))
+                                throw ValidationException.ExtendFieldArgumentAlreadyDefined(extendField.Location, 
+                                                                                            extendField.Name, 
+                                                                                            extendArgument.Name, 
+                                                                                            errorType, 
+                                                                                            extendName);
+
+                            if (!existingField.Arguments.TryGetValue(extendArgument.Name, out var existingArgument))
+                            {
+                                existingField.Arguments.Add(extendArgument.Name, new()
+                                {
+                                    Description = extendArgument.Description,
+                                    Name = extendArgument.Name,
+                                    Type = ConvertTypeNode(extendArgument.Type),
+                                    DefaultValue = extendArgument.DefaultValue,
+                                    Directives = ConvertDirectives(extendArgument.Directives),
+                                    Location = extendArgument.Location,
+                                    ElementUsage = "Argument"
+                                });
+
+                                changed = true;
+                            }
+                            else
+                            {
+                                if (extendArgument.Directives.Count > 0)
+                                {
+                                    existingArgument.Directives.AddRange(ConvertDirectives(extendArgument.Directives));
+                                    changed = true;
+                                }
+                            }
+                        }
+
+                        if (!changed)
+                            throw ValidationException.ExtendExistingFieldUnchanged(extendField.Location, extendField.Name, errorType, extendName);
+                    }
+
+                    fieldNames.Add(extendField.Name);
+                }
+            }
+        }
+
+        private void ExtendInputFields(string extendName, SyntaxInputValueDefinitionNodeList extendInputFields, InputValueDefinitions existingInputFields, string errorType)
+        {
+            if (extendInputFields.Count > 0)
+            {
+                HashSet<string> inputFieldNames = [];
+                foreach (var extendInputField in extendInputFields)
+                {
+                    if (inputFieldNames.Contains(extendInputField.Name))
+                        throw ValidationException.ExtendInputFieldAlreadyDefined(extendInputField.Location, extendInputField.Name, errorType, extendName);
+
+                    if (!existingInputFields.TryGetValue(extendInputField.Name, out var existingField))
+                    {
+                        existingInputFields.Add(extendInputField.Name, new()
+                        {
+                            Description = extendInputField.Description,
+                            Name = extendInputField.Name,
+                            Type = ConvertTypeNode(extendInputField.Type),
+                            DefaultValue = extendInputField.DefaultValue,
+                            Directives = ConvertDirectives(extendInputField.Directives),
+                            Location = extendInputField.Location,
+                            ElementUsage = "Input field"
+                        });
+                    }
+                    else
+                    {
+                        if (extendInputField.Directives.Count == 0)
+                            throw ValidationException.ExtendExistingInputFieldUnchanged(extendInputField.Location, extendInputField.Name, errorType, extendName);
+
+                        existingField.Directives.AddRange(ConvertDirectives(extendInputField.Directives));
+                    }
+
+                    inputFieldNames.Add(extendInputField.Name);
                 }
             }
         }
@@ -273,7 +540,13 @@ public partial class Schema
                 if (nodes.ContainsKey(inputValue.Name))
                 {
                     if ((grandParentNode is not null) && (grandParentName is not null))
-                        throw ValidationException.ListEntryDuplicateName(inputValue.Location, grandParentNode, grandParentName, parentNode, parentName, listType.ToLower(), inputValue.Name);
+                        throw ValidationException.ListEntryDuplicateName(inputValue.Location, 
+                                                                         grandParentNode, 
+                                                                         grandParentName, 
+                                                                         parentNode, 
+                                                                         parentName, 
+                                                                         listType.ToLower(), 
+                                                                         inputValue.Name);
                     else
                         throw ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name);
                 }

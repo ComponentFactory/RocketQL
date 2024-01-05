@@ -8,7 +8,7 @@ public class Files : UnitTestBase
     public void FileSchema(string filename)
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var documentNode = Serialization.SchemaDeserialize(schema);
+        Serialization.SchemaDeserialize(schema);
     }
 }
 

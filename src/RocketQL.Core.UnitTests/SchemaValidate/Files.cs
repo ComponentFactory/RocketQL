@@ -4,7 +4,6 @@ public class Files : UnitTestBase
 {
     [Theory]
     [InlineData("github-schema.graphql")]
-//    [InlineData("kitchensink-schema.graphql")]
     public void FileSchemaValidate(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));

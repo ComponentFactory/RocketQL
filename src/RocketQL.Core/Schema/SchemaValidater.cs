@@ -150,12 +150,12 @@ public partial class Schema
             if (query is null)
                 throw ValidationException.SchemaDefinitionMissingQuery(schemaDefinition);
 
-            if (!(query.Definition is ObjectTypeDefinition))
+            if (query.Definition is not ObjectTypeDefinition)
                 throw ValidationException.SchemaOperationTypeNotObject(query, query.Definition!);
 
             if (mutation is not null)
             {
-                if (!(mutation.Definition is ObjectTypeDefinition))
+                if (mutation.Definition is not ObjectTypeDefinition)
                     throw ValidationException.SchemaOperationTypeNotObject(mutation, mutation.Definition!);
     
                 if (mutation.Definition == query.Definition)
@@ -164,7 +164,7 @@ public partial class Schema
 
             if (subscription is not null)
             {
-                if (!(subscription.Definition is ObjectTypeDefinition))
+                if (subscription.Definition is not ObjectTypeDefinition)
                     throw ValidationException.SchemaOperationTypeNotObject(subscription, subscription.Definition!);
 
                 if (subscription.Definition == query.Definition)

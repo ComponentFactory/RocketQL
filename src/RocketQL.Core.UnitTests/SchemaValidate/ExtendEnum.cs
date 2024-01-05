@@ -21,7 +21,7 @@ public class ExtendEnum : UnitTestBase
     [InlineData("""
                 enum foo { FIRST }
                 extend enum foo { FIRST }
-                """,                                            "Extend enum 'foo' for existing enum value 'FIRST' does not add at least one directive.")]
+                """,                                            "Extend enum 'foo' for existing enum value 'FIRST' does not make any change.")]
     [InlineData("""
                 enum foo { FIRST }
                 extend enum foo { SECOND SECOND }
@@ -32,7 +32,7 @@ public class ExtendEnum : UnitTestBase
     }
 
     [Fact]
-    public void AddDirective()
+    public void AddDirectiveToEnum()
     {
         var schema = new Schema();
         schema.Add("""
@@ -50,6 +50,30 @@ public class ExtendEnum : UnitTestBase
         var first = foo.EnumValues["FIRST"];
         Assert.NotNull(first);
         var directive = foo.Directives[0];
+        Assert.NotNull(directive);
+        Assert.Equal("bar", directive.Name);
+    }
+
+
+    [Fact]
+    public void AddDirectiveToEnumValue()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   type Query { fizz: Int }
+                   directive @bar on ENUM_VALUE
+                   enum foo { FIRST }
+                   extend enum foo { FIRST @bar }              
+                   """);
+        schema.Validate();
+
+        var foo = schema.Types["foo"] as EnumTypeDefinition;
+        Assert.NotNull(foo);
+        Assert.Equal("foo", foo.Name);
+        Assert.Single(foo.EnumValues);
+        var first = foo.EnumValues["FIRST"];
+        Assert.NotNull(first);
+        var directive = first.Directives[0];
         Assert.NotNull(directive);
         Assert.Equal("bar", directive.Name);
     }
@@ -77,24 +101,24 @@ public class ExtendEnum : UnitTestBase
     }
 
     [Fact]
-    public void AddEnumValueDirective()
+    public void AddEnumValueWithDirective()
     {
         var schema = new Schema();
         schema.Add("""
                    type Query { fizz: Int }
                    directive @bar on ENUM_VALUE
                    enum foo { FIRST }
-                   extend enum foo { FIRST @bar }              
+                   extend enum foo { SECOND @bar }              
                    """);
         schema.Validate();
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
-        Assert.Single(foo.EnumValues);
-        var first = foo.EnumValues["FIRST"];
-        Assert.NotNull(first);
-        var directive = first.Directives[0];
+        Assert.Equal(2, foo.EnumValues.Count());
+        var second = foo.EnumValues["SECOND"];
+        Assert.NotNull(second);
+        var directive = second.Directives[0];
         Assert.NotNull(directive);
         Assert.Equal("bar", directive.Name);
     }

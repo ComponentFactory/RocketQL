@@ -38,11 +38,26 @@ public interface ISyntaxNodeVisitors
             case SyntaxInputObjectTypeDefinitionNode inputObjectType:
                 VisitInputObjectTypeDefinition(inputObjectType);
                 break;
-            case SyntaxExtendScalarTypeDefinitionNode extendscalarType:
-                VisitExtendScalarDefinition(extendscalarType);
+            case SyntaxExtendSchemaDefinitionNode extendSchema:
+                VisitExtendSchemaDefinition(extendSchema);
+                break;
+            case SyntaxExtendScalarTypeDefinitionNode extendScalarType:
+                VisitExtendScalarTypeDefinition(extendScalarType);
+                break;
+            case SyntaxExtendObjectTypeDefinitionNode extendObjectType:
+                VisitExtendObjectTypeDefinition(extendObjectType);
+                break;
+            case SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType:
+                VisitExtendInterfaceTypeDefinition(extendInterfaceType);
+                break;
+            case SyntaxExtendUnionTypeDefinitionNode extendUnionType:
+                VisitExtendUnionTypeDefinition(extendUnionType);
                 break;
             case SyntaxExtendEnumTypeDefinitionNode extendEnumType:
                 VisitExtendEnumDefinition(extendEnumType);
+                break;
+            case SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType:
+                VisitExtendInputObjectTypeDefinition(extendInputObjectType);
                 break;
             default:
                 throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString());
@@ -57,6 +72,12 @@ public interface ISyntaxNodeVisitors
     void VisitUnionTypeDefinition(SyntaxUnionTypeDefinitionNode unionType);
     void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType);
     void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType);
-    void VisitExtendScalarDefinition(SyntaxExtendScalarTypeDefinitionNode extendscalarType);
+    void VisitExtendSchemaDefinition(SyntaxExtendSchemaDefinitionNode extendSchema);
+    void VisitExtendScalarTypeDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType);
+    void VisitExtendObjectTypeDefinition(SyntaxExtendObjectTypeDefinitionNode extendObjectType);
+    void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType);
+    void VisitExtendUnionTypeDefinition(SyntaxExtendUnionTypeDefinitionNode extendUnionType);
     void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType);
+    void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType);
 }
+ 

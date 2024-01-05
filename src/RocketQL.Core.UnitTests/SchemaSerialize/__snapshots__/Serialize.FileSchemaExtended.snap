@@ -1,0 +1,39 @@
+﻿schema
+{
+    query: unref1
+    mutation: unref2
+}
+
+type unref1
+{
+    unref1: Int
+}
+
+type unref2
+{
+    unref2: Int
+    extend: Int
+}
+
+interface unref3
+{
+    unref3: Int
+    extend: Int
+}
+
+union unref4 = unref1 | unref2
+
+input unref5
+{
+    unref7: Int
+    extend: Int
+}
+
+enum unref6
+{
+    unref6
+    extend
+}
+
+scalar unref7 @specifiedBy(url: "url")
+

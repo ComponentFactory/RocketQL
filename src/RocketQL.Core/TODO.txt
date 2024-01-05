@@ -11,16 +11,6 @@
 			// DefaultValue definition matches the type
 			// Usage value matched the definintion type
 
-		Allow extend syntax nodes
-			enum
-			union
-			object
-			interface
-			input object
-			schema
-
-		All kitchen sink to schema validation Files unit test now that extend is added
-		Add basic schema with extends and the check the validated printed output has no extends
 		Allow multiple exceptions but some are catastrophic
 
 	Request
