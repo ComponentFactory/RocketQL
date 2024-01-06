@@ -82,7 +82,7 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
-            var aggregate = Assert.IsType<RocketAggregateException>(ex);
+            var aggregate = Assert.IsType<ValidationExceptions>(ex);
             Assert.Equal(messages.Count(), aggregate.InnerExceptions.Count);
             foreach(var message in messages)
                 Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());

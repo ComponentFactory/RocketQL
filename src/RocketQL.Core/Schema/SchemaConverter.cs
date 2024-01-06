@@ -13,7 +13,7 @@ public partial class Schema
 
         public void Visit()
         {
-            ((ISyntaxNodeVisitors)this).Visit(_schema._nodes);
+            ((ISyntaxNodeVisitors)this).Visit(_schema.Nodes);
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)

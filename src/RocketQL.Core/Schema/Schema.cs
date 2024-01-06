@@ -1,14 +1,12 @@
-﻿using System;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
-    private readonly SyntaxNodeList _nodes = [];
-    private List<RocketException> _exceptions = [];
+    private SyntaxNodeList Nodes { get; init; } = [];
+    private List<ValidationException> Exceptions { get; init; } = [];
+    private SchemaDefinitions Schemas { get; init; } = [];
 
     public SchemaRoot? Root { get; set; }
-    private SchemaDefinitions Schemas { get; init; } = [];
     public DirectiveDefinitions Directives { get; init; } = [];
     public TypeDefinitions Types { get; init; } = [];
     public bool IsValidated { get; protected set; } = false;
@@ -28,26 +26,26 @@ public partial class Schema
 
     public void Add(SyntaxNode node)
     {
-        _nodes.Add(node);
+        Nodes.Add(node);
         IsValidated = false;
     }
 
     public void Add(IEnumerable<SyntaxNode> nodes)
     {
-        _nodes.AddRange(nodes);
+        Nodes.AddRange(nodes);
         IsValidated = false;
     }
 
     public void Add(SyntaxNodeList nodes)
     {
-        _nodes.AddRange(nodes);
+        Nodes.AddRange(nodes);
         IsValidated = false;
     }
 
     public void Add(IEnumerable<SyntaxNodeList> schemas)
     {
         foreach (var nodes in schemas)
-            _nodes.AddRange(nodes);
+            Nodes.AddRange(nodes);
 
         IsValidated = false;
     }
@@ -76,13 +74,13 @@ public partial class Schema
 
     public void Reset()
     {
-        _nodes.Clear();
+        Nodes.Clear();
         Clean();
     }
 
     private void Clean()
     {
-        _exceptions.Clear();
+        Exceptions.Clear();
         Root = null;
         Schemas.Clear();
         Directives.Clear();
@@ -272,14 +270,14 @@ public partial class Schema
 
     private void NonFatalException(ValidationException validationException)
     {
-        _exceptions.Add(validationException);
+        Exceptions.Add(validationException);
     }
 
     private void CheckExceptions()
     {
-        if (_exceptions.Count == 1)
-            throw _exceptions[0];
-        else if (_exceptions.Count > 1)
-            throw new RocketAggregateException(_exceptions);
+        if (Exceptions.Count == 1)
+            throw Exceptions[0];
+        else if (Exceptions.Count > 1)
+            throw new ValidationExceptions(Exceptions);
     }
 }

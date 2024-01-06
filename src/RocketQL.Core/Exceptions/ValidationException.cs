@@ -2,6 +2,8 @@
 
 namespace RocketQL.Core.Exceptions;
 
+public class ValidationExceptions(IEnumerable<ValidationException> innerExceptions) : AggregateException(innerExceptions);
+
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
     public static ValidationException UnrecognizedType(Location location, string name) => new(location, $"Unrecognized type '{name}' encountered.");
