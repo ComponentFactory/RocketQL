@@ -3,22 +3,28 @@
 public class ExtendScalar : UnitTestBase
 {
     [Theory]
-    [InlineData("extend scalar foo",                    "Scalar 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
+                extend scalar foo
+                """,                                     "Scalar 'foo' cannot be extended because it is not defined.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 extend scalar foo 
                 scalar foo
                 """,                                    "Scalar 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 scalar foo                
                 extend scalar foo 
                 """,                                    "Extend scalar 'foo' must specify at least one directive.")]
     [InlineData("""
+                type Query { alpha: Int }
                 scalar foo @specifiedBy(url: "url")
                 extend scalar foo @specifiedBy(url: "url")
                 """,                                    "Directive 'specifiedBy' is not repeatable but has been applied multiple times on scalar 'foo'.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]

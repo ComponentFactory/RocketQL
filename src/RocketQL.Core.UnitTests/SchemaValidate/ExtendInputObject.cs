@@ -3,32 +3,40 @@
 public class ExtendInputObject : UnitTestBase
 {
     [Theory]
-    [InlineData("extend input foo { buzz: Int }",               "Input object 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 extend input foo { buzz: Int }
-                input foo
                 """,                                            "Input object 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
+                extend input foo { buzz: Int }
+                input foo { first: Int }
+                """,                                            "Input object 'foo' cannot be extended because it is not defined.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on INPUT_OBJECT
                 input foo @bar { buzz: Int } 
                 extend input foo @bar
                 """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on input object 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 input foo { buzz: Int } 
                 extend input foo { fizz: Int fizz: Int} 
                 """,                                            "Extend input object 'foo' has duplicate definition of input field 'fizz'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 input foo { buzz: Int } 
                 extend input foo { buzz: Int } 
                 """,                                            "Extend input object 'foo' for existing input field 'buzz' does not make any change.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on INPUT_FIELD_DEFINITION
                 input foo { buzz: Int @bar } 
                 extend input foo { buzz: Int } 
                 """,                                            "Extend input object 'foo' for existing input field 'buzz' does not make any change.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]

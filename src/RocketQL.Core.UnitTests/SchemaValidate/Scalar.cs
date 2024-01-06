@@ -5,8 +5,7 @@ public class Scalar : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        var schemaText = "scalar foo";
-        SchemaValidationException(schemaText, schemaText, "Scalar 'foo' is already defined.");
+        SchemaValidationSingleException("type Query { fizz: Int } scalar foo", "scalar foo", "Scalar 'foo' is already defined.");
     }
 
     [Theory]
@@ -17,49 +16,63 @@ public class Scalar : UnitTestBase
     [InlineData("ID")]
     public void CannotUsePredefinedName(string scalar)
     {
-        SchemaValidationException($"scalar {scalar}", $"Scalar '{scalar}' is already defined.");
+        SchemaValidationSingleException("type Query { fizz: Int } scalar " + scalar, $"Scalar '{scalar}' is already defined.");
     }
 
     [Theory]
     // Double underscores
-    [InlineData("scalar __foo",                                     "Scalar '__foo' not allowed to start with two underscores.")]
+    [InlineData("""           
+                type Query { fizz: Int }
+                scalar __foo
+                """,                                                "Scalar '__foo' not allowed to start with two underscores.")]
     // Directive errors
-    [InlineData("scalar foo @example",                              "Undefined directive 'example' defined on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
+                scalar foo @example 
+                """,                                                "Undefined directive 'example' defined on scalar 'foo'.")]
+    [InlineData("""
+                type Query { fizz: Int }
                 directive @example on ENUM
                 scalar foo @example                    
                 """,                                                "Directive 'example' is not specified for use on scalar 'foo' location.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example on SCALAR
                 scalar foo @example @example                
                 """,                                                "Directive 'example' is not repeatable but has been applied multiple times on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example(arg1: Int!) on SCALAR
                 scalar foo @example                
                 """,                                                "Directive 'example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example                
                 """,                                                "Directive 'example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example on SCALAR
                 scalar foo @example(arg1: 123)              
                 """,                                                "Directive 'example' does not define argument 'arg1' provided on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example(arg0: Int) on SCALAR
                 scalar foo @example(arg1: 123)              
                 """,                                                "Directive 'example' does not define argument 'arg1' provided on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example(arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
                 """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on scalar 'foo'.")]
     [InlineData("""
+                type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
                 """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on scalar 'foo'.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Theory]

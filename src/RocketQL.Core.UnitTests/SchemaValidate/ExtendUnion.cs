@@ -3,24 +3,30 @@
 public class ExtendUnion : UnitTestBase
 {
     [Theory]
-    [InlineData("extend union foo = bar",                       "Union 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
+                extend union foo = bar
+                """,                                            "Union 'foo' cannot be extended because it is not defined.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 extend union foo = bar
                 union foo
                 """,                                            "Union 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on UNION
                 union foo @bar
                 extend union foo @bar
                 """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on union 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 type bar { buzz: Int }
                 union foo = bar
                 extend union foo = bar
                 """,                                            "Extend union 'foo' specifies a type 'bar' already defined.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]

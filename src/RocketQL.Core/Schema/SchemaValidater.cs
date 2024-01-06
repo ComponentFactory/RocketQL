@@ -21,28 +21,32 @@ public partial class Schema
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
             if (directiveDefinition.Name.StartsWith("__"))
-                throw ValidationException.NameDoubleUnderscore(directiveDefinition);
+                _schema.NonFatalException(ValidationException.NameDoubleUnderscore(directiveDefinition));
 
             Queue<TypeDefinition> referencedTypes = [];
             Queue<DirectiveDefinition> referencedDirectives = [];
             foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
             {
                 if (argumentDefinition.Name.StartsWith("__"))
-                    throw ValidationException.ListEntryDoubleUnderscore(argumentDefinition.Location, 
-                                                                        directiveDefinition.OutputElement, directiveDefinition.OutputName, 
-                                                                        argumentDefinition.OutputElement, argumentDefinition.Name);
+                    _schema.NonFatalException(ValidationException.ListEntryDoubleUnderscore(argumentDefinition.Location,
+                                                                                            directiveDefinition.OutputElement, directiveDefinition.OutputName,
+                                                                                            argumentDefinition.OutputElement, argumentDefinition.Name));
 
                 if (argumentDefinition.Type.Definition is null)
-                    throw ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name);
+                    _schema.NonFatalException(ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name));
+                else
+                {
+                    if (!argumentDefinition.Type.Definition.IsInputType)
+                        _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(argumentDefinition, directiveDefinition, argumentDefinition.Type.Definition.OutputName));
+                    else
+                    {
+                        referencedTypes.Enqueue(argumentDefinition.Type.Definition);
+                        foreach (var directive in argumentDefinition.Directives)
+                            referencedDirectives.Enqueue(directive.Definition!);
 
-                if (!argumentDefinition.Type.Definition.IsInputType)
-                    throw ValidationException.TypeIsNotAnInputType(argumentDefinition, directiveDefinition, argumentDefinition.Type.Definition.OutputName);
-
-                referencedTypes.Enqueue(argumentDefinition.Type.Definition);
-                foreach (var directive in argumentDefinition.Directives)
-                    referencedDirectives.Enqueue(directive.Definition!);
-
-                CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION, argumentDefinition);
+                        CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION, argumentDefinition);
+                    }
+                }
             }
 
             CheckDirectiveForCircularReference(directiveDefinition, referencedTypes, referencedDirectives);
@@ -60,9 +64,10 @@ public partial class Schema
             CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
 
             if (objectType.Fields.Count == 0)
-                throw ValidationException.AtLeastOne(objectType, "field");
+                _schema.NonFatalException(ValidationException.AtLeastOne(objectType, "field"));
+            else
+                VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
 
-            VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
             IsValidImplementations(objectType.Fields, 
                                    CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
                                    objectType);
@@ -74,9 +79,10 @@ public partial class Schema
             CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
 
             if (interfaceType.Fields.Count == 0)
-                throw ValidationException.AtLeastOne(interfaceType, "field");
+                _schema.NonFatalException(ValidationException.AtLeastOne(interfaceType, "field"));
+            else
+                VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
 
-            VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
             IsValidImplementations(interfaceType.Fields, 
                                    CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
                                    interfaceType);
@@ -94,10 +100,12 @@ public partial class Schema
             CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
 
             if (enumType.EnumValues.Count == 0)
-                throw ValidationException.AtLeastOne(enumType, "enum value");
-
-            foreach (var enumValueDefinition in enumType.EnumValues.Values)
-                CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE, enumValueDefinition);
+                _schema.NonFatalException(ValidationException.AtLeastOne(enumType, "enum value"));
+            else
+            {
+                foreach (var enumValueDefinition in enumType.EnumValues.Values)
+                    CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE, enumValueDefinition);
+            }
         }
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
@@ -106,32 +114,38 @@ public partial class Schema
             CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
 
             if (inputObjectType.InputFields.Count == 0)
-                throw ValidationException.AtLeastOne(inputObjectType, "input field");
-
-            Queue<InputObjectTypeDefinition> referencedInputObjects = [];
-            foreach (var fieldDefinition in inputObjectType.InputFields.Values)
+                _schema.NonFatalException(ValidationException.AtLeastOne(inputObjectType, "input field"));
+            else
             {
-                if (fieldDefinition.Name.StartsWith("__"))
-                    throw ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location,
-                                                                        inputObjectType.OutputElement, inputObjectType.OutputName,
-                                                                        "Field", fieldDefinition.Name);
+                Queue<InputObjectTypeDefinition> referencedInputObjects = [];
+                foreach (var fieldDefinition in inputObjectType.InputFields.Values)
+                {
+                    if (fieldDefinition.Name.StartsWith("__"))
+                        _schema.NonFatalException(ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location,
+                                                                                                inputObjectType.OutputElement, inputObjectType.OutputName,
+                                                                                                "Field", fieldDefinition.Name));
 
-                if (fieldDefinition.Type.Definition is null)
-                    throw ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name);
+                    if (fieldDefinition.Type.Definition is null)
+                        _schema.NonFatalException(ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name));
+                    else
+                    {
+                        if (!fieldDefinition.Type.Definition.IsInputType)
+                            _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(fieldDefinition, inputObjectType, fieldDefinition.Type.Definition.OutputName));
+                        else
+                        {
+                            if ((fieldDefinition.Type is TypeNonNull) && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "deprecated").Any())
+                                _schema.NonFatalException(ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType));
 
-                if (!fieldDefinition.Type.Definition.IsInputType)
-                    throw ValidationException.TypeIsNotAnInputType(fieldDefinition, inputObjectType, fieldDefinition.Type.Definition.OutputName);
+                            if ((fieldDefinition.Type is TypeNonNull fieldNonNull) && ((fieldNonNull.Type is TypeName) && (fieldNonNull.Type.Definition is InputObjectTypeDefinition referenceInputObject)))
+                                referencedInputObjects.Enqueue(referenceInputObject);
 
-                if ((fieldDefinition.Type is TypeNonNull) && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "deprecated").Any())
-                    throw ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType);
+                            CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.INPUT_FIELD_DEFINITION, fieldDefinition);
+                        }
+                    }
+                }
 
-                if ((fieldDefinition.Type is TypeNonNull fieldNonNull) && ((fieldNonNull.Type is TypeName) && (fieldNonNull.Type.Definition is InputObjectTypeDefinition referenceInputObject)))
-                    referencedInputObjects.Enqueue(referenceInputObject);
-
-                CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.INPUT_FIELD_DEFINITION, fieldDefinition);
+                CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
             }
-
-            CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
         }
 
         public void VisitSchemaDefinition(SchemaRoot schemaRoot)
@@ -141,38 +155,35 @@ public partial class Schema
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
             if (schemaDefinition.Operations.Count == 0)
-                throw ValidationException.SchemaDefinitionEmpty(schemaDefinition);
+                _schema.NonFatalException(ValidationException.SchemaDefinitionEmpty(schemaDefinition));
 
             schemaDefinition.Operations.TryGetValue(OperationType.QUERY, out var query);
             schemaDefinition.Operations.TryGetValue(OperationType.MUTATION, out var mutation);
             schemaDefinition.Operations.TryGetValue(OperationType.SUBSCRIPTION, out var subscription);
 
             if (query is null)
-                throw ValidationException.SchemaDefinitionMissingQuery(schemaDefinition);
-
-            if (query.Definition is not ObjectTypeDefinition)
-                throw ValidationException.SchemaOperationTypeNotObject(query, query.Definition!);
+                _schema.NonFatalException(ValidationException.SchemaDefinitionMissingQuery(schemaDefinition));
+            else if (query.Definition is not ObjectTypeDefinition)
+                _schema.NonFatalException(ValidationException.SchemaOperationTypeNotObject(query, query.Definition!));
 
             if (mutation is not null)
             {
-                if (mutation.Definition is not ObjectTypeDefinition)
-                    throw ValidationException.SchemaOperationTypeNotObject(mutation, mutation.Definition!);
-    
-                if (mutation.Definition == query.Definition)
-                    throw ValidationException.SchemaOperationsNotUnique(query, mutation);
+                if (mutation.Definition is not ObjectTypeDefinition _)
+                    _schema.NonFatalException(ValidationException.SchemaOperationTypeNotObject(mutation, mutation.Definition!));
+                else if ((query is not null) && (mutation.Definition == query.Definition))
+                    _schema.NonFatalException(ValidationException.SchemaOperationsNotUnique(query, mutation));
             }
 
             if (subscription is not null)
             {
-                if (subscription.Definition is not ObjectTypeDefinition)
-                    throw ValidationException.SchemaOperationTypeNotObject(subscription, subscription.Definition!);
-
-                if (subscription.Definition == query.Definition)
-                    throw ValidationException.SchemaOperationsNotUnique(query, subscription);
+                if (subscription.Definition is not ObjectTypeDefinition _)
+                    _schema.NonFatalException(ValidationException.SchemaOperationTypeNotObject(subscription, subscription.Definition!));
+                else if ((query is not null) && (subscription.Definition == query.Definition))
+                    _schema.NonFatalException(ValidationException.SchemaOperationsNotUnique(query, subscription));
             }
 
             if ((mutation is not null) && (subscription is not null) && (mutation.Definition == subscription.Definition))
-                throw ValidationException.SchemaOperationsNotUnique(mutation, subscription);
+                _schema.NonFatalException(ValidationException.SchemaOperationsNotUnique(mutation, subscription));
 
             CheckDirectiveUsage(schemaDefinition.Directives, schemaDefinition, DirectiveLocations.SCHEMA);
         }
@@ -198,30 +209,32 @@ public partial class Schema
                 _schema.Types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
 
                 if (queryTypeDefinition is null)
-                    throw ValidationException.AutoSchemaQueryMissing();
+                    _schema.NonFatalException(ValidationException.AutoSchemaQueryMissing());
+                else 
+                {
+                    if (queryTypeDefinition is not ObjectTypeDefinition)
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationNotObject(queryTypeDefinition, "Query"));
 
-                if (queryTypeDefinition is not ObjectTypeDefinition)
-                    throw ValidationException.AutoSchemaOperationNotObject(queryTypeDefinition, "Query");
-
-                if (!AllReferencesWithinType(queryTypeDefinition))
-                    throw ValidationException.AutoSchemaOperationReferenced(queryTypeDefinition, "Query");
+                    if (!AllReferencesWithinType(queryTypeDefinition))
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationReferenced(queryTypeDefinition, "Query"));
+                }
 
                 if (mutationTypeDefinition is not null)
                 {
                     if (mutationTypeDefinition is not ObjectTypeDefinition)
-                        throw ValidationException.AutoSchemaOperationNotObject(mutationTypeDefinition, "Mutation");
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationNotObject(mutationTypeDefinition, "Mutation"));
 
                     if (!AllReferencesWithinType(mutationTypeDefinition))
-                        throw ValidationException.AutoSchemaOperationReferenced(mutationTypeDefinition, "Mutation");
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationReferenced(mutationTypeDefinition, "Mutation"));
                 }
 
                 if (subscriptionTypeDefinition is not null)
                 {
                     if (subscriptionTypeDefinition is not ObjectTypeDefinition)
-                        throw ValidationException.AutoSchemaOperationNotObject(subscriptionTypeDefinition, "Subscription");
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationNotObject(subscriptionTypeDefinition, "Subscription"));
 
                     if (!AllReferencesWithinType(subscriptionTypeDefinition))
-                        throw ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription");
+                        _schema.NonFatalException(ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription"));
                 }
 
                 _schema.Root = new SchemaRoot()
@@ -231,12 +244,12 @@ public partial class Schema
                     Query = OperationTypeFromObjectType(queryTypeDefinition as ObjectTypeDefinition, OperationType.QUERY),
                     Mutation = OperationTypeFromObjectType(mutationTypeDefinition as ObjectTypeDefinition, OperationType.MUTATION),
                     Subscription = OperationTypeFromObjectType(subscriptionTypeDefinition as ObjectTypeDefinition, OperationType.SUBSCRIPTION),
-                    Location = queryTypeDefinition.Location,
+                    Location = queryTypeDefinition?.Location ?? new()
                 };
 
                 OperationTypeDefinitions operations = [];
 
-                if (_schema.Root.Query is not null)
+                if ((_schema.Root.Query is not null) && (queryTypeDefinition is not null))
                 {
                     operations.Add(_schema.Root.Query.Operation, _schema.Root.Query);
                     queryTypeDefinition.References.Add(_schema.Root.Query);
@@ -264,6 +277,21 @@ public partial class Schema
             }
         }
 
+        private static bool AllReferencesWithinType(TypeDefinition root)
+        {
+            foreach (var reference in root.References)
+            {
+                var checkReference = reference;
+                while (checkReference.Parent != null)
+                    checkReference = checkReference.Parent;
+
+                if (checkReference != root)
+                    return false;
+            }
+
+            return true;
+        }
+
         private static OperationTypeDefinition? OperationTypeFromObjectType(ObjectTypeDefinition? typeDefinition, OperationType operationType)
         {
             if (typeDefinition is null)
@@ -278,9 +306,9 @@ public partial class Schema
             };
         }
 
-        private static void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,
-                                                               Queue<TypeDefinition> referencedTypes,
-                                                               Queue<DirectiveDefinition> referencedDirectives)
+        private void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,
+                                                        Queue<TypeDefinition> referencedTypes,
+                                                        Queue<DirectiveDefinition> referencedDirectives)
         {
             if ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
             {
@@ -292,7 +320,10 @@ public partial class Schema
                     while (referencedDirectives.TryDequeue(out var referencedDirective))
                     {
                         if (referencedDirective == directiveDefinition)
-                            throw ValidationException.DirectiveCircularReference(directiveDefinition);
+                        {
+                            _schema.NonFatalException(ValidationException.DirectiveCircularReference(directiveDefinition));
+                            return;
+                        }
 
                         foreach (var argumentDefinition in referencedDirective.Arguments.Values)
                         {
@@ -353,36 +384,37 @@ public partial class Schema
             foreach (var directive in directives)
             {
                 if (directive.Definition is null)
-                    throw ValidationException.UnrecognizedType(directive);
-
-                if ((directive.Definition.DirectiveLocations & directiveLocations) != directiveLocations)
-                    throw ValidationException.DirectiveNotAllowedLocation(directive, parentNode, grandParent, greatGrandParent);
-
-                if (checkedDirectives.Contains(directive.Definition) && !directive.Definition.Repeatable)
-                    throw ValidationException.DirectiveNotRepeatable(directive, parentNode, grandParent, greatGrandParent);
-
-                var checkedArguments = directive.Arguments.ToDictionary();
-                foreach (var argumentDefinition in directive.Definition.Arguments.Values)
+                    _schema.NonFatalException(ValidationException.UnrecognizedType(directive));
+                else
                 {
-                    if (argumentDefinition.Type is TypeNonNull && argumentDefinition.DefaultValue is null)
-                    {
-                        if (!checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
-                            throw ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent);
+                    if ((directive.Definition.DirectiveLocations & directiveLocations) != directiveLocations)
+                        _schema.NonFatalException(ValidationException.DirectiveNotAllowedLocation(directive, parentNode, grandParent, greatGrandParent));
 
-                        if (checkedArgument.Value is NullValueNode)
-                            throw ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent);
+                    if (checkedDirectives.Contains(directive.Definition) && !directive.Definition.Repeatable)
+                        _schema.NonFatalException(ValidationException.DirectiveNotRepeatable(directive, parentNode, grandParent, greatGrandParent));
+
+                    var checkedArguments = directive.Arguments.ToDictionary();
+                    foreach (var argumentDefinition in directive.Definition.Arguments.Values)
+                    {
+                        if (argumentDefinition.Type is TypeNonNull && argumentDefinition.DefaultValue is null)
+                        {
+                            if (!checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
+                                _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent));
+                            else if (checkedArgument.Value is NullValueNode)
+                                _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent));
+                        }
+
+                        checkedArguments.Remove(argumentDefinition.Name);
                     }
 
-                    checkedArguments.Remove(argumentDefinition.Name);
-                }
+                    if (checkedArguments.Count > 0)
+                    {
+                        foreach (var checkArgument in checkedArguments)
+                            _schema.NonFatalException(ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode, grandParent, greatGrandParent));
+                    }
 
-                if (checkedArguments.Count > 0)
-                {
-                    foreach (var checkArgument in checkedArguments)
-                            throw ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, parentNode, grandParent, greatGrandParent);
+                    checkedDirectives.Add(directive.Definition);
                 }
-
-                checkedDirectives.Add(directive.Definition);
             }
         }
 
@@ -391,34 +423,32 @@ public partial class Schema
             foreach (var fieldDefinition in fieldDefinitions)
             {
                 if (fieldDefinition.Name.StartsWith("__"))
-                    throw ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location, 
-                                                                        parentNode.OutputElement, parentNode.OutputName, 
-                                                                        fieldDefinition.OutputElement, fieldDefinition.Name);
+                    _schema.NonFatalException(ValidationException.ListEntryDoubleUnderscore(fieldDefinition.Location,
+                                                                                            parentNode.OutputElement, parentNode.OutputName,
+                                                                                            fieldDefinition.OutputElement, fieldDefinition.Name));
 
                 if (fieldDefinition.Type.Definition is null)
-                    throw ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name);
-
-                if (!fieldDefinition.Type.Definition.IsOutputType)
-                    throw ValidationException.TypeIsNotAnOutputType(fieldDefinition, parentNode, fieldDefinition.Type.Definition.OutputName);
+                    _schema.NonFatalException(ValidationException.UnrecognizedType(fieldDefinition.Location, fieldDefinition.Name));
+                else if (!fieldDefinition.Type.Definition.IsOutputType)
+                    _schema.NonFatalException(ValidationException.TypeIsNotAnOutputType(fieldDefinition, parentNode, fieldDefinition.Type.Definition.OutputName));
 
                 CheckDirectiveUsage(fieldDefinition.Directives, parentNode, DirectiveLocations.FIELD_DEFINITION, fieldDefinition);
 
                 foreach (var argumentDefinition in fieldDefinition.Arguments.Values)
                 {
                     if (argumentDefinition.Name.StartsWith("__"))
-                        throw ValidationException.ListEntryDoubleUnderscore(argumentDefinition.Location, 
-                                                                            parentNode.OutputElement, parentNode.OutputName, 
-                                                                            fieldDefinition.OutputElement, fieldDefinition.OutputName, 
-                                                                            argumentDefinition.OutputElement, argumentDefinition.Name);
+                        _schema.NonFatalException(ValidationException.ListEntryDoubleUnderscore(argumentDefinition.Location,
+                                                                                                parentNode.OutputElement, parentNode.OutputName,
+                                                                                                fieldDefinition.OutputElement, fieldDefinition.OutputName,
+                                                                                                argumentDefinition.OutputElement, argumentDefinition.Name));
 
                     if (argumentDefinition.Type.Definition is null)
-                        throw ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name);
-
-                    if (!argumentDefinition.Type.Definition.IsInputType)
-                        throw ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName);
+                        _schema.NonFatalException(ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name));
+                    else if (!argumentDefinition.Type.Definition.IsInputType)
+                        _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName));
 
                     if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
-                        throw ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition);
+                        _schema.NonFatalException(ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition));
 
                     CheckDirectiveUsage(argumentDefinition.Directives, parentNode, DirectiveLocations.ARGUMENT_DEFINITION, fieldDefinition, argumentDefinition);
                 }
@@ -431,12 +461,14 @@ public partial class Schema
             foreach (var interfaceEntry in implementsInterfaces.Values)
             {
                 if (!isObject && (interfaceEntry.Name == parentNode.OutputName))
-                    throw ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry);
-
-                if (interfaceEntry.Definition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, interfaceEntry.Definition!);
-
-                interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
+                    _schema.NonFatalException(ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry));
+                else
+                {
+                    if (interfaceEntry.Definition is not InterfaceTypeDefinition interfaceTypeDefinition)
+                        _schema.NonFatalException(ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, interfaceEntry.Definition!));
+                    else
+                        interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
+                }
             }
 
             HashSet<string> processed = [];
@@ -459,45 +491,49 @@ public partial class Schema
                 foreach (var implementsInterface in checkInterface.ImplementsInterfaces.Values)
                 {
                     if (!objectImplements.ContainsKey(implementsInterface.Name))
-                        throw ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name);
-
-                    CheckTypeImplementsInterface(objectImplements, processed, checkInterface, checkInterface, rootNode);
+                        _schema.NonFatalException(ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name));
+                    else
+                        CheckTypeImplementsInterface(objectImplements, processed, checkInterface, checkInterface, rootNode);
                 }
             }
         }
 
-        private static void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, SchemaNode parentNode)
+        private void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, SchemaNode parentNode)
         {
             foreach (var interfaceDefinition in interfaceDefinitions.Values)
                 IsValidImplementation(objectFields, interfaceDefinition, parentNode);
         }
 
-        private static void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, SchemaNode parentNode)
+        private void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, SchemaNode parentNode)
         {
             foreach(var interfaceField in interfaceDefinition.Fields.Values)
             {
                 if (!objectFields.TryGetValue(interfaceField.Name, out FieldDefinition? objectFieldDefinition))
-                    throw ValidationException.TypeMissingFieldFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
-
-                var nonInterface = objectFieldDefinition.Arguments.ToDictionary();
-
-                foreach (var argument in interfaceField.Arguments.Values)
+                    _schema.NonFatalException(ValidationException.TypeMissingFieldFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name));
+                else
                 {
-                    if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
-                        throw ValidationException.TypeMissingFieldArgumentFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
+                    var nonInterface = objectFieldDefinition.Arguments.ToDictionary();
 
-                    if (!IsSameType(objectFieldArgument.Type, argument.Type))
-                        throw ValidationException.TypeFieldArgumentTypeFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name);
+                    foreach (var argument in interfaceField.Arguments.Values)
+                    {
+                        if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
+                            _schema.NonFatalException(ValidationException.TypeMissingFieldArgumentFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name));
+                        else
+                        {
+                            if (!IsSameType(objectFieldArgument.Type, argument.Type))
+                                _schema.NonFatalException(ValidationException.TypeFieldArgumentTypeFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, argument.Name));
 
-                    nonInterface.Remove(argument.Name);
+                            nonInterface.Remove(argument.Name);
+                        }
+                    }
+
+                    foreach (var nonInterfaceArgument in nonInterface.Values)
+                        if (nonInterfaceArgument.Type is TypeNonNull)
+                            _schema.NonFatalException(ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name));
+
+                    if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
+                        _schema.NonFatalException(ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name));
                 }
-
-                foreach(var nonInterfaceArgument in nonInterface.Values)
-                    if (nonInterfaceArgument.Type is TypeNonNull)
-                        throw ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name, nonInterfaceArgument.Name);
-
-                if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
-                    throw ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode, interfaceField.Name, interfaceDefinition.Name);
             }
         }
 
@@ -560,7 +596,7 @@ public partial class Schema
             return false;
         }
 
-        private static void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, Queue<InputObjectTypeDefinition> referencedInputObjects)
+        private void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, Queue<InputObjectTypeDefinition> referencedInputObjects)
         {
             if (referencedInputObjects.Count > 0)
             {
@@ -568,18 +604,23 @@ public partial class Schema
                 while (referencedInputObjects.TryDequeue(out var referencedInputObject))
                 {
                     if (referencedInputObject == inputObjectType)
-                        throw ValidationException.InputObjectCircularReference(inputObjectType);
-
-                    foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
                     {
-                        if ((fieldDefinition.Type is TypeNonNull nonNullField) && (nonNullField.Type is TypeName) && (nonNullField.Type.Definition is InputObjectTypeDefinition referenceInputObject))
-                        {
-                            if (!checkedInputObjects.Contains(referenceInputObject))
-                                referencedInputObjects.Enqueue(referenceInputObject);
-                        }
+                        _schema.NonFatalException(ValidationException.InputObjectCircularReference(inputObjectType));
+                        return;
                     }
+                    else
+                    {
+                        foreach (var fieldDefinition in referencedInputObject.InputFields.Values)
+                        {
+                            if ((fieldDefinition.Type is TypeNonNull nonNullField) && (nonNullField.Type is TypeName) && (nonNullField.Type.Definition is InputObjectTypeDefinition referenceInputObject))
+                            {
+                                if (!checkedInputObjects.Contains(referenceInputObject))
+                                    referencedInputObjects.Enqueue(referenceInputObject);
+                            }
+                        }
 
-                    checkedInputObjects.Add(referencedInputObject);
+                        checkedInputObjects.Add(referencedInputObject);
+                    }
                 }
             }
         }

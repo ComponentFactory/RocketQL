@@ -3,10 +3,14 @@
 public class ExtendSchema : UnitTestBase
 {
     [Theory]
-    [InlineData("extend schema { query: fizz }",                "Extend schema cannot be applied because no schema has been defined.")]
+    [InlineData("""
+                extend schema { query: fizz }
+                type Query { alpha: Int }
+                """,                                            "Extend schema cannot be applied because no schema has been defined.")]
     [InlineData("""
                 extend schema { query: fizz }
                 schema { query: fizz }
+                type fizz { alpha: Int }
                 """,                                            "Extend schema cannot be applied because no schema has been defined.")]
     [InlineData("""
                 directive @bar on SCHEMA
@@ -20,9 +24,9 @@ public class ExtendSchema : UnitTestBase
                 schema { query: fizz } 
                 extend schema { query: fizz } 
                 """,                                            "Extend schema cannot add operation QUERY because it is already defined.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]

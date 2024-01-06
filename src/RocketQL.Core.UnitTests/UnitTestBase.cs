@@ -31,7 +31,7 @@ public class UnitTestBase
         return node;
     }
 
-    protected static void SchemaValidationException(string schemaTest, string message)
+    protected static void SchemaValidationSingleException(string schemaTest, string message)
     {
         try
         {
@@ -50,7 +50,7 @@ public class UnitTestBase
         }
     }
 
-    protected static void SchemaValidationException(string schemaTest1, string schemaTest2, string message)
+    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message)
     {
         try
         {
@@ -67,6 +67,25 @@ public class UnitTestBase
             var validation = Assert.IsType<ValidationException>(ex);
             Assert.Single(validation.Locations);
             Assert.NotNull(ex.Source);
+        }
+    }
+
+    protected static void SchemaValidationMultipleExceptions(string schemaTest, params string[] messages)
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add(schemaTest);
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (Exception ex)
+        {
+            var aggregate = Assert.IsType<RocketAggregateException>(ex);
+            Assert.Equal(messages.Count(), aggregate.InnerExceptions.Count);
+            foreach(var message in messages)
+                Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());
         }
     }
 }

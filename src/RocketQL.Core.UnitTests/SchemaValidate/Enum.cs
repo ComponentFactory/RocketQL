@@ -5,88 +5,123 @@ public class Enum : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        var schemaText = "enum foo { FIRST }";
-        SchemaValidationException(schemaText, schemaText, "Enum 'foo' is already defined.");
+        SchemaValidationSingleException("type Query { alpha: Int } enum foo { FIRST }", 
+                                  "enum foo { FIRST }", 
+                                  "Enum 'foo' is already defined.");
     }
 
     [Theory]
     // At least one field
-    [InlineData("enum foo",                                             "Enum 'foo' must have at least one enum value.")]
-    [InlineData("enum foo {}",                                          "Enum 'foo' must have at least one enum value.")]
-    // Double underscores
-    [InlineData("enum __foo { FIRST }",                                 "Enum '__foo' not allowed to start with two underscores.")]
-    // Enum values must be unique
-    [InlineData("enum foo { FIRST FIRST }",                             "Enum 'foo' has duplicate definition of value 'FIRST'.")]
-    // Directive errors
-    [InlineData("enum foo @example { FIRST }",                          "Undefined directive 'example' defined on enum 'foo'.")]
-    [InlineData("enum foo { FIRST @example }",                          "Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
+                enum foo
+                """,                                                    "Enum 'foo' must have at least one enum value.")]
+    [InlineData("""
+                type Query { alpha: Int }
+                enum foo {}
+                """,                                                    "Enum 'foo' must have at least one enum value.")]
+    // Double underscores
+    [InlineData("""
+                type Query { alpha: Int }
+                enum __foo { FIRST }
+                """,                                                    "Enum '__foo' not allowed to start with two underscores.")]
+    // Enum values must be unique
+    [InlineData("""
+                type Query { alpha: Int }
+                enum foo { FIRST FIRST }
+                """,                                                    "Enum 'foo' has duplicate definition of value 'FIRST'.")]
+    // Directive errors
+    [InlineData("""
+                type Query { alpha: Int }
+                enum foo @example { FIRST }
+                """,                                                    "Undefined directive 'example' defined on enum 'foo'.")]
+    [InlineData("""
+                type Query { alpha: Int }
+                enum foo { FIRST @example }
+                """,                                                    "Undefined directive 'example' defined on enum value 'FIRST' of enum 'foo'.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 directive @example on SCALAR
                 enum foo @example { FIRST }                   
                 """,                                                    "Directive 'example' is not specified for use on enum 'foo' location.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example on SCALAR
                 enum foo { FIRST @example }                   
                 """,                                                    "Directive 'example' is not specified for use on enum value 'FIRST' of enum 'foo' location.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example on ENUM
                 enum foo @example @example { FIRST }                
                 """,                                                    "Directive 'example' is not repeatable but has been applied multiple times on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example on ENUM_VALUE
                 enum foo { FIRST @example @example }                
                 """,                                                    "Directive 'example' is not repeatable but has been applied multiple times on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM
                 enum foo @example { FIRST }                
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' missing on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM_VALUE
                 enum foo  { FIRST @example }                
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' missing on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM
                 enum foo @example { FIRST }                
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' missing on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM_VALUE
                 enum foo  { FIRST @example }                
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' missing on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example on ENUM
                 enum foo @example(arg1: 123) { FIRST }              
                 """,                                                    "Directive 'example' does not define argument 'arg1' provided on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example on ENUM_VALUE
                 enum foo  { FIRST @example(arg1: 123) }              
                 """,                                                    "Directive 'example' does not define argument 'arg1' provided on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int) on ENUM
                 enum foo @example(arg1: 123) { FIRST }              
                 """,                                                    "Directive 'example' does not define argument 'arg1' provided on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int) on ENUM_VALUE
                 enum foo  { FIRST @example(arg1: 123) }              
                 """,                                                    "Directive 'example' does not define argument 'arg1' provided on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM
                 enum foo @example(arg1: null) { FIRST }               
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM_VALUE
                 enum foo { FIRST @example(arg1: null) }               
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM
                 enum foo @example(arg1: null) { FIRST }                   
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum 'foo'.")]    
     [InlineData("""
+                type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM_VALUE
                 enum foo { FIRST @example(arg1: null) }               
                 """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum value 'FIRST' of enum 'foo'.")]    
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Theory]

@@ -3,32 +3,40 @@
 public class ExtendEnum : UnitTestBase
 {
     [Theory]
-    [InlineData("extend enum foo { FIRST }",                    "Enum 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
+                extend enum foo { FIRST }
+                """,                                            "Enum 'foo' cannot be extended because it is not defined.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 extend enum foo { SECOND }
                 enum foo { FIRST }
                 """,                                            "Enum 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on ENUM
                 enum foo @bar { FIRST }
                 extend enum foo @bar
                 """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on ENUM_VALUE
                 enum foo { FIRST @bar }
                 extend enum foo { FIRST @bar }
                 """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 enum foo { FIRST }
                 extend enum foo { FIRST }
                 """,                                            "Extend enum 'foo' for existing enum value 'FIRST' does not make any change.")]
     [InlineData("""
+                type Query { alpha: Int }
                 enum foo { FIRST }
                 extend enum foo { SECOND SECOND }
                 """,                                            "Extend enum 'foo' has duplicate definition of enum value 'SECOND'.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]

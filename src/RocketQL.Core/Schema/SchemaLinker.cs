@@ -81,10 +81,10 @@ public partial class Schema
             foreach(var operationTypeDefinition in schemaDefinition.Operations.Values)
             {
                 if (!_schema.Types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
-                    throw ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition);
+                    FatalException(ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition));
 
                 if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
-                    throw ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition);
+                    FatalException(ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition!));
 
                 operationTypeDefinition.Definition = typeDefinition as ObjectTypeDefinition;
             }
@@ -99,13 +99,15 @@ public partial class Schema
                 if (!_schema.Directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
                 {
                     if (grandParentNode is not null)
-                        throw ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode);
+                        FatalException(ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode));
                     else
-                        throw ValidationException.UndefinedDirective(directive, parentNode);
+                        FatalException(ValidationException.UndefinedDirective(directive, parentNode));
                 }
-
-                directive.Definition = directiveDefinition;
-                directiveDefinition.References.Add(directive!);
+                else
+                {
+                    directive.Definition = directiveDefinition;
+                    directiveDefinition.References.Add(directive!);
+                }
             }
         }
 
@@ -116,13 +118,15 @@ public partial class Schema
                 interfaceEntry.Parent = parentNode;
 
                 if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
-                    throw ValidationException.UndefinedInterface(interfaceEntry, parentNode);
+                    FatalException(ValidationException.UndefinedInterface(interfaceEntry, parentNode));
 
                 if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    throw ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition);
-
-                interfaceEntry.Definition = interfaceTypeDefinition;
-                interfaceTypeDefinition.References.Add(interfaceEntry!);
+                    FatalException(ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition!));
+                else
+                {
+                    interfaceEntry.Definition = interfaceTypeDefinition;
+                    interfaceTypeDefinition.References.Add(interfaceEntry!);
+                }
             }
         }
 
@@ -160,10 +164,12 @@ public partial class Schema
             else if (typeLocation is TypeName typeName)
             {
                 if (!_schema.Types.TryGetValue(typeName.Name, out var type))
-                    throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode);
-
-                typeName.Definition = type;
-                type.References.Add(typeName);
+                    FatalException(ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode));
+                else
+                {
+                    typeName.Definition = type;
+                    type.References.Add(typeName);
+                }
             }
         }
 
@@ -171,10 +177,10 @@ public partial class Schema
         {
             foreach (var memberType in memberTypes.Values)
             {
-                memberType.Parent = unionType; 
+                memberType.Parent = unionType;
 
                 if (!_schema.Types.TryGetValue(memberType.Name, out TypeDefinition? typeDefinition))
-                    throw ValidationException.UndefinedMemberType(memberType, unionType);
+                    FatalException(ValidationException.UndefinedMemberType(memberType, unionType));
 
                 if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
                 {
@@ -183,8 +189,8 @@ public partial class Schema
                 }
                 else
                 {
-                    throw ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition, 
-                                                                ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an");
+                    FatalException(ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition!,
+                                                                        ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an"));
                 }
             }
         }

@@ -1,8 +1,11 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System;
+
+namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
     private readonly SyntaxNodeList _nodes = [];
+    private List<RocketException> _exceptions = [];
 
     public SchemaRoot? Root { get; set; }
     private SchemaDefinitions Schemas { get; init; } = [];
@@ -61,6 +64,7 @@ public partial class Schema
             Linker.Visit();
             Validater.Visit();
             Rooter.Visit();
+            CheckExceptions();
             IsValidated = true;
         }
         catch
@@ -78,6 +82,7 @@ public partial class Schema
 
     private void Clean()
     {
+        _exceptions.Clear();
         Root = null;
         Schemas.Clear();
         Directives.Clear();
@@ -260,18 +265,21 @@ public partial class Schema
         }
     }
 
-    private static bool AllReferencesWithinType(TypeDefinition root)
+    private static void FatalException(ValidationException validationException)
     {
-        foreach (var reference in root.References)
-        {
-            var checkReference = reference;
-            while (checkReference.Parent != null)
-                checkReference = checkReference.Parent;
+        throw validationException;
+    }
 
-            if (checkReference != root)
-                return false;
-        }
+    private void NonFatalException(ValidationException validationException)
+    {
+        _exceptions.Add(validationException);
+    }
 
-        return true;
+    private void CheckExceptions()
+    {
+        if (_exceptions.Count == 1)
+            throw _exceptions[0];
+        else if (_exceptions.Count > 1)
+            throw new RocketAggregateException(_exceptions);
     }
 }

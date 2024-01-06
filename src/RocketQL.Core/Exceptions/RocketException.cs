@@ -4,3 +4,5 @@ public class RocketException(Location location, string message) : Exception(mess
 {
     public Location[] Locations { get; init; } = [location];
 }
+
+public class RocketAggregateException(IEnumerable<RocketException> innerExceptions) : AggregateException(innerExceptions);

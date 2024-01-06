@@ -3,42 +3,52 @@
 public class ExtendInterface : UnitTestBase
 {
     [Theory]
-    [InlineData("extend interface foo { buzz: Int }",           "Interface 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 extend interface foo { buzz: Int }
-                type foo
                 """,                                            "Interface 'foo' cannot be extended because it is not defined.")]
     [InlineData("""
+                type Query { alpha: Int }
+                extend interface foo { buzz: Int }
+                interface foo { first: Int }
+                """,                                            "Interface 'foo' cannot be extended because it is not defined.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on INTERFACE
                 interface foo @bar { buzz: Int } 
                 extend interface foo @bar
                 """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on interface 'foo'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 interface bar { buzz: Int }
                 interface foo implements bar { buzz: Int } 
                 extend interface foo implements bar
                 """,                                            "Extend interface 'foo' specifies an interface 'bar' already defined.")]
     [InlineData("""
+                type Query { alpha: Int }
                 interface foo { buzz: Int } 
                 extend interface foo { fizz: Int fizz: Int} 
                 """,                                            "Extend interface 'foo' has duplicate definition of field 'fizz'.")]
     [InlineData("""
+                type Query { alpha: Int }
                 interface foo { buzz: Int } 
                 extend interface foo { buzz: Int } 
                 """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on FIELD_DEFINITION
                 interface foo { buzz: Int @bar } 
                 extend interface foo { buzz: Int } 
                 """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
     [InlineData("""
+                type Query { alpha: Int }
                 directive @bar on ARGUMENT_DEFINITION
                 interface foo { buzz(arg: String @bar): Int } 
                 extend interface foo { buzz(arg: String): Int } 
                 """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
-    public void ValidationExceptions(string schemaText, string message)
+    public void ValidationSingleExceptions(string schemaText, string message)
     {
-        SchemaValidationException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message);
     }
 
     [Fact]
