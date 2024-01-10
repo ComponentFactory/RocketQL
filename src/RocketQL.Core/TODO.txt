@@ -4,17 +4,17 @@
 	
 
 	Request
+		create from nodes
+		convert
+		link
+		validate
+
 		allow variables in operation
 		allow variables as input values instead of a constant
 		why is 'field4?' allowed in the reference implementation?
 
 
 	Request processing
-		return node that has data and exceptions
-		validate incoming request against schema
-			validate document
-			validate variables
-
 		@skip
 		@include
 
