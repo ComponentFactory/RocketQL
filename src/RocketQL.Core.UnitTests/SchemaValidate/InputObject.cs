@@ -121,22 +121,22 @@ public class Input : UnitTestBase
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_OBJECT
                 input foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_OBJECT
                 input foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

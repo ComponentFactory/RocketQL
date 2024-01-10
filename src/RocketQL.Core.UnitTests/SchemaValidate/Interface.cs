@@ -258,32 +258,32 @@ public class Interface : UnitTestBase
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INTERFACE
                 interface foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 interface foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 interface foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INTERFACE
                 interface foo @example(arg1: null) { fizz : Int }                
-                """,                                                             "Directive 'example' has mandatory argument 'arg1' that is specified as null on interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 interface foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 interface foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of interface 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of interface 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -491,5 +491,31 @@ public class Interface : UnitTestBase
         var d3 = argument.Directives.NotNull().One();
         Assert.Equal("d3", d3.Name);
         Assert.Equal(argument, d3.Parent);
+    }
+
+    [Fact]
+    public void ValidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationNoException("""
+                                    type Query { query: Int }
+                                    interface foo 
+                                    {
+                                       a(arg: Int = 5): Int
+                                       b(arg: [Int] = [1, 2]): Int
+                                    }
+                                    """);
+    }
+
+    [Fact]
+    public void InvalidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationSingleException("""
+                                        type Query { query: Int }
+                                        interface foo 
+                                        {
+                                           a(arg: Int = 3.13): Int
+                                        }
+                                        """,
+                                        "Argument 'arg' of field 'a' of interface 'foo' has a default value incompatible with the type.");
     }
 }

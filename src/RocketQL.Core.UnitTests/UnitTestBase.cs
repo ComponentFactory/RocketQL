@@ -31,6 +31,13 @@ public class UnitTestBase
         return node;
     }
 
+    protected static void SchemaValidationNoException(string schemaTest)
+    {
+        var schema = new Schema();
+        schema.Add(schemaTest);
+        schema.Validate();
+    }
+
     protected static void SchemaValidationSingleException(string schemaTest, string message)
     {
         try

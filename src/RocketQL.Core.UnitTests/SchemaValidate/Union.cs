@@ -6,8 +6,8 @@ public class Union : UnitTestBase
     public void NameAlreadyDefined()
     {
         SchemaValidationSingleException("type Query { first: Int} type fizz { buzz: Int } union foo = fizz", 
-                                  "union foo = fizz", 
-                                  "Union 'foo' is already defined.");
+                                        "union foo = fizz", 
+                                        "Union 'foo' is already defined.");
     }
 
     [Theory]
@@ -96,13 +96,13 @@ public class Union : UnitTestBase
                 type fizz { buzz: Int }
                 directive @example(arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on union 'foo'.")]
+                """,                                                "Argument 'arg1' of directive 'example' of union 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on union 'foo'.")]
+                """,                                                "Argument 'arg1' of directive 'example' of union 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

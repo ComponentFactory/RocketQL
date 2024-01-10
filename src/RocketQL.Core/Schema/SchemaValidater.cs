@@ -34,18 +34,18 @@ public partial class Schema
 
                 if (argumentDefinition.Type.Definition is null)
                     _schema.NonFatalException(ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name));
+                else if (!argumentDefinition.Type.Definition.IsInputType)
+                    _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(argumentDefinition, directiveDefinition, argumentDefinition.Type.Definition.OutputName));
                 else
                 {
-                    if (!argumentDefinition.Type.Definition.IsInputType)
-                        _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(argumentDefinition, directiveDefinition, argumentDefinition.Type.Definition.OutputName));
-                    else
-                    {
-                        referencedTypes.Enqueue(argumentDefinition.Type.Definition);
-                        foreach (var directive in argumentDefinition.Directives)
-                            referencedDirectives.Enqueue(directive.Definition!);
+                    if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
+                        _schema.NonFatalException(ValidationException.ValueNotCompatibleWithType(directiveDefinition, argumentDefinition));
 
-                        CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION, argumentDefinition);
-                    }
+                    referencedTypes.Enqueue(argumentDefinition.Type.Definition);
+                    foreach (var directive in argumentDefinition.Directives)
+                        referencedDirectives.Enqueue(directive.Definition!);
+
+                    CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION, argumentDefinition);
                 }
             }
 
@@ -396,13 +396,13 @@ public partial class Schema
                     var checkedArguments = directive.Arguments.ToDictionary();
                     foreach (var argumentDefinition in directive.Definition.Arguments.Values)
                     {
-                        if (argumentDefinition.Type is TypeNonNull && argumentDefinition.DefaultValue is null)
+                        if (checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
                         {
-                            if (!checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
-                                _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent));
-                            else if (checkedArgument.Value is NullValueNode)
-                                _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentNull(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent));
+                            if ((checkedArgument.Value is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, checkedArgument.Value))
+                                _schema.NonFatalException(ValidationException.ValueNotCompatibleWithType(directive, parentNode, argumentDefinition));
                         }
+                        else if ((argumentDefinition.DefaultValue is null) && (argumentDefinition.Type is TypeNonNull))
+                            _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, parentNode, grandParent, greatGrandParent));
 
                         checkedArguments.Remove(argumentDefinition.Name);
                     }
@@ -449,6 +449,9 @@ public partial class Schema
 
                     if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
                         _schema.NonFatalException(ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition));
+
+                    if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
+                        _schema.NonFatalException(ValidationException.ValueNotCompatibleWithType(fieldDefinition, parentNode, argumentDefinition));
 
                     CheckDirectiveUsage(argumentDefinition.Directives, parentNode, DirectiveLocations.ARGUMENT_DEFINITION, fieldDefinition, argumentDefinition);
                 }

@@ -194,7 +194,7 @@ public class TypeName : TypeNode
     public override bool IsOutputType => Definition!.IsOutputType;
 }
 
-public class TypeNonNull : TypeNode
+public class TypeList : TypeNode
 {
     public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
@@ -202,7 +202,7 @@ public class TypeNonNull : TypeNode
     public override bool IsOutputType => Type.IsOutputType;
 }
 
-public class TypeList : TypeNode
+public class TypeNonNull : TypeNode
 {
     public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }

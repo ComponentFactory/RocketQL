@@ -7,11 +7,10 @@
 		// TO INVESTIGATE
 		Do we need this?
 
-		directives
-			// DefaultValue definition matches the type
-			// Usage value matched the definintion type
+		// Input value coercion
+		// Better errors for type check?
+		// Method to return coerced value?
 
-		Allow multiple exceptions but some are catastrophic
 
 	Request
 		allow variables in operation

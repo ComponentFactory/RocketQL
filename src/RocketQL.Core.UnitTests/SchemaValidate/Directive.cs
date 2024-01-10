@@ -6,8 +6,8 @@ public class Directive : UnitTestBase
     public void NameAlreadyDefined()
     {
         SchemaValidationSingleException("type Query { alpha: Int } directive @foo on ENUM", 
-                                  "directive @foo on ENUM", 
-                                  "Directive 'foo' is already defined.");
+                                        "directive @foo on ENUM", 
+                                        "Directive 'foo' is already defined.");
     }
 
     [Theory]
@@ -116,12 +116,12 @@ public class Directive : UnitTestBase
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 directive @foo(buzz: Int @example(arg1: null)) on OBJECT               
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'buzz' of directive 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of directive 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 directive @foo(buzz: Int @example(arg1: null)) on OBJECT                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'buzz' of directive 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of directive 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -213,6 +213,38 @@ public class Directive : UnitTestBase
         var directive = argument.Directives.NotNull().One();
         Assert.NotNull(directive);
         Assert.Equal(argument, directive.Parent);
+    }
+
+    [Theory]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int = 42) on SCALAR
+                """)]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int) on SCALAR
+                scalar example @foo(arg: 42)
+                """)]
+    public void ValidTypeCheckOnDefaultValue(string schemaText)
+    {
+        SchemaValidationNoException(schemaText);
+    }
+
+    [Theory]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int = 3.14) on SCALAR
+                """,
+                                                        "Argument 'arg' of directive 'foo' has a default value incompatible with the type.")]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int) on SCALAR
+                scalar example @foo(arg: 3.14)
+                """,
+                                                        "Argument 'arg' of directive 'foo' of scalar 'example' has a default value incompatible with the type.")]
+    public void InvalidTypeCheckOnDefaultValue(string schemaText, string message)
+    {
+        SchemaValidationSingleException(schemaText, message);
     }
 }
 

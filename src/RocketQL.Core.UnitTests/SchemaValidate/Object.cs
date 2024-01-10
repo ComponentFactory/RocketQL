@@ -1,11 +1,15 @@
-﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
+﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+
+namespace RocketQL.Core.UnitTests.SchemaValidation;
 
 public class Object : UnitTestBase
 {
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("type Query { alpha: Int } type foo { fizz : Int }", "type foo { fizz : Int }", "Object 'foo' is already defined.");
+        SchemaValidationSingleException("type Query { alpha: Int } type foo { fizz : Int }", 
+                                        "type foo { fizz : Int }", 
+                                        "Object 'foo' is already defined.");
     }
 
     [Theory]
@@ -260,32 +264,32 @@ public class Object : UnitTestBase
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                             "Directive 'example' has mandatory argument 'arg1' that is specified as null on object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on field 'fizz' of object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' that is specified as null on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -433,6 +437,32 @@ public class Object : UnitTestBase
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
+    }
+
+    [Fact]
+    public void ValidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationNoException("""
+                                    type Query { query: Int }
+                                    type foo 
+                                    {
+                                       a(arg: Int = 5): Int
+                                       b(arg: [Int] = [1, 2]): Int
+                                    }
+                                    """);
+    }
+
+    [Fact]
+    public void InvalidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationSingleException("""
+                                        type Query { query: Int }
+                                        type foo 
+                                        {
+                                           a(arg: Int = 3.13): Int
+                                        }
+                                        """,
+                                        "Argument 'arg' of field 'a' of object 'foo' has a default value incompatible with the type.");
     }
 
     [Fact]

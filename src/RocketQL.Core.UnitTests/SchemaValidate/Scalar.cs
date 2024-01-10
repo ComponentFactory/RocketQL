@@ -5,7 +5,9 @@ public class Scalar : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("type Query { fizz: Int } scalar foo", "scalar foo", "Scalar 'foo' is already defined.");
+        SchemaValidationSingleException("type Query { fizz: Int } scalar foo", 
+                                        "scalar foo", 
+                                        "Scalar 'foo' is already defined.");
     }
 
     [Theory]
@@ -64,12 +66,12 @@ public class Scalar : UnitTestBase
                 type Query { fizz: Int }
                 directive @example(arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
-                """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on scalar 'foo'.")]
+                """,                                                "Argument 'arg1' of directive 'example' of scalar 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
-                """,                                                "Directive 'example' has mandatory argument 'arg1' that is specified as null on scalar 'foo'.")]
+                """,                                                "Argument 'arg1' of directive 'example' of scalar 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

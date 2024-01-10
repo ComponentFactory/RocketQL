@@ -6,8 +6,8 @@ public class Enum : UnitTestBase
     public void NameAlreadyDefined()
     {
         SchemaValidationSingleException("type Query { alpha: Int } enum foo { FIRST }", 
-                                  "enum foo { FIRST }", 
-                                  "Enum 'foo' is already defined.");
+                                        "enum foo { FIRST }", 
+                                        "Enum 'foo' is already defined.");
     }
 
     [Theory]
@@ -103,22 +103,22 @@ public class Enum : UnitTestBase
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM
                 enum foo @example(arg1: null) { FIRST }               
-                """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum 'foo'.")]
+                """,                                                    "Argument 'arg1' of directive 'example' of enum 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ENUM_VALUE
                 enum foo { FIRST @example(arg1: null) }               
-                """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum value 'FIRST' of enum 'foo'.")]
+                """,                                                    "Argument 'arg1' of directive 'example' of enum 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM
                 enum foo @example(arg1: null) { FIRST }                   
-                """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum 'foo'.")]    
+                """,                                                    "Argument 'arg1' of directive 'example' of enum 'foo' has a default value incompatible with the type.")]    
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ENUM_VALUE
                 enum foo { FIRST @example(arg1: null) }               
-                """,                                                    "Directive 'example' has mandatory argument 'arg1' that is specified as null on enum value 'FIRST' of enum 'foo'.")]    
+                """,                                                    "Argument 'arg1' of directive 'example' of enum 'foo' has a default value incompatible with the type.")]    
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
