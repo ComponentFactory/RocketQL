@@ -12,9 +12,9 @@ public partial class Schema
         public void Visit()
         {
             ISchemaNodeVisitors visitor = this;
-            visitor.Visit(_schema.Directives.Values);
-            visitor.Visit(_schema.Types.Values);
-            visitor.Visit(_schema.Schemas);
+            visitor.Visit(_schema._directives.Values);
+            visitor.Visit(_schema._types.Values);
+            visitor.Visit(_schema._schemas);
             ValidateSchema();
         }
 
@@ -190,23 +190,23 @@ public partial class Schema
 
         private void ValidateSchema()
         {
-            if (_schema.Schemas.Count == 1)
+            if (_schema._schemas.Count == 1)
             {
-                _schema.Root = new SchemaRoot()
+                _schema._root = new SchemaRoot()
                 {
-                    Description = _schema.Schemas[0].Description,
-                    Directives = _schema.Schemas[0].Directives,
-                    Query = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
-                    Mutation = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
-                    Subscription = _schema.Schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
-                    Location = _schema.Schemas[0].Location,
+                    Description = _schema._schemas[0].Description,
+                    Directives = _schema._schemas[0].Directives,
+                    Query = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
+                    Mutation = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
+                    Subscription = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
+                    Location = _schema._schemas[0].Location,
                 };
             }
             else
             {
-                _schema.Types.TryGetValue("Query", out var queryTypeDefinition);
-                _schema.Types.TryGetValue("Mutation", out var mutationTypeDefinition);
-                _schema.Types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
+                _schema._types.TryGetValue("Query", out var queryTypeDefinition);
+                _schema._types.TryGetValue("Mutation", out var mutationTypeDefinition);
+                _schema._types.TryGetValue("Subscription", out var subscriptionTypeDefinition);
 
                 if (queryTypeDefinition is null)
                     _schema.NonFatalException(ValidationException.AutoSchemaQueryMissing());
@@ -237,7 +237,7 @@ public partial class Schema
                         _schema.NonFatalException(ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription"));
                 }
 
-                _schema.Root = new SchemaRoot()
+                _schema._root = new SchemaRoot()
                 {
                     Description = string.Empty,
                     Directives = [],
@@ -249,30 +249,30 @@ public partial class Schema
 
                 OperationTypeDefinitions operations = [];
 
-                if ((_schema.Root.Query is not null) && (queryTypeDefinition is not null))
+                if ((_schema._root.Query is not null) && (queryTypeDefinition is not null))
                 {
-                    operations.Add(_schema.Root.Query.Operation, _schema.Root.Query);
-                    queryTypeDefinition.References.Add(_schema.Root.Query);
+                    operations.Add(_schema._root.Query.Operation, _schema._root.Query);
+                    queryTypeDefinition.References.Add(_schema._root.Query);
                 }
 
-                if ((_schema.Root.Mutation is not null) && (mutationTypeDefinition is not null))
+                if ((_schema._root.Mutation is not null) && (mutationTypeDefinition is not null))
                 {
-                    operations.Add(_schema.Root.Mutation.Operation, _schema.Root.Mutation);
-                    mutationTypeDefinition.References.Add(_schema.Root.Mutation);
+                    operations.Add(_schema._root.Mutation.Operation, _schema._root.Mutation);
+                    mutationTypeDefinition.References.Add(_schema._root.Mutation);
                 }
 
-                if ((_schema.Root.Subscription is not null) && (subscriptionTypeDefinition is not null))
+                if ((_schema._root.Subscription is not null) && (subscriptionTypeDefinition is not null))
                 {
-                    operations.Add(_schema.Root.Subscription.Operation, _schema.Root.Subscription);
-                    subscriptionTypeDefinition.References.Add(_schema.Root.Subscription);
+                    operations.Add(_schema._root.Subscription.Operation, _schema._root.Subscription);
+                    subscriptionTypeDefinition.References.Add(_schema._root.Subscription);
                 }
 
-                _schema.Schemas.Add(new SchemaDefinition()
+                _schema._schemas.Add(new SchemaDefinition()
                 {
-                    Description = _schema.Root.Description,
-                    Directives = _schema.Root.Directives,
+                    Description = _schema._root.Description,
+                    Directives = _schema._root.Directives,
                     Operations = operations,
-                    Location = _schema.Root.Location
+                    Location = _schema._root.Location
                 });
             }
         }

@@ -12,7 +12,7 @@ public partial class Schema
         public void Visit()
         {
             ISchemaNodeVisitors visitor = this;
-            visitor.Visit(_schema.Schemas);
+            visitor.Visit(_schema._schemas);
         }
 
         public void VisitSchemaDefinition(SchemaRoot schemaRoot)

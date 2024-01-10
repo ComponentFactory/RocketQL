@@ -11,16 +11,16 @@ public partial class Schema
 
         public void Visit()
         {
-            ((ISyntaxNodeVisitors)this).Visit(_schema.Nodes);
+            ((ISyntaxNodeVisitors)this).Visit(_schema._nodes);
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
         {
-            if (_schema.Schemas.Count > 0)
+            if (_schema._schemas.Count > 0)
                 _schema.NonFatalException(ValidationException.SchemaDefinitionAlreadyDefined(schema.Location));
             else
             {
-                _schema.Schemas.Add(new()
+                _schema._schemas.Add(new()
                 {
                     Description = schema.Description,
                     Directives = ConvertDirectives(schema.Directives),
@@ -32,11 +32,11 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)
         {
-            if (_schema.Directives.ContainsKey(directive.Name))
+            if (_schema._directives.ContainsKey(directive.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(directive.Location, "Directive", directive.Name));
             else
             {
-                _schema.Directives.Add(directive.Name, new()
+                _schema._directives.Add(directive.Name, new()
                 {
                     Description = directive.Description,
                     Name = directive.Name,
@@ -50,11 +50,11 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(SyntaxScalarTypeDefinitionNode scalarType)
         {
-            if (_schema.Types.ContainsKey(scalarType.Name))
+            if (_schema._types.ContainsKey(scalarType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(scalarType.Location, "Scalar", scalarType.Name));
             else
             {
-                _schema.Types.Add(scalarType.Name, new ScalarTypeDefinition()
+                _schema._types.Add(scalarType.Name, new ScalarTypeDefinition()
                 {
                     Description = scalarType.Description,
                     Name = scalarType.Name,
@@ -66,11 +66,11 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(SyntaxObjectTypeDefinitionNode objectType)
         {
-            if (_schema.Types.ContainsKey(objectType.Name))
+            if (_schema._types.ContainsKey(objectType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(objectType.Location, "Object", objectType.Name));
             else
             {
-                _schema.Types.Add(objectType.Name, new ObjectTypeDefinition()
+                _schema._types.Add(objectType.Name, new ObjectTypeDefinition()
                 {
                     Description = objectType.Description,
                     Name = objectType.Name,
@@ -84,11 +84,11 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(SyntaxInterfaceTypeDefinitionNode interfaceType)
         {
-            if (_schema.Types.ContainsKey(interfaceType.Name))
+            if (_schema._types.ContainsKey(interfaceType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(interfaceType.Location, "Interface", interfaceType.Name));
             else
             {
-                _schema.Types.Add(interfaceType.Name, new InterfaceTypeDefinition()
+                _schema._types.Add(interfaceType.Name, new InterfaceTypeDefinition()
                 {
                     Description = interfaceType.Description,
                     Name = interfaceType.Name,
@@ -102,11 +102,11 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(SyntaxUnionTypeDefinitionNode unionType)
         {
-            if (_schema.Types.ContainsKey(unionType.Name))
+            if (_schema._types.ContainsKey(unionType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(unionType.Location, "Union", unionType.Name));
             else
             {
-                _schema.Types.Add(unionType.Name, new UnionTypeDefinition()
+                _schema._types.Add(unionType.Name, new UnionTypeDefinition()
                 {
                     Description = unionType.Description,
                     Name = unionType.Name,
@@ -119,11 +119,11 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType)
         {
-            if (_schema.Types.ContainsKey(enumType.Name))
+            if (_schema._types.ContainsKey(enumType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(enumType.Location, "Enum", enumType.Name));
             else
             {
-                _schema.Types.Add(enumType.Name, new EnumTypeDefinition()
+                _schema._types.Add(enumType.Name, new EnumTypeDefinition()
                 {
                     Description = enumType.Description,
                     Name = enumType.Name,
@@ -137,11 +137,11 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType)
         {
-            if (_schema.Types.ContainsKey(inputObjectType.Name))
+            if (_schema._types.ContainsKey(inputObjectType.Name))
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(inputObjectType.Location, "Input object", inputObjectType.Name));
             else
             {
-                _schema.Types.Add(inputObjectType.Name, new InputObjectTypeDefinition()
+                _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition()
                 {
                     Description = inputObjectType.Description,
                     Name = inputObjectType.Name,
@@ -154,7 +154,7 @@ public partial class Schema
 
         public void VisitExtendSchemaDefinition(SyntaxExtendSchemaDefinitionNode extendSchema)
         {
-            if (_schema.Schemas.Count == 0)
+            if (_schema._schemas.Count == 0)
                 _schema.NonFatalException(ValidationException.SchemaNotDefinedForExtend(extendSchema.Location));
             else
             {
@@ -162,7 +162,7 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.ExtendSchemaMandatory(extendSchema.Location));
                 else
                 {
-                    var schemaType = _schema.Schemas[0];
+                    var schemaType = _schema._schemas[0];
 
                     if (extendSchema.Directives.Count > 0)
                         schemaType.Directives.AddRange(ConvertDirectives(extendSchema.Directives));
@@ -191,7 +191,7 @@ public partial class Schema
 
         public void VisitExtendScalarTypeDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
         {
-            if (!_schema.Types.TryGetValue(extendScalarType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendScalarType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendScalarType.Location, "Scalar", extendScalarType.Name));
             else
             {
@@ -209,7 +209,7 @@ public partial class Schema
 
         public void VisitExtendObjectTypeDefinition(SyntaxExtendObjectTypeDefinitionNode extendObjectType)
         {
-            if (!_schema.Types.TryGetValue(extendObjectType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendObjectType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendObjectType.Location, "Object", extendObjectType.Name));
             else
             {
@@ -255,7 +255,7 @@ public partial class Schema
 
         public void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType)
         {
-            if (!_schema.Types.TryGetValue(extendInterfaceType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendInterfaceType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendInterfaceType.Location, "Interface", extendInterfaceType.Name));
             else
             {
@@ -303,7 +303,7 @@ public partial class Schema
 
         public void VisitExtendUnionTypeDefinition(SyntaxExtendUnionTypeDefinitionNode extendUnionType)
         {
-            if (!_schema.Types.TryGetValue(extendUnionType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendUnionType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendUnionType.Location, "Union", extendUnionType.Name));
             else
             {
@@ -342,7 +342,7 @@ public partial class Schema
 
         public void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType)
         {
-            if (!_schema.Types.TryGetValue(extendEnumType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendEnumType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendEnumType.Location, "Enum", extendEnumType.Name));
             else
             {
@@ -395,7 +395,7 @@ public partial class Schema
 
         public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
         {
-            if (!_schema.Types.TryGetValue(extendInputObjectType.Name, out var typeDefinition))
+            if (!_schema._types.TryGetValue(extendInputObjectType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendInputObjectType.Location, "Input object", extendInputObjectType.Name));
             else
             {

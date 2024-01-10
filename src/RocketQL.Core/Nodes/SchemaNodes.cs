@@ -11,6 +11,16 @@ public abstract class SchemaNode
 
 public class SchemaRoot : SchemaNode
 {
+    public static readonly SchemaRoot Empty = new()
+    { 
+        Description = string.Empty,
+        Directives = [],
+        Query = null,
+        Mutation = null,
+        Subscription = null,
+        Location = new()
+    };
+    
     public required string Description { get; set; }
     public required Directives Directives { get; set; }
     public required OperationTypeDefinition? Query { get; set; }
@@ -198,8 +208,17 @@ public class TypeNonNull : TypeNode
 
 public class SchemaNodes : List<SchemaNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
-public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> { };
-public class TypeDefinitions : Dictionary<string, TypeDefinition> { };
+
+public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> 
+{
+    public static readonly DirectiveDefinitions Empty = [];
+};
+
+public class TypeDefinitions : Dictionary<string, TypeDefinition>
+{
+    public static readonly TypeDefinitions Empty = [];
+};
+
 public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };
 public class Directives : List<Directive> { };
@@ -210,3 +229,6 @@ public class MemberTypes : Dictionary<string, MemberType> { };
 public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
 public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { };
+
+public interface IReadOnlyDirectives : IReadOnlyDictionary<string, DirectiveDefinition> { };
+public interface IReadOnlyTypes : IReadOnlyDictionary<string, TypeDefinition> { };

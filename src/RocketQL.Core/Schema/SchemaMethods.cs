@@ -15,7 +15,7 @@ public partial class Schema
 
     private bool IsInputTypeCompatibleWithTypeName(TypeName typeNameNode, ValueNode valueNode)
     {
-        if (Types.TryGetValue(typeNameNode.Name, out var typeDefinition))
+        if (_types.TryGetValue(typeNameNode.Name, out var typeDefinition))
         {
             return typeDefinition switch
             {
@@ -34,7 +34,8 @@ public partial class Schema
         // You can assign 'null' to a scalar
         if (valueNode is NullValueNode)
             return true;
-
+        
+        // Note that input coercion allows an integer to be assigned to float type
         return scalarTypeDefinition.Name switch
         {
             "Int" => valueNode is IntValueNode,
@@ -64,7 +65,7 @@ public partial class Schema
         if (valueNode is NullValueNode)
             return true;
 
-        // You must assign an object to an input type
+        // You must assign an object
         if (valueNode is not ObjectValueNode objectValueNode)
             return false;
 
@@ -73,6 +74,7 @@ public partial class Schema
         {
             if (!objectNodes.TryGetValue(inputFieldDefinition.Name, out var objectNode))
             {
+                // Must provide a value for mandatory fields, all non-null types are mandatory
                 if (inputFieldDefinition.Type is TypeNonNull)
                     return false;
             }
@@ -82,14 +84,17 @@ public partial class Schema
             objectNodes.Remove(inputFieldDefinition.Name);
         }
 
+        // Cannot have values for fields not in the type definintion
         return (objectNodes.Count == 0);
     }
 
     private bool IsInputTypeCompatibleWithTypeList(TypeList typeListNode, ValueNode valueNode)
     {
+        // You can assign 'null' to a list
         if (valueNode is NullValueNode)
             return true;
 
+        // You must assign a list
         if (valueNode is not ListValueNode listValueNode)
             return false;
 
@@ -102,6 +107,7 @@ public partial class Schema
 
     private bool IsInputValueCompatibleWithTypeNonNull(TypeNonNull typeNonNullNode, ValueNode valueNode)
     {
+        // You cannot assign 'null' to a non-null type
         if (valueNode is NullValueNode)
             return false;
 

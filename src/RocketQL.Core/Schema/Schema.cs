@@ -1,15 +1,51 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Collections.Generic;
 
-public partial class Schema
+namespace RocketQL.Core.Base;
+
+public partial class Schema : ISchema
 {
-    private SyntaxNodeList Nodes { get; init; } = [];
-    private List<ValidationException> Exceptions { get; init; } = [];
-    private SchemaDefinitions Schemas { get; init; } = [];
+    private SchemaRoot _root = SchemaRoot.Empty;
+    private readonly SchemaDefinitions _schemas = [];
+    private readonly DirectiveDefinitions _directives = [];
+    private readonly TypeDefinitions _types = [];
+    private readonly List<ValidationException> _exceptions = [];
+    private readonly SyntaxNodeList _nodes = [];
 
-    public SchemaRoot? Root { get; set; }
-    public DirectiveDefinitions Directives { get; init; } = [];
-    public TypeDefinitions Types { get; init; } = [];
+    public SchemaRoot Root { get; protected set; } = SchemaRoot.Empty;
+    public IReadOnlyDictionary<string, DirectiveDefinition> Directives { get; protected set; } = DirectiveDefinitions.Empty;
+    public IReadOnlyDictionary<string, TypeDefinition> Types { get; protected set; } = TypeDefinitions.Empty;
     public bool IsValidated { get; protected set; } = false;
+
+    public void Add(SyntaxNode node)
+    {
+        _nodes.Add(node);
+        IsValidated = false;
+    }
+
+    public void Add(IEnumerable<SyntaxNode> nodes)
+    {
+        _nodes.AddRange(nodes);
+        IsValidated = false;
+    }
+
+    public void Add(SyntaxNodeList nodes)
+    {
+        _nodes.AddRange(nodes);
+        IsValidated = false;
+    }
+
+    public void Add(IEnumerable<SyntaxNodeList> schemas)
+    {
+        foreach (var nodes in schemas)
+            _nodes.AddRange(nodes);
+
+        IsValidated = false;
+    }
+
+    public void Add(ReadOnlySpan<char> schema, string source)
+    {
+        Add(Serialization.SchemaDeserialize(schema, source));
+    }
 
     public void Add(ReadOnlySpan<char> schema,
                     [CallerFilePath] string filePath = "",
@@ -19,36 +55,6 @@ public partial class Schema
         Add(Serialization.SchemaDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
     }
 
-    public void Add(ReadOnlySpan<char> schema, string source)
-    {
-        Add(Serialization.SchemaDeserialize(schema, source));
-    }
-
-    public void Add(SyntaxNode node)
-    {
-        Nodes.Add(node);
-        IsValidated = false;
-    }
-
-    public void Add(IEnumerable<SyntaxNode> nodes)
-    {
-        Nodes.AddRange(nodes);
-        IsValidated = false;
-    }
-
-    public void Add(SyntaxNodeList nodes)
-    {
-        Nodes.AddRange(nodes);
-        IsValidated = false;
-    }
-
-    public void Add(IEnumerable<SyntaxNodeList> schemas)
-    {
-        foreach (var nodes in schemas)
-            Nodes.AddRange(nodes);
-
-        IsValidated = false;
-    }
 
     public void Validate()
     {
@@ -63,6 +69,11 @@ public partial class Schema
             Validater.Visit();
             Rooted.Visit();
             CheckExceptions();
+
+            Root = _root;
+            Directives = _directives;
+            Types = _types;
+
             IsValidated = true;
         }
         catch
@@ -74,23 +85,28 @@ public partial class Schema
 
     public void Reset()
     {
-        Nodes.Clear();
+        _nodes.Clear();
         Clean();
     }
 
     private void Clean()
     {
-        Exceptions.Clear();
-        Root = null;
-        Schemas.Clear();
-        Directives.Clear();
-        Types.Clear();
+        _root = SchemaRoot.Empty;
+        _schemas.Clear();
+        _directives.Clear();
+        _types.Clear();
+        _exceptions.Clear();
+
+        Root = SchemaRoot.Empty;
+        Directives = DirectiveDefinitions.Empty;
+        Types = TypeDefinitions.Empty;
+
         IsValidated = false;
     }
 
     private void AddBuiltInDirectives()
     {
-        Directives.Add("include", new DirectiveDefinition()
+        _directives.Add("include", new DirectiveDefinition()
         {
             Description = "Directs the executor to include this field or fragment only when the `if` argument is true",
             Name = "include",
@@ -125,7 +141,7 @@ public partial class Schema
             IsBuiltIn = true
         });
 
-        Directives.Add("skip", new DirectiveDefinition()
+        _directives.Add("skip", new DirectiveDefinition()
         {
             Description = "Directs the executor to skip this field or fragment when the `if` argument is true.",
             Name = "skip",
@@ -160,7 +176,7 @@ public partial class Schema
             IsBuiltIn = true
         });
 
-        Directives.Add("deprecated", new DirectiveDefinition()
+        _directives.Add("deprecated", new DirectiveDefinition()
         {
             Description = "Marks the field, argument, input field or enum value as deprecated.",
             Name = "deprecated",
@@ -192,7 +208,7 @@ public partial class Schema
             IsBuiltIn = true
         });
 
-        Directives.Add("specifiedBy", new DirectiveDefinition()
+        _directives.Add("specifiedBy", new DirectiveDefinition()
         {
             Description = "Exposes a URL that specifies the behaviour of this scalar.",
             Name = "specifiedBy",
@@ -252,7 +268,7 @@ public partial class Schema
                         """) 
         })
         {
-            Types.Add(scalarPair.Item1, new ScalarTypeDefinition()
+            _types.Add(scalarPair.Item1, new ScalarTypeDefinition()
             {
                 Description = scalarPair.Item2,
                 Name = scalarPair.Item1,
@@ -270,14 +286,14 @@ public partial class Schema
 
     private void NonFatalException(ValidationException validationException)
     {
-        Exceptions.Add(validationException);
+        _exceptions.Add(validationException);
     }
 
     private void CheckExceptions()
     {
-        if (Exceptions.Count == 1)
-            throw Exceptions[0];
-        else if (Exceptions.Count > 1)
-            throw new RocketExceptions(Exceptions);
+        if (_exceptions.Count == 1)
+            throw _exceptions[0];
+        else if (_exceptions.Count > 1)
+            throw new RocketExceptions(_exceptions);
     }
 }

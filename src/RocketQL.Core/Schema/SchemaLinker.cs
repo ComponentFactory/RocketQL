@@ -12,9 +12,9 @@ public partial class Schema
         public void Visit()
         {
             ISchemaNodeVisitors visitor = this;
-            visitor.Visit(_schema.Directives.Values);
-            visitor.Visit(_schema.Types.Values);
-            visitor.Visit(_schema.Schemas);
+            visitor.Visit(_schema._directives.Values);
+            visitor.Visit(_schema._types.Values);
+            visitor.Visit(_schema._schemas);
         }
 
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
@@ -80,7 +80,7 @@ public partial class Schema
 
             foreach(var operationTypeDefinition in schemaDefinition.Operations.Values)
             {
-                if (!_schema.Types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
+                if (!_schema._types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
                     FatalException(ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition));
 
                 if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
@@ -96,7 +96,7 @@ public partial class Schema
             {
                 directive.Parent = parentNode;
 
-                if (!_schema.Directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
+                if (!_schema._directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
                 {
                     if (grandParentNode is not null)
                         FatalException(ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode));
@@ -117,7 +117,7 @@ public partial class Schema
             {
                 interfaceEntry.Parent = parentNode;
 
-                if (!_schema.Types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
+                if (!_schema._types.TryGetValue(interfaceEntry.Name, out TypeDefinition? typeDefinition))
                     FatalException(ValidationException.UndefinedInterface(interfaceEntry, parentNode));
 
                 if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
@@ -163,7 +163,7 @@ public partial class Schema
                 InterlinkTypeNode(typeNonNull.Type, parentNode, rootNode, typeNonNull);
             else if (typeLocation is TypeName typeName)
             {
-                if (!_schema.Types.TryGetValue(typeName.Name, out var type))
+                if (!_schema._types.TryGetValue(typeName.Name, out var type))
                     FatalException(ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode));
                 else
                 {
@@ -179,7 +179,7 @@ public partial class Schema
             {
                 memberType.Parent = unionType;
 
-                if (!_schema.Types.TryGetValue(memberType.Name, out TypeDefinition? typeDefinition))
+                if (!_schema._types.TryGetValue(memberType.Name, out TypeDefinition? typeDefinition))
                     FatalException(ValidationException.UndefinedMemberType(memberType, unionType));
 
                 if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
