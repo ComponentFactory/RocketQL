@@ -1,13 +1,12 @@
-﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
-namespace RocketQL.Core.UnitTests.SchemaValidation;
-
-public class ValueCompatibleWithInputType : UnitTestBase
+public class IsInputTypeCompatible : UnitTestBase
 {
     [Theory]
     [InlineData("Int = null")]
     [InlineData("Int = 42")]
     [InlineData("Float = null")]
+    [InlineData("Float = 42")]
     [InlineData("Float = 3.142")]
     [InlineData("String = null")]
     [InlineData("String = \"foo\"")]
@@ -25,6 +24,7 @@ public class ValueCompatibleWithInputType : UnitTestBase
 
     [Theory]
     [InlineData("Int! = 42")]
+    [InlineData("Float! = 42")]
     [InlineData("Float! = 3.142")]
     [InlineData("String! = \"foo\"")]
     [InlineData("Boolean! = true")]
@@ -41,7 +41,6 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("Int = \"foo\"")]
     [InlineData("Int = true")]
     [InlineData("Int = false")]
-    [InlineData("Float = 42")]
     [InlineData("Float = \"foo\"")]
     [InlineData("Float = true")]
     [InlineData("Float = false")]
@@ -70,7 +69,6 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("Int! = \"foo\"")]
     [InlineData("Int! = true")]
     [InlineData("Int! = false")]
-    [InlineData("Float! = 42")]
     [InlineData("Float! = \"foo\"")]
     [InlineData("Float! = true")]
     [InlineData("Float! = false")]
@@ -126,6 +124,7 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[ID] = [null]")]
     [InlineData("[Name] = [null]")]
     [InlineData("[Int] = [42]")]
+    [InlineData("[Float] = [42]")]
     [InlineData("[Float] = [3.142]")]
     [InlineData("[String] = [\"foo\"]")]
     [InlineData("[Boolean] = [true]")]
@@ -153,6 +152,7 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[ID!] = []")]
     [InlineData("[Name!] = []")]
     [InlineData("[Int!] = [42]")]
+    [InlineData("[Float!] = [42]")]
     [InlineData("[Float!] = [3.142]")]
     [InlineData("[String!] = [\"foo\"]")]
     [InlineData("[Boolean!] = [true]")]
@@ -215,7 +215,6 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[Int] = [\"foo\"]")]
     [InlineData("[Int] = [true]")]
     [InlineData("[Int] = [false]")]
-    [InlineData("[Float] = [42]")]
     [InlineData("[Float] = [\"foo\"]")]
     [InlineData("[Float] = [true]")]
     [InlineData("[Float] = [false]")]
@@ -245,12 +244,12 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[Int!] = [true]")]
     [InlineData("[Int!] = [false]")]
     [InlineData("[Int!] = [\"foo\"]")]
-    [InlineData("[Float!] = [42]")]
+    [InlineData("[Float!] = [true]")]
     [InlineData("[String!] = [true]")]
     [InlineData("[Boolean!] = [\"foo\"]")]
     [InlineData("[ID!] = [3.142]")]
     [InlineData("[Name!] = [3.142]")]
-    public void InValidNullableListNonNullableScalar(string compare)
+    public void InvalidNullableListNonNullableScalar(string compare)
     {
         Invalid(compare);
     }
@@ -261,12 +260,12 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[Int]! = [true]")]
     [InlineData("[Int]! = [false]")]
     [InlineData("[Int]! = [\"foo\"]")]
-    [InlineData("[Float]! = [42]")]
+    [InlineData("[Float]! = [false]")]
     [InlineData("[String]! = [true]")]
     [InlineData("[Boolean]! = [\"foo\"]")]
     [InlineData("[ID]! = [3.142]")]
     [InlineData("[Name]! = [3.142]")]
-    public void InValidNonNullableListNullableScalar(string compare)
+    public void InvalidNonNullableListNullableScalar(string compare)
     {
         Invalid(compare);
     }
@@ -278,12 +277,12 @@ public class ValueCompatibleWithInputType : UnitTestBase
     [InlineData("[Int!]! = [true]")]
     [InlineData("[Int!]! = [false]")]
     [InlineData("[Int!]! = [\"foo\"]")]
-    [InlineData("[Float!]! = [42]")]
+    [InlineData("[Float!]! = [null]")]
     [InlineData("[String!]! = [true]")]
     [InlineData("[Boolean!] = [\"foo\"]")]
     [InlineData("[ID!]! = [3.142]")]
     [InlineData("[Name!]! = [3.142]")]
-    public void InValidNonNullableListNonNullableScalar(string compare)
+    public void InvalidNonNullableListNonNullableScalar(string compare)
     {
         Invalid(compare);
     }

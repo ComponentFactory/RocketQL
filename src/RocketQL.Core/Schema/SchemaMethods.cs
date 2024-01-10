@@ -1,6 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -40,7 +38,7 @@ public partial class Schema
         return scalarTypeDefinition.Name switch
         {
             "Int" => valueNode is IntValueNode,
-            "Float" => valueNode is FloatValueNode,
+            "Float" => (valueNode is FloatValueNode) || (valueNode is IntValueNode),
             "Boolean" => valueNode is BooleanValueNode,
             _ => valueNode is StringValueNode,
         };

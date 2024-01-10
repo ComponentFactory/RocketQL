@@ -3,12 +3,6 @@
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 	
 
-	Schema
-		// Input value coercion
-		// Better errors for type check?
-		// Method to return coerced value?
-
-
 	Request
 		allow variables in operation
 		allow variables as input values instead of a constant
