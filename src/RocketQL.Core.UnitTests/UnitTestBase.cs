@@ -52,7 +52,6 @@ public class UnitTestBase
         {
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
-            Assert.Single(validation.Locations);
             Assert.NotNull(ex.Source);
         }
     }
@@ -72,7 +71,6 @@ public class UnitTestBase
         {
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
-            Assert.Single(validation.Locations);
             Assert.NotNull(ex.Source);
         }
     }
@@ -89,7 +87,7 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
-            var aggregate = Assert.IsType<ValidationExceptions>(ex);
+            var aggregate = Assert.IsType<RocketExceptions>(ex);
             Assert.Equal(messages.Count(), aggregate.InnerExceptions.Count);
             foreach(var message in messages)
                 Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());

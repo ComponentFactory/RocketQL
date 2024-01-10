@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -619,12 +617,12 @@ public partial class Schema
                 {
                     if ((grandParentNode is not null) && (grandParentName is not null))
                         _schema.NonFatalException(ValidationException.ListEntryDuplicateName(inputValue.Location,
-                                                                         grandParentNode,
-                                                                         grandParentName,
-                                                                         parentNode,
-                                                                         parentName,
-                                                                         listType.ToLower(),
-                                                                         inputValue.Name));
+                                                                                             grandParentNode,
+                                                                                             grandParentName,
+                                                                                             parentNode,
+                                                                                             parentName,
+                                                                                             listType.ToLower(),
+                                                                                             inputValue.Name));
                     else
                         _schema.NonFatalException(ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name));
                 }

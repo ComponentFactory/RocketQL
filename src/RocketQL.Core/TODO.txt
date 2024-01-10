@@ -4,9 +4,6 @@
 	
 
 	Schema
-		// TO INVESTIGATE
-		Do we need this?
-
 		// Input value coercion
 		// Better errors for type check?
 		// Method to return coerced value?

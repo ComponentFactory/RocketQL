@@ -1,8 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Exceptions;
-
-public class ValidationExceptions(IEnumerable<ValidationException> innerExceptions) : AggregateException(innerExceptions);
+﻿namespace RocketQL.Core.Exceptions;
 
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
@@ -57,7 +53,6 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException DirectiveNotRepeatable(SchemaNode node, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not repeatable but has been applied multiple times on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()}{OptionalQuotedName(parentNode)}.");
     public static ValidationException DirectiveArgumentNotDefined(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' does not define argument '{argumentName}' provided on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException DirectiveMandatoryArgumentMissing(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' missing on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
-    public static ValidationException DirectiveMandatoryArgumentNull(SchemaNode node, string argumentName, SchemaNode parentNode, params SchemaNode?[] extraNodes) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' has mandatory argument '{argumentName}' that is specified as null on {ExpandNodesOf(extraNodes)}{parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.");
     public static ValidationException ExtendSchemaMandatory(Location location) => new(location, $"Extend schema 'must specify at least one directive or operation.");
     public static ValidationException ExtendScalarMandatory(Location location, string name) => new(location, $"Extend scalar '{name}' must specify at least one directive.");
     public static ValidationException ExtendObjectInterfaceMandatory(Location location, string typeName, string name) => new(location, $"Extend {typeName.ToLower()} '{name}' must specify at least one implements, directive or field.");

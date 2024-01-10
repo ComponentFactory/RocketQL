@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using System.Reflection.Metadata;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
