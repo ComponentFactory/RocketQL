@@ -14,6 +14,12 @@ public interface ISyntaxNodeVisitors
     {
         switch (node)
         {
+            case SyntaxOperationDefinitionNode operation:
+                VisitOperationDefinition(operation);
+                break;
+            case SyntaxFragmentDefinitionNode fragment:
+                VisitFragmentDefinition(fragment);
+                break;
             case SyntaxSchemaDefinitionNode schema:
                 VisitSchemaDefinition(schema);
                 break;
@@ -64,6 +70,9 @@ public interface ISyntaxNodeVisitors
         }
     }
 
+
+    void VisitOperationDefinition(SyntaxOperationDefinitionNode operation);
+    void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment);
     void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema);
     void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive);
     void VisitScalarTypeDefinition(SyntaxScalarTypeDefinitionNode scalarType);

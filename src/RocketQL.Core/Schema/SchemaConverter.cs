@@ -30,6 +30,16 @@ public partial class Schema
             }
         }
 
+        public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
+        {
+            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(operation.Location, "Operation"));
+        }
+
+        public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
+        {
+            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(fragment.Location, "Fragment"));
+        }
+
         public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)
         {
             if (_schema._directives.ContainsKey(directive.Name))
