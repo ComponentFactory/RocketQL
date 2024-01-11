@@ -70,6 +70,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException ExtendExistingInputFieldUnchanged(Location location, string fieldName, string objectType, string objectTypeName) => new(location, $"{objectType} '{objectTypeName}' for existing input field '{fieldName}' does not make any change.");
     public static ValidationException ExtendExistingEnumValueUnchanged(Location location, string enumValue, string enumTypeName) => new(location, $"Extend enum '{enumTypeName}' for existing enum value '{enumValue}' does not make any change.");
     public static ValidationException CannotSerializeInvalidSchema() => new(new(), "Cannot serialize a schema that is not validated.");
+    public static ValidationException SchemaNotValidated() => new(new(), "Provided schema has not been validated.");
 
     private static string OptionalQuotedName(SchemaNode node)
     {

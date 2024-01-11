@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.UnitTests.SchemaValidation;
 
-public class IsInputTypeCompatible : UnitTestBase
+public class IsInputTypeCompatibleWithValue : UnitTestBase
 {
     [Theory]
     [InlineData("Int = null")]
