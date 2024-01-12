@@ -23,7 +23,7 @@ public partial class Schema
                 _schema._schemas.Add(new()
                 {
                     Description = schema.Description,
-                    Directives = ConvertDirectives(schema.Directives),
+                    Directives = schema.Directives.ConvertDirectives(),
                     Operations = ConvertOperationTypeDefinitions(schema.OperationTypes),
                     Location = schema.Location
                 });
@@ -68,7 +68,7 @@ public partial class Schema
                 {
                     Description = scalarType.Description,
                     Name = scalarType.Name,
-                    Directives = ConvertDirectives(scalarType.Directives),
+                    Directives = scalarType.Directives.ConvertDirectives(),
                     Location = scalarType.Location
                 });
             }
@@ -85,7 +85,7 @@ public partial class Schema
                     Description = objectType.Description,
                     Name = objectType.Name,
                     ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces),
-                    Directives = ConvertDirectives(objectType.Directives),
+                    Directives = objectType.Directives.ConvertDirectives(),
                     Fields = ConvertFieldDefinitions(objectType.Fields, "Object", objectType.Name),
                     Location = objectType.Location
                 });
@@ -103,7 +103,7 @@ public partial class Schema
                     Description = interfaceType.Description,
                     Name = interfaceType.Name,
                     ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces),
-                    Directives = ConvertDirectives(interfaceType.Directives),
+                    Directives = interfaceType.Directives.ConvertDirectives(),
                     Fields = ConvertFieldDefinitions(interfaceType.Fields, "Interface", interfaceType.Name),
                     Location = interfaceType.Location
                 });
@@ -120,7 +120,7 @@ public partial class Schema
                 {
                     Description = unionType.Description,
                     Name = unionType.Name,
-                    Directives = ConvertDirectives(unionType.Directives),
+                    Directives = unionType.Directives.ConvertDirectives(),
                     MemberTypes = ConvertMemberTypes(unionType.MemberTypes),
                     Location = unionType.Location
                 });
@@ -137,7 +137,7 @@ public partial class Schema
                 {
                     Description = enumType.Description,
                     Name = enumType.Name,
-                    Directives = ConvertDirectives(enumType.Directives),
+                    Directives = enumType.Directives.ConvertDirectives(),
                     EnumValues = ConvertEnumValueDefinitions(enumType.Name, enumType.EnumValues),
                     Location = enumType.Location
                 });
@@ -155,7 +155,7 @@ public partial class Schema
                 {
                     Description = inputObjectType.Description,
                     Name = inputObjectType.Name,
-                    Directives = ConvertDirectives(inputObjectType.Directives),
+                    Directives = inputObjectType.Directives.ConvertDirectives(),
                     InputFields = ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field", "Field", inputObjectType.Name, "Argument"),
                     Location = inputObjectType.Location
                 });
@@ -175,7 +175,7 @@ public partial class Schema
                     var schemaType = _schema._schemas[0];
 
                     if (extendSchema.Directives.Count > 0)
-                        schemaType.Directives.AddRange(ConvertDirectives(extendSchema.Directives));
+                        schemaType.Directives.AddRange(extendSchema.Directives.ConvertDirectives());
 
                     if (extendSchema.OperationTypes.Count > 0)
                     {
@@ -212,7 +212,7 @@ public partial class Schema
                     if (extendScalarType.Directives.Count == 0)
                         _schema.NonFatalException(ValidationException.ExtendScalarMandatory(extendScalarType.Location, extendScalarType.Name));
                     else
-                        scalarType.Directives.AddRange(ConvertDirectives(extendScalarType.Directives));
+                        scalarType.Directives.AddRange(extendScalarType.Directives.ConvertDirectives());
                 }
             }
         }
@@ -234,7 +234,7 @@ public partial class Schema
                     else
                     {
                         if (extendObjectType.Directives.Count > 0)
-                            objectType.Directives.AddRange(ConvertDirectives(extendObjectType.Directives));
+                            objectType.Directives.AddRange(extendObjectType.Directives.ConvertDirectives());
 
                         if (extendObjectType.ImplementsInterfaces.Count > 0)
                         {
@@ -281,7 +281,7 @@ public partial class Schema
                     {
 
                         if (extendInterfaceType.Directives.Count > 0)
-                            interfaceType.Directives.AddRange(ConvertDirectives(extendInterfaceType.Directives));
+                            interfaceType.Directives.AddRange(extendInterfaceType.Directives.ConvertDirectives());
 
                         if (extendInterfaceType.ImplementsInterfaces.Count > 0)
                         {
@@ -326,7 +326,7 @@ public partial class Schema
                     else
                     {
                         if (extendUnionType.Directives.Count > 0)
-                            unionType.Directives.AddRange(ConvertDirectives(extendUnionType.Directives));
+                            unionType.Directives.AddRange(extendUnionType.Directives.ConvertDirectives());
 
                         if (extendUnionType.MemberTypes.Count > 0)
                         {
@@ -365,7 +365,7 @@ public partial class Schema
                     else
                     {
                         if (extendEnumType.Directives.Count > 0)
-                            enumType.Directives.AddRange(ConvertDirectives(extendEnumType.Directives));
+                            enumType.Directives.AddRange(extendEnumType.Directives.ConvertDirectives());
 
                         if (extendEnumType.EnumValues.Count > 0)
                         {
@@ -382,7 +382,7 @@ public partial class Schema
                                         {
                                             Description = extendEnumValue.Description,
                                             Name = extendEnumValue.Name,
-                                            Directives = ConvertDirectives(extendEnumValue.Directives),
+                                            Directives = extendEnumValue.Directives.ConvertDirectives(),
                                             Location = extendEnumValue.Location
                                         });
                                     }
@@ -391,7 +391,7 @@ public partial class Schema
                                         if (extendEnumValue.Directives.Count == 0)
                                             _schema.NonFatalException(ValidationException.ExtendExistingEnumValueUnchanged(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name));
                                         else
-                                            existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
+                                            existingEnumValue.Directives.AddRange(extendEnumValue.Directives.ConvertDirectives());
                                     }
 
                                     extendValues.Add(extendEnumValue.Name);
@@ -418,7 +418,7 @@ public partial class Schema
                     else
                     {
                         if (extendInputObjectType.Directives.Count > 0)
-                            inputObjectType.Directives.AddRange(ConvertDirectives(extendInputObjectType.Directives));
+                            inputObjectType.Directives.AddRange(extendInputObjectType.Directives.ConvertDirectives());
 
                         ExtendInputFields(extendInputObjectType.Name, extendInputObjectType.InputFields, inputObjectType.InputFields, "Extend input object");
                     }
@@ -445,7 +445,7 @@ public partial class Schema
                                 Name = extendField.Name,
                                 Arguments = ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
                                 Type = ConvertTypeNode(extendField.Type),
-                                Directives = ConvertDirectives(extendField.Directives),
+                                Directives = extendField.Directives.ConvertDirectives(),
                                 Location = extendField.Location
                             });
                         }
@@ -455,7 +455,7 @@ public partial class Schema
 
                             if (extendField.Directives.Count > 0)
                             {
-                                existingField.Directives.AddRange(ConvertDirectives(extendField.Directives));
+                                existingField.Directives.AddRange(extendField.Directives.ConvertDirectives());
                                 changed = true;
                             }
 
@@ -478,7 +478,7 @@ public partial class Schema
                                             Name = extendArgument.Name,
                                             Type = ConvertTypeNode(extendArgument.Type),
                                             DefaultValue = extendArgument.DefaultValue,
-                                            Directives = ConvertDirectives(extendArgument.Directives),
+                                            Directives = extendArgument.Directives.ConvertDirectives(),
                                             Location = extendArgument.Location,
                                             ElementUsage = "Argument"
                                         });
@@ -489,7 +489,7 @@ public partial class Schema
                                     {
                                         if (extendArgument.Directives.Count > 0)
                                         {
-                                            existingArgument.Directives.AddRange(ConvertDirectives(extendArgument.Directives));
+                                            existingArgument.Directives.AddRange(extendArgument.Directives.ConvertDirectives());
                                             changed = true;
                                         }
                                     }
@@ -525,7 +525,7 @@ public partial class Schema
                                 Name = extendInputField.Name,
                                 Type = ConvertTypeNode(extendInputField.Type),
                                 DefaultValue = extendInputField.DefaultValue,
-                                Directives = ConvertDirectives(extendInputField.Directives),
+                                Directives = extendInputField.Directives.ConvertDirectives(),
                                 Location = extendInputField.Location,
                                 ElementUsage = "Input field"
                             });
@@ -535,7 +535,7 @@ public partial class Schema
                             if (extendInputField.Directives.Count == 0)
                                 _schema.NonFatalException(ValidationException.ExtendExistingInputFieldUnchanged(extendInputField.Location, extendInputField.Name, errorType, extendName));
                             else
-                                existingField.Directives.AddRange(ConvertDirectives(extendInputField.Directives));
+                                existingField.Directives.AddRange(extendInputField.Directives.ConvertDirectives());
                         }
 
                         inputFieldNames.Add(extendInputField.Name);
@@ -560,7 +560,7 @@ public partial class Schema
                         Name = field.Name,
                         Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name, "Argument", parentNode, parentName),
                         Type = ConvertTypeNode(field.Type),
-                        Directives = ConvertDirectives(field.Directives),
+                        Directives = field.Directives.ConvertDirectives(),
                         Location = field.Location
                     });
                 }
@@ -588,24 +588,6 @@ public partial class Schema
                         Location = operationType.Location
                     });
                 }
-            }
-
-            return nodes;
-        }
-
-        private static Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
-        {
-            var nodes = new Directives();
-
-            foreach (var directive in directives)
-            {
-                nodes.Add(new()
-                {
-                    Name = directive.Name,
-                    Definition = null,
-                    Arguments = ConvertObjectFields(directive.Arguments),
-                    Location = directive.Location
-                });
             }
 
             return nodes;
@@ -644,7 +626,7 @@ public partial class Schema
                         Name = inputValue.Name,
                         Type = ConvertTypeNode(inputValue.Type),
                         DefaultValue = inputValue.DefaultValue,
-                        Directives = ConvertDirectives(inputValue.Directives),
+                        Directives = inputValue.Directives.ConvertDirectives(),
                         Location = inputValue.Location,
                         ElementUsage = elementUsage
                     });
@@ -676,16 +658,6 @@ public partial class Schema
                 },
                 _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)
             };
-        }
-
-        private static ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields)
-        {
-            var nodes = new ObjectFields();
-
-            foreach (var field in fields)
-                nodes.Add(field.Name, field);
-
-            return nodes;
         }
 
         private static Interfaces ConvertInterfaces(SyntaxNameList names)
@@ -732,7 +704,7 @@ public partial class Schema
                     {
                         Description = enumValue.Description,
                         Name = enumValue.Name,
-                        Directives = ConvertDirectives(enumValue.Directives),
+                        Directives = enumValue.Directives.ConvertDirectives(),
                         Location = enumValue.Location
                     });
                 }

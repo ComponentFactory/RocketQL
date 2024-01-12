@@ -1,15 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using RocketQL.Core.Nodes;
+using System.Collections.Generic;
 using System.Data;
 
 namespace RocketQL.Core.Base;
 
 public partial class Request : IRequest
 {
+    private ISchema _schema = new Schema();
+    private ValueNode _variables = NullValueNode.Null;
+    private readonly OperationDefinitions _operations = [];
+    private readonly FragmentDefinitions _fragments = [];
     private readonly List<ValidationException> _exceptions = [];
     private readonly SyntaxNodeList _nodes = [];
 
-    public ISchema? Schema { get; protected set; }
-    public ValueNode? Variables { get; protected set; }
+    public IReadOnlyDictionary<string, OperationDefinition> Operations { get; protected set; } = OperationDefinitions.Empty;
+    public IReadOnlyDictionary<string, FragmentDefinition> Fragments { get; protected set; } = FragmentDefinitions.Empty;
     public bool IsValidatedSchema { get; protected set; } = false;
     public bool IsValidatedVariables { get; protected set; } = false;
 
@@ -62,7 +67,7 @@ public partial class Request : IRequest
 
         try
         {
-            Schema = schema;
+            _schema = schema;
             Converter.Visit();
             CheckExceptions();
             IsValidatedSchema = true;
@@ -83,7 +88,7 @@ public partial class Request : IRequest
 
         try
         {
-            Variables = variables;
+            _variables = variables;
             CheckExceptions();
             IsValidatedVariables = true;
         }
@@ -102,7 +107,13 @@ public partial class Request : IRequest
 
     private void CleanSchema()
     {
-        Schema = null;
+        _operations.Clear();
+        _fragments.Clear();
+
+        _schema = new Schema();
+        Operations = OperationDefinitions.Empty;
+        Fragments = FragmentDefinitions.Empty;
+
         IsValidatedSchema = false;
         CleanVariables();
     }
@@ -110,7 +121,7 @@ public partial class Request : IRequest
     private void CleanVariables()
     {
         _exceptions.Clear();
-        Variables = null;
+        _variables = null;
         IsValidatedVariables = false;
     }
 

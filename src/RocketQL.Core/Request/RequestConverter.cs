@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using RocketQL.Core.Nodes;
+
+namespace RocketQL.Core.Base;
 
 public partial class Request
 {
@@ -16,6 +18,31 @@ public partial class Request
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
         {
+            var operationName = operation.Name ?? "";
+
+            if (_request._operations.ContainsKey(operationName))
+            {
+                if (string.IsNullOrEmpty(operation.Name))
+                    FatalException(ValidationException.RequestDefaultAlreadyDefined(operation.Location));
+                else
+                    FatalException(ValidationException.RequestOperationAlreadyDefined(operation.Location, operation.Name));
+            }
+            else
+            {
+                if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
+                    (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
+                    FatalException(ValidationException.RequestDefaultAlreadyDefined(operation.Location));
+
+                _request._operations.Add(operationName, new()
+                {
+                    Operation = operation.Operation,
+                    Name = operationName,
+                    Directives = operation.Directives.ConvertDirectives(),
+                    Variables = [],
+                    SelectionSet = [],
+                    Location = operation.Location,
+                });
+            }
         }
 
         public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)

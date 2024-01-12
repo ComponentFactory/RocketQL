@@ -27,7 +27,7 @@ public ref struct SchemaSerializer(Schema schema)
                 throw ValidationException.CannotSerializeInvalidSchema();
 
             _options = options;
-            _indentCharacter = _options.IndentCharacter == PrintIndentCharacter.Space ? ' ' : '\t';
+            _indentCharacter = _options.IndentCharacter == IndentCharacter.Space ? ' ' : '\t';
             _builder.Clear();
 
             IDocumentNodeVisitors visitor = this;

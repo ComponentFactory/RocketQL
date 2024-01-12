@@ -6,8 +6,8 @@ public class Interface : UnitTestBase
     public void NameAlreadyDefined()
     {
         SchemaValidationSingleException("type Query { alpha: Int} interface foo { fizz : Int }", 
-                                  "interface foo { fizz : Int }", 
-                                  "Interface 'foo' is already defined.");
+                                        "interface foo { fizz : Int }", 
+                                        "Interface 'foo' is already defined.");
     }
 
     [Theory]

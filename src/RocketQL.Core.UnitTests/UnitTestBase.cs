@@ -52,7 +52,7 @@ public class UnitTestBase
         {
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
-            Assert.NotNull(ex.Source);
+            Assert.NotNull(validation.Source);
         }
     }
 
@@ -71,7 +71,7 @@ public class UnitTestBase
         {
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
-            Assert.NotNull(ex.Source);
+            Assert.NotNull(validation.Source);
         }
     }
 
@@ -93,5 +93,28 @@ public class UnitTestBase
                 Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());
         }
     }
+
+    protected static void RequestSchemaValidationSingleException(string schemaTest, string requestTest, string message)
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add(schemaTest);
+            schema.Validate();
+            var request = new Request();
+            request.Add(requestTest);
+            request.ValidateSchema(schema);
+
+            Assert.Fail("Exception expected");
+        }
+        catch (Exception ex)
+        {
+            Assert.Equal(message, ex.Message);
+            var validation = Assert.IsType<ValidationException>(ex);
+            Assert.NotNull(validation.Source);
+        }
+    }
+
+    
 }
 

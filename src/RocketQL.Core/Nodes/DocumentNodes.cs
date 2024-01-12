@@ -281,6 +281,26 @@ public class TypeNonNull : TypeNode
 }
 
 public class DocumentNodes : List<DocumentNode> { };
+
+public class OperationDefinitions : Dictionary<string, OperationDefinition>
+{
+    public static readonly OperationDefinitions Empty = [];
+};
+public class FragmentDefinitions : Dictionary<string, FragmentDefinition>
+{
+    public static readonly FragmentDefinitions Empty = [];
+};
+
+public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition>
+{
+    public static readonly DirectiveDefinitions Empty = [];
+};
+
+public class TypeDefinitions : Dictionary<string, TypeDefinition>
+{
+    public static readonly TypeDefinitions Empty = [];
+};
+
 public class VariableDefinitionNodes : Dictionary<string, VariableDefinitionNode> { };
 public class SelectionNodes : Dictionary<string, SelectionNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
@@ -295,15 +315,6 @@ public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
 public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { };
 
-public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition>
-{
-    public static readonly DirectiveDefinitions Empty = [];
-};
-
-public class TypeDefinitions : Dictionary<string, TypeDefinition>
-{
-    public static readonly TypeDefinitions Empty = [];
-};
 
 public interface IReadOnlyDirectives : IReadOnlyDictionary<string, DirectiveDefinition> { };
 public interface IReadOnlyTypes : IReadOnlyDictionary<string, TypeDefinition> { };

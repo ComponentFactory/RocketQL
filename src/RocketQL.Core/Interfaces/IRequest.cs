@@ -2,8 +2,8 @@
 
 public interface IRequest
 {
-    ISchema? Schema { get; }
-    ValueNode? Variables { get; }
+    public IReadOnlyDictionary<string, OperationDefinition> Operations { get; }
+    public IReadOnlyDictionary<string, FragmentDefinition> Fragments { get; }
 
     bool IsValidatedSchema { get; }
     bool IsValidatedVariables { get; }

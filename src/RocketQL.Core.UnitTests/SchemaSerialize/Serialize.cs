@@ -34,7 +34,7 @@ public class Serialize : UnitTestBase
         var schema = new Schema();
         schema.Add(schemaText);
         schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCharacter = PrintIndentCharacter.Tab, IndentCount = 2 });
+        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCharacter = IndentCharacter.Tab, IndentCount = 2 });
         print.MatchSnapshot();
     }
 

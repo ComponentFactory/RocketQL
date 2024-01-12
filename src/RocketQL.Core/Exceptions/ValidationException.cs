@@ -73,7 +73,10 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException SchemaNotValidated() => new(new(), "Provided schema has not been validated.");
     public static ValidationException SchemaDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a schema.");
     public static ValidationException RequestDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a request.");
+    public static ValidationException RequestDefaultAlreadyDefined(Location location) => new(location, $"Anonymous operation is already defined.");
+    public static ValidationException RequestOperationAlreadyDefined(Location location, string name) => new(location, $"Operation name '{name}' is already defined.");
 
+    
     private static string OptionalQuotedName(DocumentNode node)
     {
         if (string.IsNullOrWhiteSpace(node.OutputName))

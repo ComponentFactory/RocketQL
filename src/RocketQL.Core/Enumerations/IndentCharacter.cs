@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Enumerations;
 
-public enum PrintIndentCharacter
+public enum IndentCharacter
 {
     Space,
     Tab
