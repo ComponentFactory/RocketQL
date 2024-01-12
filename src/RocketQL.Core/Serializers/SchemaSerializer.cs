@@ -41,6 +41,14 @@ public ref struct SchemaSerializer(Schema schema)
             visitor.Visit(_schema.Directives.Values);
         }
 
+        public void VisitOperationDefinition(OperationDefinition operation)
+        {
+        }
+
+        public void VisitFragmentDefinition(FragmentDefinition fragment)
+        {
+        }
+
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
             if ((directiveDefinition.IsBuiltIn && !_options.IncludeBuiltIn) ||

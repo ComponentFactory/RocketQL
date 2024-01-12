@@ -15,6 +15,14 @@ public partial class Schema
             visitor.Visit(_schema._schemas);
         }
 
+        public void VisitOperationDefinition(OperationDefinition operation)
+        {
+        }
+
+        public void VisitFragmentDefinition(FragmentDefinition fragment)
+        {
+        }
+
         public void VisitSchemaDefinition(SchemaRoot schemaRoot)
         {
         }

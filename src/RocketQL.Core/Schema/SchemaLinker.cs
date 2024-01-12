@@ -17,6 +17,14 @@ public partial class Schema
             visitor.Visit(_schema._schemas);
         }
 
+        public void VisitOperationDefinition(OperationDefinition operation)
+        {
+        }
+
+        public void VisitFragmentDefinition(FragmentDefinition fragment)
+        {
+        }
+
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
         {
             foreach (var argument in directive.Arguments.Values)

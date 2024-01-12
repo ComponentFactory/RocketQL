@@ -14,6 +14,16 @@ public partial class Schema
             ((ISyntaxNodeVisitors)this).Visit(_schema._nodes);
         }
 
+        public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
+        {
+            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(operation.Location, "Operation"));
+        }
+
+        public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
+        {
+            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(fragment.Location, "Fragment"));
+        }
+
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
         {
             if (_schema._schemas.Count > 0)
@@ -28,16 +38,6 @@ public partial class Schema
                     Location = schema.Location
                 });
             }
-        }
-
-        public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
-        {
-            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(operation.Location, "Operation"));
-        }
-
-        public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
-        {
-            _schema.NonFatalException(ValidationException.SchemaDefinitionIgnored(fragment.Location, "Fragment"));
         }
 
         public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)

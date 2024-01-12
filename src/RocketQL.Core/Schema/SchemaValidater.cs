@@ -18,6 +18,14 @@ public partial class Schema
             ValidateSchema();
         }
 
+        public void VisitOperationDefinition(OperationDefinition operation)
+        {
+        }
+
+        public void VisitFragmentDefinition(FragmentDefinition fragment)
+        {
+        }
+
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
             if (directiveDefinition.Name.StartsWith("@__"))

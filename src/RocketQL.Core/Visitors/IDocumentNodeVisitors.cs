@@ -12,6 +12,12 @@ public interface IDocumentNodeVisitors
     {
         switch (node)
         {
+            case OperationDefinition operation:
+                VisitOperationDefinition(operation);
+                break;
+            case FragmentDefinition fragment:
+                VisitFragmentDefinition(fragment);
+                break;
             case SchemaRoot schemaRoot:
                 VisitSchemaDefinition(schemaRoot);
                 break;
@@ -44,6 +50,8 @@ public interface IDocumentNodeVisitors
         }
     }
 
+    void VisitOperationDefinition(OperationDefinition operation);
+    void VisitFragmentDefinition(FragmentDefinition fragment);
     void VisitSchemaDefinition(SchemaRoot schemaRoot);
     void VisitSchemaDefinition(SchemaDefinition schema);
     void VisitDirectiveDefinition(DirectiveDefinition directive);
