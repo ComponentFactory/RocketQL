@@ -163,9 +163,9 @@ namespace DotNetQL.PerformanceTests
     [MemoryDiagnoser]
     public class TokenizerBenchmark
     {
-        public string _github = string.Empty;
+        public string _github = "";
         public byte[] _githubBytes = Array.Empty<byte>();
-        public string _introspection = string.Empty;
+        public string _introspection = "";
         public byte[] _introspectionBytes = Array.Empty<byte>();
 
         [GlobalSetup]
@@ -216,7 +216,7 @@ namespace DotNetQL.PerformanceTests
 
         private void GraphQL(string schema)
         {
-            var s = string.Empty;
+            var s = "";
             int resetPosition = 0;
             GQLParser.Token token;
             while ((token = GQLParser.Lexer.Lex(schema, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
@@ -237,7 +237,7 @@ namespace DotNetQL.PerformanceTests
 
         private void HotChocolate(byte[] schemaBytes)
         {
-            var s = string.Empty;
+            var s = "";
             var reader = new HC.Utf8GraphQLReader(schemaBytes);
             while (reader.Read())
             {
@@ -264,7 +264,7 @@ namespace DotNetQL.PerformanceTests
 
         private void RocketQL(string schema)
         {
-            var s = string.Empty;
+            var s = "";
             var t = new RQL.Tokenizers.DocumentTokenizer(schema);
             while (t.Next())
             {
@@ -286,8 +286,8 @@ namespace DotNetQL.PerformanceTests
     [MemoryDiagnoser]
     public class ParserBenchmark
     {
-        public string _github = string.Empty;
-        public string _introspection = string.Empty;
+        public string _github = "";
+        public string _introspection = "";
 
         [GlobalSetup]
         public void Setup()

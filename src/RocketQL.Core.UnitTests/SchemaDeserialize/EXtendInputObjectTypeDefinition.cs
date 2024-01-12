@@ -13,7 +13,7 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
         var field = input.InputFields.NotNull().One();
-        Assert.Equal(string.Empty, field.Description);
+        Assert.Equal("", field.Description);
         Assert.Equal("bar", field.Name);
         field.DefaultValue.IsNull();
         field.Directives.NotNull().Count(0);
@@ -33,7 +33,7 @@ public class ExtendInputObjectTypeDefinition : UnitTestBase
         var directive1 = input.Directives.NotNull().One();
         Assert.Equal("fizz", directive1.Name);
         var field = input.InputFields.NotNull().One();
-        Assert.Equal(string.Empty, field.Description);
+        Assert.Equal("", field.Description);
         Assert.Equal("bar", field.Name);
         var directive2 = field.Directives.NotNull().One();
         Assert.Equal("buzz", directive2.Name);

@@ -12,7 +12,7 @@ public class UnionTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
         var union = ((SyntaxUnionTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, union.Description);
+        Assert.Equal("", union.Description);
         Assert.Equal("foo", union.Name);
         var member = union.MemberTypes.NotNull().One();
         Assert.Equal("bar", member.Name);
@@ -29,7 +29,7 @@ public class UnionTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
         var union = ((SyntaxUnionTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, union.Description);
+        Assert.Equal("", union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(2);
         Assert.Equal("bar", union.MemberTypes[0].Name);
@@ -47,7 +47,7 @@ public class UnionTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
         var union = ((SyntaxUnionTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, union.Description);
+        Assert.Equal("", union.Description);
         Assert.Equal("foo", union.Name);
         union.MemberTypes.NotNull().Count(3);
         Assert.Equal("bar", union.MemberTypes[0].Name);
@@ -81,7 +81,7 @@ public class UnionTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxUnionTypeDefinitionNode>(definition);
         var union = ((SyntaxUnionTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, union.Description);
+        Assert.Equal("", union.Description);
         Assert.Equal("foo", union.Name);
         var directive = union.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

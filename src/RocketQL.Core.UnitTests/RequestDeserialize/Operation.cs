@@ -14,11 +14,11 @@ public class Operation : UnitTestBase
         Assert.IsType<SyntaxOperationDefinitionNode>(definition);
         var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(operationType, operation.Operation);
-        Assert.Equal(string.Empty, operation.Name);
+        Assert.Equal("", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
@@ -38,7 +38,7 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
@@ -78,7 +78,7 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         var argument = field.Arguments.NotNull().One();
         Assert.Equal("bar", argument.Name);
@@ -100,7 +100,7 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         var argument = field.Arguments.NotNull().One();
         Assert.Equal("bar", argument.Name);
@@ -122,7 +122,7 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         field.Arguments.NotNull().Count(0);
         var directive = field.Directives.NotNull().One();
@@ -143,12 +143,12 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field1 = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field1.Alias);
+        Assert.Equal("", field1.Alias);
         Assert.Equal("foo", field1.Name);
         field1.Arguments.NotNull().Count(0);
         field1.Directives.NotNull().Count(0);
         var field2 = (SyntaxFieldSelectionNode)field1.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field2.Alias);
+        Assert.Equal("", field2.Alias);
         Assert.Equal("bar", field2.Name);
         field2.Arguments.NotNull().Count(0);
         field2.Directives.NotNull().Count(0);
@@ -232,7 +232,7 @@ public class Operation : UnitTestBase
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var inline = (SyntaxInlineFragmentSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, inline.TypeCondition);
+        Assert.Equal("", inline.TypeCondition);
         inline.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)inline.SelectionSet.NotNull().One();
         Assert.Equal("bar", field.Name);
@@ -291,7 +291,7 @@ public class Operation : UnitTestBase
         operation.Directives.NotNull().Count(0);
         operation.SelectionSet.NotNull().Count(3);
         var field1 = (SyntaxFieldSelectionNode)operation.SelectionSet[0];
-        Assert.Equal(string.Empty, field1.Alias);
+        Assert.Equal("", field1.Alias);
         Assert.Equal("foo", field1.Name);
         field1.Directives.NotNull().Count(0);
         var spread = (SyntaxFragmentSpreadSelectionNode)operation.SelectionSet[1];
@@ -312,11 +312,11 @@ public class Operation : UnitTestBase
         Assert.IsType<SyntaxOperationDefinitionNode>(definition);
         var operation = ((SyntaxOperationDefinitionNode)definition);
         Assert.Equal(OperationType.QUERY, operation.Operation);
-        Assert.Equal(string.Empty, operation.Name);
+        Assert.Equal("", operation.Name);
         operation.VariableDefinitions.NotNull().Count(0);
         operation.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)operation.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("foo", field.Name);
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);

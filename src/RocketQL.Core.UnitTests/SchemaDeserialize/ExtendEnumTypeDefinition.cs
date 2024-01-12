@@ -12,7 +12,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
-        Assert.Equal(string.Empty, enumValue.Description);
+        Assert.Equal("", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
         enumValue.Directives.NotNull().Count(0);
     }
@@ -45,7 +45,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         Assert.Equal("bar", typeDirective.Name);
         typeDirective.Arguments.NotNull().Count(0);
         var enumValue = enums.EnumValues.NotNull().One();
-        Assert.Equal(string.Empty, enumValue.Description);
+        Assert.Equal("", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
     }
 

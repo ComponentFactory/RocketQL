@@ -12,7 +12,7 @@ public class InputObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
         var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, input.Description);
+        Assert.Equal("", input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
         input.InputFields.NotNull().Count(0);
@@ -26,11 +26,11 @@ public class InputObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
         var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, input.Description);
+        Assert.Equal("", input.Description);
         Assert.Equal("foo", input.Name);
         input.Directives.NotNull().Count(0);
         var field = input.InputFields.NotNull().One();
-        Assert.Equal(string.Empty, field.Description);
+        Assert.Equal("", field.Description);
         Assert.Equal("bar", field.Name);
         field.DefaultValue.IsNull();
         field.Directives.NotNull().Count(0);
@@ -68,12 +68,12 @@ public class InputObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInputObjectTypeDefinitionNode>(definition);
         var input = ((SyntaxInputObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, input.Description);
+        Assert.Equal("", input.Description);
         Assert.Equal("foo", input.Name);
         var directive1 = input.Directives.NotNull().One();
         Assert.Equal("fizz", directive1.Name);
         var field = input.InputFields.NotNull().One();
-        Assert.Equal(string.Empty, field.Description);
+        Assert.Equal("", field.Description);
         Assert.Equal("bar", field.Name);
         var directive2 = field.Directives.NotNull().One();
         Assert.Equal("buzz", directive2.Name);

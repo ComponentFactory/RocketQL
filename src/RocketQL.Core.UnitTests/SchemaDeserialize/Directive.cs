@@ -10,7 +10,7 @@ public class Directive : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
@@ -30,7 +30,7 @@ public class Directive : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
@@ -53,7 +53,7 @@ public class Directive : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;
@@ -82,7 +82,7 @@ public class Directive : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition).Arguments.NotNull().One();
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("bar", directive.Name);
         Assert.IsType<SyntaxTypeNameNode>(directive.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)directive.Type;

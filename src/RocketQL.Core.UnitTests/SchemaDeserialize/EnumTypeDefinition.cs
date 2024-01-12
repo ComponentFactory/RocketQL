@@ -12,7 +12,7 @@ public class EnumTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
         var enums = ((SyntaxEnumTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(0);
     }
@@ -25,10 +25,10 @@ public class EnumTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
         var enums = ((SyntaxEnumTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         var enumValue = enums.EnumValues.NotNull().One();
-        Assert.Equal(string.Empty, enumValue.Description);
+        Assert.Equal("", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
         enumValue.Directives.NotNull().Count(0);
     }
@@ -41,15 +41,15 @@ public class EnumTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
         var enums = ((SyntaxEnumTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(2);
         var enumValue1 = enums.EnumValues[0];
-        Assert.Equal(string.Empty, enumValue1.Description);
+        Assert.Equal("", enumValue1.Description);
         Assert.Equal("FIZZ", enumValue1.Name);
         enumValue1.Directives.NotNull().Count(0);
         var enumValue2 = enums.EnumValues[1];
-        Assert.Equal(string.Empty, enumValue2.Description);
+        Assert.Equal("", enumValue2.Description);
         Assert.Equal("BUZZ", enumValue2.Name);
         enumValue2.Directives.NotNull().Count(0);
     }
@@ -62,19 +62,19 @@ public class EnumTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
         var enums = ((SyntaxEnumTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         enums.EnumValues.NotNull().Count(3);
         var enumValue1 = enums.EnumValues[0];
-        Assert.Equal(string.Empty, enumValue1.Description);
+        Assert.Equal("", enumValue1.Description);
         Assert.Equal("FIZZ", enumValue1.Name);
         enumValue1.Directives.NotNull().Count(0);
         var enumValue2 = enums.EnumValues[1];
-        Assert.Equal(string.Empty, enumValue2.Description);
+        Assert.Equal("", enumValue2.Description);
         Assert.Equal("BUZZ", enumValue2.Name);
         enumValue2.Directives.NotNull().Count(0);
         var enumValue3 = enums.EnumValues[2];
-        Assert.Equal(string.Empty, enumValue3.Description);
+        Assert.Equal("", enumValue3.Description);
         Assert.Equal("LAST", enumValue3.Name);
         enumValue3.Directives.NotNull().Count(0);
     }
@@ -105,13 +105,13 @@ public class EnumTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxEnumTypeDefinitionNode>(definition);
         var enums = ((SyntaxEnumTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, enums.Description);
+        Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
         Assert.Equal("bar", typeDirective.Name);
         typeDirective.Arguments.NotNull().Count(0);
         var enumValue = enums.EnumValues.NotNull().One();
-        Assert.Equal(string.Empty, enumValue.Description);
+        Assert.Equal("", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
         var valueDirective = enumValue.Directives.NotNull().One();
         Assert.Equal("fizz", valueDirective.Name);

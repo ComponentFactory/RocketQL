@@ -1,19 +1,74 @@
-﻿namespace RocketQL.Core.Nodes;
+﻿using System.Xml.Linq;
 
+namespace RocketQL.Core.Nodes;
 
-public abstract class SchemaNode
+public abstract class DocumentNode
 {
     public required Location Location { get; init; }
-    public SchemaNode? Parent { get; set; }
-    public virtual string OutputElement => "Schema";
-    public virtual string OutputName => string.Empty;
+    public DocumentNode? Parent { get; set; }
+    public abstract string OutputElement { get; }
+    public abstract string OutputName { get; }
 }
 
-public class SchemaRoot : SchemaNode
+public class OperationDefinition : DocumentNode
+{    
+    public required OperationType Operation { get; init; }
+    public required string Name { get; init; }
+    public required Directives Directives { get; set; }
+    public required VariableDefinitionNodes Variables { get; set; }
+    public required SelectionNodes SelectionSet { get; set; }
+    public override string OutputElement => "Operation";
+    public override string OutputName => Operation.ToString();
+}
+
+public class VariableDefinitionNode : DocumentNode
+{
+    public required string Name { get; init; }
+    public required TypeNode Type { get; init; }
+    public required ValueNode? DefaultValue { get; init; }
+    public required Directives Directives { get; set; }
+    public override string OutputElement => "Variable";
+    public override string OutputName => Name;
+}
+
+public abstract class SelectionNode : DocumentNode
+{ 
+}
+
+
+public class SelectionFieldNode : SelectionNode
+{
+    public required string Alias { get; init; }
+    public required string Name { get; init; }
+    public required ObjectFields Arguments { get; init; }
+    public required Directives Directives { get; set; }
+    public required SelectionNodes SelectionSet { get; set; }
+    public override string OutputElement => "Field";
+    public override string OutputName => Alias ?? Name;
+}
+
+public class SelectionFragmentSpreadNode : SelectionNode
+{
+    public required string Name { get; init; }
+    public required Directives Directives { get; set; }
+    public override string OutputElement => "Fragment spread";
+    public override string OutputName => Name;
+}
+
+public class SelectionInlineFragmentNode : SelectionNode
+{
+    public required string TypeCondition { get; init; }
+    public required Directives Directives { get; set; }
+    public required SelectionNodes SelectionSet { get; set; }
+    public override string OutputElement => "Inline fragment";
+    public override string OutputName => "";
+}
+
+public class SchemaRoot : DocumentNode
 {
     public static readonly SchemaRoot Empty = new()
     { 
-        Description = string.Empty,
+        Description = "",
         Directives = [],
         Query = null,
         Mutation = null,
@@ -26,16 +81,20 @@ public class SchemaRoot : SchemaNode
     public required OperationTypeDefinition? Query { get; set; }
     public required OperationTypeDefinition? Mutation { get; set; }
     public required OperationTypeDefinition? Subscription { get; set; }
+    public override string OutputElement => "Schema";
+    public override string OutputName => "";
 }
 
-public class SchemaDefinition : SchemaNode
+public class SchemaDefinition : DocumentNode
 {
     public required string Description { get; set; }
     public required Directives Directives { get; set; }
     public required OperationTypeDefinitions Operations { get; set; }
+    public override string OutputElement => "Schema";
+    public override string OutputName => "";
 }
 
-public class DirectiveDefinition : SchemaNode
+public class DirectiveDefinition : DocumentNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
@@ -49,14 +108,14 @@ public class DirectiveDefinition : SchemaNode
     public override string OutputName => Name;
 }
 
-public abstract class TypeDefinition : SchemaNode
+public abstract class TypeDefinition : DocumentNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; init; }
     public bool IsBuiltIn { get; init; }
     public bool IsRooted { get; set; }
-    public SchemaNodes References { get; init; } = [];
+    public DocumentNodes References { get; init; } = [];
     public override string OutputName => Name;
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
@@ -111,14 +170,16 @@ public class InputObjectTypeDefinition : TypeDefinition
     public override bool IsOutputType => false;
 }
 
-public class OperationTypeDefinition : SchemaNode
+public class OperationTypeDefinition : DocumentNode
 {
     public required OperationType Operation { get; init; }
     public required string NamedType { get; init; }
     public required ObjectTypeDefinition? Definition { get; set; }
+    public override string OutputElement => "Operation";
+    public override string OutputName => Operation.ToString();
 }
 
-public class FieldDefinition : SchemaNode
+public class FieldDefinition : DocumentNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
@@ -129,7 +190,7 @@ public class FieldDefinition : SchemaNode
     public override string OutputName => Name;
 }
 
-public class EnumValueDefinition : SchemaNode
+public class EnumValueDefinition : DocumentNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
@@ -138,7 +199,7 @@ public class EnumValueDefinition : SchemaNode
     public override string OutputName => Name;
 }
 
-public class InputValueDefinition : SchemaNode
+public class InputValueDefinition : DocumentNode
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
@@ -150,7 +211,7 @@ public class InputValueDefinition : SchemaNode
     public override string OutputName => Name;
 }
 
-public class Directive : SchemaNode
+public class Directive : DocumentNode
 {
     public required string Name { get; init; }
     public required DirectiveDefinition? Definition { get; set; }
@@ -159,7 +220,7 @@ public class Directive : SchemaNode
     public override string OutputName => Name;
 }
 
-public class Interface : SchemaNode
+public class Interface : DocumentNode
 {
     public required string Name { get; init; }
     public required InterfaceTypeDefinition? Definition { get; set; }
@@ -167,7 +228,7 @@ public class Interface : SchemaNode
     public override string OutputName => Name;
 }
 
-public class MemberType : SchemaNode
+public class MemberType : DocumentNode
 {
     public required string Name { get; init; }
     public required ObjectTypeDefinition? Definition { get; set; }
@@ -175,7 +236,7 @@ public class MemberType : SchemaNode
     public override string OutputName => Name;
 }
 
-public abstract class TypeNode : SchemaNode
+public abstract class TypeNode : DocumentNode
 {
     public abstract TypeDefinition? Definition { get; set; }
     public abstract bool IsInputType { get; }
@@ -186,6 +247,8 @@ public class TypeName : TypeNode
 {
     public required string Name { get; init; }
     public required override TypeDefinition? Definition { get; set; }
+    public override string OutputElement => "TypeName";
+    public override string OutputName => Name;
     public override bool IsInputType => Definition!.IsInputType;
     public override bool IsOutputType => Definition!.IsOutputType;
 }
@@ -194,6 +257,8 @@ public class TypeList : TypeNode
 {
     public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
+    public override string OutputElement => "TypeList";
+    public override string OutputName => ""; 
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
 }
@@ -202,11 +267,13 @@ public class TypeNonNull : TypeNode
 {
     public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
+    public override string OutputElement => "TypeNonNull";
+    public override string OutputName => "";
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
 }
 
-public class SchemaNodes : List<SchemaNode> { };
+public class DocumentNodes : List<DocumentNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
 
 public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> 
@@ -229,6 +296,8 @@ public class MemberTypes : Dictionary<string, MemberType> { };
 public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
 public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { };
+public class VariableDefinitionNodes : Dictionary<string, VariableDefinitionNode> { };
+public class SelectionNodes : Dictionary<string, SelectionNode> { };
 
 public interface IReadOnlyDirectives : IReadOnlyDictionary<string, DirectiveDefinition> { };
 public interface IReadOnlyTypes : IReadOnlyDictionary<string, TypeDefinition> { };

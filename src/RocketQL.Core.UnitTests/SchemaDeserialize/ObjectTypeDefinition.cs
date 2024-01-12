@@ -35,7 +35,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
@@ -52,7 +52,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -76,7 +76,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -97,7 +97,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -119,7 +119,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -146,7 +146,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -173,7 +173,7 @@ public class ObjectTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxObjectTypeDefinitionNode>(definition);
         var type = ((SyntaxObjectTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

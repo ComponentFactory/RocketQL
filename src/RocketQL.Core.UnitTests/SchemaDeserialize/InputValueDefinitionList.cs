@@ -13,7 +13,7 @@ public class InputValueDefinitionList : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("fizz", argument.Name);
         CheckTypeName(argument.Type, "buzz", nonNull);
     }
@@ -31,7 +31,7 @@ public class InputValueDefinitionList : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("fizz", argument.Name);
         var contained = CheckTypeList(argument.Type, listNonNull);
         CheckTypeName(contained, "buzz", typeNonNull);
@@ -54,7 +54,7 @@ public class InputValueDefinitionList : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("fizz", argument.Name);
         var contained1 = CheckTypeList(argument.Type, outerNonNull);
         var contained2 = CheckTypeList(contained1, innerNonNull);
@@ -75,14 +75,14 @@ public class InputValueDefinitionList : UnitTestBase
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         var arguments = directive.Arguments.NotNull();
         var argument1 = arguments[0];
-        Assert.Equal(string.Empty, argument1.Description);
+        Assert.Equal("", argument1.Description);
         Assert.Equal("fizz", argument1.Name);
         Assert.IsType<SyntaxTypeNameNode>(argument1.Type);
         SyntaxTypeNameNode nameNode1 = (SyntaxTypeNameNode)argument1.Type;
         Assert.Equal("buzz", nameNode1.Name);
 
         var argument2 = arguments[1];
-        Assert.Equal(string.Empty, argument2.Description);
+        Assert.Equal("", argument2.Description);
         Assert.Equal("hello", argument2.Name);
         Assert.IsType<SyntaxTypeNameNode>(argument2.Type);
         SyntaxTypeNameNode nameNode2 = (SyntaxTypeNameNode)argument2.Type;

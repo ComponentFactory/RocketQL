@@ -5,13 +5,13 @@ public partial class Schema
     private SchemaLinker? _schemaLinker = null;
     private SchemaLinker Linker => _schemaLinker ??= new SchemaLinker(this);
 
-    private class SchemaLinker(Schema schema) : ISchemaNodeVisitors
+    private class SchemaLinker(Schema schema) : IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
 
         public void Visit()
         {
-            ISchemaNodeVisitors visitor = this;
+            IDocumentNodeVisitors visitor = this;
             visitor.Visit(_schema._directives.Values);
             visitor.Visit(_schema._types.Values);
             visitor.Visit(_schema._schemas);
@@ -90,7 +90,7 @@ public partial class Schema
             }
         }
 
-        private void InterlinkDirectives(Directives directives, SchemaNode parentNode, SchemaNode? grandParentNode = null)
+        private void InterlinkDirectives(Directives directives, DocumentNode parentNode, DocumentNode? grandParentNode = null)
         {
             foreach (var directive in directives)
             {
@@ -111,7 +111,7 @@ public partial class Schema
             }
         }
 
-        private void InterlinkInterfaces(Interfaces interfaces, SchemaNode parentNode)
+        private void InterlinkInterfaces(Interfaces interfaces, DocumentNode parentNode)
         {
             foreach (var interfaceEntry in interfaces.Values)
             {
@@ -130,7 +130,7 @@ public partial class Schema
             }
         }
 
-        private void InterlinkFields(FieldDefinitions fields, SchemaNode parentNode, SchemaNode rootNode)
+        private void InterlinkFields(FieldDefinitions fields, DocumentNode parentNode, DocumentNode rootNode)
         {
             foreach (var field in fields.Values)
             {
@@ -142,7 +142,7 @@ public partial class Schema
             }
         }
 
-        private void InterlinkInputValues(InputValueDefinitions inputValues, SchemaNode parentNode, SchemaNode rootNode)
+        private void InterlinkInputValues(InputValueDefinitions inputValues, DocumentNode parentNode, DocumentNode rootNode)
         {
             foreach (var inputValue in inputValues.Values)
             {
@@ -153,7 +153,7 @@ public partial class Schema
             }
         }
 
-        private void InterlinkTypeNode(TypeNode typeLocation, SchemaNode parentNode, SchemaNode rootNode, SchemaNode typeParentNode)
+        private void InterlinkTypeNode(TypeNode typeLocation, DocumentNode parentNode, DocumentNode rootNode, DocumentNode typeParentNode)
         {
             typeLocation.Parent = typeParentNode;
 

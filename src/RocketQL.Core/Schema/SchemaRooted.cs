@@ -5,13 +5,13 @@ public partial class Schema
     private SchemaRooted? _schemaRooted = null;
     private SchemaRooted Rooted => _schemaRooted ??= new SchemaRooted(this);
 
-    private class SchemaRooted(Schema schema) : ISchemaNodeVisitors
+    private class SchemaRooted(Schema schema) : IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
 
         public void Visit()
         {
-            ISchemaNodeVisitors visitor = this;
+            IDocumentNodeVisitors visitor = this;
             visitor.Visit(_schema._schemas);
         }
 
@@ -25,7 +25,7 @@ public partial class Schema
 
             foreach (var operationType in schema.Operations.Values)
                 if (operationType.Definition is not null)
-                    ((ISchemaNodeVisitors)this).Visit(operationType.Definition);
+                    ((IDocumentNodeVisitors)this).Visit(operationType.Definition);
         }
 
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
@@ -112,7 +112,7 @@ public partial class Schema
                 VisitDirectives(inputValue.Directives);
 
                 if (inputValue.Type.Definition is not null)
-                    ((ISchemaNodeVisitors)this).Visit(inputValue.Type.Definition);
+                    ((IDocumentNodeVisitors)this).Visit(inputValue.Type.Definition);
             }
         }
 
@@ -120,7 +120,7 @@ public partial class Schema
         {
             foreach (var interfaceValue in interfaces.Values)
                 if (interfaceValue.Definition is not null)
-                    ((ISchemaNodeVisitors)this).Visit(interfaceValue.Definition);
+                    ((IDocumentNodeVisitors)this).Visit(interfaceValue.Definition);
         }
 
         private void VisitFieldsDefinitions(FieldDefinitions fieldDefinitions)
@@ -131,7 +131,7 @@ public partial class Schema
                 VisitInputValueDefinitions(fieldDefinition.Arguments);
 
                 if (fieldDefinition.Type.Definition is not null)
-                    ((ISchemaNodeVisitors)this).Visit(fieldDefinition.Type.Definition);
+                    ((IDocumentNodeVisitors)this).Visit(fieldDefinition.Type.Definition);
             }
         }
 
@@ -139,7 +139,7 @@ public partial class Schema
         {
             foreach (var memberType in memberTypes.Values)
                 if (memberType.Definition is not null)
-                    ((ISchemaNodeVisitors)this).Visit(memberType.Definition);
+                    ((IDocumentNodeVisitors)this).Visit(memberType.Definition);
         }
 
         private void VisitEnumValueDefinitions(EnumValueDefinitions enumValueDefinitions)

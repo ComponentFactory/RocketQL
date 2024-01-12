@@ -13,7 +13,7 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
@@ -47,7 +47,7 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
@@ -71,7 +71,7 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
@@ -88,7 +88,7 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.Equal(repeatable, directive.Repeatable);
@@ -120,13 +120,13 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("bar", argument.Name);
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
@@ -142,13 +142,13 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("bar", argument.Name);
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;
@@ -166,13 +166,13 @@ public class DirectiveDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
-        Assert.Equal(string.Empty, directive.Description);
+        Assert.Equal("", directive.Description);
         Assert.Equal("foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
         var argument = directive.Arguments.NotNull().One();
-        Assert.Equal(string.Empty, argument.Description);
+        Assert.Equal("", argument.Description);
         Assert.Equal("bar", argument.Name);
         Assert.IsType<SyntaxTypeNameNode>(argument.Type);
         SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)argument.Type;

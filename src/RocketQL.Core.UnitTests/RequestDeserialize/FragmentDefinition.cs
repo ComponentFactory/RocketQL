@@ -14,7 +14,7 @@ public class FragmentDefinition : UnitTestBase
         Assert.Equal("bar", fragment.TypeCondition);
         fragment.Directives.NotNull().Count(0);
         var field = (SyntaxFieldSelectionNode)fragment.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("fizz", field.Name);
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);
@@ -34,7 +34,7 @@ public class FragmentDefinition : UnitTestBase
         var directive = fragment.Directives.NotNull().One();
         Assert.Equal("buzz", directive.Name);
         var field = (SyntaxFieldSelectionNode)fragment.SelectionSet.NotNull().One();
-        Assert.Equal(string.Empty, field.Alias);
+        Assert.Equal("", field.Alias);
         Assert.Equal("fizz", field.Name);
         field.Arguments.NotNull().Count(0);
         field.Directives.NotNull().Count(0);

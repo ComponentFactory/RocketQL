@@ -20,7 +20,7 @@ public class Schema : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxSchemaDefinitionNode>(definition);
         var def = ((SyntaxSchemaDefinitionNode)definition);
-        Assert.Equal(string.Empty, def.Description);
+        Assert.Equal("", def.Description);
         def.Directives.NotNull().Count(0);
         var operation = def.OperationTypes.NotNull().One();
         Assert.Equal(operationType, operation.Operation);
@@ -52,7 +52,7 @@ public class Schema : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxSchemaDefinitionNode>(definition);
         var def = ((SyntaxSchemaDefinitionNode)definition);
-        Assert.Equal(string.Empty, def.Description);
+        Assert.Equal("", def.Description);
         var directive = def.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
         var operation = def.OperationTypes.NotNull().One();

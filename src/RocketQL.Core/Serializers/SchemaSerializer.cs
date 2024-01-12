@@ -11,7 +11,7 @@ public ref struct SchemaSerializer(Schema schema)
         return printer.ToString();
     }
 
-    private class SchemaSerialize(Schema schema) : ISchemaNodeVisitors
+    private class SchemaSerialize(Schema schema) : IDocumentNodeVisitors
     {
         private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
 
@@ -30,7 +30,7 @@ public ref struct SchemaSerializer(Schema schema)
             _indentCharacter = _options.IndentCharacter == PrintIndentCharacter.Space ? ' ' : '\t';
             _builder.Clear();
 
-            ISchemaNodeVisitors visitor = this;
+            IDocumentNodeVisitors visitor = this;
             visitor.Visit(_schema.Root!);
             visitor.Visit(_schema.Types.Values.Where(t => t is ObjectTypeDefinition));
             visitor.Visit(_schema.Types.Values.Where(t => t is InterfaceTypeDefinition));

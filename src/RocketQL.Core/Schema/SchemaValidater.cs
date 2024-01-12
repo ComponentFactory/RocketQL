@@ -5,13 +5,13 @@ public partial class Schema
     private SchemaValidater? _schemaValidater = null;
     private SchemaValidater Validater => _schemaValidater ??= new SchemaValidater(this);
 
-    private class SchemaValidater(Schema schema) : ISchemaNodeVisitors
+    private class SchemaValidater(Schema schema) : IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
 
         public void Visit()
         {
-            ISchemaNodeVisitors visitor = this;
+            IDocumentNodeVisitors visitor = this;
             visitor.Visit(_schema._directives.Values);
             visitor.Visit(_schema._types.Values);
             visitor.Visit(_schema._schemas);
@@ -239,7 +239,7 @@ public partial class Schema
 
                 _schema._root = new SchemaRoot()
                 {
-                    Description = string.Empty,
+                    Description = "",
                     Directives = [],
                     Query = OperationTypeFromObjectType(queryTypeDefinition as ObjectTypeDefinition, OperationType.QUERY),
                     Mutation = OperationTypeFromObjectType(mutationTypeDefinition as ObjectTypeDefinition, OperationType.MUTATION),
@@ -375,10 +375,10 @@ public partial class Schema
         }
 
         private void CheckDirectiveUsage(Directives directives, 
-                                         SchemaNode parentNode, 
+                                         DocumentNode parentNode, 
                                          DirectiveLocations directiveLocations, 
-                                         SchemaNode? grandParent = null, 
-                                         SchemaNode? greatGrandParent = null)
+                                         DocumentNode? grandParent = null, 
+                                         DocumentNode? greatGrandParent = null)
         {
             HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
@@ -418,7 +418,7 @@ public partial class Schema
             }
         }
 
-        private void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, SchemaNode parentNode, bool isObject)
+        private void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, DocumentNode parentNode, bool isObject)
         {
             foreach (var fieldDefinition in fieldDefinitions)
             {
@@ -458,7 +458,7 @@ public partial class Schema
             }
         }
 
-        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, SchemaNode parentNode, bool isObject)
+        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, DocumentNode parentNode, bool isObject)
         {
             InterfaceTypeDefinitions interfaceDefinitions = [];
             foreach (var interfaceEntry in implementsInterfaces.Values)
@@ -484,8 +484,8 @@ public partial class Schema
         private void CheckTypeImplementsInterface(InterfaceTypeDefinitions objectImplements,
                                                   HashSet<string> processed,
                                                   InterfaceTypeDefinition checkInterface,
-                                                  SchemaNode parentNode,
-                                                  SchemaNode rootNode)
+                                                  DocumentNode parentNode,
+                                                  DocumentNode rootNode)
         {
             if (!processed.Contains(checkInterface.Name))
             {
@@ -501,13 +501,13 @@ public partial class Schema
             }
         }
 
-        private void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, SchemaNode parentNode)
+        private void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, DocumentNode parentNode)
         {
             foreach (var interfaceDefinition in interfaceDefinitions.Values)
                 IsValidImplementation(objectFields, interfaceDefinition, parentNode);
         }
 
-        private void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, SchemaNode parentNode)
+        private void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, DocumentNode parentNode)
         {
             foreach(var interfaceField in interfaceDefinition.Fields.Values)
             {

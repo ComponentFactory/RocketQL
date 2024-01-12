@@ -10,7 +10,7 @@ public class ScalarTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
         var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         scalar.Directives.NotNull().Count(0);
     }
@@ -38,7 +38,7 @@ public class ScalarTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
         var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
@@ -52,7 +52,7 @@ public class ScalarTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
         var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
@@ -68,7 +68,7 @@ public class ScalarTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxScalarTypeDefinitionNode>(definition);
         var scalar = ((SyntaxScalarTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, scalar.Description);
+        Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);

@@ -1,6 +1,5 @@
 ﻿namespace RocketQL.Core.Nodes;
 
-
 public abstract record class SyntaxNode(Location Location) : LocationNode(Location);
 public record class SyntaxNameNode(string Name, Location Location) : SyntaxNode(Location);
 public record class SyntaxSchemaDefinitionNode(string Description, SyntaxDirectiveNodeList Directives, SyntaxOperationTypeDefinitionNodeList OperationTypes, Location Location) : SyntaxExtendSchemaDefinitionNode(Directives, OperationTypes, Location);

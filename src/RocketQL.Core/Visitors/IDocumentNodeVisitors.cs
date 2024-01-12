@@ -1,14 +1,14 @@
 ﻿namespace RocketQL.Core.Visitors;
 
-public interface ISchemaNodeVisitors
+public interface IDocumentNodeVisitors
 {
-    void Visit(IEnumerable<SchemaNode> nodes)
+    void Visit(IEnumerable<DocumentNode> nodes)
     {
         foreach (var node in nodes)
             Visit(node);
     }
 
-    void Visit(SchemaNode node)
+    void Visit(DocumentNode node)
     {
         switch (node)
         {

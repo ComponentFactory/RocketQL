@@ -73,7 +73,7 @@ public ref struct RequestDeserializer
                     }
                     break;
                 case DocumentTokenKind.LeftCurlyBracket:
-                    _nodes.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, string.Empty, [], [], ParseSelectionSet(), _tokenizer.Location));
+                    _nodes.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, "", [], [], ParseSelectionSet(), _tokenizer.Location));
                     break;
                 default:
                     throw SyntaxException.UnrecognizedToken(_tokenizer.Location, _tokenizer.TokenKind.ToString());
@@ -90,7 +90,7 @@ public ref struct RequestDeserializer
         OperationType operationType = OperationTypeFromTokenValue();
         MandatoryNext();
 
-        string name = string.Empty;
+        string name = "";
         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
         {
             name = _tokenizer.TokenValue;
@@ -190,7 +190,7 @@ public ref struct RequestDeserializer
                     {
                         var location = _tokenizer.Location;
                         MandatoryToken(DocumentTokenKind.Name);
-                        string alias = string.Empty;
+                        string alias = "";
                         string name = _tokenizer.TokenValue;
                         MandatoryNext();
 
@@ -215,7 +215,7 @@ public ref struct RequestDeserializer
                         var fragmentLocation = _tokenizer.Location;
                         MandatoryNext();
 
-                        string name = string.Empty;
+                        string name = "";
                         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
                         {
                             name = _tokenizer.TokenValue;

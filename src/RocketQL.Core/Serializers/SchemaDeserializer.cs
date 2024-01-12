@@ -481,7 +481,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                     {
                         var location = _tokenizer.Location;
                         MandatoryToken(DocumentTokenKind.Name);
-                        string alias = string.Empty;
+                        string alias = "";
                         string name = _tokenizer.TokenValue;
                         MandatoryNext();
 
@@ -506,7 +506,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                         var fragmentLocation = _tokenizer.Location;
                         MandatoryNext();
 
-                        string name = string.Empty;
+                        string name = "";
                         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
                         {
                             name = _tokenizer.TokenValue;
@@ -560,7 +560,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 var arguments = ParseArgumentsOptionalDefinition();
                 MandatoryTokenNext(DocumentTokenKind.Colon);
 
-                list.Add(new SyntaxFieldDefinitionNode(description ?? string.Empty,
+                list.Add(new SyntaxFieldDefinitionNode(description ?? "",
                                                        name,
                                                        arguments,
                                                        ParseType(),
@@ -592,7 +592,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 string name = _tokenizer.TokenValue;
                 MandatoryNext();
 
-                list.Add(new SyntaxEnumValueDefinition(description ?? string.Empty,
+                list.Add(new SyntaxEnumValueDefinition(description ?? "",
                                                        name,
                                                        ParseDirectivesOptional(),
                                                        location));
@@ -656,7 +656,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
-            list.Add(new SyntaxInputValueDefinitionNode(description ?? string.Empty,
+            list.Add(new SyntaxInputValueDefinitionNode(description ?? "",
                                                         name,
                                                         ParseType(),
                                                         ParseDefaultValueOptional(),
@@ -887,7 +887,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         string? description = _description;
         _description = null;
-        return description ?? string.Empty;
+        return description ?? "";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

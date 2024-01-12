@@ -10,7 +10,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -48,7 +48,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(implements.Length);
         for (int i = 0; i < implements.Length; i++)
@@ -65,7 +65,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -89,7 +89,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -110,7 +110,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -132,7 +132,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -159,7 +159,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Directives.NotNull().Count(0);
@@ -186,7 +186,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         var definition = documentNode.NotNull().One();
         Assert.IsType<SyntaxInterfaceTypeDefinitionNode>(definition);
         var type = ((SyntaxInterfaceTypeDefinitionNode)definition);
-        Assert.Equal(string.Empty, type.Description);
+        Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
         Assert.Equal("bar", directive.Name);
