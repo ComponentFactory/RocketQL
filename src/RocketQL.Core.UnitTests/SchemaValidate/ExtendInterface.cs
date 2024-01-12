@@ -17,7 +17,7 @@ public class ExtendInterface : UnitTestBase
                 directive @bar on INTERFACE
                 interface foo @bar { buzz: Int } 
                 extend interface foo @bar
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on interface 'foo'.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on interface 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface bar { buzz: Int }
@@ -69,7 +69,7 @@ public class ExtendInterface : UnitTestBase
         Assert.Single(foo.Directives);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -94,7 +94,7 @@ public class ExtendInterface : UnitTestBase
         Assert.Single(fizz.Directives);
         var directive = fizz.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class ExtendInterface : UnitTestBase
         Assert.Single(agument.Directives);
         var directive = agument.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -166,13 +166,13 @@ public class ExtendInterface : UnitTestBase
         Assert.Equal("fizz", fizz.Name);
         var directive1 = fizz.Directives[0];
         Assert.NotNull(directive1);
-        Assert.Equal("bar", directive1.Name);
+        Assert.Equal("@bar", directive1.Name);
         var argument = fizz.Arguments["arg"];
         Assert.NotNull(argument);
         Assert.Equal("arg", argument.Name);
         var directive2 = argument.Directives[0];
         Assert.NotNull(directive2);
-        Assert.Equal("bar", directive2.Name);
+        Assert.Equal("@bar", directive2.Name);
     }
 
     [Fact]
@@ -198,7 +198,7 @@ public class ExtendInterface : UnitTestBase
         Assert.Equal("arg", argument.Name);
         var directive = argument.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 }
 

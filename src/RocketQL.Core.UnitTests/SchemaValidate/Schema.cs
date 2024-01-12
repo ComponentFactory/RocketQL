@@ -99,7 +99,7 @@ public class Schemas : UnitTestBase
                 type Other { fizz: Subscription }     
                 """,                                                        "Cannot auto generate schema because 'Subscription' type is referenced from other types instead of being a top level type.")]
     // Directive errors
-    [InlineData("schema @example { }",                                      "Undefined directive 'example' defined on schema.")]
+    [InlineData("schema @example { }",                                      "Undefined directive '@example' defined on schema.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

@@ -23,7 +23,7 @@ public partial class Request
             if (_request._operations.ContainsKey(operationName))
             {
                 if (string.IsNullOrEmpty(operation.Name))
-                    FatalException(ValidationException.RequestDefaultAlreadyDefined(operation.Location));
+                    FatalException(ValidationException.RequestAnonymousAlreadyDefined(operation.Location));
                 else
                     FatalException(ValidationException.RequestOperationAlreadyDefined(operation.Location, operation.Name));
             }
@@ -31,15 +31,15 @@ public partial class Request
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
                     (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
-                    FatalException(ValidationException.RequestDefaultAlreadyDefined(operation.Location));
+                    FatalException(ValidationException.RequestAnonymousAndNamed(operation.Location));
 
                 _request._operations.Add(operationName, new()
                 {
                     Operation = operation.Operation,
                     Name = operationName,
                     Directives = operation.Directives.ConvertDirectives(),
-                    Variables = [],
-                    SelectionSet = [],
+                    Variables = ConvertVariableDefinitions(operation.VariableDefinitions, operation),
+                    SelectionSet = ConvertSelectionSet(operation.SelectionSet),
                     Location = operation.Location,
                 });
             }
@@ -47,6 +47,19 @@ public partial class Request
 
         public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
         {
+            if (_request._fragments.ContainsKey(fragment.Name))
+                _request.NonFatalException(ValidationException.NameAlreadyDefined(fragment.Location, "Fragment", fragment.Name));
+            else
+            {
+                _request._fragments.Add(fragment.Name, new()
+                {
+                    Name = fragment.Name,
+                    TypeCondition = fragment.TypeCondition,
+                    Directives = fragment.Directives.ConvertDirectives(),
+                    SelectionSet = ConvertSelectionSet(fragment.SelectionSet),
+                    Location = fragment.Location,
+                });
+            }
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
@@ -122,6 +135,90 @@ public partial class Request
         public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
         {
             _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendInputObjectType.Location, "Extend input object"));
+        }
+
+        private static VariableDefinitions ConvertVariableDefinitions(SyntaxVariableDefinitionNodeList variables, SyntaxOperationDefinitionNode operation)
+        {
+            var nodes = new VariableDefinitions();
+
+            foreach (var variable in variables)
+            {
+                if (nodes.ContainsKey(variable.Name))
+                    FatalException(ValidationException.DuplicateOperationVariable(variable.Location, OperationDescription(operation), variable.Name));
+                else
+                {
+                    nodes.Add(variable.Name, new VariableDefinition()
+                    {
+                        Name = variable.Name,
+                        Type = variable.Type.ConvertTypeNode(),
+                        DefaultValue = variable.DefaultValue,
+                        Directives = variable.Directives.ConvertDirectives(),
+                        Location = variable.Location,
+                    });
+                }
+            }
+
+            return nodes;
+        }
+
+        private static SelectionSet ConvertSelectionSet(SyntaxSelectionDefinitionNodeList selections)
+        {
+            var set = new SelectionSet();
+
+            foreach (var selection in selections)
+            {
+                set.Add(selection switch
+                {
+                    SyntaxFieldSelectionNode fieldSelection => ConvertFieldSelection(fieldSelection),
+                    SyntaxFragmentSpreadSelectionNode fragmentSpread => ConvertFragmentSpreadSelection(fragmentSpread),
+                    SyntaxInlineFragmentSelectionNode inlineFragment => ConvertInlineFragmentSelection(inlineFragment),
+                    _ => throw ValidationException.UnrecognizedType(selection)
+                });
+            }
+
+            return set;
+        }
+
+        private static SelectionField ConvertFieldSelection(SyntaxFieldSelectionNode fieldSelection)
+        {
+            return new SelectionField()
+            {
+                Alias = fieldSelection.Alias,
+                Name = fieldSelection.Name,
+                Arguments = fieldSelection.Arguments.ConvertObjectFields(fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
+                Directives = fieldSelection.Directives.ConvertDirectives(),
+                SelectionSet = ConvertSelectionSet(fieldSelection.SelectionSet),
+                Location = fieldSelection.Location,
+            };
+        }
+
+        private static SelectionFragmentSpread ConvertFragmentSpreadSelection(SyntaxFragmentSpreadSelectionNode fragmentSpread)
+        {
+            return new SelectionFragmentSpread()
+            {
+                Name = fragmentSpread.Name,
+                Directives = fragmentSpread.Directives.ConvertDirectives(),
+                Location = fragmentSpread.Location,
+            };
+        }
+
+        private static SelectionNode ConvertInlineFragmentSelection(SyntaxInlineFragmentSelectionNode inlineFragment)
+        {
+            return new SelectionInlineFragment()
+            {
+                TypeCondition = inlineFragment.TypeCondition,
+                Directives = inlineFragment.Directives.ConvertDirectives(),
+                SelectionSet = ConvertSelectionSet(inlineFragment.SelectionSet),
+                Location = inlineFragment.Location,
+            };
+        }
+
+        private static string OperationDescription(SyntaxOperationDefinitionNode operation)
+        {
+            if (operation.Name == "")
+                return $"Anonymous {operation.Operation.ToString().ToLower()} operation";
+            else
+                return $"{operation.Operation.ToString()[0]}{operation.Operation.ToString().ToLower().Substring(1)} operation '{operation.Name}'";
         }
     }
 }

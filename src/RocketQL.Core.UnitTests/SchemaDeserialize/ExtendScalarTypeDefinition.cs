@@ -24,7 +24,7 @@ public class ExtendScalarTypeDefinition : UnitTestBase
         var scalar = ((SyntaxExtendScalarTypeDefinitionNode)definition);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Theory]

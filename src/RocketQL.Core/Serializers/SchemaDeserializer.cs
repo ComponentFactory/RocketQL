@@ -402,7 +402,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         MandatoryKeyword("on");
 
         return new SyntaxDirectiveDefinitionNode(UseTopLevelDescription(),
-                                                 name,
+                                                 "@" + name,
                                                  arguments,
                                                  repeatable,
                                                  ParseDirectiveLocations(),
@@ -690,7 +690,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                         throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind.ToString());
 
                     MandatoryNextToken(DocumentTokenKind.Name);
-                    node = new VariableValueNode(_tokenizer.TokenValue);
+                    node = new VariableValueNode("$" + _tokenizer.TokenValue);
                 }
                 break;
             case DocumentTokenKind.IntValue:
@@ -763,7 +763,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             string name = _tokenizer.TokenValue;
             _tokenizer.Next();
 
-            list.Add(new SyntaxDirectiveNode(name, ParseArgumentsOptional(true), location));
+            list.Add(new SyntaxDirectiveNode("@" + name, ParseArgumentsOptional(true), location));
         }
 
         return list;

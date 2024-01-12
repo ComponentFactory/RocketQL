@@ -18,7 +18,7 @@ public class Directive : UnitTestBase
         Assert.Null(directive.DefaultValue);
         Assert.Single(directive.Directives);
         SyntaxDirectiveNode directiveNode = directive.Directives[0];
-        Assert.Equal("hello", directiveNode.Name);
+        Assert.Equal("@hello", directiveNode.Name);
         directiveNode.Arguments.NotNull().Count(0);
     }
 
@@ -37,7 +37,7 @@ public class Directive : UnitTestBase
         Assert.Equal("fizz", nameNode.Name);
         Assert.Null(directive.DefaultValue);
         SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
-        Assert.Equal("hello", directiveNode.Name);
+        Assert.Equal("@hello", directiveNode.Name);
         ObjectFieldNode argument = directiveNode.Arguments.NotNull().One();
         Assert.Equal("world", argument.Name);
         Assert.IsType<IntValueNode>(argument.Value);
@@ -60,7 +60,7 @@ public class Directive : UnitTestBase
         Assert.Equal("fizz", nameNode.Name);
         Assert.Null(directive.DefaultValue);
         SyntaxDirectiveNode directiveNode = directive.Directives.NotNull().One();
-        Assert.Equal("hello", directiveNode.Name);
+        Assert.Equal("@hello", directiveNode.Name);
         directiveNode.Arguments.NotNull().Count(2);
         ObjectFieldNode argument1 = directiveNode.Arguments[0];
         Assert.Equal("world", argument1.Name);
@@ -90,10 +90,10 @@ public class Directive : UnitTestBase
         Assert.Null(directive.DefaultValue);
         directive.Directives.NotNull().Count(2);
         SyntaxDirectiveNode directiveNode1 = directive.Directives[0];
-        Assert.Equal("hello", directiveNode1.Name);
+        Assert.Equal("@hello", directiveNode1.Name);
         directiveNode1.Arguments.NotNull().Count(0);
         SyntaxDirectiveNode directiveNode2 = directive.Directives[1];
-        Assert.Equal("world", directiveNode2.Name);
+        Assert.Equal("@world", directiveNode2.Name);
         directiveNode2.Arguments.NotNull().Count(0);
     }
 

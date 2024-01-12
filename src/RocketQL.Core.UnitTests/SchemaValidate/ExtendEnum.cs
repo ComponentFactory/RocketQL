@@ -17,13 +17,13 @@ public class ExtendEnum : UnitTestBase
                 directive @bar on ENUM
                 enum foo @bar { FIRST }
                 extend enum foo @bar
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on enum 'foo'.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on enum 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on ENUM_VALUE
                 enum foo { FIRST @bar }
                 extend enum foo { FIRST @bar }
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on enum value 'FIRST' of enum 'foo'.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on enum value 'FIRST' of enum 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 enum foo { FIRST }
@@ -59,7 +59,7 @@ public class ExtendEnum : UnitTestBase
         Assert.NotNull(first);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
 
@@ -83,7 +83,7 @@ public class ExtendEnum : UnitTestBase
         Assert.NotNull(first);
         var directive = first.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class ExtendEnum : UnitTestBase
         Assert.NotNull(second);
         var directive = second.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 }
 

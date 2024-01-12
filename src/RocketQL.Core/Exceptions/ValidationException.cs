@@ -3,6 +3,7 @@
 public class ValidationException(Location location, string message) : RocketException(location, message)
 {
     public static ValidationException UnrecognizedType(Location location, string name) => new(location, $"Unrecognized type '{name}' encountered.");
+    public static ValidationException UnrecognizedType(SyntaxNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
     public static ValidationException UnrecognizedType(DocumentNode node) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.");
     public static ValidationException SchemaDefinitionAlreadyDefined(Location location) => new(location, $"Schema is already defined.");
     public static ValidationException SchemaDefinitionEmpty(DocumentNode node) => new(node.Location, "Schema definition must have at least one operation type.");
@@ -20,6 +21,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException SchemaNotDefinedForExtend(Location location) => new(location, $"Extend schema cannot be applied because no schema has been defined.");
     public static ValidationException TypeNotDefinedForExtend(Location location, string typeName, string name) => new(location, $"{typeName} '{name}' cannot be extended because it is not defined.");
     public static ValidationException IncorrectTypeForExtend(DocumentNode node, string typeName) => new(node.Location, $"Extend {typeName.ToLower()} cannot be used to extend {node.OutputElement} '{node.OutputName}'.");    
+    public static ValidationException DuplicateMemberType(Location location, string memberType, string unionTypeName) => new(location, $"Union '{unionTypeName}' specifies duplicate member type '{memberType}'.");
     public static ValidationException EnumValueAlreadyDefined(Location location, string enumValue, string enumTypeName) => new(location, $"Enum '{enumTypeName}' has duplicate definition of value '{enumValue}'.");
     public static ValidationException ListEntryDuplicateName(Location location, string list, string entryName, string entryType, string name) => new(location, $"{list} '{entryName}' has duplicate {entryType} '{name}'.");
     public static ValidationException ListEntryDuplicateName(Location location, string type, string typeName, string list, string entryName, string entryType, string name) => new(location, $"{type} '{typeName}' has {list.ToLower()} '{entryName}' with duplicate {entryType} '{name}'.");
@@ -73,10 +75,11 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException SchemaNotValidated() => new(new(), "Provided schema has not been validated.");
     public static ValidationException SchemaDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a schema.");
     public static ValidationException RequestDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a request.");
-    public static ValidationException RequestDefaultAlreadyDefined(Location location) => new(location, $"Anonymous operation is already defined.");
+    public static ValidationException RequestAnonymousAlreadyDefined(Location location) => new(location, $"Anonymous operation is already defined.");
+    public static ValidationException RequestAnonymousAndNamed(Location location) => new(location, $"Anonymous operation and named operation both defined.");
     public static ValidationException RequestOperationAlreadyDefined(Location location, string name) => new(location, $"Operation name '{name}' is already defined.");
+    public static ValidationException DuplicateOperationVariable(Location location, string operationName, string variable) => new(location, $"{operationName} has duplicate variable '{variable}'.");
 
-    
     private static string OptionalQuotedName(DocumentNode node)
     {
         if (string.IsNullOrWhiteSpace(node.OutputName))

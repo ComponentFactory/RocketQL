@@ -41,7 +41,7 @@ public class ScalarTypeDefinition : UnitTestBase
         Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class ScalarTypeDefinition : UnitTestBase
         Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         var argument = directive.Arguments.NotNull().One();
         Assert.Equal("arg1", argument.Name);
     }
@@ -71,7 +71,7 @@ public class ScalarTypeDefinition : UnitTestBase
         Assert.Equal("", scalar.Description);
         Assert.Equal("foo", scalar.Name);
         var directive = scalar.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         Assert.Equal(2, directive.Arguments.Count);
         var argument1 = directive.Arguments.NotNull()[0];
         Assert.Equal("arg1", argument1.Name);

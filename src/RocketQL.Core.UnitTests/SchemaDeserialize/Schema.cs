@@ -54,7 +54,7 @@ public class Schema : UnitTestBase
         var def = ((SyntaxSchemaDefinitionNode)definition);
         Assert.Equal("", def.Description);
         var directive = def.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         var operation = def.OperationTypes.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("FizzBuzz", operation.NamedType);

@@ -133,7 +133,7 @@ public ref struct RequestDeserializer
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
             MandatoryNext();
-            var arguments = ParseVariableslDefinition();
+            var arguments = ParseVariablesDefinition();
             MandatoryTokenNext(DocumentTokenKind.RightParenthesis);
             return arguments;
         }
@@ -142,7 +142,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SyntaxVariableDefinitionNodeList ParseVariableslDefinition()
+    private SyntaxVariableDefinitionNodeList ParseVariablesDefinition()
     {
         SyntaxVariableDefinitionNodeList list = new();
 
@@ -155,7 +155,7 @@ public ref struct RequestDeserializer
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
-            list.Add(new SyntaxVariableDefinitionNode(name,
+            list.Add(new SyntaxVariableDefinitionNode("$" + name,
                                                       ParseType(),
                                                       ParseDefaultValueOptional(),
                                                       ParseDirectivesOptional(),
@@ -273,7 +273,7 @@ public ref struct RequestDeserializer
                         throw SyntaxException.TokenNotAllowedHere(_tokenizer.Location, _tokenizer.TokenKind.ToString());
 
                     MandatoryNextToken(DocumentTokenKind.Name);
-                    node = new VariableValueNode(_tokenizer.TokenValue);
+                    node = new VariableValueNode("$" + _tokenizer.TokenValue);
                 }
                 break;
             case DocumentTokenKind.IntValue:
@@ -346,7 +346,7 @@ public ref struct RequestDeserializer
             string name = _tokenizer.TokenValue;
             _tokenizer.Next();
 
-            list.Add(new SyntaxDirectiveNode(name, ParseArgumentsOptional(true), location));
+            list.Add(new SyntaxDirectiveNode("@" + name, ParseArgumentsOptional(true), location));
         }
 
         return list;

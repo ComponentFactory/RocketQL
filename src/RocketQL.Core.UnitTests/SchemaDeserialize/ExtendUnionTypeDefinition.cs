@@ -63,7 +63,7 @@ public class ExtendUnionTypeDefinition : UnitTestBase
         var union = ((SyntaxExtendUnionTypeDefinitionNode)definition);
         Assert.Equal("foo", union.Name);
         var directive = union.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         var member = union.MemberTypes.NotNull().One();
         Assert.Equal("fizz", member.Name);
     }

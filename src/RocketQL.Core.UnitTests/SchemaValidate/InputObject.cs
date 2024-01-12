@@ -52,91 +52,91 @@ public class Input : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 input foo @example { fizz : Int }
-                """,                                                            "Undefined directive 'example' defined on input object 'foo'.")]
+                """,                                                            "Undefined directive '@example' defined on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { fizz : Int @example }
-                """,                                                            "Undefined directive 'example' defined on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Undefined directive '@example' defined on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 input foo @example { fizz : Int }                    
-                """,                                                            "Directive 'example' is not specified for use on input object 'foo' location.")]
+                """,                                                            "Directive '@example' is not specified for use on input object 'foo' location.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 input foo { fizz : Int @example }                    
-                """,                                                            "Directive 'example' is not specified for use on input field 'fizz' of input object 'foo' location.")]
+                """,                                                            "Directive '@example' is not specified for use on input field 'fizz' of input object 'foo' location.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on INPUT_OBJECT
                 input foo @example @example { fizz : Int }                  
-                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on input object 'foo'.")]
+                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on INPUT_FIELD_DEFINITION
                 input foo  { fizz : Int @example @example }                  
-                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_OBJECT
                 input foo @example { fizz : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo  { fizz : Int @example }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_OBJECT
                 input foo @example { fizz : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on INPUT_OBJECT
                 input foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on input object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int  @example(arg1: 123)}                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on INPUT_OBJECT
                 input foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on input object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example(arg1: 123) }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on input field 'fizz' of input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_OBJECT
                 input foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_OBJECT
                 input foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of input object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on INPUT_FIELD_DEFINITION
                 input foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive 'example' of input object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of input object 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -243,13 +243,13 @@ public class Input : UnitTestBase
         Assert.NotNull(foo);
         Assert.Null(foo.Parent);
         var d1 = foo.Directives.NotNull().One();
-        Assert.Equal("d1", d1.Name);
+        Assert.Equal("@d1", d1.Name);
         Assert.Equal(foo, d1.Parent);
         var field = foo.InputFields["bar"];
         Assert.NotNull(field);
         Assert.Equal(foo, field.Parent);
         var d2 = field.Directives.NotNull().One();
-        Assert.Equal("d2", d2.Name);
+        Assert.Equal("@d2", d2.Name);
         Assert.Equal(field, d2.Parent);
     }
 }

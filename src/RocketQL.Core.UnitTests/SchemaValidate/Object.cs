@@ -46,6 +46,11 @@ public class Object : UnitTestBase
                 """,                                                            "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.")]
     [InlineData("""
                 type Query { alpha: Int }
+                interface first { first: Int }
+                type foo implements first & first { first : Int }
+                """,                                                            "Object 'foo' has duplicate interface 'first'.")]
+    [InlineData("""
+                type Query { alpha: Int }
                 interface second { second: Int }
                 interface first implements second { first: Int second: Int }
                 type foo implements first { first: Int second: Int }
@@ -161,135 +166,135 @@ public class Object : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 type foo @example { fizz : Int }
-                """,                                                            "Undefined directive 'example' defined on object 'foo'.")]
+                """,                                                            "Undefined directive '@example' defined on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz : Int @example }
-                """,                                                            "Undefined directive 'example' defined on field 'fizz' of object 'foo'.")]
+                """,                                                            "Undefined directive '@example' defined on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(arg1: Int @example) : Int }
-                """,                                                            "Undefined directive 'example' defined on argument 'arg1' of object 'foo'.")]
+                """,                                                            "Undefined directive '@example' defined on argument 'arg1' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo @example { fizz : Int }                    
-                """,                                                            "Directive 'example' is not specified for use on object 'foo' location.")]
+                """,                                                            "Directive '@example' is not specified for use on object 'foo' location.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo { fizz : Int @example }                    
-                """,                                                            "Directive 'example' is not specified for use on field 'fizz' of object 'foo' location.")]
+                """,                                                            "Directive '@example' is not specified for use on field 'fizz' of object 'foo' location.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo { fizz(arg: Int @example) : Int }                    
-                """,                                                            "Directive 'example' is not specified for use on argument 'arg' of field 'fizz' of object 'foo' location.")]
+                """,                                                            "Directive '@example' is not specified for use on argument 'arg' of field 'fizz' of object 'foo' location.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on OBJECT
                 type foo @example @example { fizz : Int }                  
-                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on object 'foo'.")]
+                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on FIELD_DEFINITION
                 type foo  { fizz : Int @example @example }                  
-                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example @example) : Int }                  
-                """,                                                            "Directive 'example' is not repeatable but has been applied multiple times on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on argument 'arg' of field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on OBJECT
                 type foo @example { fizz : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo  { fizz : Int @example }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example { fizz : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
-                """,                                                            "Directive 'example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on OBJECT
                 type foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on FIELD_DEFINITION
                 type foo { fizz : Int  @example(arg1: 123)}                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: 123)) : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on OBJECT
                 type foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: 123) }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int  @example(arg1: 123)) : Int }                
-                """,                                                            "Directive 'example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,                                                            "Directive '@example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Argument 'arg1' of directive 'example' of object 'foo' has a default value incompatible with the type.")]
+                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -487,20 +492,20 @@ public class Object : UnitTestBase
         Assert.NotNull(foo);
         Assert.Null(foo.Parent);
         var d1 = foo.Directives.NotNull().One();
-        Assert.Equal("d1", d1.Name);
+        Assert.Equal("@d1", d1.Name);
         Assert.Equal(foo, d1.Parent);
         var field = foo.Fields["bar"];
         Assert.NotNull(field);
         Assert.Equal(foo, field.Parent);
         var d2 = field.Directives.NotNull().One();
-        Assert.Equal("d2", d2.Name);
+        Assert.Equal("@d2", d2.Name);
         Assert.Equal(field, d2.Parent);
         var argument = field.Arguments["arg"];
         Assert.NotNull(argument);
         Assert.Equal(field, argument.Parent);
         Assert.Equal(argument, argument.Type.Parent);
         var d3 = argument.Directives.NotNull().One();
-        Assert.Equal("d3", d3.Name);
+        Assert.Equal("@d3", d3.Name);
         Assert.Equal(argument, d3.Parent);
         var first = foo.ImplementsInterfaces["first"];
         Assert.NotNull(first);

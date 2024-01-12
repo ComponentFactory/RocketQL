@@ -27,7 +27,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
-        Assert.Equal("bar", typeDirective.Name);
+        Assert.Equal("@bar", typeDirective.Name);
         typeDirective.Arguments.NotNull().Count(0);
         enums.EnumValues.NotNull().Count(0);
     }
@@ -42,7 +42,7 @@ public class ExtendEnumTypeDefinition : UnitTestBase
         var enums = ((SyntaxExtendEnumTypeDefinitionNode)definition);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
-        Assert.Equal("bar", typeDirective.Name);
+        Assert.Equal("@bar", typeDirective.Name);
         typeDirective.Arguments.NotNull().Count(0);
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal("", enumValue.Description);

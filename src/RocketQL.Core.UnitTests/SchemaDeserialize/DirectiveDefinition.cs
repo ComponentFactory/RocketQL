@@ -14,7 +14,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
@@ -48,7 +48,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(location, directive.DirectiveLocations);
@@ -72,7 +72,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(location, directive.DirectiveLocations);
@@ -89,7 +89,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.Equal(repeatable, directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
@@ -106,7 +106,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("bar", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         directive.Arguments.NotNull().Count(0);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
@@ -121,7 +121,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
@@ -143,7 +143,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
@@ -167,7 +167,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.IsType<SyntaxDirectiveDefinitionNode>(definition);
         var directive = ((SyntaxDirectiveDefinitionNode)definition);
         Assert.Equal("", directive.Description);
-        Assert.Equal("foo", directive.Name);
+        Assert.Equal("@foo", directive.Name);
         Assert.False(directive.Repeatable);
         Assert.Equal(DirectiveLocations.ENUM, directive.DirectiveLocations);
 
@@ -179,7 +179,7 @@ public class DirectiveDefinition : UnitTestBase
         Assert.Equal("fizz", nameNode.Name);
         Assert.Null(argument.DefaultValue);
         SyntaxDirectiveNode directiveNode = argument.Directives.NotNull().One();
-        Assert.Equal("hello", directiveNode.Name);
+        Assert.Equal("@hello", directiveNode.Name);
         directiveNode.Arguments.NotNull().Count(0);
     }
 

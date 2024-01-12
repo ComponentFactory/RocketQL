@@ -17,7 +17,7 @@ public class ExtendUnion : UnitTestBase
                 directive @bar on UNION
                 union foo @bar
                 extend union foo @bar
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on union 'foo'.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on union 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 type bar { buzz: Int }
@@ -46,7 +46,7 @@ public class ExtendUnion : UnitTestBase
         Assert.Equal("foo", foo.Name);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]

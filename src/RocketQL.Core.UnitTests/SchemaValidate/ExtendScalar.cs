@@ -21,7 +21,7 @@ public class ExtendScalar : UnitTestBase
                 type Query { alpha: Int }
                 scalar foo @specifiedBy(url: "url")
                 extend scalar foo @specifiedBy(url: "url")
-                """,                                    "Directive 'specifiedBy' is not repeatable but has been applied multiple times on scalar 'foo'.")]
+                """,                                    "Directive '@specifiedBy' is not repeatable but has been applied multiple times on scalar 'foo'.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -43,7 +43,7 @@ public class ExtendScalar : UnitTestBase
         Assert.Equal("foo", foo.Name);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("specifiedBy", directive.Name);
+        Assert.Equal("@specifiedBy", directive.Name);
     }
 }
 

@@ -31,8 +31,8 @@ public class SyntaxException(Location location, string message) : RocketExceptio
     public static SyntaxException ExtendUnionTypeMissingAtLeastOne(Location location) => new(location, "Extend union must specify at least one of directive or member type.");
     public static SyntaxException ExtendEnumTypeMissingAtLeastOne(Location location) => new(location, "Extend enum must specify at least one of directive or enum value.");
     public static SyntaxException ExtendInputObjectTypeMissingAtLeastOne(Location location) => new(location, "Extend input object must specify at least one of directive or field.");
-    public static SyntaxException QueryNotAllowedInSchema(Location location) => new(location, "Schema document cannot contain query.");
-    public static SyntaxException UnnamedQueryNotAllowedInSchema(Location location) => new(location,$"Schema document cannot contain unnamed query operation.");
-    public static SyntaxException DefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Operation document cannot contain definition '{definition}'.");
-    public static SyntaxException ExtendDefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Operation document cannot contain extend definition '{definition}'.");
+    public static SyntaxException QueryNotAllowedInSchema(Location location) => new(location, "Schema cannot contain query.");
+    public static SyntaxException UnnamedQueryNotAllowedInSchema(Location location) => new(location,$"Schema cannot contain unnamed query operation.");
+    public static SyntaxException DefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Request cannot contain definition '{definition}'.");
+    public static SyntaxException ExtendDefinintionNotAllowedInOperation(Location location, string definition) => new(location, $"Request cannot contain extend definition '{definition}'.");
 }

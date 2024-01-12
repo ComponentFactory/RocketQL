@@ -84,7 +84,7 @@ public partial class Schema
                 {
                     Description = objectType.Description,
                     Name = objectType.Name,
-                    ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces),
+                    ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces, "Object", objectType.Name),
                     Directives = objectType.Directives.ConvertDirectives(),
                     Fields = ConvertFieldDefinitions(objectType.Fields, "Object", objectType.Name),
                     Location = objectType.Location
@@ -102,7 +102,7 @@ public partial class Schema
                 {
                     Description = interfaceType.Description,
                     Name = interfaceType.Name,
-                    ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces),
+                    ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces, "Interface", interfaceType.Name),
                     Directives = interfaceType.Directives.ConvertDirectives(),
                     Fields = ConvertFieldDefinitions(interfaceType.Fields, "Interface", interfaceType.Name),
                     Location = interfaceType.Location
@@ -121,7 +121,7 @@ public partial class Schema
                     Description = unionType.Description,
                     Name = unionType.Name,
                     Directives = unionType.Directives.ConvertDirectives(),
-                    MemberTypes = ConvertMemberTypes(unionType.MemberTypes),
+                    MemberTypes = ConvertMemberTypes(unionType.MemberTypes, "Union", unionType.Name),
                     Location = unionType.Location
                 });
             }
@@ -444,7 +444,7 @@ public partial class Schema
                                 Description = extendField.Description,
                                 Name = extendField.Name,
                                 Arguments = ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
-                                Type = ConvertTypeNode(extendField.Type),
+                                Type = extendField.Type.ConvertTypeNode(),
                                 Directives = extendField.Directives.ConvertDirectives(),
                                 Location = extendField.Location
                             });
@@ -476,7 +476,7 @@ public partial class Schema
                                         {
                                             Description = extendArgument.Description,
                                             Name = extendArgument.Name,
-                                            Type = ConvertTypeNode(extendArgument.Type),
+                                            Type = extendArgument.Type.ConvertTypeNode(),
                                             DefaultValue = extendArgument.DefaultValue,
                                             Directives = extendArgument.Directives.ConvertDirectives(),
                                             Location = extendArgument.Location,
@@ -523,7 +523,7 @@ public partial class Schema
                             {
                                 Description = extendInputField.Description,
                                 Name = extendInputField.Name,
-                                Type = ConvertTypeNode(extendInputField.Type),
+                                Type = extendInputField.Type.ConvertTypeNode(),
                                 DefaultValue = extendInputField.DefaultValue,
                                 Directives = extendInputField.Directives.ConvertDirectives(),
                                 Location = extendInputField.Location,
@@ -559,7 +559,7 @@ public partial class Schema
                         Description = field.Description,
                         Name = field.Name,
                         Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name, "Argument", parentNode, parentName),
-                        Type = ConvertTypeNode(field.Type),
+                        Type = field.Type.ConvertTypeNode(),
                         Directives = field.Directives.ConvertDirectives(),
                         Location = field.Location
                     });
@@ -624,7 +624,7 @@ public partial class Schema
                     {
                         Description = inputValue.Description,
                         Name = inputValue.Name,
-                        Type = ConvertTypeNode(inputValue.Type),
+                        Type = inputValue.Type.ConvertTypeNode(),
                         DefaultValue = inputValue.DefaultValue,
                         Directives = inputValue.Directives.ConvertDirectives(),
                         Location = inputValue.Location,
@@ -636,56 +636,46 @@ public partial class Schema
             return nodes;
         }
 
-        private TypeNode ConvertTypeNode(SyntaxTypeNode node)
-        {
-            return node switch
-            {
-                SyntaxTypeNameNode nameNode => new TypeName()
-                {
-                    Name = nameNode.Name,
-                    Definition = null,
-                    Location = nameNode.Location,
-                },
-                SyntaxTypeNonNullNode nonNullNode => new TypeNonNull()
-                {
-                    Type = ConvertTypeNode(nonNullNode.Type),
-                    Location = nonNullNode.Location,
-                },
-                SyntaxTypeListNode listNode => new TypeList()
-                {
-                    Type = ConvertTypeNode(listNode.Type),
-                    Location = listNode.Location,
-                },
-                _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)
-            };
-        }
-
-        private static Interfaces ConvertInterfaces(SyntaxNameList names)
+        private Interfaces ConvertInterfaces(SyntaxNameList names, string parentNode, string parentName)
         {
             var nodes = new Interfaces();
 
             foreach (var name in names)
-                nodes.Add(name.Name, new()
+            {
+                if (nodes.ContainsKey(name.Name))
+                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "interface", name.Name));
+                else
                 {
-                    Name = name.Name,
-                    Definition = null,
-                    Location = name.Location
-                });
+                    nodes.Add(name.Name, new()
+                    {
+                        Name = name.Name,
+                        Definition = null,
+                        Location = name.Location
+                    });
+                }
+            }
 
             return nodes;
         }
 
-        private static MemberTypes ConvertMemberTypes(SyntaxNameList names)
+        private MemberTypes ConvertMemberTypes(SyntaxNameList names, string parentNode, string parentName)
         {
             var nodes = new MemberTypes();
 
             foreach (var name in names)
-                nodes.Add(name.Name, new()
+            {
+                if (nodes.ContainsKey(name.Name))
+                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "member type", name.Name));
+                else
                 {
-                    Name = name.Name,
-                    Definition = null,
-                    Location = name.Location
-                });
+                    nodes.Add(name.Name, new()
+                    {
+                        Name = name.Name,
+                        Definition = null,
+                        Location = name.Location
+                    });
+                }
+            }
 
             return nodes;
         }

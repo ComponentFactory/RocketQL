@@ -17,7 +17,7 @@ public class ExtendInputObject : UnitTestBase
                 directive @bar on INPUT_OBJECT
                 input foo @bar { buzz: Int } 
                 extend input foo @bar
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on input object 'foo'.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on input object 'foo'.")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { buzz: Int } 
@@ -57,7 +57,7 @@ public class ExtendInputObject : UnitTestBase
         Assert.Single(foo.Directives);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class ExtendInputObject : UnitTestBase
         Assert.Single(fizz.Directives);
         var directive = fizz.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class ExtendInputObject : UnitTestBase
         Assert.Equal("fizz", fizz.Name);
         var directive = fizz.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
 }

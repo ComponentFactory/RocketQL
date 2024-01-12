@@ -31,47 +31,47 @@ public class Scalar : UnitTestBase
     [InlineData("""
                 type Query { fizz: Int }
                 scalar foo @example 
-                """,                                                "Undefined directive 'example' defined on scalar 'foo'.")]
+                """,                                                "Undefined directive '@example' defined on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example on ENUM
                 scalar foo @example                    
-                """,                                                "Directive 'example' is not specified for use on scalar 'foo' location.")]
+                """,                                                "Directive '@example' is not specified for use on scalar 'foo' location.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example on SCALAR
                 scalar foo @example @example                
-                """,                                                "Directive 'example' is not repeatable but has been applied multiple times on scalar 'foo'.")]
+                """,                                                "Directive '@example' is not repeatable but has been applied multiple times on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg1: Int!) on SCALAR
                 scalar foo @example                
-                """,                                                "Directive 'example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
+                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example                
-                """,                                                "Directive 'example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
+                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example on SCALAR
                 scalar foo @example(arg1: 123)              
-                """,                                                "Directive 'example' does not define argument 'arg1' provided on scalar 'foo'.")]
+                """,                                                "Directive '@example' does not define argument 'arg1' provided on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int) on SCALAR
                 scalar foo @example(arg1: 123)              
-                """,                                                "Directive 'example' does not define argument 'arg1' provided on scalar 'foo'.")]
+                """,                                                "Directive '@example' does not define argument 'arg1' provided on scalar 'foo'.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
-                """,                                                "Argument 'arg1' of directive 'example' of scalar 'foo' has a default value incompatible with the type.")]
+                """,                                                "Argument 'arg1' of directive '@example' of scalar 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
-                """,                                                "Argument 'arg1' of directive 'example' of scalar 'foo' has a default value incompatible with the type.")]
+                """,                                                "Argument 'arg1' of directive '@example' of scalar 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

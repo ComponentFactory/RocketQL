@@ -71,12 +71,12 @@ public class InputObjectTypeDefinition : UnitTestBase
         Assert.Equal("", input.Description);
         Assert.Equal("foo", input.Name);
         var directive1 = input.Directives.NotNull().One();
-        Assert.Equal("fizz", directive1.Name);
+        Assert.Equal("@fizz", directive1.Name);
         var field = input.InputFields.NotNull().One();
         Assert.Equal("", field.Description);
         Assert.Equal("bar", field.Name);
         var directive2 = field.Directives.NotNull().One();
-        Assert.Equal("buzz", directive2.Name);
+        Assert.Equal("@buzz", directive2.Name);
         SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
     }

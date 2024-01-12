@@ -108,13 +108,13 @@ public class EnumTypeDefinition : UnitTestBase
         Assert.Equal("", enums.Description);
         Assert.Equal("foo", enums.Name);
         var typeDirective = enums.Directives.NotNull().One();
-        Assert.Equal("bar", typeDirective.Name);
+        Assert.Equal("@bar", typeDirective.Name);
         typeDirective.Arguments.NotNull().Count(0);
         var enumValue = enums.EnumValues.NotNull().One();
         Assert.Equal("", enumValue.Description);
         Assert.Equal("BUZZ", enumValue.Name);
         var valueDirective = enumValue.Directives.NotNull().One();
-        Assert.Equal("fizz", valueDirective.Name);
+        Assert.Equal("@fizz", valueDirective.Name);
         valueDirective.Arguments.NotNull().Count(0);
     }
 

@@ -17,7 +17,7 @@ public class ExtendSchema : UnitTestBase
                 type fizz { buzz: Int }
                 schema @bar { query: fizz } 
                 extend schema @bar
-                """,                                            "Directive 'bar' is not repeatable but has been applied multiple times on schema.")]
+                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on schema.")]
     [InlineData("""
                 directive @bar on SCHEMA
                 type fizz { buzz: Int }
@@ -46,7 +46,7 @@ public class ExtendSchema : UnitTestBase
         Assert.NotNull(foo);
         var directive = foo.Directives[0];
         Assert.NotNull(directive);
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
     }
 
     [Fact]

@@ -21,6 +21,12 @@ public class Union : UnitTestBase
                 type Query { first: Int } 
                 union foo = fizz     
                 """,                                                "Undefined member type 'fizz' defined on union 'foo'.")]
+    // Duplicate member type
+    [InlineData("""
+                type Query { first: Int } 
+                type fizz { buzz: Int }
+                union foo = fizz | fizz    
+                """,                                                "Union 'foo' has duplicate member type 'fizz'.")]
     // Member type can only be an object type
     [InlineData("""
                 type Query { first: Int } 
@@ -49,60 +55,60 @@ public class Union : UnitTestBase
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo @example = fizz 
-                """,                                                "Undefined directive 'example' defined on union 'foo'.")]
+                """,                                                "Undefined directive '@example' defined on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo @example = fizz           
-                """,                                                "Undefined directive 'example' defined on union 'foo'.")]
+                """,                                                "Undefined directive '@example' defined on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on ENUM
                 union foo @example = fizz                    
-                """,                                                "Directive 'example' is not specified for use on union 'foo' location.")]
+                """,                                                "Directive '@example' is not specified for use on union 'foo' location.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on UNION
                 union foo @example @example = fizz               
-                """,                                                "Directive 'example' is not repeatable but has been applied multiple times on union 'foo'.")]
+                """,                                                "Directive '@example' is not repeatable but has been applied multiple times on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg1: Int!) on UNION
                 union foo @example = fizz               
-                """,                                                "Directive 'example' has mandatory argument 'arg1' missing on union 'foo'.")]
+                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: Int!) on UNION
                 union foo @example = fizz               
-                """,                                                "Directive 'example' has mandatory argument 'arg1' missing on union 'foo'.")]
+                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on UNION
                 union foo @example(arg1: 123) = fizz             
-                """,                                                "Directive 'example' does not define argument 'arg1' provided on union 'foo'.")]
+                """,                                                "Directive '@example' does not define argument 'arg1' provided on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int) on UNION
                 union foo @example(arg1: 123) = fizz              
-                """,                                                "Directive 'example' does not define argument 'arg1' provided on union 'foo'.")]
+                """,                                                "Directive '@example' does not define argument 'arg1' provided on union 'foo'.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Argument 'arg1' of directive 'example' of union 'foo' has a default value incompatible with the type.")]
+                """,                                                "Argument 'arg1' of directive '@example' of union 'foo' has a default value incompatible with the type.")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Argument 'arg1' of directive 'example' of union 'foo' has a default value incompatible with the type.")]
+                """,                                                "Argument 'arg1' of directive '@example' of union 'foo' has a default value incompatible with the type.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);
@@ -208,7 +214,7 @@ public class Union : UnitTestBase
         Assert.NotNull(foo);
         Assert.Null(foo.Parent);
         var d1 = foo.Directives.NotNull().One();
-        Assert.Equal("d1", d1.Name);
+        Assert.Equal("@d1", d1.Name);
         Assert.Equal(foo, d1.Parent);
         var fizz = foo.MemberTypes["fizz"];
         Assert.NotNull(fizz);

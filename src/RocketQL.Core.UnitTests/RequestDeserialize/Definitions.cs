@@ -19,7 +19,7 @@ public class Definitions : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Operation document cannot contain definition '{text}'.", ex.Message);
+            Assert.Equal($"Request cannot contain definition '{text}'.", ex.Message);
         }
         catch
         {
@@ -43,7 +43,7 @@ public class Definitions : UnitTestBase
         }
         catch (SyntaxException ex)
         {
-            Assert.Equal($"Operation document cannot contain extend definition '{definition}'.", ex.Message);
+            Assert.Equal($"Request cannot contain extend definition '{definition}'.", ex.Message);
         }
         catch
         {

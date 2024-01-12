@@ -49,7 +49,7 @@ public ref struct SchemaSerializer(Schema schema)
 
             PrintDescription(directiveDefinition.Description);
             StartLine();
-            Print($"directive @{directiveDefinition.Name}");
+            Print($"directive {directiveDefinition.Name}");
 
             if (directiveDefinition.Arguments.Count > 0)
             {
@@ -553,7 +553,7 @@ public ref struct SchemaSerializer(Schema schema)
         {
             foreach (var directive in directives)
             {
-                Print($" @{directive.Name}");
+                Print($" {directive.Name}");
 
                 if (directive.Arguments.Count > 0)
                 {

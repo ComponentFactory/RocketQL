@@ -32,7 +32,7 @@ public class FragmentDefinition : UnitTestBase
         Assert.Equal("foo", fragment.Name);
         Assert.Equal("bar", fragment.TypeCondition);
         var directive = fragment.Directives.NotNull().One();
-        Assert.Equal("buzz", directive.Name);
+        Assert.Equal("@buzz", directive.Name);
         var field = (SyntaxFieldSelectionNode)fragment.SelectionSet.NotNull().One();
         Assert.Equal("", field.Alias);
         Assert.Equal("fizz", field.Name);

@@ -20,7 +20,7 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
-            if (directiveDefinition.Name.StartsWith("__"))
+            if (directiveDefinition.Name.StartsWith("@__"))
                 _schema.NonFatalException(ValidationException.NameDoubleUnderscore(directiveDefinition));
 
             Queue<TypeDefinition> referencedTypes = [];
@@ -133,7 +133,7 @@ public partial class Schema
                             _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(fieldDefinition, inputObjectType, fieldDefinition.Type.Definition.OutputName));
                         else
                         {
-                            if ((fieldDefinition.Type is TypeNonNull) && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "deprecated").Any())
+                            if ((fieldDefinition.Type is TypeNonNull) && (fieldDefinition.DefaultValue is null) && fieldDefinition.Directives.Where(d => d.Name == "@deprecated").Any())
                                 _schema.NonFatalException(ValidationException.NonNullFieldCannotBeDeprecated(fieldDefinition, inputObjectType));
 
                             if ((fieldDefinition.Type is TypeNonNull fieldNonNull) && ((fieldNonNull.Type is TypeName) && (fieldNonNull.Type.Definition is InputObjectTypeDefinition referenceInputObject)))
@@ -447,7 +447,7 @@ public partial class Schema
                     else if (!argumentDefinition.Type.Definition.IsInputType)
                         _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(fieldDefinition, parentNode, argumentDefinition, argumentDefinition.Type.Definition.OutputName));
 
-                    if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "deprecated").Any())
+                    if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "@deprecated").Any())
                         _schema.NonFatalException(ValidationException.NonNullArgumentCannotBeDeprecated(fieldDefinition, parentNode, argumentDefinition));
 
                     if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))

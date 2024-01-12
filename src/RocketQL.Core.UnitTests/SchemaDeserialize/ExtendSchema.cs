@@ -11,7 +11,7 @@ public class ExtendSchema : UnitTestBase
         Assert.IsType<SyntaxExtendSchemaDefinitionNode>(definition);
         var extend = ((SyntaxExtendSchemaDefinitionNode)definition);
         var directive = extend.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         extend.OperationTypes.NotNull().Count(0);
     }
 
@@ -38,7 +38,7 @@ public class ExtendSchema : UnitTestBase
         Assert.IsType<SyntaxExtendSchemaDefinitionNode>(definition);
         var extend = ((SyntaxExtendSchemaDefinitionNode)definition);
         var directive = extend.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         var operation = extend.OperationTypes.NotNull().One();
         Assert.Equal(OperationType.QUERY, operation.Operation);
         Assert.Equal("bar", operation.NamedType);

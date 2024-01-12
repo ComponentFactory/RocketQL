@@ -120,7 +120,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         SyntaxTypeNameNode fieldType = (SyntaxTypeNameNode)field.Type;
         Assert.Equal("Integer", fieldType.Name);
         var directive = field.Directives.NotNull().One();
-        Assert.Equal("fizz", directive.Name);
+        Assert.Equal("@fizz", directive.Name);
         directive.Arguments.NotNull().Count(0);
     }
 
@@ -189,7 +189,7 @@ public class InterfaceTypeDefinition : UnitTestBase
         Assert.Equal("", type.Description);
         Assert.Equal("foo", type.Name);
         var directive = type.Directives.NotNull().One();
-        Assert.Equal("bar", directive.Name);
+        Assert.Equal("@bar", directive.Name);
         type.ImplementsInterfaces.NotNull().Count(0);
         type.Fields.NotNull().Count(0);
     }

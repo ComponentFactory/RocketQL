@@ -106,10 +106,10 @@ public partial class Schema : ISchema
 
     private void AddBuiltInDirectives()
     {
-        _directives.Add("include", new DirectiveDefinition()
+        _directives.Add("@include", new DirectiveDefinition()
         {
             Description = "Directs the executor to include this field or fragment only when the `if` argument is true",
-            Name = "include",
+            Name = "@include",
             Repeatable = false,
             Arguments = new()
             {
@@ -141,10 +141,10 @@ public partial class Schema : ISchema
             IsBuiltIn = true
         });
 
-        _directives.Add("skip", new DirectiveDefinition()
+        _directives.Add("@skip", new DirectiveDefinition()
         {
             Description = "Directs the executor to skip this field or fragment when the `if` argument is true.",
-            Name = "skip",
+            Name = "@skip",
             Repeatable = false,
             Arguments = new()
             {
@@ -176,10 +176,10 @@ public partial class Schema : ISchema
             IsBuiltIn = true
         });
 
-        _directives.Add("deprecated", new DirectiveDefinition()
+        _directives.Add("@deprecated", new DirectiveDefinition()
         {
             Description = "Marks the field, argument, input field or enum value as deprecated.",
-            Name = "deprecated",
+            Name = "@deprecated",
             Repeatable = false,
             Arguments = new()
             {
@@ -208,10 +208,10 @@ public partial class Schema : ISchema
             IsBuiltIn = true
         });
 
-        _directives.Add("specifiedBy", new DirectiveDefinition()
+        _directives.Add("@specifiedBy", new DirectiveDefinition()
         {
             Description = "Exposes a URL that specifies the behaviour of this scalar.",
-            Name = "specifiedBy",
+            Name = "@specifiedBy",
             Repeatable = false,
             Arguments = new()
             {

@@ -13,8 +13,8 @@ public class OperationDefinition : DocumentNode
     public required OperationType Operation { get; init; }
     public required string Name { get; init; }
     public required Directives Directives { get; set; }
-    public required VariableDefinitionNodes Variables { get; set; }
-    public required SelectionNodes SelectionSet { get; set; }
+    public required VariableDefinitions Variables { get; set; }
+    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Operation";
     public override string OutputName => Operation.ToString();
 }
@@ -24,7 +24,7 @@ public class FragmentDefinition : DocumentNode
     public required string Name { get; init; }
     public required string TypeCondition { get; init; }
     public required Directives Directives { get; set; }
-    public required SelectionNodes SelectionSet { get; set; }
+    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Fragment";
     public override string OutputName => Name;
 }
@@ -135,7 +135,7 @@ public class InputObjectTypeDefinition : TypeDefinition
     public override bool IsOutputType => false;
 }
 
-public class VariableDefinitionNode : DocumentNode
+public class VariableDefinition : DocumentNode
 {
     public required string Name { get; init; }
     public required TypeNode Type { get; init; }
@@ -149,18 +149,18 @@ public abstract class SelectionNode : DocumentNode
 {
 }
 
-public class SelectionFieldNode : SelectionNode
+public class SelectionField : SelectionNode
 {
     public required string Alias { get; init; }
     public required string Name { get; init; }
     public required ObjectFields Arguments { get; init; }
     public required Directives Directives { get; set; }
-    public required SelectionNodes SelectionSet { get; set; }
+    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Field";
     public override string OutputName => Alias ?? Name;
 }
 
-public class SelectionFragmentSpreadNode : SelectionNode
+public class SelectionFragmentSpread : SelectionNode
 {
     public required string Name { get; init; }
     public required Directives Directives { get; set; }
@@ -168,11 +168,11 @@ public class SelectionFragmentSpreadNode : SelectionNode
     public override string OutputName => Name;
 }
 
-public class SelectionInlineFragmentNode : SelectionNode
+public class SelectionInlineFragment : SelectionNode
 {
     public required string TypeCondition { get; init; }
     public required Directives Directives { get; set; }
-    public required SelectionNodes SelectionSet { get; set; }
+    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Inline fragment";
     public override string OutputName => TypeCondition;
 }
@@ -301,8 +301,8 @@ public class TypeDefinitions : Dictionary<string, TypeDefinition>
     public static readonly TypeDefinitions Empty = [];
 };
 
-public class VariableDefinitionNodes : Dictionary<string, VariableDefinitionNode> { };
-public class SelectionNodes : Dictionary<string, SelectionNode> { };
+public class VariableDefinitions : Dictionary<string, VariableDefinition> { };
+public class SelectionSet : List<SelectionNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
 public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };

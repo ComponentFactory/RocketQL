@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Extensions;
+﻿using System.Xml.Linq;
+
+namespace RocketQL.Core.Extensions;
 
 public static class DocumentNodeExtensions
 {
@@ -18,7 +20,7 @@ public static class DocumentNodeExtensions
             {
                 Name = directive.Name,
                 Definition = null,
-                Arguments = directive.Arguments.ConvertObjectFields(),
+                Arguments = directive.Arguments.ConvertObjectFields(directive.Location, "Directive", directive.Name, "argument"),
                 Location = directive.Location
             });
         }
@@ -26,14 +28,43 @@ public static class DocumentNodeExtensions
         return nodes;
     }
 
-    public static ObjectFields ConvertObjectFields(this SyntaxObjectFieldNodeList fields)
+    public static ObjectFields ConvertObjectFields(this SyntaxObjectFieldNodeList fields, Location location, string parentType, string parentName, string listType)
     {
         var nodes = new ObjectFields();
 
         foreach (var field in fields)
-            nodes.Add(field.Name, field);
+        {
+            if (nodes.ContainsKey(field.Name))
+                throw ValidationException.ListEntryDuplicateName(location, parentType, parentName, listType, field.Name);
+            else
+                nodes.Add(field.Name, field);
+        }
 
         return nodes;
+    }
+
+    public static TypeNode ConvertTypeNode(this SyntaxTypeNode node)
+    {
+        return node switch
+        {
+            SyntaxTypeNameNode nameNode => new TypeName()
+            {
+                Name = nameNode.Name,
+                Definition = null,
+                Location = nameNode.Location,
+            },
+            SyntaxTypeNonNullNode nonNullNode => new TypeNonNull()
+            {
+                Type = ConvertTypeNode(nonNullNode.Type),
+                Location = nonNullNode.Location,
+            },
+            SyntaxTypeListNode listNode => new TypeList()
+            {
+                Type = ConvertTypeNode(listNode.Type),
+                Location = listNode.Location,
+            },
+            _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)
+        };
     }
 }
 
