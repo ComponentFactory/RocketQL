@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Nodes;
 
 public abstract class DocumentNode
 {
@@ -21,47 +19,14 @@ public class OperationDefinition : DocumentNode
     public override string OutputName => Operation.ToString();
 }
 
-public class VariableDefinitionNode : DocumentNode
+public class FragmentDefinition : DocumentNode
 {
     public required string Name { get; init; }
-    public required TypeNode Type { get; init; }
-    public required ValueNode? DefaultValue { get; init; }
-    public required Directives Directives { get; set; }
-    public override string OutputElement => "Variable";
-    public override string OutputName => Name;
-}
-
-public abstract class SelectionNode : DocumentNode
-{ 
-}
-
-
-public class SelectionFieldNode : SelectionNode
-{
-    public required string Alias { get; init; }
-    public required string Name { get; init; }
-    public required ObjectFields Arguments { get; init; }
-    public required Directives Directives { get; set; }
-    public required SelectionNodes SelectionSet { get; set; }
-    public override string OutputElement => "Field";
-    public override string OutputName => Alias ?? Name;
-}
-
-public class SelectionFragmentSpreadNode : SelectionNode
-{
-    public required string Name { get; init; }
-    public required Directives Directives { get; set; }
-    public override string OutputElement => "Fragment spread";
-    public override string OutputName => Name;
-}
-
-public class SelectionInlineFragmentNode : SelectionNode
-{
     public required string TypeCondition { get; init; }
     public required Directives Directives { get; set; }
     public required SelectionNodes SelectionSet { get; set; }
-    public override string OutputElement => "Inline fragment";
-    public override string OutputName => "";
+    public override string OutputElement => "Fragment";
+    public override string OutputName => Name;
 }
 
 public class SchemaRoot : DocumentNode
@@ -170,6 +135,48 @@ public class InputObjectTypeDefinition : TypeDefinition
     public override bool IsOutputType => false;
 }
 
+public class VariableDefinitionNode : DocumentNode
+{
+    public required string Name { get; init; }
+    public required TypeNode Type { get; init; }
+    public required ValueNode? DefaultValue { get; init; }
+    public required Directives Directives { get; set; }
+    public override string OutputElement => "Variable";
+    public override string OutputName => Name;
+}
+
+public abstract class SelectionNode : DocumentNode
+{
+}
+
+public class SelectionFieldNode : SelectionNode
+{
+    public required string Alias { get; init; }
+    public required string Name { get; init; }
+    public required ObjectFields Arguments { get; init; }
+    public required Directives Directives { get; set; }
+    public required SelectionNodes SelectionSet { get; set; }
+    public override string OutputElement => "Field";
+    public override string OutputName => Alias ?? Name;
+}
+
+public class SelectionFragmentSpreadNode : SelectionNode
+{
+    public required string Name { get; init; }
+    public required Directives Directives { get; set; }
+    public override string OutputElement => "Fragment spread";
+    public override string OutputName => Name;
+}
+
+public class SelectionInlineFragmentNode : SelectionNode
+{
+    public required string TypeCondition { get; init; }
+    public required Directives Directives { get; set; }
+    public required SelectionNodes SelectionSet { get; set; }
+    public override string OutputElement => "Inline fragment";
+    public override string OutputName => TypeCondition;
+}
+
 public class OperationTypeDefinition : DocumentNode
 {
     public required OperationType Operation { get; init; }
@@ -274,18 +281,9 @@ public class TypeNonNull : TypeNode
 }
 
 public class DocumentNodes : List<DocumentNode> { };
+public class VariableDefinitionNodes : Dictionary<string, VariableDefinitionNode> { };
+public class SelectionNodes : Dictionary<string, SelectionNode> { };
 public class SchemaDefinitions : List<SchemaDefinition> { };
-
-public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition> 
-{
-    public static readonly DirectiveDefinitions Empty = [];
-};
-
-public class TypeDefinitions : Dictionary<string, TypeDefinition>
-{
-    public static readonly TypeDefinitions Empty = [];
-};
-
 public class InterfaceTypeDefinitions : Dictionary<string, InterfaceTypeDefinition> { };
 public class InputObjectTypeDefinitions : Dictionary<string, InputObjectTypeDefinition> { };
 public class Directives : List<Directive> { };
@@ -296,8 +294,16 @@ public class MemberTypes : Dictionary<string, MemberType> { };
 public class EnumValueDefinitions : Dictionary<string, EnumValueDefinition> { };
 public class ObjectFields : Dictionary<string, ObjectFieldNode> { };
 public class InputValueDefinitions : Dictionary<string, InputValueDefinition> { };
-public class VariableDefinitionNodes : Dictionary<string, VariableDefinitionNode> { };
-public class SelectionNodes : Dictionary<string, SelectionNode> { };
+
+public class DirectiveDefinitions : Dictionary<string, DirectiveDefinition>
+{
+    public static readonly DirectiveDefinitions Empty = [];
+};
+
+public class TypeDefinitions : Dictionary<string, TypeDefinition>
+{
+    public static readonly TypeDefinitions Empty = [];
+};
 
 public interface IReadOnlyDirectives : IReadOnlyDictionary<string, DirectiveDefinition> { };
 public interface IReadOnlyTypes : IReadOnlyDictionary<string, TypeDefinition> { };
