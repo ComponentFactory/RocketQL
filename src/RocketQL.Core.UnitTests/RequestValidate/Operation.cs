@@ -24,11 +24,30 @@ public class Operation : UnitTestBase
     }
 
     [Theory]
+    [InlineData("query @foo { a }",                                         "Undefined directive '@foo' defined on operation 'QUERY'.")]
+    [InlineData("query foo @foo { a }",                                     "Undefined directive '@foo' defined on operation 'foo'.")]
+    public void OperationDirectives(string requestText, string message)
+    {
+        RequestSchemaValidationSingleException(_minimumSchema, requestText, message);
+    }
+
+    [Theory]
     [InlineData("query($foo: Int $foo: Int) { a }",                         "Anonymous query operation has duplicate variable '$foo'.")]
     [InlineData("query bar($foo: Int $foo: Int) { a }",                     "Query operation 'bar' has duplicate variable '$foo'.")]
     [InlineData("query bar($a: Int $foo: Int $b: Int $foo: String) { a }",  "Query operation 'bar' has duplicate variable '$foo'.")]
+    [InlineData("query($foo: Int @bar) { a }",                              "Undefined directive '@bar' defined on variable '$foo' of operation 'QUERY'.")]
+    [InlineData("query foo ($foo: Int @bar) { a }",                         "Undefined directive '@bar' defined on variable '$foo' of operation 'foo'.")]
+    [InlineData("query foo ($foo: Example) { a }",                          "Undefined type 'Example' for variable '$foo' of operation 'foo'.")]
     public void OperationParameters(string requestText, string message)
     {
         RequestSchemaValidationSingleException(_minimumSchema, requestText, message);
     }
+
+    //[Theory]
+    //[InlineData("subscription { a b }",                                     "Anonymous query operation has duplicate variable '$foo'.")]
+    //[InlineData("subscription { __a }",                                     "Anonymous query operation has duplicate variable '$foo'.")]
+    //public void SubscriptionSingleFieldNotIntrospection(string requestText, string message)
+    //{
+    //    RequestSchemaValidationSingleException(_minimumSchema, requestText, message);
+    //}
 }

@@ -5,7 +5,7 @@ public partial class Schema
     private SchemaLinker? _schemaLinker = null;
     private SchemaLinker Linker => _schemaLinker ??= new SchemaLinker(this);
 
-    private class SchemaLinker(Schema schema) : IDocumentNodeVisitors
+    private class SchemaLinker(Schema schema) : LinkerNodeVisitor, IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
 
@@ -31,50 +31,50 @@ public partial class Schema
             {
                 argument.Parent = directive;
 
-                InterlinkDirectives(argument.Directives, argument, directive);
-                InterlinkTypeNode(argument.Type, argument, directive, argument);
+                InterlinkDirectives(argument.Directives, argument, directive, _schema._directives);
+                InterlinkTypeNode(argument.Type, argument, directive, argument, _schema._types);
             }
         }
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            InterlinkDirectives(scalarType.Directives, scalarType);
+            InterlinkDirectives(scalarType.Directives, scalarType, null, _schema._directives);
         }
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            InterlinkDirectives(objectType.Directives, objectType);
+            InterlinkDirectives(objectType.Directives, objectType, null, _schema._directives);
             InterlinkInterfaces(objectType.ImplementsInterfaces, objectType);
             InterlinkFields(objectType.Fields, objectType, objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            InterlinkDirectives(interfaceType.Directives, interfaceType);
+            InterlinkDirectives(interfaceType.Directives, interfaceType, null, _schema._directives);
             InterlinkInterfaces(interfaceType.ImplementsInterfaces, interfaceType);
             InterlinkFields(interfaceType.Fields, interfaceType, interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            InterlinkDirectives(unionType.Directives, unionType);
+            InterlinkDirectives(unionType.Directives, unionType, null, _schema._directives);
             InterlinkMemberTypes(unionType.MemberTypes, unionType);
         }
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            InterlinkDirectives(enumType.Directives, enumType);
+            InterlinkDirectives(enumType.Directives, enumType, null, _schema._directives);
 
             foreach (var enumValue in enumType.EnumValues.Values)
             {
                 enumValue.Parent = enumType;
-                InterlinkDirectives(enumValue.Directives, enumValue, enumType);
+                InterlinkDirectives(enumValue.Directives, enumValue, enumType, _schema._directives);
             }
         }
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            InterlinkDirectives(inputObjectType.Directives, inputObjectType);
+            InterlinkDirectives(inputObjectType.Directives, inputObjectType, null, _schema._directives);
             InterlinkInputValues(inputObjectType.InputFields, inputObjectType, inputObjectType);
         }
 
@@ -84,9 +84,9 @@ public partial class Schema
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
-            InterlinkDirectives(schemaDefinition.Directives, schemaDefinition);
+            InterlinkDirectives(schemaDefinition.Directives, schemaDefinition, null, _schema._directives);
 
-            foreach(var operationTypeDefinition in schemaDefinition.Operations.Values)
+            foreach (var operationTypeDefinition in schemaDefinition.Operations.Values)
             {
                 if (!_schema._types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
                     FatalException(ValidationException.TypeNotDefinedForSchemaOperation(operationTypeDefinition));
@@ -95,27 +95,6 @@ public partial class Schema
                     FatalException(ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition!));
 
                 operationTypeDefinition.Definition = typeDefinition as ObjectTypeDefinition;
-            }
-        }
-
-        private void InterlinkDirectives(Directives directives, DocumentNode parentNode, DocumentNode? grandParentNode = null)
-        {
-            foreach (var directive in directives)
-            {
-                directive.Parent = parentNode;
-
-                if (!_schema._directives.TryGetValue(directive.Name, out DirectiveDefinition? directiveDefinition))
-                {
-                    if (grandParentNode is not null)
-                        FatalException(ValidationException.UndefinedDirective(directive, parentNode.OutputElement, parentNode.OutputName, grandParentNode));
-                    else
-                        FatalException(ValidationException.UndefinedDirective(directive, parentNode));
-                }
-                else
-                {
-                    directive.Definition = directiveDefinition;
-                    directiveDefinition.References.Add(directive!);
-                }
             }
         }
 
@@ -144,8 +123,8 @@ public partial class Schema
             {
                 field.Parent = parentNode;
 
-                InterlinkDirectives(field.Directives, field, rootNode);
-                InterlinkTypeNode(field.Type, field, rootNode, field);
+                InterlinkDirectives(field.Directives, field, rootNode, _schema._directives);
+                InterlinkTypeNode(field.Type, field, rootNode, field, _schema._types);
                 InterlinkInputValues(field.Arguments, field, rootNode);
             }
         }
@@ -156,28 +135,8 @@ public partial class Schema
             {
                 inputValue.Parent = parentNode;
 
-                InterlinkDirectives(inputValue.Directives, inputValue, rootNode);
-                InterlinkTypeNode(inputValue.Type, inputValue, rootNode, inputValue);
-            }
-        }
-
-        private void InterlinkTypeNode(TypeNode typeLocation, DocumentNode parentNode, DocumentNode rootNode, DocumentNode typeParentNode)
-        {
-            typeLocation.Parent = typeParentNode;
-
-            if (typeLocation is TypeList typeList)
-                InterlinkTypeNode(typeList.Type, parentNode, rootNode, typeList);
-            if (typeLocation is TypeNonNull typeNonNull)
-                InterlinkTypeNode(typeNonNull.Type, parentNode, rootNode, typeNonNull);
-            else if (typeLocation is TypeName typeName)
-            {
-                if (!_schema._types.TryGetValue(typeName.Name, out var type))
-                    FatalException(ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode));
-                else
-                {
-                    typeName.Definition = type;
-                    type.References.Add(typeName);
-                }
+                InterlinkDirectives(inputValue.Directives, inputValue, rootNode, _schema._directives);
+                InterlinkTypeNode(inputValue.Type, inputValue, rootNode, inputValue, _schema._types);
             }
         }
 

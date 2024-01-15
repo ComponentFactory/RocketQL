@@ -1,13 +1,11 @@
-﻿using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Request
 {
     private RequestConverter? _requestConverter = null;
     private RequestConverter Converter => _requestConverter ??= new RequestConverter(this);
 
-    private class RequestConverter(Request request) : ISyntaxNodeVisitors
+    private class RequestConverter(Request request) : ConverterNodeVisitor, ISyntaxNodeVisitors
     {
         private readonly Request _request = request;
 
@@ -37,11 +35,11 @@ public partial class Request
                 {
                     Operation = operation.Operation,
                     Name = operationName,
-                    Directives = operation.Directives.ConvertDirectives(),
+                    Directives = ConvertDirectives(operation.Directives),
                     Variables = ConvertVariableDefinitions(operation.VariableDefinitions, operation),
                     SelectionSet = ConvertSelectionSet(operation.SelectionSet),
                     Location = operation.Location,
-                });
+                }); ;
             }
         }
 
@@ -55,7 +53,8 @@ public partial class Request
                 {
                     Name = fragment.Name,
                     TypeCondition = fragment.TypeCondition,
-                    Directives = fragment.Directives.ConvertDirectives(),
+                    Definition = null,
+                    Directives = ConvertDirectives(fragment.Directives),
                     SelectionSet = ConvertSelectionSet(fragment.SelectionSet),
                     Location = fragment.Location,
                 });
@@ -150,9 +149,9 @@ public partial class Request
                     nodes.Add(variable.Name, new VariableDefinition()
                     {
                         Name = variable.Name,
-                        Type = variable.Type.ConvertTypeNode(),
+                        Type = ConvertTypeNode(variable.Type),
                         DefaultValue = variable.DefaultValue,
-                        Directives = variable.Directives.ConvertDirectives(),
+                        Directives = ConvertDirectives(variable.Directives),
                         Location = variable.Location,
                     });
                 }
@@ -185,8 +184,8 @@ public partial class Request
             {
                 Alias = fieldSelection.Alias,
                 Name = fieldSelection.Name,
-                Arguments = fieldSelection.Arguments.ConvertObjectFields(fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
-                Directives = fieldSelection.Directives.ConvertDirectives(),
+                Arguments = ConvertObjectFields(fieldSelection.Arguments, fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
+                Directives = ConvertDirectives(fieldSelection.Directives),
                 SelectionSet = ConvertSelectionSet(fieldSelection.SelectionSet),
                 Location = fieldSelection.Location,
             };
@@ -197,7 +196,7 @@ public partial class Request
             return new SelectionFragmentSpread()
             {
                 Name = fragmentSpread.Name,
-                Directives = fragmentSpread.Directives.ConvertDirectives(),
+                Directives = ConvertDirectives(fragmentSpread.Directives),
                 Location = fragmentSpread.Location,
             };
         }
@@ -207,7 +206,7 @@ public partial class Request
             return new SelectionInlineFragment()
             {
                 TypeCondition = inlineFragment.TypeCondition,
-                Directives = inlineFragment.Directives.ConvertDirectives(),
+                Directives = ConvertDirectives(inlineFragment.Directives),
                 SelectionSet = ConvertSelectionSet(inlineFragment.SelectionSet),
                 Location = inlineFragment.Location,
             };

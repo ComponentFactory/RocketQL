@@ -79,6 +79,10 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException RequestAnonymousAndNamed(Location location) => new(location, $"Anonymous operation and named operation both defined.");
     public static ValidationException RequestOperationAlreadyDefined(Location location, string name) => new(location, $"Operation name '{name}' is already defined.");
     public static ValidationException DuplicateOperationVariable(Location location, string operationName, string variable) => new(location, $"{operationName} has duplicate variable '{variable}'.");
+    public static ValidationException UndefinedTypeForFragment(FragmentDefinition fragment) => new(fragment.Location, $"Undefined type '{fragment.TypeCondition}' specified for fragment '{fragment.Name}'.");
+    public static ValidationException FragmentTypeInvalid(FragmentDefinition fragment, TypeDefinition targetType) => new(fragment.Location, $"Fragment '{fragment.Name}' cannot be applied to {targetType.OutputElement.ToLower()} '{targetType.OutputName}' only an object, interface or union.");
+
+    
 
     private static string OptionalQuotedName(DocumentNode node)
     {

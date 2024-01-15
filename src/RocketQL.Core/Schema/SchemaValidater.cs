@@ -5,7 +5,7 @@ public partial class Schema
     private SchemaValidater? _schemaValidater = null;
     private SchemaValidater Validater => _schemaValidater ??= new SchemaValidater(this);
 
-    private class SchemaValidater(Schema schema) : IDocumentNodeVisitors
+    private class SchemaValidater(Schema schema) : ValidaterNodeVisitor, IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
 
@@ -62,13 +62,13 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            scalarType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(scalarType);
             CheckDirectiveUsage(scalarType.Directives, scalarType, DirectiveLocations.SCALAR);
         }
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            objectType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(objectType);
             CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
 
             if (objectType.Fields.Count == 0)
@@ -83,7 +83,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            interfaceType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(interfaceType);
             CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
 
             if (interfaceType.Fields.Count == 0)
@@ -98,13 +98,13 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            unionType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(unionType);
             CheckDirectiveUsage(unionType.Directives, unionType, DirectiveLocations.UNION);
         }
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            enumType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(enumType);
             CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
 
             if (enumType.EnumValues.Count == 0)
@@ -118,7 +118,7 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            inputObjectType.CheckDoubleUnderscore();
+            CheckDoubleUnderscore(inputObjectType);
             CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
 
             if (inputObjectType.InputFields.Count == 0)

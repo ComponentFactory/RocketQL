@@ -4,13 +4,9 @@
 	
 
 	Request
-		create from nodes
-		convert
-		link
+		linker
 		validate
 
-		allow variables in operation
-		allow variables as input values instead of a constant
 		why is 'field4?' allowed in the reference implementation?
 
 
@@ -39,30 +35,5 @@ Organisations
 	Apollo (Node.js)	https://www.apollographql.com/
 	The Guild (Node.js)	https://the-guild.dev/
 
-Features
 
-	Parsing
-	Validation
-	Execution
-	Introspection
-
-	Fields
-	Arguments
-	Aliases
-	Fragments
-	Operation Name
-	Variables
-	Directives
-	Inline Fragments
-
-	Scalar Types
-	Enumeration Types
-	Lists and Non-Null
-	Interfaces
-	Union Types
-	Input Types
-
-	Relay
-		Pagination
-		Global Object Identification
 	

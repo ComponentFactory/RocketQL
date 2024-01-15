@@ -16,13 +16,14 @@ public class OperationDefinition : DocumentNode
     public required VariableDefinitions Variables { get; set; }
     public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Operation";
-    public override string OutputName => Operation.ToString();
+    public override string OutputName => string.IsNullOrEmpty(Name) ? Operation.ToString() : Name;
 }
 
 public class FragmentDefinition : DocumentNode
 {
     public required string Name { get; init; }
     public required string TypeCondition { get; init; }
+    public required TypeDefinition? Definition { get; set; }
     public required Directives Directives { get; set; }
     public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Fragment";

@@ -1,8 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using System.Collections.Generic;
-using System.Data;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Request : IRequest
 {
@@ -69,6 +65,7 @@ public partial class Request : IRequest
         {
             _schema = schema;
             Converter.Visit();
+            Linker.Visit();
             CheckExceptions();
             IsValidatedSchema = true;
         }

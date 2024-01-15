@@ -1,16 +1,14 @@
-﻿using System.Xml.Linq;
+﻿namespace RocketQL.Core.Visitors;
 
-namespace RocketQL.Core.Extensions;
-
-public static class DocumentNodeExtensions
+public abstract class ConverterNodeVisitor
 {
-    public static void CheckDoubleUnderscore(this TypeDefinition node)
+    public static void CheckDoubleUnderscore(TypeDefinition node)
     {
         if (node.Name.StartsWith("__"))
             throw ValidationException.NameDoubleUnderscore(node);
     }
 
-    public static Directives ConvertDirectives(this SyntaxDirectiveNodeList directives)
+    public static Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
     {
         var nodes = new Directives();
 
@@ -20,7 +18,7 @@ public static class DocumentNodeExtensions
             {
                 Name = directive.Name,
                 Definition = null,
-                Arguments = directive.Arguments.ConvertObjectFields(directive.Location, "Directive", directive.Name, "argument"),
+                Arguments = ConvertObjectFields(directive.Arguments, directive.Location, "Directive", directive.Name, "argument"),
                 Location = directive.Location
             });
         }
@@ -28,7 +26,7 @@ public static class DocumentNodeExtensions
         return nodes;
     }
 
-    public static ObjectFields ConvertObjectFields(this SyntaxObjectFieldNodeList fields, Location location, string parentType, string parentName, string listType)
+    public static ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields, Location location, string parentType, string parentName, string listType)
     {
         var nodes = new ObjectFields();
 
@@ -43,7 +41,7 @@ public static class DocumentNodeExtensions
         return nodes;
     }
 
-    public static TypeNode ConvertTypeNode(this SyntaxTypeNode node)
+    public static TypeNode ConvertTypeNode(SyntaxTypeNode node)
     {
         return node switch
         {
@@ -67,4 +65,3 @@ public static class DocumentNodeExtensions
         };
     }
 }
-
