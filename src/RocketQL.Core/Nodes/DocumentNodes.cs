@@ -4,7 +4,6 @@ public abstract record class DocumentNode : LocationNode
 {
     public DocumentNode()
     {
-
     }
 
     public DocumentNode(Location location) 

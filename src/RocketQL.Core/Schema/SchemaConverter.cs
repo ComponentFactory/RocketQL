@@ -166,7 +166,11 @@ public partial class Schema
                         foreach (var operationType in extendSchema.OperationTypes)
                         {
                             if (schemaType.Operations.TryGetValue(operationType.Operation, out _))
-                                _schema.NonFatalException(ValidationException.ExtendSchemaOperationAlreadyDefined(operationType.Location, operationType.Operation));
+                            {
+                                _schema.NonFatalException(ValidationException.ExtendSchemaOperationAlreadyDefined(
+                                    operationType.Location, 
+                                    operationType.Operation));
+                            }
                             else
                             {
                                 schemaType.Operations.Add(operationType.Operation, new(
@@ -211,7 +215,12 @@ public partial class Schema
                     if ((extendObjectType.ImplementsInterfaces.Count == 0) &&
                         (extendObjectType.Directives.Count == 0) &&
                         (extendObjectType.Fields.Count == 0))
-                        _schema.NonFatalException(ValidationException.ExtendObjectInterfaceMandatory(extendObjectType.Location, objectType.OutputElement, extendObjectType.Name));
+                    {
+                        _schema.NonFatalException(ValidationException.ExtendObjectInterfaceMandatory(
+                            extendObjectType.Location, 
+                            objectType.OutputElement, 
+                            extendObjectType.Name));
+                    }
                     else
                     {
                         if (extendObjectType.Directives.Count > 0)
@@ -227,7 +236,11 @@ public partial class Schema
                                                                                                                 extendObjectType.Name,
                                                                                                                 extendImplementsInterface.Name));
                                 else
-                                    objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name, extendImplementsInterface.Location));
+                                {
+                                    objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(
+                                        extendImplementsInterface.Name, 
+                                        extendImplementsInterface.Location));
+                                }
                             }
                         }
 
@@ -240,7 +253,12 @@ public partial class Schema
         public void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType)
         {
             if (!_schema._types.TryGetValue(extendInterfaceType.Name, out var typeDefinition))
-                _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendInterfaceType.Location, "Interface", extendInterfaceType.Name));
+            {
+                _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(
+                    extendInterfaceType.Location, 
+                    "Interface", 
+                    extendInterfaceType.Name));
+            }
             else
             {
                 if (typeDefinition is not InterfaceTypeDefinition interfaceType)
@@ -250,7 +268,12 @@ public partial class Schema
                     if ((extendInterfaceType.ImplementsInterfaces.Count == 0) &&
                         (extendInterfaceType.Directives.Count == 0) &&
                         (extendInterfaceType.Fields.Count == 0))
-                        _schema.NonFatalException(ValidationException.ExtendObjectInterfaceMandatory(extendInterfaceType.Location, interfaceType.OutputElement, extendInterfaceType.Name));
+                    {
+                        _schema.NonFatalException(ValidationException.ExtendObjectInterfaceMandatory(
+                            extendInterfaceType.Location, 
+                            interfaceType.OutputElement, 
+                            extendInterfaceType.Name));
+                    }
                     else
                     {
 
@@ -267,8 +290,11 @@ public partial class Schema
                                                                                                                 extendInterfaceType.Name,
                                                                                                                 extendImplementsInterface.Name));
                                 else
-                                    interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name, extendImplementsInterface.Location));
-
+                                {
+                                    interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(
+                                        extendImplementsInterface.Name, 
+                                        extendImplementsInterface.Location));
+                                }
                             }
                         }
 
@@ -300,7 +326,12 @@ public partial class Schema
                             foreach (var extendMemberType in extendUnionType.MemberTypes)
                             {
                                 if (unionType.MemberTypes.TryGetValue(extendMemberType.Name, out _))
-                                    _schema.NonFatalException(ValidationException.ExtendUnionAlreadyDefined(extendUnionType.Location, extendMemberType.Name, extendUnionType.Name));
+                                {
+                                    _schema.NonFatalException(ValidationException.ExtendUnionAlreadyDefined(
+                                        extendUnionType.Location, 
+                                        extendMemberType.Name, 
+                                        extendUnionType.Name));
+                                }
                                 else
                                     unionType.MemberTypes.Add(extendMemberType.Name, new(extendMemberType.Name, extendMemberType.Location));
                             }
@@ -333,7 +364,12 @@ public partial class Schema
                             foreach (var extendEnumValue in extendEnumType.EnumValues)
                             {
                                 if (extendValues.Contains(extendEnumValue.Name))
-                                    _schema.NonFatalException(ValidationException.ExtendEnumValueAlreadyDefined(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name));
+                                {
+                                    _schema.NonFatalException(ValidationException.ExtendEnumValueAlreadyDefined(
+                                        extendEnumValue.Location, 
+                                        extendEnumValue.Name, 
+                                        extendEnumType.Name));
+                                }
                                 else
                                 {
                                     if (!enumType.EnumValues.TryGetValue(extendEnumValue.Name, out var existingEnumValue))
@@ -347,7 +383,12 @@ public partial class Schema
                                     else
                                     {
                                         if (extendEnumValue.Directives.Count == 0)
-                                            _schema.NonFatalException(ValidationException.ExtendExistingEnumValueUnchanged(extendEnumValue.Location, extendEnumValue.Name, extendEnumType.Name));
+                                        {
+                                            _schema.NonFatalException(ValidationException.ExtendExistingEnumValueUnchanged(
+                                                extendEnumValue.Location, 
+                                                extendEnumValue.Name, 
+                                                extendEnumType.Name));
+                                        }
                                         else
                                             existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
                                     }
@@ -364,7 +405,12 @@ public partial class Schema
         public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
         {
             if (!_schema._types.TryGetValue(extendInputObjectType.Name, out var typeDefinition))
-                _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(extendInputObjectType.Location, "Input object", extendInputObjectType.Name));
+            {
+                _schema.NonFatalException(ValidationException.TypeNotDefinedForExtend(
+                    extendInputObjectType.Location, 
+                    "Input object", 
+                    extendInputObjectType.Name));
+            }
             else
             {
                 if (typeDefinition is not InputObjectTypeDefinition inputObjectType)
@@ -372,19 +418,31 @@ public partial class Schema
                 else
                 {
                     if ((extendInputObjectType.Directives.Count == 0) && (extendInputObjectType.InputFields.Count == 0))
-                        _schema.NonFatalException(ValidationException.ExtendInputObjectMandatory(extendInputObjectType.Location, inputObjectType.OutputElement, extendInputObjectType.Name));
+                    {
+                        _schema.NonFatalException(ValidationException.ExtendInputObjectMandatory(
+                            extendInputObjectType.Location, 
+                            inputObjectType.OutputElement, 
+                            extendInputObjectType.Name));
+                    }
                     else
                     {
                         if (extendInputObjectType.Directives.Count > 0)
                             inputObjectType.Directives.AddRange(ConvertDirectives(extendInputObjectType.Directives));
 
-                        ExtendInputFields(extendInputObjectType.Name, extendInputObjectType.InputFields, inputObjectType.InputFields, "Extend input object");
+                        ExtendInputFields(
+                            extendInputObjectType.Name, 
+                            extendInputObjectType.InputFields, 
+                            inputObjectType.InputFields, "" +
+                            "Extend input object");
                     }
                 }
             }
         }
 
-        private void ExtendFieldsWithArguments(string extendName, SyntaxFieldDefinitionNodeList extendFields, FieldDefinitions existingFields, string errorType)
+        private void ExtendFieldsWithArguments(string extendName, 
+                                               SyntaxFieldDefinitionNodeList extendFields, 
+                                               FieldDefinitions existingFields, 
+                                               string errorType)
         {
             if (extendFields.Count > 0)
             {
@@ -392,7 +450,13 @@ public partial class Schema
                 foreach (var extendField in extendFields)
                 {
                     if (fieldNames.Contains(extendField.Name))
-                        _schema.NonFatalException(ValidationException.ExtendFieldAlreadyDefined(extendField.Location, extendField.Name, errorType, extendName));
+                    {
+                        _schema.NonFatalException(ValidationException.ExtendFieldAlreadyDefined(
+                            extendField.Location, 
+                            extendField.Name, 
+                            errorType, 
+                            extendName));
+                    }
                     else
                     {
                         if (!existingFields.TryGetValue(extendField.Name, out var existingField))
@@ -400,7 +464,14 @@ public partial class Schema
                             existingFields.Add(extendField.Name, new(
                                 extendField.Description,
                                 extendField.Name,
-                                ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
+                                ConvertInputValueDefinitions(
+                                    extendField.Arguments, 
+                                    "Argument", 
+                                    "Field", 
+                                    extendField.Name, 
+                                    "Argument", 
+                                    "Object", 
+                                    extendName),
                                 ConvertTypeNode(extendField.Type),
                                 ConvertDirectives(extendField.Directives),
                                 extendField.Location));
@@ -452,7 +523,13 @@ public partial class Schema
                             }
 
                             if (!changed)
-                                _schema.NonFatalException(ValidationException.ExtendExistingFieldUnchanged(extendField.Location, extendField.Name, errorType, extendName));
+                            {
+                                _schema.NonFatalException(ValidationException.ExtendExistingFieldUnchanged(
+                                    extendField.Location, 
+                                    extendField.Name, 
+                                    errorType, 
+                                    extendName));
+                            }
                         }
                     }
 
@@ -461,7 +538,10 @@ public partial class Schema
             }
         }
 
-        private void ExtendInputFields(string extendName, SyntaxInputValueDefinitionNodeList extendInputFields, InputValueDefinitions existingInputFields, string errorType)
+        private void ExtendInputFields(string extendName, 
+                                       SyntaxInputValueDefinitionNodeList extendInputFields, 
+                                       InputValueDefinitions existingInputFields, 
+                                       string errorType)
         {
             if (extendInputFields.Count > 0)
             {
@@ -469,7 +549,13 @@ public partial class Schema
                 foreach (var extendInputField in extendInputFields)
                 {
                     if (inputFieldNames.Contains(extendInputField.Name))
-                        _schema.NonFatalException(ValidationException.ExtendInputFieldAlreadyDefined(extendInputField.Location, extendInputField.Name, errorType, extendName));
+                    {
+                        _schema.NonFatalException(ValidationException.ExtendInputFieldAlreadyDefined(
+                            extendInputField.Location, 
+                            extendInputField.Name,
+                            errorType, 
+                            extendName));
+                    }
                     else
                     {
                         if (!existingInputFields.TryGetValue(extendInputField.Name, out var existingField))
@@ -486,7 +572,13 @@ public partial class Schema
                         else
                         {
                             if (extendInputField.Directives.Count == 0)
-                                _schema.NonFatalException(ValidationException.ExtendExistingInputFieldUnchanged(extendInputField.Location, extendInputField.Name, errorType, extendName));
+                            {
+                                _schema.NonFatalException(ValidationException.ExtendExistingInputFieldUnchanged(
+                                    extendInputField.Location, 
+                                    extendInputField.Name, 
+                                    errorType, 
+                                    extendName));
+                            }
                             else
                                 existingField.Directives.AddRange(ConvertDirectives(extendInputField.Directives));
                         }
@@ -504,7 +596,14 @@ public partial class Schema
             foreach (var field in fields)
             {
                 if (nodes.ContainsKey(field.Name))
-                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(field.Location, parentNode, parentName, "field", field.Name));
+                {
+                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(
+                        field.Location, 
+                        parentNode, 
+                        parentName, 
+                        "field",
+                        field.Name));
+                }
                 else
                 {
                     nodes.Add(field.Name, new(
@@ -528,7 +627,11 @@ public partial class Schema
             foreach (var operationType in operationTypes)
             {
                 if (nodes.ContainsKey(operationType.Operation))
-                    _schema.NonFatalException(ValidationException.SchemaDefinitionMultipleOperation(operationType.Location, operationType.Operation));
+                {
+                    _schema.NonFatalException(ValidationException.SchemaDefinitionMultipleOperation(
+                        operationType.Location, 
+                        operationType.Operation));
+                }
                 else
                 {
                     nodes.Add(operationType.Operation, new(
@@ -556,15 +659,24 @@ public partial class Schema
                 if (nodes.ContainsKey(inputValue.Name))
                 {
                     if ((grandParentNode is not null) && (grandParentName is not null))
-                        _schema.NonFatalException(ValidationException.ListEntryDuplicateName(inputValue.Location,
-                                                                                             grandParentNode,
-                                                                                             grandParentName,
-                                                                                             parentNode,
-                                                                                             parentName,
-                                                                                             listType.ToLower(),
-                                                                                             inputValue.Name));
+                    {
+                        _schema.NonFatalException(ValidationException.ListEntryDuplicateName(
+                            inputValue.Location,
+                            grandParentNode,
+                            grandParentName,
+                            parentNode,
+                            parentName,
+                            listType.ToLower(),
+                            inputValue.Name));
+                    }
                     else
-                        _schema.NonFatalException(ValidationException.ListEntryDuplicateName(inputValue.Location, parentNode, parentName, listType.ToLower(), inputValue.Name));
+                    {
+                        _schema.NonFatalException(ValidationException.ListEntryDuplicateName(
+                            inputValue.Location, 
+                            parentNode, parentName, 
+                            listType.ToLower(), 
+                            inputValue.Name));
+                    }
                 }
                 else
                 {
@@ -589,7 +701,14 @@ public partial class Schema
             foreach (var name in names)
             {
                 if (nodes.ContainsKey(name.Name))
-                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "interface", name.Name));
+                {
+                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(
+                        name.Location, 
+                        parentNode, 
+                        parentName, 
+                        "interface", 
+                        name.Name));
+                }
                 else
                     nodes.Add(name.Name, new(name.Name, name.Location));
             }
@@ -604,7 +723,14 @@ public partial class Schema
             foreach (var name in names)
             {
                 if (nodes.ContainsKey(name.Name))
-                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "member type", name.Name));
+                {
+                    _schema.NonFatalException(ValidationException.ListEntryDuplicateName(
+                        name.Location, 
+                        parentNode, 
+                        parentName, 
+                        "member type", 
+                        name.Name));
+                }
                 else
                     nodes.Add(name.Name, new(name.Name, name.Location));
             }

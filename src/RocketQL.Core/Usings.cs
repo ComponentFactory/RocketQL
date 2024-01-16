@@ -6,5 +6,6 @@ global using RocketQL.Core.Nodes;
 global using RocketQL.Core.Serializers;
 global using RocketQL.Core.Tokenizers;
 global using RocketQL.Core.Visitors;
+global using System.Collections.ObjectModel;
 global using System.Runtime.CompilerServices;
 global using System.Text;

@@ -59,7 +59,9 @@ public partial class Schema
         };
     }
 
-    private bool IsInputTypeCompatibleWithInputObjectType(TypeName typeNameNode, ValueNode valueNode, InputObjectTypeDefinition inputObjectTypeDefinition)
+    private bool IsInputTypeCompatibleWithInputObjectType(TypeName typeNameNode, 
+                                                          ValueNode valueNode, 
+                                                          InputObjectTypeDefinition inputObjectTypeDefinition)
     {
         // You can assign 'null' to an input object
         if (valueNode is NullValueNode)

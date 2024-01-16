@@ -132,7 +132,8 @@ public partial class Request
             _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendInputObjectType.Location, "Extend input object"));
         }
 
-        private static VariableDefinitions ConvertVariableDefinitions(SyntaxVariableDefinitionNodeList variables, SyntaxOperationDefinitionNode operation)
+        private static VariableDefinitions ConvertVariableDefinitions(SyntaxVariableDefinitionNodeList variables, 
+                                                                      SyntaxOperationDefinitionNode operation)
         {
             var nodes = new VariableDefinitions();
 

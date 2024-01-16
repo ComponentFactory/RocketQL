@@ -157,7 +157,8 @@ public partial class Schema
                 else
                 {
                     FatalException(ValidationException.TypeIsNotAnObject(memberType, unionType, typeDefinition!,
-                                                                        ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an"));
+                                                                        ((typeDefinition is ScalarTypeDefinition) || 
+                                                                         (typeDefinition is UnionTypeDefinition)) ? "a" : "an"));
                 }
             }
         }

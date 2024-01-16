@@ -1,7 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-using System.Collections.ObjectModel;
-
-namespace RocketQL.Core.Exceptions;
+﻿namespace RocketQL.Core.Exceptions;
 
 public class RocketException : Exception
 {

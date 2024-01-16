@@ -40,7 +40,14 @@ public abstract class LinkerNodeVisitor
         else if (typeLocation is TypeName typeName)
         {
             if (!typeDefinitions.TryGetValue(typeName.Name, out var type))
-                throw ValidationException.UndefinedTypeForListEntry(typeName.Location, typeName.Name, parentNode.OutputElement, parentNode.OutputName, rootNode);
+            {
+                throw ValidationException.UndefinedTypeForListEntry(
+                    typeName.Location, 
+                    typeName.Name, 
+                    parentNode.OutputElement, 
+                    parentNode.OutputName, 
+                    rootNode);
+            }
             else
             {
                 typeName.Definition = type;
