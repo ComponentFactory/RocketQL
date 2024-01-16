@@ -22,7 +22,7 @@ public partial class Request
         {
             InterlinkDirectives(operation.Directives,operation, null, _request._schema.Directives);
             InterlinkVariables(operation.Variables, operation, operation);
-            // TODO selection set
+            InterlinkSelectionSet(operation.SelectionSet, operation);
         }
 
         private void InterlinkVariables(VariableDefinitions variables, DocumentNode parentNode, DocumentNode rootNode)
@@ -38,15 +38,14 @@ public partial class Request
 
         public void VisitFragmentDefinition(FragmentDefinition fragment)
         {
-            InterlinkDirectives(fragment.Directives, fragment, null, _request._schema.Directives);
-
             if (!_request._schema.Types.TryGetValue(fragment.TypeCondition, out var type))
                 FatalException(ValidationException.UndefinedTypeForFragment(fragment));
             else if ((type is not ObjectTypeDefinition) && (type is not InterfaceTypeDefinition) && (type is not UnionTypeDefinition))
                 FatalException(ValidationException.FragmentTypeInvalid(fragment, type));
 
             fragment.Definition = type;
-            // TODO selection set
+            InterlinkDirectives(fragment.Directives, fragment, null, _request._schema.Directives);
+            InterlinkSelectionSet(fragment.SelectionSet, fragment);
         }
 
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
@@ -83,6 +82,38 @@ public partial class Request
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
         {
+        }
+
+        private void InterlinkSelectionSet(SelectionSet selectionSet, DocumentNode rootNode)
+        {
+            foreach (var selection in selectionSet)
+            {
+                switch (selection)
+                {
+                    case SelectionField field:
+                        InterlinkDirectives(field.Directives, field, null, _request._schema.Directives);
+                        InterlinkSelectionSet(field.SelectionSet, rootNode);
+                        break;
+                    case SelectionFragmentSpread fragmentSpread:
+                        {
+                            if (!_request._fragments.TryGetValue(fragmentSpread.Name, out var fragmentType))
+                                FatalException(ValidationException.UndefinedTypeForFragmentSpread(fragmentSpread, rootNode));
+
+                            fragmentSpread.Definition = fragmentType;
+                            InterlinkDirectives(fragmentSpread.Directives, fragmentSpread, null, _request._schema.Directives);
+                        }
+                        break;
+                    case SelectionInlineFragment inlineFragment:
+                        {
+                            if (!_request._schema.Types.TryGetValue(inlineFragment.TypeCondition, out var type))
+                                FatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode));
+
+                            InterlinkDirectives(inlineFragment.Directives, inlineFragment, null, _request._schema.Directives);
+                            InterlinkSelectionSet(inlineFragment.SelectionSet, rootNode);
+                        }
+                        break;
+                }
+            }
         }
     }
 }

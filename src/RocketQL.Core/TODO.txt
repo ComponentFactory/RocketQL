@@ -7,6 +7,10 @@
 		linker
 		validate
 
+	Errors
+		Rework validation errors to have a path and simplier error message
+			Path is a list of segments with a location/source each
+
 		why is 'field4?' allowed in the reference implementation?
 
 

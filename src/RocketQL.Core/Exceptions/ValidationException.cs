@@ -80,9 +80,12 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException RequestOperationAlreadyDefined(Location location, string name) => new(location, $"Operation name '{name}' is already defined.");
     public static ValidationException DuplicateOperationVariable(Location location, string operationName, string variable) => new(location, $"{operationName} has duplicate variable '{variable}'.");
     public static ValidationException UndefinedTypeForFragment(FragmentDefinition fragment) => new(fragment.Location, $"Undefined type '{fragment.TypeCondition}' specified for fragment '{fragment.Name}'.");
+    public static ValidationException UndefinedTypeForInlineFragment(SelectionInlineFragment inline, DocumentNode rootNode) => new(inline.Location, $"Undefined type '{inline.TypeCondition}' specified for inline fragment within {rootNode.OutputElement.ToLower()} '{rootNode.OutputName}'.");
+    public static ValidationException UndefinedTypeForFragmentSpread(SelectionFragmentSpread spread, DocumentNode rootNode) => new(spread.Location, $"Undefined type '{spread.Name}' specified for fragment spread within {rootNode.OutputElement.ToLower()} '{rootNode.OutputName}'.");
     public static ValidationException FragmentTypeInvalid(FragmentDefinition fragment, TypeDefinition targetType) => new(fragment.Location, $"Fragment '{fragment.Name}' cannot be applied to {targetType.OutputElement.ToLower()} '{targetType.OutputName}' only an object, interface or union.");
+    public static ValidationException InlineFragmentTypeInvalid(SelectionInlineFragment inline, TypeDefinition targetType, DocumentNode rootNode) => new(inline.Location, $"Inline fragment type '{inline.TypeCondition}' within {rootNode.OutputElement.ToLower()} '{rootNode.OutputName}' cannot be applied to {targetType.OutputElement.ToLower()} '{targetType.OutputName}' only an object, interface or union.");
+    public static ValidationException FragmentSpreadTypeInvalid(SelectionFragmentSpread spread, FragmentDefinition targetType, DocumentNode rootNode) => new(spread.Location, $"Fragment spread name '{spread.Name}' within {rootNode.OutputElement.ToLower()} is not for a fragment type but '{rootNode.OutputName}' cannot be {targetType.OutputElement.ToLower()} '{targetType.OutputName}'.");
 
-    
 
     private static string OptionalQuotedName(DocumentNode node)
     {

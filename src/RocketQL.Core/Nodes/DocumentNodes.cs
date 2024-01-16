@@ -164,6 +164,7 @@ public class SelectionField : SelectionNode
 public class SelectionFragmentSpread : SelectionNode
 {
     public required string Name { get; init; }
+    public required FragmentDefinition? Definition { get; set; }
     public required Directives Directives { get; set; }
     public override string OutputElement => "Fragment spread";
     public override string OutputName => Name;
@@ -172,6 +173,7 @@ public class SelectionFragmentSpread : SelectionNode
 public class SelectionInlineFragment : SelectionNode
 {
     public required string TypeCondition { get; init; }
+    public required TypeDefinition? Definition { get; set; }
     public required Directives Directives { get; set; }
     public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Inline fragment";

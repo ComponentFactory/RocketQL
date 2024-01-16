@@ -196,6 +196,7 @@ public partial class Request
             return new SelectionFragmentSpread()
             {
                 Name = fragmentSpread.Name,
+                Definition = null,
                 Directives = ConvertDirectives(fragmentSpread.Directives),
                 Location = fragmentSpread.Location,
             };
@@ -206,6 +207,7 @@ public partial class Request
             return new SelectionInlineFragment()
             {
                 TypeCondition = inlineFragment.TypeCondition,
+                Definition = null,
                 Directives = ConvertDirectives(inlineFragment.Directives),
                 SelectionSet = ConvertSelectionSet(inlineFragment.SelectionSet),
                 Location = inlineFragment.Location,
