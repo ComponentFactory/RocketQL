@@ -13,15 +13,7 @@ public abstract class ConverterNodeVisitor
         var nodes = new Directives();
 
         foreach (var directive in directives)
-        {
-            nodes.Add(new()
-            {
-                Name = directive.Name,
-                Definition = null,
-                Arguments = ConvertObjectFields(directive.Arguments, directive.Location, "Directive", directive.Name, "argument"),
-                Location = directive.Location
-            });
-        }
+            nodes.Add(new(directive.Name, ConvertObjectFields(directive.Arguments, directive.Location, "Directive", directive.Name, "argument"), directive.Location));
 
         return nodes;
     }
@@ -45,22 +37,9 @@ public abstract class ConverterNodeVisitor
     {
         return node switch
         {
-            SyntaxTypeNameNode nameNode => new TypeName()
-            {
-                Name = nameNode.Name,
-                Definition = null,
-                Location = nameNode.Location,
-            },
-            SyntaxTypeNonNullNode nonNullNode => new TypeNonNull()
-            {
-                Type = ConvertTypeNode(nonNullNode.Type),
-                Location = nonNullNode.Location,
-            },
-            SyntaxTypeListNode listNode => new TypeList()
-            {
-                Type = ConvertTypeNode(listNode.Type),
-                Location = listNode.Location,
-            },
+            SyntaxTypeNameNode nameNode => new TypeName(nameNode.Name, nameNode.Location),
+            SyntaxTypeNonNullNode nonNullNode => new TypeNonNull(ConvertTypeNode(nonNullNode.Type), nonNullNode.Location),
+            SyntaxTypeListNode listNode => new TypeList(ConvertTypeNode(listNode.Type), listNode.Location),
             _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name)
         };
     }

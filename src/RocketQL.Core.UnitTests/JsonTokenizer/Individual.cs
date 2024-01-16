@@ -214,9 +214,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Illegal character code '{(int)code}' for this location.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -248,9 +248,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Unexpected end of file encountered.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -279,9 +279,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Unrecognized keyword '{text}'.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -304,9 +304,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Minus sign must be followed by a digit.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -329,9 +329,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Decimal point must be followed by a digit.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -355,9 +355,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Exponent must have at least one digit.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -383,9 +383,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Floating point value cannot be followed by a {param}.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -407,9 +407,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Integer value cannot be followed by a {param}.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -433,9 +433,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Escaped character must be specificed only using hexadecimal values.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {
@@ -458,9 +458,9 @@ public class Individual : UnitTestBase
         catch (SyntaxException ex)
         {
             Assert.Equal($"Escaped character is not one of \\\" \\\\ \\/ \\b \\f \\n \\r \\t.", ex.Message);
-            Assert.Equal(line, ex.Locations[0].Line);
-            Assert.Equal(column, ex.Locations[0].Column);
-            Assert.Equal(position, ex.Locations[0].Position);
+            Assert.Equal(line, ex.Location.Line);
+            Assert.Equal(column, ex.Location.Column);
+            Assert.Equal(position, ex.Location.Position);
         }
         catch
         {

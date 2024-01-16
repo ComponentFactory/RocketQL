@@ -200,15 +200,12 @@ public partial class Schema
         {
             if (_schema._schemas.Count == 1)
             {
-                _schema._root = new SchemaRoot()
-                {
-                    Description = _schema._schemas[0].Description,
-                    Directives = _schema._schemas[0].Directives,
-                    Query = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
-                    Mutation = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
-                    Subscription = _schema._schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
-                    Location = _schema._schemas[0].Location,
-                };
+                _schema._root = new SchemaRoot(_schema._schemas[0].Description,
+                                                _schema._schemas[0].Directives,
+                                                _schema._schemas[0].Operations.Where(o => o.Key == OperationType.QUERY).Select(o => o.Value).FirstOrDefault(),
+                                                _schema._schemas[0].Operations.Where(o => o.Key == OperationType.MUTATION).Select(o => o.Value).FirstOrDefault(),
+                                                _schema._schemas[0].Operations.Where(o => o.Key == OperationType.SUBSCRIPTION).Select(o => o.Value).FirstOrDefault(),
+                                                _schema._schemas[0].Location);
             }
             else
             {
@@ -245,15 +242,12 @@ public partial class Schema
                         _schema.NonFatalException(ValidationException.AutoSchemaOperationReferenced(subscriptionTypeDefinition, "Subscription"));
                 }
 
-                _schema._root = new SchemaRoot()
-                {
-                    Description = "",
-                    Directives = [],
-                    Query = OperationTypeFromObjectType(queryTypeDefinition as ObjectTypeDefinition, OperationType.QUERY),
-                    Mutation = OperationTypeFromObjectType(mutationTypeDefinition as ObjectTypeDefinition, OperationType.MUTATION),
-                    Subscription = OperationTypeFromObjectType(subscriptionTypeDefinition as ObjectTypeDefinition, OperationType.SUBSCRIPTION),
-                    Location = queryTypeDefinition?.Location ?? new()
-                };
+                _schema._root = new SchemaRoot("",
+                                               [],
+                                               OperationTypeFromObjectType(queryTypeDefinition as ObjectTypeDefinition, OperationType.QUERY),
+                                               OperationTypeFromObjectType(mutationTypeDefinition as ObjectTypeDefinition, OperationType.MUTATION),
+                                               OperationTypeFromObjectType(subscriptionTypeDefinition as ObjectTypeDefinition, OperationType.SUBSCRIPTION),
+                                               queryTypeDefinition?.Location ?? Location.Empty);
 
                 OperationTypeDefinitions operations = [];
 
@@ -275,13 +269,7 @@ public partial class Schema
                     subscriptionTypeDefinition.References.Add(_schema._root.Subscription);
                 }
 
-                _schema._schemas.Add(new SchemaDefinition()
-                {
-                    Description = _schema._root.Description,
-                    Directives = _schema._root.Directives,
-                    Operations = operations,
-                    Location = _schema._root.Location
-                });
+                _schema._schemas.Add(new SchemaDefinition(_schema._root.Description, _schema._root.Directives, operations, _schema._root.Location));
             }
         }
 
@@ -305,12 +293,9 @@ public partial class Schema
             if (typeDefinition is null)
                 return null;
 
-            return new OperationTypeDefinition()
+            return new OperationTypeDefinition(operationType, typeDefinition.Name, typeDefinition.Location)
             {
-                Definition = typeDefinition,
-                Operation = operationType,
-                NamedType = typeDefinition.Name,
-                Location = typeDefinition.Location,
+                Definition = typeDefinition
             };
         }
 

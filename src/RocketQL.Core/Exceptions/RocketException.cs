@@ -7,32 +7,26 @@ public class RocketException : Exception
 {
     public RocketException()
     {
-        Locations = [];
+        Location = Location.Empty;
     }
 
     public RocketException(Location location, string message)
         : base(message)
     {
-        Locations = [location];
+        Location = location;
     }
 
-    public Location[] Locations { get; init; }
+    public Location Location { get; init; }
 }
 
-public class RocketExceptions : Exception
+public class RocketExceptions(IEnumerable<RocketException> innerExceptions) : Exception("Aggregate RocketExceptions")
 {
-    private readonly List<RocketException> _innerExceptions;
+    private readonly List<RocketException> _innerExceptions = new(innerExceptions);
     private ReadOnlyCollection<RocketException>? _readOnlyExceptions;
 
     public RocketExceptions(RocketException innerException)
         : this([innerException])
     {
-    }
-
-    public RocketExceptions(IEnumerable<RocketException> innerExceptions)
-        : base("Aggregate RocketExceptions")
-    {
-        _innerExceptions = new(innerExceptions);
     }
 
     public ReadOnlyCollection<RocketException> InnerExceptions => _readOnlyExceptions ??= new ReadOnlyCollection<RocketException>(_innerExceptions);

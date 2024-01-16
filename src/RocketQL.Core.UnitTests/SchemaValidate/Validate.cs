@@ -7,7 +7,7 @@ public class Validate : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("type Query { fizz: Int }");
-        schema.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, "Example", [], [], [], new()));
+        schema.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, "Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => schema.Validate());
         Assert.Equal("Operation definition not allowed in a schema.", exception.Message);
     }
@@ -17,7 +17,7 @@ public class Validate : UnitTestBase
     {
         var schema = new Schema();
         schema.Add("type Query { fizz: Int }");
-        schema.Add(new SyntaxFragmentDefinitionNode("Example", "MyType", [], [], new()));
+        schema.Add(new SyntaxFragmentDefinitionNode("Example", "MyType", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => schema.Validate());
         Assert.Equal("Fragment definition not allowed in a schema.", exception.Message);
     }

@@ -129,7 +129,7 @@ public ref struct DocumentTokenizer
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
-    public readonly Location Location => new Location(_index, LineNumber, ColumnNumber, _source);
+    public readonly Location Location => new(_index, LineNumber, ColumnNumber, _source);
 
     public bool Next()
     {

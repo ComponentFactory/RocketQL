@@ -106,140 +106,89 @@ public partial class Schema : ISchema
 
     private void AddBuiltInDirectives()
     {
-        _directives.Add("@include", new DirectiveDefinition()
-        {
-            Description = "Directs the executor to include this field or fragment only when the `if` argument is true",
-            Name = "@include",
-            Repeatable = false,
-            Arguments = new()
-            {
-                { "if", new InputValueDefinition()
-                        {
-                            Description = "Included when true.",
-                            Name = "if",
-                            Type = new TypeNonNull()
-                            {
-                                Type = new TypeName()
-                                {
-                                    Name = "Boolean",
-                                    Definition = null,
-                                    Location = new()
-                                },
-                                 Location = new()
-                            },
-                            DefaultValue = null,
-                            Directives = [],
-                            Location = new(),
-                            ElementUsage = "Argument",
-                        }
-                }
-            },
-            DirectiveLocations = DirectiveLocations.FIELD |
-                                 DirectiveLocations.FRAGMENT_SPREAD |
-                                 DirectiveLocations.INLINE_FRAGMENT,
-            Location = new(),
-            IsBuiltIn = true
-        });
+        List<DirectiveDefinition> directives = [];
 
-        _directives.Add("@skip", new DirectiveDefinition()
-        {
-            Description = "Directs the executor to skip this field or fragment when the `if` argument is true.",
-            Name = "@skip",
-            Repeatable = false,
-            Arguments = new()
+        directives.Add(new DirectiveDefinition(
+            "Directs the executor to include this field or fragment only when the `if` argument is true",
+            "@include",
+            new()
             {
-                { "if", new InputValueDefinition()
-                        {
-                            Description = "Skipped when true.",
-                            Name = "if",
-                            Type = new TypeNonNull()
-                            {
-                                Type = new TypeName()
-                                {
-                                    Name = "Boolean",
-                                    Definition = null,
-                                    Location = new()
-                                },
-                                 Location = new()
-                            },
-                            DefaultValue = null,
-                            Directives = [],
-                            Location = new(),
-                            ElementUsage = "Argument",
-                        }
+                { "if", new InputValueDefinition(
+                    "Included when true.",
+                    "if",
+                    new TypeNonNull(new TypeName("Boolean", Location.Empty), Location.Empty),
+                    null,
+                    [],
+                    Location.Empty,
+                    "Argument")
                 }
             },
-            DirectiveLocations = DirectiveLocations.FIELD |
-                                 DirectiveLocations.FRAGMENT_SPREAD |
-                                 DirectiveLocations.INLINE_FRAGMENT,
-            Location = new(),
-            IsBuiltIn = true
-        });
+            false,
+            DirectiveLocations.FIELD | DirectiveLocations.FRAGMENT_SPREAD | DirectiveLocations.INLINE_FRAGMENT,
+            Location.Empty));
 
-        _directives.Add("@deprecated", new DirectiveDefinition()
-        {
-            Description = "Marks the field, argument, input field or enum value as deprecated.",
-            Name = "@deprecated",
-            Repeatable = false,
-            Arguments = new()
+        directives.Add(new DirectiveDefinition(
+            "Directs the executor to skip this field or fragment when the `if` argument is true.",
+            "@skip",
+            new()
             {
-                { "reason", new InputValueDefinition()
-                            {
-                                Description = "The reason for the deprecation",
-                                Name = "reason",
-                                Type = new TypeName()
-                                {
-                                    Name = "String",
-                                    Definition = null,
-                                    Location = new()
-                                },
-                                DefaultValue = new StringValueNode("No longer supported"),
-                                Directives = [],
-                                Location = new(),
-                                ElementUsage = "Argument",
-                            }
+                { "if", new InputValueDefinition(
+                    "Skipped when true.",
+                    "if",
+                    new TypeNonNull(new TypeName("Boolean", Location.Empty), Location.Empty),
+                    null,
+                    [],
+                    Location.Empty,
+                    "Argument")
                 }
             },
-            DirectiveLocations = DirectiveLocations.FIELD_DEFINITION |
-                                 DirectiveLocations.ARGUMENT_DEFINITION |
-                                 DirectiveLocations.INPUT_FIELD_DEFINITION |
-                                 DirectiveLocations.ENUM_VALUE,
-            Location = new(),
-            IsBuiltIn = true
-        });
+            false,
+            DirectiveLocations.FIELD | DirectiveLocations.FRAGMENT_SPREAD | DirectiveLocations.INLINE_FRAGMENT,
+            Location.Empty));
 
-        _directives.Add("@specifiedBy", new DirectiveDefinition()
-        {
-            Description = "Exposes a URL that specifies the behaviour of this scalar.",
-            Name = "@specifiedBy",
-            Repeatable = false,
-            Arguments = new()
+        directives.Add(new DirectiveDefinition(
+            "Marks the field, argument, input field or enum value as deprecated.",
+            "@deprecated",
+            new()
             {
-                { "url", new InputValueDefinition()
-                         {
-                             Description =   "The URL that specifies the behaviour of this scalar.",
-                             Name = "url",
-                             Type = new TypeNonNull()
-                             {
-                                 Type = new TypeName()                          
-                                 {
-                                     Name = "String",
-                                     Definition = null,
-                                     Location = new()
-                                 },
-                                 Location = new()
-                             },
-                             DefaultValue = null,
-                             Directives = [],
-                             Location = new(),
-                             ElementUsage = "Argument",
-                         }
+                { "reason", new InputValueDefinition(
+                    "The reason for the deprecation",
+                    "reason",
+                    new TypeName("String", Location.Empty),
+                    new StringValueNode("No longer supported"),
+                    [],
+                    Location.Empty,
+                    "Argument")
                 }
             },
-            DirectiveLocations = DirectiveLocations.SCALAR,
-            Location = new(),
-            IsBuiltIn = true
-        });
+            false,
+            DirectiveLocations.FIELD_DEFINITION | DirectiveLocations.ARGUMENT_DEFINITION | DirectiveLocations.INPUT_FIELD_DEFINITION | DirectiveLocations.ENUM_VALUE,
+            Location.Empty));
+
+        directives.Add(new DirectiveDefinition(
+            "Exposes a URL that specifies the behaviour of this scalar.",
+            "@specifiedBy",
+            new()
+            {
+                { "url", new InputValueDefinition(
+                    "The URL that specifies the behaviour of this scalar.",
+                    "url",
+                    new TypeNonNull(new TypeName("String", Location.Empty), Location.Empty),
+                    null,
+                    [],
+                    Location.Empty,
+                    "Argument")
+                }
+            },
+            false,
+            DirectiveLocations.SCALAR,
+            Location.Empty));
+
+        foreach(var directive in directives)
+        {
+            directive.IsBuiltIn = true;
+            _directives.Add(directive.Name, directive);
+        }
     }
 
     private void AddBuiltInScalars()
@@ -268,14 +217,9 @@ public partial class Schema : ISchema
                         """) 
         })
         {
-            _types.Add(scalarPair.Item1, new ScalarTypeDefinition()
-            {
-                Description = scalarPair.Item2,
-                Name = scalarPair.Item1,
-                Directives = [],
-                Location = new(),
-                IsBuiltIn = true
-            });
+            var scalar = new ScalarTypeDefinition(scalarPair.Item2, scalarPair.Item1, [], Location.Empty);
+            scalar.IsBuiltIn = true;
+            _types.Add(scalarPair.Item1, scalar);
         }
     }
 

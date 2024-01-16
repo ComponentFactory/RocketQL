@@ -11,7 +11,7 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException SchemaDefinitionMultipleOperation(Location location, OperationType operation) => new(location, $"Schema defines the {operation.ToString().ToLower()} operation more than once.");
     public static ValidationException SchemaOperationsNotUnique(OperationTypeDefinition left, OperationTypeDefinition right) => new(right.Location, $"Schema operations {left.Operation.ToString().ToLower()} and {right.Operation.ToString().ToLower()} cannot have the same '{left.NamedType}' type.");
     public static ValidationException SchemaOperationTypeNotObject(OperationTypeDefinition node, DocumentNode type) => new(node.Location, $"Schema operation {node.Operation.ToString().ToLower()} '{node.NamedType}' has type {type.OutputElement.ToLower()} instead of object type.");
-    public static ValidationException AutoSchemaQueryMissing() => new(new Location(), "Cannot auto generate schema because 'Query' type missing.");
+    public static ValidationException AutoSchemaQueryMissing() => new(Location.Empty, "Cannot auto generate schema because 'Query' type missing.");
     public static ValidationException AutoSchemaOperationNotObject(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' is type {node.OutputElement.ToLower()} instead of object type.");
     public static ValidationException AutoSchemaOperationReferenced(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' type is referenced from other types instead of being a top level type.");
     public static ValidationException ExtendSchemaNotDefined(Location location) => new(location, $"Cannot extend schema because non is currently defined.");
@@ -71,8 +71,8 @@ public class ValidationException(Location location, string message) : RocketExce
     public static ValidationException ExtendExistingFieldUnchanged(Location location, string fieldName, string objectType, string objectTypeName) => new(location, $"{objectType} '{objectTypeName}' for existing field '{fieldName}' does not make any change.");
     public static ValidationException ExtendExistingInputFieldUnchanged(Location location, string fieldName, string objectType, string objectTypeName) => new(location, $"{objectType} '{objectTypeName}' for existing input field '{fieldName}' does not make any change.");
     public static ValidationException ExtendExistingEnumValueUnchanged(Location location, string enumValue, string enumTypeName) => new(location, $"Extend enum '{enumTypeName}' for existing enum value '{enumValue}' does not make any change.");
-    public static ValidationException CannotSerializeInvalidSchema() => new(new(), "Cannot serialize a schema that is not validated.");
-    public static ValidationException SchemaNotValidated() => new(new(), "Provided schema has not been validated.");
+    public static ValidationException CannotSerializeInvalidSchema() => new(Location.Empty, "Cannot serialize a schema that is not validated.");
+    public static ValidationException SchemaNotValidated() => new(Location.Empty, "Provided schema has not been validated.");
     public static ValidationException SchemaDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a schema.");
     public static ValidationException RequestDefinitionIgnored(Location location, string definition) => new(location, $"{definition} definition not allowed in a request.");
     public static ValidationException RequestAnonymousAlreadyDefined(Location location) => new(location, $"Anonymous operation is already defined.");

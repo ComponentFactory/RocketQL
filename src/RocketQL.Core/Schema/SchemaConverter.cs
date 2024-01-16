@@ -30,13 +30,11 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.SchemaDefinitionAlreadyDefined(schema.Location));
             else
             {
-                _schema._schemas.Add(new()
-                {
-                    Description = schema.Description,
-                    Directives = ConvertDirectives(schema.Directives),
-                    Operations = ConvertOperationTypeDefinitions(schema.OperationTypes),
-                    Location = schema.Location
-                }); ;
+                _schema._schemas.Add(new(
+                    schema.Description,
+                    ConvertDirectives(schema.Directives),
+                    ConvertOperationTypeDefinitions(schema.OperationTypes),
+                    schema.Location));
             }
         }
 
@@ -46,15 +44,13 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(directive.Location, "Directive", directive.Name));
             else
             {
-                _schema._directives.Add(directive.Name, new()
-                {
-                    Description = directive.Description,
-                    Name = directive.Name,
-                    Arguments = ConvertInputValueDefinitions(directive.Arguments, "Argument", "Directive", directive.Name, "Argument"),
-                    Repeatable = directive.Repeatable,
-                    DirectiveLocations = directive.DirectiveLocations,
-                    Location = directive.Location
-                });
+                _schema._directives.Add(directive.Name, new(
+                    directive.Description,
+                    directive.Name,
+                    ConvertInputValueDefinitions(directive.Arguments, "Argument", "Directive", directive.Name, "Argument"),
+                    directive.Repeatable,
+                    directive.DirectiveLocations,
+                    directive.Location));
             }
         }
 
@@ -64,13 +60,11 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(scalarType.Location, "Scalar", scalarType.Name));
             else
             {
-                _schema._types.Add(scalarType.Name, new ScalarTypeDefinition()
-                {
-                    Description = scalarType.Description,
-                    Name = scalarType.Name,
-                    Directives = ConvertDirectives(scalarType.Directives),
-                    Location = scalarType.Location
-                }); ;
+                _schema._types.Add(scalarType.Name, new ScalarTypeDefinition(
+                    scalarType.Description,
+                    scalarType.Name,
+                    ConvertDirectives(scalarType.Directives),
+                    scalarType.Location));
             }
         }
 
@@ -80,15 +74,13 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(objectType.Location, "Object", objectType.Name));
             else
             {
-                _schema._types.Add(objectType.Name, new ObjectTypeDefinition()
-                {
-                    Description = objectType.Description,
-                    Name = objectType.Name,
-                    ImplementsInterfaces = ConvertInterfaces(objectType.ImplementsInterfaces, "Object", objectType.Name),
-                    Directives = ConvertDirectives(objectType.Directives),
-                    Fields = ConvertFieldDefinitions(objectType.Fields, "Object", objectType.Name),
-                    Location = objectType.Location
-                }); ;
+                _schema._types.Add(objectType.Name, new ObjectTypeDefinition(
+                    objectType.Description,
+                    objectType.Name,
+                    ConvertDirectives(objectType.Directives),
+                    ConvertInterfaces(objectType.ImplementsInterfaces, "Object", objectType.Name),
+                    ConvertFieldDefinitions(objectType.Fields, "Object", objectType.Name),
+                    objectType.Location));
             }
         }
 
@@ -98,15 +90,13 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(interfaceType.Location, "Interface", interfaceType.Name));
             else
             {
-                _schema._types.Add(interfaceType.Name, new InterfaceTypeDefinition()
-                {
-                    Description = interfaceType.Description,
-                    Name = interfaceType.Name,
-                    ImplementsInterfaces = ConvertInterfaces(interfaceType.ImplementsInterfaces, "Interface", interfaceType.Name),
-                    Directives = ConvertDirectives(interfaceType.Directives),
-                    Fields = ConvertFieldDefinitions(interfaceType.Fields, "Interface", interfaceType.Name),
-                    Location = interfaceType.Location
-                });
+                _schema._types.Add(interfaceType.Name, new InterfaceTypeDefinition(
+                    interfaceType.Description,
+                    interfaceType.Name,
+                    ConvertDirectives(interfaceType.Directives),
+                    ConvertInterfaces(interfaceType.ImplementsInterfaces, "Interface", interfaceType.Name),
+                    ConvertFieldDefinitions(interfaceType.Fields, "Interface", interfaceType.Name),
+                    interfaceType.Location));
             }
         }
 
@@ -116,14 +106,12 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(unionType.Location, "Union", unionType.Name));
             else
             {
-                _schema._types.Add(unionType.Name, new UnionTypeDefinition()
-                {
-                    Description = unionType.Description,
-                    Name = unionType.Name,
-                    Directives = ConvertDirectives(unionType.Directives),
-                    MemberTypes = ConvertMemberTypes(unionType.MemberTypes, "Union", unionType.Name),
-                    Location = unionType.Location
-                });
+                _schema._types.Add(unionType.Name, new UnionTypeDefinition(
+                    unionType.Description,
+                    unionType.Name,
+                    ConvertDirectives(unionType.Directives),
+                    ConvertMemberTypes(unionType.MemberTypes, "Union", unionType.Name),
+                    unionType.Location));
             }
         }
 
@@ -133,15 +121,12 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(enumType.Location, "Enum", enumType.Name));
             else
             {
-                _schema._types.Add(enumType.Name, new EnumTypeDefinition()
-                {
-                    Description = enumType.Description,
-                    Name = enumType.Name,
-                    Directives = ConvertDirectives(enumType.Directives),
-                    EnumValues = ConvertEnumValueDefinitions(enumType.Name, enumType.EnumValues),
-                    Location = enumType.Location
-                });
-
+                _schema._types.Add(enumType.Name, new EnumTypeDefinition(
+                    enumType.Description,
+                    enumType.Name,
+                    ConvertDirectives(enumType.Directives),
+                    ConvertEnumValueDefinitions(enumType.Name, enumType.EnumValues),
+                    enumType.Location));
             }
         }
 
@@ -151,14 +136,13 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.NameAlreadyDefined(inputObjectType.Location, "Input object", inputObjectType.Name));
             else
             {
-                _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition()
-                {
-                    Description = inputObjectType.Description,
-                    Name = inputObjectType.Name,
-                    Directives = ConvertDirectives(inputObjectType.Directives),
-                    InputFields = ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field", "Field", inputObjectType.Name, "Argument"),
-                    Location = inputObjectType.Location
-                });
+                _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition(
+                    inputObjectType.Description,
+                    inputObjectType.Name,
+                    ConvertDirectives(inputObjectType.Directives),
+                    ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field", "Field", inputObjectType.Name, "Argument"),
+                    inputObjectType.Location
+                ));
             }
         }
 
@@ -185,13 +169,10 @@ public partial class Schema
                                 _schema.NonFatalException(ValidationException.ExtendSchemaOperationAlreadyDefined(operationType.Location, operationType.Operation));
                             else
                             {
-                                schemaType.Operations.Add(operationType.Operation, new()
-                                {
-                                    Operation = operationType.Operation,
-                                    NamedType = operationType.NamedType,
-                                    Definition = null,
-                                    Location = operationType.Location
-                                });
+                                schemaType.Operations.Add(operationType.Operation, new(
+                                    operationType.Operation,
+                                    operationType.NamedType,
+                                    operationType.Location));
                             }
                         }
                     }
@@ -246,14 +227,7 @@ public partial class Schema
                                                                                                                 extendObjectType.Name,
                                                                                                                 extendImplementsInterface.Name));
                                 else
-                                {
-                                    objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new()
-                                    {
-                                        Name = extendImplementsInterface.Name,
-                                        Definition = null,
-                                        Location = extendImplementsInterface.Location
-                                    });
-                                }
+                                    objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name, extendImplementsInterface.Location));
                             }
                         }
 
@@ -293,14 +267,7 @@ public partial class Schema
                                                                                                                 extendInterfaceType.Name,
                                                                                                                 extendImplementsInterface.Name));
                                 else
-                                {
-                                    interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new()
-                                    {
-                                        Name = extendImplementsInterface.Name,
-                                        Definition = null,
-                                        Location = extendImplementsInterface.Location
-                                    });
-                                }
+                                    interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name, extendImplementsInterface.Location));
 
                             }
                         }
@@ -335,14 +302,7 @@ public partial class Schema
                                 if (unionType.MemberTypes.TryGetValue(extendMemberType.Name, out _))
                                     _schema.NonFatalException(ValidationException.ExtendUnionAlreadyDefined(extendUnionType.Location, extendMemberType.Name, extendUnionType.Name));
                                 else
-                                {
-                                    unionType.MemberTypes.Add(extendMemberType.Name, new()
-                                    {
-                                        Name = extendMemberType.Name,
-                                        Definition = null,
-                                        Location = extendMemberType.Location
-                                    });
-                                }
+                                    unionType.MemberTypes.Add(extendMemberType.Name, new(extendMemberType.Name, extendMemberType.Location));
                             }
                         }
                     }
@@ -378,13 +338,11 @@ public partial class Schema
                                 {
                                     if (!enumType.EnumValues.TryGetValue(extendEnumValue.Name, out var existingEnumValue))
                                     {
-                                        enumType.EnumValues.Add(extendEnumValue.Name, new()
-                                        {
-                                            Description = extendEnumValue.Description,
-                                            Name = extendEnumValue.Name,
-                                            Directives = ConvertDirectives(extendEnumValue.Directives),
-                                            Location = extendEnumValue.Location
-                                        });
+                                        enumType.EnumValues.Add(extendEnumValue.Name, new(
+                                            extendEnumValue.Description,
+                                            extendEnumValue.Name,
+                                            ConvertDirectives(extendEnumValue.Directives),
+                                            extendEnumValue.Location));
                                     }
                                     else
                                     {
@@ -439,15 +397,13 @@ public partial class Schema
                     {
                         if (!existingFields.TryGetValue(extendField.Name, out var existingField))
                         {
-                            existingFields.Add(extendField.Name, new()
-                            {
-                                Description = extendField.Description,
-                                Name = extendField.Name,
-                                Arguments = ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
-                                Type = ConvertTypeNode(extendField.Type),
-                                Directives = ConvertDirectives(extendField.Directives),
-                                Location = extendField.Location
-                            });
+                            existingFields.Add(extendField.Name, new(
+                                extendField.Description,
+                                extendField.Name,
+                                ConvertInputValueDefinitions(extendField.Arguments, "Argument", "Field", extendField.Name, "Argument", "Object", extendName),
+                                ConvertTypeNode(extendField.Type),
+                                ConvertDirectives(extendField.Directives),
+                                extendField.Location));
                         }
                         else
                         {
@@ -463,25 +419,24 @@ public partial class Schema
                             foreach (var extendArgument in extendField.Arguments)
                             {
                                 if (argumentNames.Contains(extendArgument.Name))
-                                    _schema.NonFatalException(ValidationException.ExtendFieldArgumentAlreadyDefined(extendField.Location,
-                                                                                                                    extendField.Name,
-                                                                                                                    extendArgument.Name,
-                                                                                                                    errorType,
-                                                                                                                    extendName));
+                                    _schema.NonFatalException(ValidationException.ExtendFieldArgumentAlreadyDefined(
+                                        extendField.Location,
+                                        extendField.Name,
+                                        extendArgument.Name,
+                                        errorType,
+                                        extendName));
                                 else
                                 {
                                     if (!existingField.Arguments.TryGetValue(extendArgument.Name, out var existingArgument))
                                     {
-                                        existingField.Arguments.Add(extendArgument.Name, new()
-                                        {
-                                            Description = extendArgument.Description,
-                                            Name = extendArgument.Name,
-                                            Type = ConvertTypeNode(extendArgument.Type),
-                                            DefaultValue = extendArgument.DefaultValue,
-                                            Directives = ConvertDirectives(extendArgument.Directives),
-                                            Location = extendArgument.Location,
-                                            ElementUsage = "Argument"
-                                        });
+                                        existingField.Arguments.Add(extendArgument.Name, new(
+                                            extendArgument.Description,
+                                            extendArgument.Name,
+                                            ConvertTypeNode(extendArgument.Type),
+                                            extendArgument.DefaultValue,
+                                            ConvertDirectives(extendArgument.Directives),
+                                            extendArgument.Location,
+                                            "Argument"));
 
                                         changed = true;
                                     }
@@ -519,16 +474,14 @@ public partial class Schema
                     {
                         if (!existingInputFields.TryGetValue(extendInputField.Name, out var existingField))
                         {
-                            existingInputFields.Add(extendInputField.Name, new()
-                            {
-                                Description = extendInputField.Description,
-                                Name = extendInputField.Name,
-                                Type = ConvertTypeNode(extendInputField.Type),
-                                DefaultValue = extendInputField.DefaultValue,
-                                Directives = ConvertDirectives(extendInputField.Directives),
-                                Location = extendInputField.Location,
-                                ElementUsage = "Input field"
-                            });
+                            existingInputFields.Add(extendInputField.Name, new(
+                                extendInputField.Description,
+                                extendInputField.Name,
+                                ConvertTypeNode(extendInputField.Type),
+                                extendInputField.DefaultValue,
+                                ConvertDirectives(extendInputField.Directives),
+                                extendInputField.Location,
+                                "Input field"));
                         }
                         else
                         {
@@ -554,15 +507,13 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.ListEntryDuplicateName(field.Location, parentNode, parentName, "field", field.Name));
                 else
                 {
-                    nodes.Add(field.Name, new()
-                    {
-                        Description = field.Description,
-                        Name = field.Name,
-                        Arguments = ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name, "Argument", parentNode, parentName),
-                        Type = ConvertTypeNode(field.Type),
-                        Directives = ConvertDirectives(field.Directives),
-                        Location = field.Location
-                    });
+                    nodes.Add(field.Name, new(
+                        field.Description,
+                        field.Name,
+                        ConvertInputValueDefinitions(field.Arguments, "Argument", "Field", field.Name, "Argument", parentNode, parentName),
+                        ConvertTypeNode(field.Type),
+                        ConvertDirectives(field.Directives),
+                        field.Location));
                 }
 
             }
@@ -580,13 +531,10 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.SchemaDefinitionMultipleOperation(operationType.Location, operationType.Operation));
                 else
                 {
-                    nodes.Add(operationType.Operation, new()
-                    {
-                        Operation = operationType.Operation,
-                        NamedType = operationType.NamedType,
-                        Definition = null,
-                        Location = operationType.Location
-                    });
+                    nodes.Add(operationType.Operation, new(
+                        operationType.Operation,
+                        operationType.NamedType,
+                        operationType.Location));
                 }
             }
 
@@ -620,16 +568,14 @@ public partial class Schema
                 }
                 else
                 {
-                    nodes.Add(inputValue.Name, new InputValueDefinition()
-                    {
-                        Description = inputValue.Description,
-                        Name = inputValue.Name,
-                        Type = ConvertTypeNode(inputValue.Type),
-                        DefaultValue = inputValue.DefaultValue,
-                        Directives = ConvertDirectives(inputValue.Directives),
-                        Location = inputValue.Location,
-                        ElementUsage = elementUsage
-                    });
+                    nodes.Add(inputValue.Name, new InputValueDefinition(
+                        inputValue.Description,
+                        inputValue.Name,
+                        ConvertTypeNode(inputValue.Type),
+                        inputValue.DefaultValue,
+                        ConvertDirectives(inputValue.Directives),
+                        inputValue.Location,
+                        elementUsage));
                 }
             }
 
@@ -645,14 +591,7 @@ public partial class Schema
                 if (nodes.ContainsKey(name.Name))
                     _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "interface", name.Name));
                 else
-                {
-                    nodes.Add(name.Name, new()
-                    {
-                        Name = name.Name,
-                        Definition = null,
-                        Location = name.Location
-                    });
-                }
+                    nodes.Add(name.Name, new(name.Name, name.Location));
             }
 
             return nodes;
@@ -667,14 +606,7 @@ public partial class Schema
                 if (nodes.ContainsKey(name.Name))
                     _schema.NonFatalException(ValidationException.ListEntryDuplicateName(name.Location, parentNode, parentName, "member type", name.Name));
                 else
-                {
-                    nodes.Add(name.Name, new()
-                    {
-                        Name = name.Name,
-                        Definition = null,
-                        Location = name.Location
-                    });
-                }
+                    nodes.Add(name.Name, new(name.Name, name.Location));
             }
 
             return nodes;
@@ -690,13 +622,11 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.EnumValueAlreadyDefined(enumValue.Location, enumValue.Name, enumTypeName));
                 else
                 {
-                    nodes.Add(enumValue.Name, new()
-                    {
-                        Description = enumValue.Description,
-                        Name = enumValue.Name,
-                        Directives = ConvertDirectives(enumValue.Directives),
-                        Location = enumValue.Location
-                    });
+                    nodes.Add(enumValue.Name, new(
+                        enumValue.Description,
+                        enumValue.Name,
+                        ConvertDirectives(enumValue.Directives),
+                        enumValue.Location));
                 }
             }
 

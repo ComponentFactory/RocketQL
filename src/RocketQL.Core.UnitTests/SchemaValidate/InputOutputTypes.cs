@@ -9,16 +9,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void ObjectTypeDefinitionOutputOnly(bool innerNonNull, bool outerNonNull)
     {
-        var node = new ObjectTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            ImplementsInterfaces = [],
-            Directives = [],
-            Fields = [],
-            Location = new Location()
-        };
-
+        var node = new ObjectTypeDefinition("", "", [], [], [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, false, true);
     }
 
@@ -29,16 +20,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void InterfaceTypeDefinitionOutputOnly(bool innerNonNull, bool outerNonNull)
     {
-        var node = new InterfaceTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            ImplementsInterfaces = [],
-            Directives = [],
-            Fields = [],
-            Location = new Location()
-        };
-
+        var node = new InterfaceTypeDefinition("", "", [], [], [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, false, true);
     }
 
@@ -49,15 +31,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void UnionTypeDefinitionOutputOnly(bool innerNonNull, bool outerNonNull)
     {
-        var node = new UnionTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            Directives = [],
-            MemberTypes = [],
-            Location = new Location()
-        };
-
+        var node = new UnionTypeDefinition("", "", [], [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, false, true);
     }
 
@@ -68,15 +42,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void InputObjectTypeDefinitionInputOnly(bool innerNonNull, bool outerNonNull)
     {
-        var node = new InputObjectTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            Directives = [],
-            InputFields = [],
-            Location = new Location()
-        };
-
+        var node = new InputObjectTypeDefinition("", "", [], [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, true, false);
     }
 
@@ -87,14 +53,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void ScalarTypeDefinitionBoth(bool innerNonNull, bool outerNonNull)
     {
-        var node = new ScalarTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            Directives = [],
-            Location = new Location()
-        };
-
+        var node = new ScalarTypeDefinition("", "", [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, true, true);
     }
 
@@ -105,15 +64,7 @@ public class InputOutputTypes : UnitTestBase
     [InlineData(true, true)]
     public void EnumTypeDefinitionBoth(bool innerNonNull, bool outerNonNull)
     {
-        var node = new EnumTypeDefinition()
-        {
-            Description = "",
-            Name = "",
-            Directives = [],
-            EnumValues = [],
-            Location = new Location()
-        };
-
+        var node = new EnumTypeDefinition("", "", [], [], Location.Empty);
         CheckInAndOutsideList(node, innerNonNull, outerNonNull, true, true);
     }
 
@@ -122,32 +73,18 @@ public class InputOutputTypes : UnitTestBase
         Assert.True(typeDefinition.IsInputType == input);
         Assert.True(typeDefinition.IsOutputType == output);
 
-        TypeNode node = new TypeName()
+        TypeNode node = new TypeName("", Location.Empty)
         {
-            Name = "",
-            Definition = typeDefinition,
-            Location = new()
+            Definition = typeDefinition
         };
 
         if (innerNonNull)
-            node = new TypeNonNull()
-            {
-                Type = node,
-                Location = new()
-            };
+            node = new TypeNonNull(node, Location.Empty);
 
-        node = new TypeList()
-        {
-            Type = node,
-            Location = new()
-        };
+        node = new TypeList(node, Location.Empty);
 
         if (outerNonNull)
-            node = new TypeNonNull()
-            { 
-                Type = node,
-                Location = new() 
-            };
+            node = new TypeNonNull(node, Location.Empty);
 
         Assert.True(node.IsInputType == input);
         Assert.True(node.IsOutputType == output);

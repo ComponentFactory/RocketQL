@@ -31,15 +31,14 @@ public partial class Request
                     (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
                     FatalException(ValidationException.RequestAnonymousAndNamed(operation.Location));
 
-                _request._operations.Add(operationName, new()
-                {
-                    Operation = operation.Operation,
-                    Name = operationName,
-                    Directives = ConvertDirectives(operation.Directives),
-                    Variables = ConvertVariableDefinitions(operation.VariableDefinitions, operation),
-                    SelectionSet = ConvertSelectionSet(operation.SelectionSet),
-                    Location = operation.Location,
-                }); ;
+                _request._operations.Add(operationName, new(
+                    operation.Operation, 
+                    operationName, 
+                    ConvertDirectives(operation.Directives), 
+                    ConvertVariableDefinitions(operation.VariableDefinitions, 
+                    operation), 
+                    ConvertSelectionSet(operation.SelectionSet), 
+                    operation.Location));
             }
         }
 
@@ -49,15 +48,12 @@ public partial class Request
                 _request.NonFatalException(ValidationException.NameAlreadyDefined(fragment.Location, "Fragment", fragment.Name));
             else
             {
-                _request._fragments.Add(fragment.Name, new()
-                {
-                    Name = fragment.Name,
-                    TypeCondition = fragment.TypeCondition,
-                    Definition = null,
-                    Directives = ConvertDirectives(fragment.Directives),
-                    SelectionSet = ConvertSelectionSet(fragment.SelectionSet),
-                    Location = fragment.Location,
-                });
+                _request._fragments.Add(fragment.Name, new(
+                    fragment.Name,
+                    fragment.TypeCondition,
+                    ConvertDirectives(fragment.Directives),
+                    ConvertSelectionSet(fragment.SelectionSet),
+                    fragment.Location));
             }
         }
 
@@ -146,14 +142,12 @@ public partial class Request
                     FatalException(ValidationException.DuplicateOperationVariable(variable.Location, OperationDescription(operation), variable.Name));
                 else
                 {
-                    nodes.Add(variable.Name, new VariableDefinition()
-                    {
-                        Name = variable.Name,
-                        Type = ConvertTypeNode(variable.Type),
-                        DefaultValue = variable.DefaultValue,
-                        Directives = ConvertDirectives(variable.Directives),
-                        Location = variable.Location,
-                    });
+                    nodes.Add(variable.Name, new VariableDefinition(
+                        variable.Name,
+                        ConvertTypeNode(variable.Type),
+                        variable.DefaultValue,
+                        ConvertDirectives(variable.Directives),
+                        variable.Location));
                 }
             }
 
@@ -180,38 +174,30 @@ public partial class Request
 
         private static SelectionField ConvertFieldSelection(SyntaxFieldSelectionNode fieldSelection)
         {
-            return new SelectionField()
-            {
-                Alias = fieldSelection.Alias,
-                Name = fieldSelection.Name,
-                Arguments = ConvertObjectFields(fieldSelection.Arguments, fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
-                Directives = ConvertDirectives(fieldSelection.Directives),
-                SelectionSet = ConvertSelectionSet(fieldSelection.SelectionSet),
-                Location = fieldSelection.Location,
-            };
+            return new SelectionField(
+                fieldSelection.Alias,
+                fieldSelection.Name,
+                ConvertDirectives(fieldSelection.Directives),
+                ConvertObjectFields(fieldSelection.Arguments, fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
+                ConvertSelectionSet(fieldSelection.SelectionSet),
+                fieldSelection.Location);
         }
 
         private static SelectionFragmentSpread ConvertFragmentSpreadSelection(SyntaxFragmentSpreadSelectionNode fragmentSpread)
         {
-            return new SelectionFragmentSpread()
-            {
-                Name = fragmentSpread.Name,
-                Definition = null,
-                Directives = ConvertDirectives(fragmentSpread.Directives),
-                Location = fragmentSpread.Location,
-            };
+            return new SelectionFragmentSpread(
+                fragmentSpread.Name,
+                ConvertDirectives(fragmentSpread.Directives),
+                fragmentSpread.Location);
         }
 
         private static SelectionNode ConvertInlineFragmentSelection(SyntaxInlineFragmentSelectionNode inlineFragment)
         {
-            return new SelectionInlineFragment()
-            {
-                TypeCondition = inlineFragment.TypeCondition,
-                Definition = null,
-                Directives = ConvertDirectives(inlineFragment.Directives),
-                SelectionSet = ConvertSelectionSet(inlineFragment.SelectionSet),
-                Location = inlineFragment.Location,
-            };
+            return new SelectionInlineFragment(
+                inlineFragment.TypeCondition,
+                ConvertDirectives(inlineFragment.Directives),
+                ConvertSelectionSet(inlineFragment.SelectionSet),
+                inlineFragment.Location);
         }
 
         private static string OperationDescription(SyntaxOperationDefinitionNode operation)

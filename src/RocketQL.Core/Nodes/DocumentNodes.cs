@@ -1,271 +1,190 @@
 ﻿namespace RocketQL.Core.Nodes;
 
-public abstract class DocumentNode
+public abstract record class DocumentNode : LocationNode
 {
-    public required Location Location { get; init; }
+    public DocumentNode()
+    {
+
+    }
+
+    public DocumentNode(Location location) 
+        : base(location)
+    {
+    }
+
     public DocumentNode? Parent { get; set; }
     public abstract string OutputElement { get; }
     public abstract string OutputName { get; }
 }
 
-public class OperationDefinition : DocumentNode
+public record class OperationDefinition(OperationType Operation, string Name, Directives Directives, VariableDefinitions Variables, SelectionSet SelectionSet, Location Location) : DocumentNode(Location)
 {    
-    public required OperationType Operation { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; set; }
-    public required VariableDefinitions Variables { get; set; }
-    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Operation";
     public override string OutputName => string.IsNullOrEmpty(Name) ? Operation.ToString() : Name;
 }
 
-public class FragmentDefinition : DocumentNode
+public record class FragmentDefinition(string Name, string TypeCondition, Directives Directives, SelectionSet SelectionSet, Location Location) : DocumentNode(Location)
 {
-    public required string Name { get; init; }
-    public required string TypeCondition { get; init; }
-    public required TypeDefinition? Definition { get; set; }
-    public required Directives Directives { get; set; }
-    public required SelectionSet SelectionSet { get; set; }
+    public TypeDefinition? Definition { get; set; }
     public override string OutputElement => "Fragment";
     public override string OutputName => Name;
 }
 
-public class SchemaRoot : DocumentNode
+public record class SchemaRoot(string Description, Directives Directives, OperationTypeDefinition? Query, OperationTypeDefinition? Mutation, OperationTypeDefinition? Subscription, Location Location) : DocumentNode(Location)
 {
-    public static readonly SchemaRoot Empty = new()
-    { 
-        Description = "",
-        Directives = [],
-        Query = null,
-        Mutation = null,
-        Subscription = null,
-        Location = new()
-    };
-    
-    public required string Description { get; set; }
-    public required Directives Directives { get; set; }
-    public required OperationTypeDefinition? Query { get; set; }
-    public required OperationTypeDefinition? Mutation { get; set; }
-    public required OperationTypeDefinition? Subscription { get; set; }
+    public static readonly SchemaRoot Empty = new("", [], null, null, null, Location.Empty);    
+
     public override string OutputElement => "Schema";
     public override string OutputName => "";
 }
 
-public class SchemaDefinition : DocumentNode
+public record class SchemaDefinition(string Description, Directives Directives, OperationTypeDefinitions Operations, Location Location) : DocumentNode(Location)
 {
-    public required string Description { get; set; }
-    public required Directives Directives { get; set; }
-    public required OperationTypeDefinitions Operations { get; set; }
     public override string OutputElement => "Schema";
     public override string OutputName => "";
 }
 
-public class DirectiveDefinition : DocumentNode
+public record class DirectiveDefinition(string Description, string Name, InputValueDefinitions Arguments, bool Repeatable, DirectiveLocations DirectiveLocations, Location Location) : DocumentNode(Location)
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required InputValueDefinitions Arguments { get; init; }
-    public required bool Repeatable { get; init; }
-    public required DirectiveLocations DirectiveLocations { get; init; }
-    public bool IsBuiltIn { get; init; }
+    public bool IsBuiltIn { get; set; }
     public bool IsRooted { get; set; }
     public Directives References { get; init; } = [];
     public override string OutputElement => "Directive";
     public override string OutputName => Name;
 }
 
-public abstract record class TypeDefinition(string Description, string Name, Directives Directives, Location Location, bool IsBuiltIn = false) : DocumentNode(Location)
+public abstract record class TypeDefinition(string Description, string Name, Directives Directives, Location Location, bool IsInputType, bool IsOutputType) : DocumentNode(Location)
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
-    public bool IsBuiltIn { get; init; }
+    public bool IsBuiltIn { get; set; }
     public bool IsRooted { get; set; }
     public DocumentNodes References { get; init; } = [];
     public override string OutputName => Name;
-    public abstract bool IsInputType { get; }
-    public abstract bool IsOutputType { get; }
 }
 
-public class ScalarTypeDefinition : TypeDefinition
+public record class ScalarTypeDefinition(string Description, string Name, Directives Directives, Location Location) : TypeDefinition(Description, Name, Directives, Location, true, true)
 {
     public override string OutputElement => "Scalar";
-    public override bool IsInputType => true;
-    public override bool IsOutputType => true;
 }
 
-public class ObjectTypeDefinition : TypeDefinition
+public record class ObjectTypeDefinition(string Description, string Name, Directives Directives, Interfaces ImplementsInterfaces, FieldDefinitions Fields, Location Location) : TypeDefinition(Description, Name, Directives, Location, false, true)
 {
-    public required Interfaces ImplementsInterfaces { get; init; }
-    public required FieldDefinitions Fields { get; init; }
     public override string OutputElement => "Object";
-    public override bool IsInputType => false;
-    public override bool IsOutputType => true;
 }
 
-public class InterfaceTypeDefinition : TypeDefinition
+public record class InterfaceTypeDefinition(string Description, string Name, Directives Directives, Interfaces ImplementsInterfaces, FieldDefinitions Fields, Location Location) : TypeDefinition(Description, Name, Directives, Location, false, true)
 {
-    public required Interfaces ImplementsInterfaces { get; init; }
-    public required FieldDefinitions Fields { get; init; }
     public override string OutputElement => "Interface";
-    public override bool IsInputType => false;
-    public override bool IsOutputType => true;
 }
 
-public class UnionTypeDefinition : TypeDefinition
+public record class UnionTypeDefinition(string Description, string Name, Directives Directives, MemberTypes MemberTypes, Location Location) : TypeDefinition(Description, Name, Directives, Location, false, true)
 {
-    public required MemberTypes MemberTypes { get; init; }
     public override string OutputElement => "Union";
-    public override bool IsInputType => false;
-    public override bool IsOutputType => true;
 }
 
-public class EnumTypeDefinition : TypeDefinition
+public record class EnumTypeDefinition(string Description, string Name, Directives Directives, EnumValueDefinitions EnumValues, Location Location) : TypeDefinition(Description, Name, Directives, Location, true, true)
 {
-    public required EnumValueDefinitions EnumValues { get; init; }
     public override string OutputElement => "Enum";
-    public override bool IsInputType => true;
-    public override bool IsOutputType => true;
 }
 
-public class InputObjectTypeDefinition : TypeDefinition
+public record class InputObjectTypeDefinition(string Description, string Name, Directives Directives, InputValueDefinitions InputFields, Location Location) : TypeDefinition(Description, Name, Directives, Location, true, false)
 {
-    public required InputValueDefinitions InputFields { get; init; }
     public override string OutputElement => "Input object";
-    public override bool IsInputType => true;
-    public override bool IsOutputType => false;
 }
 
-public class VariableDefinition : DocumentNode
+public record class VariableDefinition(string Name, TypeNode Type, ValueNode? DefaultValue, Directives Directives, Location Location) : DocumentNode(Location)
 {
-    public required string Name { get; init; }
-    public required TypeNode Type { get; init; }
-    public required ValueNode? DefaultValue { get; init; }
-    public required Directives Directives { get; set; }
     public override string OutputElement => "Variable";
     public override string OutputName => Name;
 }
 
-public abstract class SelectionNode : DocumentNode
+public abstract record class SelectionNode(Location Location) : DocumentNode(Location)
 {
 }
 
-public class SelectionField : SelectionNode
+public record class SelectionField(string Alias, string Name, Directives Directives, ObjectFields Arguments, SelectionSet SelectionSet, Location Location) : SelectionNode(Location)
 {
-    public required string Alias { get; init; }
-    public required string Name { get; init; }
-    public required ObjectFields Arguments { get; init; }
-    public required Directives Directives { get; set; }
-    public required SelectionSet SelectionSet { get; set; }
     public override string OutputElement => "Field";
     public override string OutputName => Alias ?? Name;
 }
 
-public class SelectionFragmentSpread : SelectionNode
+public record class SelectionFragmentSpread(string Name, Directives Directives, Location Location) : SelectionNode(Location)
 {
-    public required string Name { get; init; }
-    public required FragmentDefinition? Definition { get; set; }
-    public required Directives Directives { get; set; }
+    public FragmentDefinition? Definition { get; set; }
     public override string OutputElement => "Fragment spread";
     public override string OutputName => Name;
 }
 
-public class SelectionInlineFragment : SelectionNode
+public record class SelectionInlineFragment(string TypeCondition, Directives Directives, SelectionSet SelectionSet, Location Location) : SelectionNode(Location)
 {
-    public required string TypeCondition { get; init; }
-    public required TypeDefinition? Definition { get; set; }
-    public required Directives Directives { get; set; }
-    public required SelectionSet SelectionSet { get; set; }
+    public TypeDefinition? Definition { get; set; }
     public override string OutputElement => "Inline fragment";
     public override string OutputName => TypeCondition;
 }
 
-public class OperationTypeDefinition : DocumentNode
+public record class OperationTypeDefinition(OperationType Operation, string NamedType, Location Location) : DocumentNode(Location)
 {
-    public required OperationType Operation { get; init; }
-    public required string NamedType { get; init; }
-    public required ObjectTypeDefinition? Definition { get; set; }
+    public ObjectTypeDefinition? Definition { get; set; }
     public override string OutputElement => "Operation";
     public override string OutputName => Operation.ToString();
 }
 
-public class FieldDefinition : DocumentNode
+public record class FieldDefinition(string Description, string Name, InputValueDefinitions Arguments, TypeNode Type, Directives Directives, Location Location) : DocumentNode(Location)
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required InputValueDefinitions Arguments { get; init; }
-    public required TypeNode Type { get; init; }
-    public required Directives Directives { get; init; }
     public override string OutputElement => "Field";
     public override string OutputName => Name;
 }
 
-public class EnumValueDefinition : DocumentNode
+public record class EnumValueDefinition(string Description, string Name, Directives Directives, Location Location) : DocumentNode(Location)
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required Directives Directives { get; init; }
     public override string OutputElement => "Enum Value";
     public override string OutputName => Name;
 }
 
-public class InputValueDefinition : DocumentNode
+public record class InputValueDefinition(string Description, string Name, TypeNode Type, ValueNode? DefaultValue, Directives Directives, Location Location, string ElementUsage) : DocumentNode(Location)
 {
-    public required string Description { get; init; }
-    public required string Name { get; init; }
-    public required TypeNode Type { get; init; }
-    public required ValueNode? DefaultValue { get; init; }
-    public required Directives Directives { get; init; }
-    public required string ElementUsage { get; init; }
     public override string OutputElement => ElementUsage;
     public override string OutputName => Name;
 }
 
-public class Directive : DocumentNode
+public record class Directive(string Name, ObjectFields Arguments, Location Location) : DocumentNode(Location)
 {
-    public required string Name { get; init; }
-    public required DirectiveDefinition? Definition { get; set; }
-    public required ObjectFields Arguments { get; init; }
+    public DirectiveDefinition? Definition { get; set; }
     public override string OutputElement => "Directive";
     public override string OutputName => Name;
 }
 
-public class Interface : DocumentNode
+public record class Interface(string Name, Location Location) : DocumentNode(Location)
 {
-    public required string Name { get; init; }
-    public required InterfaceTypeDefinition? Definition { get; set; }
+    public InterfaceTypeDefinition? Definition { get; set; }
     public override string OutputElement => "Interface";
     public override string OutputName => Name;
 }
 
-public class MemberType : DocumentNode
+public record class MemberType(string Name, Location Location) : DocumentNode(Location)
 {
-    public required string Name { get; init; }
-    public required ObjectTypeDefinition? Definition { get; set; }
+    public ObjectTypeDefinition? Definition { get; set; }
     public override string OutputElement => "Member Type";
     public override string OutputName => Name;
 }
 
-public abstract class TypeNode : DocumentNode
+public abstract record class TypeNode(Location Location) : DocumentNode(Location)
 {
     public abstract TypeDefinition? Definition { get; set; }
     public abstract bool IsInputType { get; }
     public abstract bool IsOutputType { get; }
 }
 
-public class TypeName : TypeNode
+public record class TypeName(string Name, Location Location) : TypeNode(Location)
 {
-    public required string Name { get; init; }
-    public required override TypeDefinition? Definition { get; set; }
+    public override TypeDefinition? Definition { get; set; }
     public override string OutputElement => "TypeName";
     public override string OutputName => Name;
     public override bool IsInputType => Definition!.IsInputType;
     public override bool IsOutputType => Definition!.IsOutputType;
 }
 
-public class TypeList : TypeNode
+public record class TypeList(TypeNode Type, Location Location) : TypeNode(Location)
 {
-    public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override string OutputElement => "TypeList";
     public override string OutputName => ""; 
@@ -273,9 +192,8 @@ public class TypeList : TypeNode
     public override bool IsOutputType => Type.IsOutputType;
 }
 
-public class TypeNonNull : TypeNode
+public record class TypeNonNull(TypeNode Type, Location Location) : TypeNode(Location)
 {
-    public required TypeNode Type { get; init; }
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override string OutputElement => "TypeNonNull";
     public override string OutputName => "";

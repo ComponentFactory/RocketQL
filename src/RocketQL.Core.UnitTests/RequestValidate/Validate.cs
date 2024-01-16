@@ -29,7 +29,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxSchemaDefinitionNode("", [], [], new()));
+        request.Add(new SyntaxSchemaDefinitionNode("", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Schema definition not allowed in a schema.", exception.Message);
     }
@@ -41,7 +41,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxDirectiveDefinitionNode("", "Example", [], false, DirectiveLocations.ENUM, new()));
+        request.Add(new SyntaxDirectiveDefinitionNode("", "Example", [], false, DirectiveLocations.ENUM, Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Directive definition not allowed in a schema.", exception.Message);
     }
@@ -53,7 +53,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxScalarTypeDefinitionNode("", "Example", [], new()));
+        request.Add(new SyntaxScalarTypeDefinitionNode("", "Example", [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Scalar definition not allowed in a schema.", exception.Message);
     }
@@ -65,7 +65,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxObjectTypeDefinitionNode("", "Example", [], [], [], new()));
+        request.Add(new SyntaxObjectTypeDefinitionNode("", "Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Object definition not allowed in a schema.", exception.Message);
     }
@@ -77,7 +77,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxInterfaceTypeDefinitionNode("", "Example", [], [], [], new()));
+        request.Add(new SyntaxInterfaceTypeDefinitionNode("", "Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Interface definition not allowed in a schema.", exception.Message);
     }
@@ -89,7 +89,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxUnionTypeDefinitionNode("", "Example", [], [], new()));
+        request.Add(new SyntaxUnionTypeDefinitionNode("", "Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Union definition not allowed in a schema.", exception.Message);
     }
@@ -101,7 +101,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxEnumTypeDefinitionNode("", "Example", [], [], new()));
+        request.Add(new SyntaxEnumTypeDefinitionNode("", "Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Enum definition not allowed in a schema.", exception.Message);
     }
@@ -113,7 +113,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxInputObjectTypeDefinitionNode("", "Example", [], [], new()));
+        request.Add(new SyntaxInputObjectTypeDefinitionNode("", "Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Input object definition not allowed in a schema.", exception.Message);
     }
@@ -125,7 +125,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendSchemaDefinitionNode([], [], new()));
+        request.Add(new SyntaxExtendSchemaDefinitionNode([], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend schema definition not allowed in a schema.", exception.Message);
     }
@@ -137,7 +137,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendScalarTypeDefinitionNode("Example", [], new()));
+        request.Add(new SyntaxExtendScalarTypeDefinitionNode("Example", [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend scalar definition not allowed in a schema.", exception.Message);
     }
@@ -149,7 +149,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendObjectTypeDefinitionNode("Example", [], [], [], new()));
+        request.Add(new SyntaxExtendObjectTypeDefinitionNode("Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend object definition not allowed in a schema.", exception.Message);
     }
@@ -161,7 +161,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendInterfaceTypeDefinitionNode("Example", [], [], [], new()));
+        request.Add(new SyntaxExtendInterfaceTypeDefinitionNode("Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend interface definition not allowed in a schema.", exception.Message);
     }
@@ -173,7 +173,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendUnionTypeDefinitionNode("Example", [], [], new()));
+        request.Add(new SyntaxExtendUnionTypeDefinitionNode("Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend union definition not allowed in a schema.", exception.Message);
     }
@@ -185,7 +185,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendEnumTypeDefinitionNode("Example", [], [], new()));
+        request.Add(new SyntaxExtendEnumTypeDefinitionNode("Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend enum definition not allowed in a schema.", exception.Message);
     }
@@ -197,7 +197,7 @@ public class Validate : UnitTestBase
         schema.Add("type Query { fizz: Int }");
         schema.Validate();
         var request = new Request();
-        request.Add(new SyntaxExtendInputObjectTypeDefinitionNode("Example", [], [], new()));
+        request.Add(new SyntaxExtendInputObjectTypeDefinitionNode("Example", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
         Assert.Equal("Extend input object definition not allowed in a schema.", exception.Message);
     }
