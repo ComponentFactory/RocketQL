@@ -90,9 +90,10 @@ public partial class Schema
             else
                 VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
 
-            IsValidImplementations(objectType.Fields, 
-                                   CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
-                                   objectType);
+            IsValidImplementations(
+                objectType.Fields, 
+                CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), 
+                objectType);
         }
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
@@ -105,9 +106,10 @@ public partial class Schema
             else
                 VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
 
-            IsValidImplementations(interfaceType.Fields, 
-                                   CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
-                                   interfaceType);
+            IsValidImplementations(
+                interfaceType.Fields, 
+                CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), 
+                interfaceType);
         }
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
@@ -333,9 +335,10 @@ public partial class Schema
             };
         }
 
-        private void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition,
-                                                        Queue<TypeDefinition> referencedTypes,
-                                                        Queue<DirectiveDefinition> referencedDirectives)
+        private void CheckDirectiveForCircularReference(
+            DirectiveDefinition directiveDefinition,
+            Queue<TypeDefinition> referencedTypes,
+            Queue<DirectiveDefinition> referencedDirectives)
         {
             if ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
             {
@@ -392,20 +395,22 @@ public partial class Schema
             }
         }
 
-        private static void FindDirectives(IEnumerable<Directive> directives,
-                                           HashSet<DirectiveDefinition> checkedDirectives,
-                                           Queue<DirectiveDefinition> referencedDirectives)
+        private static void FindDirectives(
+            IEnumerable<Directive> directives,
+            HashSet<DirectiveDefinition> checkedDirectives,
+            Queue<DirectiveDefinition> referencedDirectives)
         {
             foreach (var directive in directives)
                 if (!checkedDirectives.Contains(directive.Definition!))
                     referencedDirectives.Enqueue(directive.Definition!);
         }
 
-        private void CheckDirectiveUsage(Directives directives, 
-                                         DocumentNode parentNode, 
-                                         DirectiveLocations directiveLocations, 
-                                         DocumentNode? grandParent = null, 
-                                         DocumentNode? greatGrandParent = null)
+        private void CheckDirectiveUsage(
+            Directives directives, 
+            DocumentNode parentNode, 
+            DirectiveLocations directiveLocations, 
+            DocumentNode? grandParent = null, 
+            DocumentNode? greatGrandParent = null)
         {
             HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
@@ -568,11 +573,12 @@ public partial class Schema
             return interfaceDefinitions;
         }
 
-        private void CheckTypeImplementsInterface(InterfaceTypeDefinitions objectImplements,
-                                                  HashSet<string> processed,
-                                                  InterfaceTypeDefinition checkInterface,
-                                                  DocumentNode parentNode,
-                                                  DocumentNode rootNode)
+        private void CheckTypeImplementsInterface(
+            InterfaceTypeDefinitions objectImplements,
+            HashSet<string> processed,
+            InterfaceTypeDefinition checkInterface,
+            DocumentNode parentNode,
+            DocumentNode rootNode)
         {
             if (!processed.Contains(checkInterface.Name))
             {
@@ -715,8 +721,9 @@ public partial class Schema
             return false;
         }
 
-        private void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, 
-                                                          Queue<InputObjectTypeDefinition> referencedInputObjects)
+        private void CheckInputObjectForCircularReference(
+            InputObjectTypeDefinition inputObjectType, 
+            Queue<InputObjectTypeDefinition> referencedInputObjects)
         {
             if (referencedInputObjects.Count > 0)
             {

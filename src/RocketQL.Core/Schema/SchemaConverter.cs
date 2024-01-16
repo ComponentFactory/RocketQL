@@ -231,10 +231,13 @@ public partial class Schema
                             foreach (var extendImplementsInterface in extendObjectType.ImplementsInterfaces)
                             {
                                 if (objectType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
-                                    _schema.NonFatalException(ValidationException.ExtendImplementAlreadyDefined(extendImplementsInterface.Location,
-                                                                                                                "Extend object",
-                                                                                                                extendObjectType.Name,
-                                                                                                                extendImplementsInterface.Name));
+                                {
+                                    _schema.NonFatalException(ValidationException.ExtendImplementAlreadyDefined(
+                                        extendImplementsInterface.Location,
+                                        "Extend object",
+                                        extendObjectType.Name,
+                                        extendImplementsInterface.Name));
+                                }
                                 else
                                 {
                                     objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(
@@ -285,10 +288,13 @@ public partial class Schema
                             foreach (var extendImplementsInterface in extendInterfaceType.ImplementsInterfaces)
                             {
                                 if (interfaceType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
-                                    _schema.NonFatalException(ValidationException.ExtendImplementAlreadyDefined(extendImplementsInterface.Location,
-                                                                                                                "Extend interface",
-                                                                                                                extendInterfaceType.Name,
-                                                                                                                extendImplementsInterface.Name));
+                                {
+                                    _schema.NonFatalException(ValidationException.ExtendImplementAlreadyDefined(
+                                        extendImplementsInterface.Location,
+                                        "Extend interface",
+                                        extendInterfaceType.Name,
+                                        extendImplementsInterface.Name));
+                                }
                                 else
                                 {
                                     interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(
@@ -439,10 +445,11 @@ public partial class Schema
             }
         }
 
-        private void ExtendFieldsWithArguments(string extendName, 
-                                               SyntaxFieldDefinitionNodeList extendFields, 
-                                               FieldDefinitions existingFields, 
-                                               string errorType)
+        private void ExtendFieldsWithArguments(
+            string extendName, 
+            SyntaxFieldDefinitionNodeList extendFields, 
+            FieldDefinitions existingFields, 
+            string errorType)
         {
             if (extendFields.Count > 0)
             {
@@ -490,12 +497,14 @@ public partial class Schema
                             foreach (var extendArgument in extendField.Arguments)
                             {
                                 if (argumentNames.Contains(extendArgument.Name))
+                                {
                                     _schema.NonFatalException(ValidationException.ExtendFieldArgumentAlreadyDefined(
                                         extendField.Location,
                                         extendField.Name,
                                         extendArgument.Name,
                                         errorType,
                                         extendName));
+                                }
                                 else
                                 {
                                     if (!existingField.Arguments.TryGetValue(extendArgument.Name, out var existingArgument))
@@ -538,10 +547,11 @@ public partial class Schema
             }
         }
 
-        private void ExtendInputFields(string extendName, 
-                                       SyntaxInputValueDefinitionNodeList extendInputFields, 
-                                       InputValueDefinitions existingInputFields, 
-                                       string errorType)
+        private void ExtendInputFields(
+            string extendName, 
+            SyntaxInputValueDefinitionNodeList extendInputFields, 
+            InputValueDefinitions existingInputFields, 
+            string errorType)
         {
             if (extendInputFields.Count > 0)
             {
@@ -644,13 +654,14 @@ public partial class Schema
             return nodes;
         }
 
-        private InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, 
-                                                                   string elementUsage,
-                                                                   string parentNode, 
-                                                                   string parentName, 
-                                                                   string listType, 
-                                                                   string? grandParentNode = null, 
-                                                                   string? grandParentName = null)
+        private InputValueDefinitions ConvertInputValueDefinitions(
+            SyntaxInputValueDefinitionNodeList inputValues, 
+            string elementUsage,
+            string parentNode, 
+            string parentName, 
+            string listType, 
+            string? grandParentNode = null, 
+            string? grandParentName = null)
         {
             var nodes = new InputValueDefinitions();
 

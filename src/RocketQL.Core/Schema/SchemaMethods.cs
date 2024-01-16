@@ -19,9 +19,9 @@ public partial class Schema
         {
             return typeDefinition switch
             {
-                ScalarTypeDefinition scalarTypeDefinition => IsInputTypeCompatibleWithScalarType(typeNameNode, valueNode, scalarTypeDefinition),
-                EnumTypeDefinition enumTypeDefinition => IsInputTypeCompatibleWithEnumType(typeNameNode, valueNode, enumTypeDefinition),
-                InputObjectTypeDefinition inputObjectTypeDefinition => IsInputTypeCompatibleWithInputObjectType(typeNameNode, valueNode, inputObjectTypeDefinition),
+                ScalarTypeDefinition scalarTypeDefinition => IsInputTypeCompatibleWithScalarType(valueNode, scalarTypeDefinition),
+                EnumTypeDefinition enumTypeDefinition => IsInputTypeCompatibleWithEnumType(valueNode, enumTypeDefinition),
+                InputObjectTypeDefinition inputObjectTypeDefinition => IsInputTypeCompatibleWithInputObjectType(valueNode, inputObjectTypeDefinition),
                 _ => false
             };
         }
@@ -29,7 +29,7 @@ public partial class Schema
         return false;
     }
 
-    private static bool IsInputTypeCompatibleWithScalarType(TypeName typeNameNode, ValueNode valueNode, ScalarTypeDefinition scalarTypeDefinition)
+    private static bool IsInputTypeCompatibleWithScalarType(ValueNode valueNode, ScalarTypeDefinition scalarTypeDefinition)
     {
         // You can assign 'null' to a scalar
         if (valueNode is NullValueNode)
@@ -45,7 +45,7 @@ public partial class Schema
         };
     }
 
-    private static bool IsInputTypeCompatibleWithEnumType(TypeName typeNameNode, ValueNode valueNode, EnumTypeDefinition enumTypeDefinition)
+    private static bool IsInputTypeCompatibleWithEnumType(ValueNode valueNode, EnumTypeDefinition enumTypeDefinition)
     {
         // You can assign 'null' to an enum
         if (valueNode is NullValueNode)
@@ -59,9 +59,7 @@ public partial class Schema
         };
     }
 
-    private bool IsInputTypeCompatibleWithInputObjectType(TypeName typeNameNode, 
-                                                          ValueNode valueNode, 
-                                                          InputObjectTypeDefinition inputObjectTypeDefinition)
+    private bool IsInputTypeCompatibleWithInputObjectType(ValueNode valueNode, InputObjectTypeDefinition inputObjectTypeDefinition)
     {
         // You can assign 'null' to an input object
         if (valueNode is NullValueNode)

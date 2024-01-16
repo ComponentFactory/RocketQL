@@ -7,10 +7,11 @@ public static class Serialization
         return new JsonSerializer(node, format, indent).Serialize();
     }
 
-    public static ValueNode JsonDeserialize(ReadOnlySpan<char> json,
-                                            [CallerFilePath] string filePath = "",
-                                            [CallerMemberName] string memberName = "",
-                                            [CallerLineNumber] int lineNumber = 0)
+    public static ValueNode JsonDeserialize(
+        ReadOnlySpan<char> json,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
     {
         return new JsonDeserializer(json, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }
@@ -20,10 +21,11 @@ public static class Serialization
         return new JsonDeserializer(json, source).Deserialize();
     }
 
-    public static SyntaxNodeList RequestDeserialize(ReadOnlySpan<char> text,
-                                                    [CallerFilePath] string filePath = "",
-                                                    [CallerMemberName] string memberName = "",
-                                                    [CallerLineNumber] int lineNumber = 0)
+    public static SyntaxNodeList RequestDeserialize(
+        ReadOnlySpan<char> text,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
     {
         return new RequestDeserializer(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }
@@ -38,10 +40,11 @@ public static class Serialization
         return new SchemaSerializer(schema).Serialize(options);
     }
 
-    public static SyntaxNodeList SchemaDeserialize(ReadOnlySpan<char> text,
-                                                   [CallerFilePath] string filePath = "",
-                                                   [CallerMemberName] string memberName = "",
-                                                   [CallerLineNumber] int lineNumber = 0)
+    public static SyntaxNodeList SchemaDeserialize(
+        ReadOnlySpan<char> text,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
     {
         return new SchemaDeserializer(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)).Deserialize();
     }

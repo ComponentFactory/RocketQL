@@ -47,10 +47,11 @@ public partial class Schema : ISchema
         Add(Serialization.SchemaDeserialize(schema, source));
     }
 
-    public void Add(ReadOnlySpan<char> schema,
-                    [CallerFilePath] string filePath = "",
-                    [CallerMemberName] string memberName = "",
-                    [CallerLineNumber] int lineNumber = 0)
+    public void Add(
+        ReadOnlySpan<char> schema,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
     {
         Add(Serialization.SchemaDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
     }
@@ -162,7 +163,8 @@ public partial class Schema : ISchema
                 }
             },
             false,
-            DirectiveLocations.FIELD_DEFINITION | DirectiveLocations.ARGUMENT_DEFINITION | DirectiveLocations.INPUT_FIELD_DEFINITION | DirectiveLocations.ENUM_VALUE,
+            DirectiveLocations.FIELD_DEFINITION | DirectiveLocations.ARGUMENT_DEFINITION | DirectiveLocations.INPUT_FIELD_DEFINITION | 
+            DirectiveLocations.ENUM_VALUE,
             Location.Empty));
 
         directives.Add(new DirectiveDefinition(

@@ -2,10 +2,11 @@
 
 public abstract class LinkerNodeVisitor
 {
-    public static void InterlinkDirectives(Directives directives,
-                                           DocumentNode parentNode,
-                                           DocumentNode? grandParentNode,
-                                           IReadOnlyDictionary<string, DirectiveDefinition> directiveDefinitions)
+    public static void InterlinkDirectives(
+        Directives directives,
+        DocumentNode parentNode,
+        DocumentNode? grandParentNode,
+        IReadOnlyDictionary<string, DirectiveDefinition> directiveDefinitions)
     {
         foreach (var directive in directives)
         {
@@ -25,11 +26,12 @@ public abstract class LinkerNodeVisitor
             }
         }
     }
-    public static void InterlinkTypeNode(TypeNode typeLocation,
-                                         DocumentNode parentNode,
-                                         DocumentNode rootNode,
-                                         DocumentNode typeParentNode,
-                                         IReadOnlyDictionary<string, TypeDefinition> typeDefinitions)
+    public static void InterlinkTypeNode(
+        TypeNode typeLocation,
+        DocumentNode parentNode,
+        DocumentNode rootNode,
+        DocumentNode typeParentNode,
+        IReadOnlyDictionary<string, TypeDefinition> typeDefinitions)
     {
         typeLocation.Parent = typeParentNode;
 

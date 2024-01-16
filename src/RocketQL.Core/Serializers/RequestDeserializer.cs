@@ -7,10 +7,11 @@ public ref struct RequestDeserializer
     private readonly SyntaxNodeList _nodes;
     private DocumentTokenizer _tokenizer;
 
-    public RequestDeserializer(ReadOnlySpan<char> text,
-                               [CallerFilePath] string filePath = "",
-                               [CallerMemberName] string memberName = "",
-                               [CallerLineNumber] int lineNumber = 0)
+    public RequestDeserializer(
+        ReadOnlySpan<char> text,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
@@ -97,12 +98,13 @@ public ref struct RequestDeserializer
             MandatoryNext();
         }
 
-        return new SyntaxOperationDefinitionNode(operationType,
-                                                 name,
-                                                 ParseVariablesOptionalDefinition(),
-                                                 ParseDirectivesOptional(),
-                                                 ParseSelectionSet(),
-                                                 location);
+        return new SyntaxOperationDefinitionNode(
+            operationType,
+            name,
+            ParseVariablesOptionalDefinition(),
+            ParseDirectivesOptional(),
+            ParseSelectionSet(),
+            location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,11 +122,7 @@ public ref struct RequestDeserializer
         string typeCondition = _tokenizer.TokenValue;
         MandatoryNext();
 
-        return new SyntaxFragmentDefinitionNode(name, 
-                                                typeCondition, 
-                                                ParseDirectivesOptional(), 
-                                                ParseSelectionSet(), 
-                                                location);
+        return new SyntaxFragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet(), location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -155,11 +153,7 @@ public ref struct RequestDeserializer
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
-            list.Add(new SyntaxVariableDefinitionNode("$" + name,
-                                                      ParseType(),
-                                                      ParseDefaultValueOptional(),
-                                                      ParseDirectivesOptional(),
-                                                      location));
+            list.Add(new SyntaxVariableDefinitionNode("$" + name, ParseType(), ParseDefaultValueOptional(), ParseDirectivesOptional(), location));
 
         } while (_tokenizer.TokenKind == DocumentTokenKind.Dollar);
 
@@ -202,12 +196,13 @@ public ref struct RequestDeserializer
                             MandatoryNext();
                         }
 
-                        list.Add(new SyntaxFieldSelectionNode(alias,
-                                                              name,
-                                                              ParseArgumentsOptional(constant: false),
-                                                              ParseDirectivesOptional(),
-                                                              ParseSelectionSetOptional(), 
-                                                              location));
+                        list.Add(new SyntaxFieldSelectionNode(
+                            alias,
+                            name,
+                            ParseArgumentsOptional(constant: false),
+                            ParseDirectivesOptional(),
+                            ParseSelectionSetOptional(), 
+                            location));
                     }
                     break;
                 case DocumentTokenKind.Spread:
@@ -234,10 +229,7 @@ public ref struct RequestDeserializer
                             }
                         }
 
-                        list.Add(new SyntaxInlineFragmentSelectionNode(name,
-                                                                       ParseDirectivesOptional(),
-                                                                       ParseSelectionSet(),
-                                                                       fragmentLocation));
+                        list.Add(new SyntaxInlineFragmentSelectionNode(name, ParseDirectivesOptional(), ParseSelectionSet(), fragmentLocation));
                     }
                     break;
                 default:

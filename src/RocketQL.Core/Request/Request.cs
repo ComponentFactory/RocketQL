@@ -45,10 +45,11 @@ public partial class Request : IRequest
         Add(Serialization.RequestDeserialize(schema, source));
     }
 
-    public void Add(ReadOnlySpan<char> schema,
-                    [CallerFilePath] string filePath = "",
-                    [CallerMemberName] string memberName = "",
-                    [CallerLineNumber] int lineNumber = 0)
+    public void Add(
+        ReadOnlySpan<char> schema,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
     {
         Add(Serialization.RequestDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
     }

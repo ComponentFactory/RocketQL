@@ -14,22 +14,25 @@ public abstract class ConverterNodeVisitor
 
         foreach (var directive in directives)
         {
-            nodes.Add(new(directive.Name, ConvertObjectFields(directive.Arguments, 
-                directive.Location, 
-                "Directive", 
-                directive.Name, 
-                "argument"), 
+            nodes.Add(new(
+                directive.Name, ConvertObjectFields(
+                    directive.Arguments, 
+                    directive.Location, 
+                    "Directive", 
+                    directive.Name, 
+                    "argument"), 
                 directive.Location));
         }
 
         return nodes;
     }
 
-    public static ObjectFields ConvertObjectFields(SyntaxObjectFieldNodeList fields, 
-                                                   Location location, 
-                                                   string parentType, 
-                                                   string parentName, 
-                                                   string listType)
+    public static ObjectFields ConvertObjectFields(
+        SyntaxObjectFieldNodeList fields, 
+        Location location, 
+        string parentType, 
+        string parentName, 
+        string listType)
     {
         var nodes = new ObjectFields();
 

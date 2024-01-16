@@ -101,10 +101,11 @@ public ref struct DocumentTokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
-    public DocumentTokenizer(ReadOnlySpan<char> text,
-                             [CallerFilePath] string filePath = "",
-                             [CallerMemberName] string memberName = "",
-                             [CallerLineNumber] int lineNumber = 0)
+    public DocumentTokenizer(
+        ReadOnlySpan<char> text,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }

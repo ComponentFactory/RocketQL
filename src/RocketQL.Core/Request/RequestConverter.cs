@@ -29,7 +29,9 @@ public partial class Request
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
                     (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
+                {
                     FatalException(ValidationException.RequestAnonymousAndNamed(operation.Location));
+                }
 
                 _request._operations.Add(operationName, new(
                     operation.Operation, 
@@ -132,8 +134,9 @@ public partial class Request
             _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendInputObjectType.Location, "Extend input object"));
         }
 
-        private static VariableDefinitions ConvertVariableDefinitions(SyntaxVariableDefinitionNodeList variables, 
-                                                                      SyntaxOperationDefinitionNode operation)
+        private static VariableDefinitions ConvertVariableDefinitions(
+            SyntaxVariableDefinitionNodeList variables, 
+            SyntaxOperationDefinitionNode operation)
         {
             var nodes = new VariableDefinitions();
 

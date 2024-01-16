@@ -91,10 +91,11 @@ public ref struct JsonTokenizer
         _escChar[(int)EscapeKind.Tab] = '\t';
     }
 
-    public JsonTokenizer(ReadOnlySpan<char> text,
-                         [CallerFilePath] string filePath = "",
-                         [CallerMemberName] string memberName = "",
-                         [CallerLineNumber] int lineNumber = 0)
+    public JsonTokenizer(
+        ReadOnlySpan<char> text,
+        [CallerFilePath] string filePath = "",
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
@@ -290,11 +291,8 @@ public ref struct JsonTokenizer
             ScanFloatExponent();
         else
         {
-            switch (_mapKind[_text[_index]])
-            {
-                case FullTokenKind.Letter:
-                    throw SyntaxException.IntCannotBeFollowed(Location, _mapKind[_c].ToString());
-            }
+            if (_mapKind[_text[_index]] == FullTokenKind.Letter)
+                throw SyntaxException.IntCannotBeFollowed(Location, _mapKind[_c].ToString());
 
             _tokenKind = FullTokenKind.IntValue;
         }
