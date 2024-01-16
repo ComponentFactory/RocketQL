@@ -12,7 +12,7 @@ public class UnitTestBase
         }
 
         Assert.IsType<SyntaxTypeNameNode>(node);
-        SyntaxTypeNameNode nameNode = (SyntaxTypeNameNode)node;
+        var nameNode = (SyntaxTypeNameNode)node;
         Assert.Equal(typeName, nameNode.Name);
     }
 
@@ -50,13 +50,33 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
-            Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
             Assert.NotNull(validation.Source);
+            Assert.Equal(message, validation.Message);
         }
     }
 
-    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message)
+
+    protected static void SchemaValidationSingleException(string schemaTest, string message, string commaPath)
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add(schemaTest);
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (Exception ex)
+        {
+            var validation = Assert.IsType<ValidationException>(ex);
+            Assert.NotNull(validation.Source);
+            Assert.Equal(message, validation.Message);
+            Assert.Equal(commaPath, validation.CommaPath);
+        }
+    }
+
+    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message, string commaPath)
     {
         try
         {
@@ -69,9 +89,11 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
-            Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
+            Assert.Equal(message, ex.Message);
             Assert.NotNull(validation.Source);
+            Assert.Equal(message, validation.Message);
+            Assert.Equal(commaPath, validation.CommaPath);
         }
     }
 
@@ -88,8 +110,8 @@ public class UnitTestBase
         catch (Exception ex)
         {
             var aggregate = Assert.IsType<RocketExceptions>(ex);
-            Assert.Equal(messages.Count(), aggregate.InnerExceptions.Count);
-            foreach(var message in messages)
+            Assert.Equal(messages.Length, aggregate.InnerExceptions.Count);
+            foreach (var message in messages)
                 Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());
         }
     }
@@ -115,6 +137,6 @@ public class UnitTestBase
         }
     }
 
-    
+
 }
 

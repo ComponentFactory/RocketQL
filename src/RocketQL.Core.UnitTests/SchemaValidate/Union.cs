@@ -5,113 +5,152 @@ public class Union : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("type Query { first: Int} type fizz { buzz: Int } union foo = fizz", 
-                                        "union foo = fizz", 
-                                        "Union 'foo' is already defined.");
+        SchemaValidationSingleException("""
+                                        type Query { first: Int} 
+                                        type fizz { buzz: Int } 
+                                        union foo = fizz
+                                        """,
+                                        "union foo = fizz",
+                                        "Union 'foo' is already defined.",
+                                        "union foo");
     }
 
     [Theory]
     // Double underscores
     [InlineData("""
                 type Query { first: Int } 
-                type fizz { buzz: Int } union __foo = fizz 
-                """,                                                "Union '__foo' not allowed to start with two underscores.")]
+                type fizz { buzz: Int } 
+                union __foo = fizz 
+                """,
+                "Union '__foo' not allowed to start with two underscores.",
+                "union __foo")]
     // Undefined member type
     [InlineData("""
                 type Query { first: Int } 
                 union foo = fizz     
-                """,                                                "Undefined member type 'fizz' defined on union 'foo'.")]
+                """,
+                "Undefined member type 'fizz'.",
+                "union foo, member type fizz")]
     // Duplicate member type
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo = fizz | fizz    
-                """,                                                "Duplicate member type 'fizz' encountered.")]
+                """,
+                "Duplicate member type 'fizz'.",
+                "union foo, member type fizz")]
     // Member type can only be an object type
     [InlineData("""
                 type Query { first: Int } 
-                scalar fizz union foo = fizz
-                """,                                                "Cannot reference member type 'fizz' defined on union 'foo' because it is a scalar.")]
+                scalar fizz 
+                union foo = fizz
+                """,
+                "Cannot reference member type 'fizz' because it is a scalar.",
+                "union foo, member type fizz")]
     [InlineData("""
                 type Query { first: Int } 
-                interface fizz { buzz: Int } union foo = fizz
-                """,                                                "Cannot reference member type 'fizz' defined on union 'foo' because it is an interface.")]
+                interface fizz { buzz: Int } 
+                union foo = fizz
+                """,
+                "Cannot reference member type 'fizz' because it is an interface.",
+                "union foo, member type fizz")]
     [InlineData("""
                 type Query { first: Int } 
-                enum fizz { BUZZ } union foo = fizz
-                """,                                                "Cannot reference member type 'fizz' defined on union 'foo' because it is an enum.")]
+                enum fizz { BUZZ } 
+                union foo = fizz
+                """,
+                "Cannot reference member type 'fizz' because it is an enum.",
+                "union foo, member type fizz")]
     [InlineData("""
                 type Query { first: Int } 
-                input fizz { buzz: Int } union foo = fizz
-                """,                                                "Cannot reference member type 'fizz' defined on union 'foo' because it is an input object.")]
+                input fizz { buzz: Int } 
+                union foo = fizz
+                """,
+                "Cannot reference member type 'fizz' because it is an input object.",
+                "union foo, member type fizz")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo = fizz
                 union buzz = foo
-                """,                                                "Cannot reference member type 'foo' defined on union 'buzz' because it is a union.")]
+                """,
+                "Cannot reference member type 'foo' because it is a union.",
+                "union buzz, member type foo")]
     // Directive errors
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo @example = fizz 
-                """,                                                "Undefined directive '@example' defined on union 'foo'.")]
-    [InlineData("""
-                type Query { first: Int } 
-                type fizz { buzz: Int }
-                union foo @example = fizz           
-                """,                                                "Undefined directive '@example' defined on union 'foo'.")]
+                """,
+                "Undefined directive '@example' defined on union.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on ENUM
                 union foo @example = fizz                    
-                """,                                                "Directive '@example' is not specified for use on union 'foo' location.")]
+                """,
+                "Directive '@example' is not specified for use at this location.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on UNION
                 union foo @example @example = fizz               
-                """,                                                "Directive '@example' is not repeatable but has been applied multiple times on union 'foo'.")]
+                """,
+                "Directive '@example' is not repeatable but has been applied multiple times.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg1: Int!) on UNION
                 union foo @example = fizz               
-                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on union 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: Int!) on UNION
                 union foo @example = fizz               
-                """,                                                "Directive '@example' has mandatory argument 'arg1' missing on union 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example on UNION
                 union foo @example(arg1: 123) = fizz             
-                """,                                                "Directive '@example' does not define argument 'arg1' provided on union 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int) on UNION
                 union foo @example(arg1: 123) = fizz              
-                """,                                                "Directive '@example' does not define argument 'arg1' provided on union 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Argument 'arg1' of directive '@example' of union 'foo' has a default value incompatible with the type.")]
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "union foo, directive @example")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 directive @example(arg0: Int arg1: Int!) on UNION
                 union foo @example(arg1: null) = fizz              
-                """,                                                "Argument 'arg1' of directive '@example' of union 'foo' has a default value incompatible with the type.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "union foo, directive @example")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Theory]

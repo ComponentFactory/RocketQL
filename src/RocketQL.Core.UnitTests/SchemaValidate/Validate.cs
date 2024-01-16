@@ -10,6 +10,7 @@ public class Validate : UnitTestBase
         schema.Add(new SyntaxOperationDefinitionNode(OperationType.QUERY, "Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => schema.Validate());
         Assert.Equal("Operation definition not allowed in a schema.", exception.Message);
+        Assert.Equal("", exception.CommaPath);
     }
 
     [Fact]
@@ -20,6 +21,7 @@ public class Validate : UnitTestBase
         schema.Add(new SyntaxFragmentDefinitionNode("Example", "MyType", [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => schema.Validate());
         Assert.Equal("Fragment definition not allowed in a schema.", exception.Message);
+        Assert.Equal("", exception.CommaPath);
     }
 }
 

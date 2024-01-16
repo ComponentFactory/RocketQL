@@ -8,11 +8,12 @@ public class ValidationException(Location location, string message, string[] pat
     }
 
     public string[] Path { get; init; } = path;
+    public string CommaPath => string.Join(", ", Path);
 
     public static ValidationException UnrecognizedType(Location location, string name, string[] path) => new(location, $"Unrecognized type '{name}' encountered.", path);
     public static ValidationException UnrecognizedType(SyntaxNode node, string[] path) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.", path);
     public static ValidationException TypeNameAlreadyDefined(LocationNode node, string name, string type, string[] path) => new(node.Location, $"{type} '{name}' is already defined.", path);
-    public static ValidationException DuplicateName(LocationNode node, string usage, string name, string[] path) => new(node.Location, $"Duplicate {usage} '{name}' encountered.", path);
+    public static ValidationException DuplicateName(LocationNode node, string usage, string name, string[] path) => new(node.Location, $"Duplicate {usage} '{name}'.", path);
     public static ValidationException DefinitionNotAllowedInSchema(LocationNode node, string definition) => new(node.Location, $"{definition} definition not allowed in a schema.", []);
     public static ValidationException SchemaDefinitionAlreadyEncountered(LocationNode node, string[] path) => new(node.Location, $"Schema definition already encountered.", path);
     public static ValidationException SchemaDefinitionMultipleOperation(SyntaxOperationTypeDefinitionNode node, string[] path) => new(node.Location, $"Schema defines the {node.Operation.ToString().ToLower()} operation more than once.", path);
@@ -45,11 +46,11 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException SchemaOperationTypeNotDefined(OperationTypeDefinition node, string[] path) => new(node.Location, $"Schema{node.Operation.ToString().ToLower()} operation type '{node.NamedType}' not defined.", path);
     public static ValidationException SchemaOperationTypeNotObject(OperationTypeDefinition node, DocumentNode type, string[] path) => new(node.Location, $"Schema {node.Operation.ToString().ToLower()} operation '{node.NamedType}' has type {type.OutputElement.ToLower()} instead of object type.", path);
     public static ValidationException UndefinedInterface(Interface node, TypeDefinition parentNode, string[] path) => new(node.Location, $"Undefined interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.", path);
-    public static ValidationException UndefinedMemberType(MemberType node, UnionTypeDefinition parentNode, string[] path) => new(node.Location, $"Undefined member type '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.", path);
+    public static ValidationException UndefinedMemberType(MemberType node, string[] path) => new(node.Location, $"Undefined member type '{node.OutputName}'.", path);
     public static ValidationException UndefinedDirective(Directive node, DocumentNode parentNode, string[] path) => new(node.Location, $"Undefined directive '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()}.", path);
     public static ValidationException UndefinedTypeForListEntry(LocationNode node, string type, DocumentNode parentNode, string[] path) => new(node.Location, $"Undefined type '{type}' on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.", path);
     public static ValidationException TypeIsNotAnInterface(Interface node, TypeDefinition parentNode, DocumentNode actualNode, string[] path) => new(node.Location, $"Cannot implement interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' because it is a '{actualNode.OutputElement.ToLower()}'.", path);
-    public static ValidationException TypeIsNotAnObject(MemberType node, UnionTypeDefinition parentNode, DocumentNode actualNode, string article, string[] path) => new(node.Location, $"Cannot reference member type '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}' because it is {article} {actualNode.OutputElement.ToLower()}.", path);
+    public static ValidationException TypeIsNotAnObject(MemberType node, DocumentNode actualNode, string article, string[] path) => new(node.Location, $"Cannot reference member type '{node.OutputName}' because it is {article} {actualNode.OutputElement.ToLower()}.", path);
     public static ValidationException UnrecognizedType(DocumentNode node, string[] path) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.", path);
     public static ValidationException SchemaDefinitionEmpty(DocumentNode node, string[] path) => new(node.Location, "Schema definition must have at least one operation type.", path);
     public static ValidationException SchemaDefinitionMissingQuery(DocumentNode node, string[] path) => new(node.Location, "Schema definition missing mandatory query operation.", path);

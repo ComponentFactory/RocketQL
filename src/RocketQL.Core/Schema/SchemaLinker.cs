@@ -181,7 +181,7 @@ public partial class Schema
                 memberType.Parent = unionType;
 
                 if (!_schema._types.TryGetValue(memberType.Name, out var typeDefinition))
-                    FatalException(ValidationException.UndefinedMemberType(memberType, unionType, CurrentPath));
+                    FatalException(ValidationException.UndefinedMemberType(memberType, CurrentPath));
 
                 if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
                 {
@@ -190,7 +190,6 @@ public partial class Schema
                 }
                 else
                     FatalException(ValidationException.TypeIsNotAnObject(memberType,
-                                                                         unionType,
                                                                          typeDefinition!,
                                                                          ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an",
                                                                          CurrentPath));
