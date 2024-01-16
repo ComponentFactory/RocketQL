@@ -74,7 +74,7 @@ public class DirectiveDefinition : DocumentNode
     public override string OutputName => Name;
 }
 
-public abstract class TypeDefinition : DocumentNode
+public abstract record class TypeDefinition(string Description, string Name, Directives Directives, Location Location, bool IsBuiltIn = false) : DocumentNode(Location)
 {
     public required string Description { get; init; }
     public required string Name { get; init; }
