@@ -23,7 +23,7 @@ public class ExtendSchema : UnitTestBase
                 type fizz { buzz: Int }
                 schema { query: fizz } 
                 extend schema { query: fizz } 
-                """,                                            "Extend schema cannot add operation QUERY because it is already defined.")]
+                """,                                            "Extend schema cannot add query operation because it is already defined.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

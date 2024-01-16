@@ -46,7 +46,7 @@ public interface IDocumentNodeVisitors
                 VisitInputObjectTypeDefinition(inputObjectType);
                 break;
             default:
-                throw ValidationException.UnrecognizedType(node);
+                throw ValidationException.UnrecognizedType(node, []);
         }
     }
 

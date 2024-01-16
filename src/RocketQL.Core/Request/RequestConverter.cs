@@ -1,11 +1,15 @@
-﻿namespace RocketQL.Core.Base;
+﻿using RocketQL.Core.Nodes;
+using System.Runtime.Intrinsics.X86;
+using System.Security.Cryptography.X509Certificates;
+
+namespace RocketQL.Core.Base;
 
 public partial class Request
 {
     private RequestConverter? _requestConverter = null;
     private RequestConverter Converter => _requestConverter ??= new RequestConverter(this);
 
-    private class RequestConverter(Request request) : ConverterNodeVisitor, ISyntaxNodeVisitors
+    private class RequestConverter(Request request) : NodeVisitor, ISyntaxNodeVisitors
     {
         private readonly Request _request = request;
 
@@ -16,149 +20,150 @@ public partial class Request
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
         {
-            var operationName = operation.Name ?? "";
+            var operationName = operation.Name ?? "(default)";
+            PushPath($"operation {operationName}");
 
             if (_request._operations.ContainsKey(operationName))
             {
                 if (string.IsNullOrEmpty(operation.Name))
-                    FatalException(ValidationException.RequestAnonymousAlreadyDefined(operation.Location));
+                    FatalException(ValidationException.RequestAnonymousAlreadyDefined(operation, CurrentPath));
                 else
-                    FatalException(ValidationException.RequestOperationAlreadyDefined(operation.Location, operation.Name));
+                    FatalException(ValidationException.RequestOperationAlreadyDefined(operation, CurrentPath));
             }
             else
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
                     (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
                 {
-                    FatalException(ValidationException.RequestAnonymousAndNamed(operation.Location));
+                    FatalException(ValidationException.RequestAnonymousAndNamed(operation, CurrentPath));
                 }
 
-                _request._operations.Add(operationName, new(
-                    operation.Operation, 
-                    operationName, 
-                    ConvertDirectives(operation.Directives), 
-                    ConvertVariableDefinitions(operation.VariableDefinitions, 
-                    operation), 
-                    ConvertSelectionSet(operation.SelectionSet), 
-                    operation.Location));
+                _request._operations.Add(operationName, new(operation.Operation,
+                                                            operationName,
+                                                            ConvertDirectives(operation.Directives),
+                                                            ConvertVariableDefinitions(operation.VariableDefinitions),
+                                                            ConvertSelectionSet(operation.SelectionSet),
+                                                            operation.Location));
             }
+
+            PopPath();
         }
 
         public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
         {
+            PushPath($"fragment {fragment.Name}");
+
             if (_request._fragments.ContainsKey(fragment.Name))
-                _request.NonFatalException(ValidationException.NameAlreadyDefined(fragment.Location, "Fragment", fragment.Name));
+                _request.NonFatalException(ValidationException.TypeNameAlreadyDefined(fragment, "Fragment", fragment.Name, CurrentPath));
             else
-            {
-                _request._fragments.Add(fragment.Name, new(
-                    fragment.Name,
-                    fragment.TypeCondition,
-                    ConvertDirectives(fragment.Directives),
-                    ConvertSelectionSet(fragment.SelectionSet),
-                    fragment.Location));
-            }
+                _request._fragments.Add(fragment.Name, new(fragment.Name,
+                                                           fragment.TypeCondition,
+                                                           ConvertDirectives(fragment.Directives),
+                                                           ConvertSelectionSet(fragment.SelectionSet),
+                                                           fragment.Location));
+
+            PopPath();
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(schema.Location, "Schema"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(schema, "Schema"));
         }
 
         public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(directive.Location, "Directive"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(directive, "Directive"));
         }
 
         public void VisitScalarTypeDefinition(SyntaxScalarTypeDefinitionNode scalarType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(scalarType.Location, "Scalar"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(scalarType, "Scalar"));
         }
 
         public void VisitObjectTypeDefinition(SyntaxObjectTypeDefinitionNode objectType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(objectType.Location, "Object"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(objectType, "Object"));
         }
 
         public void VisitInterfaceTypeDefinition(SyntaxInterfaceTypeDefinitionNode interfaceType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(interfaceType.Location, "Interface"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(interfaceType, "Interface"));
         }
 
         public void VisitUnionTypeDefinition(SyntaxUnionTypeDefinitionNode unionType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(unionType.Location, "Union"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(unionType, "Union"));
         }
 
         public void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(enumType.Location, "Enum"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(enumType, "Enum"));
         }
 
         public void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(inputObjectType.Location, "Input object"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(inputObjectType, "Input object"));
         }
 
         public void VisitExtendSchemaDefinition(SyntaxExtendSchemaDefinitionNode extendSchema)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendSchema.Location, "Extend schema"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendSchema, "Extend schema"));
         }
 
         public void VisitExtendScalarTypeDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendScalarType.Location, "Extend scalar"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendScalarType, "Extend scalar"));
         }
 
         public void VisitExtendObjectTypeDefinition(SyntaxExtendObjectTypeDefinitionNode extendObjectType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendObjectType.Location, "Extend object"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendObjectType, "Extend object"));
         }
 
         public void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendInterfaceType.Location, "Extend interface"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendInterfaceType, "Extend interface"));
         }
 
         public void VisitExtendUnionTypeDefinition(SyntaxExtendUnionTypeDefinitionNode extendUnionType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendUnionType.Location, "Extend union"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendUnionType, "Extend union"));
         }
 
         public void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendEnumType.Location, "Extend enum"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendEnumType, "Extend enum"));
         }
 
         public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
         {
-            _request.NonFatalException(ValidationException.SchemaDefinitionIgnored(extendInputObjectType.Location, "Extend input object"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(extendInputObjectType, "Extend input object"));
         }
 
-        private static VariableDefinitions ConvertVariableDefinitions(
-            SyntaxVariableDefinitionNodeList variables, 
-            SyntaxOperationDefinitionNode operation)
+        private VariableDefinitions ConvertVariableDefinitions(SyntaxVariableDefinitionNodeList variables)
         {
             var nodes = new VariableDefinitions();
 
             foreach (var variable in variables)
             {
+                PushPath($"variable {variable.Name}");
+
                 if (nodes.ContainsKey(variable.Name))
-                    FatalException(ValidationException.DuplicateOperationVariable(variable.Location, OperationDescription(operation), variable.Name));
+                    FatalException(ValidationException.DuplicateName(variable, "variable", variable.Name, CurrentPath));
                 else
-                {
-                    nodes.Add(variable.Name, new VariableDefinition(
-                        variable.Name,
-                        ConvertTypeNode(variable.Type),
-                        variable.DefaultValue,
-                        ConvertDirectives(variable.Directives),
-                        variable.Location));
-                }
+                    nodes.Add(variable.Name, new VariableDefinition(variable.Name,
+                                                                    ConvertTypeNode(variable.Type),
+                                                                    variable.DefaultValue,
+                                                                    ConvertDirectives(variable.Directives),
+                                                                    variable.Location));
+
+                PopPath();
             }
 
             return nodes;
         }
 
-        private static SelectionSet ConvertSelectionSet(SyntaxSelectionDefinitionNodeList selections)
+        private SelectionSet ConvertSelectionSet(SyntaxSelectionDefinitionNodeList selections)
         {
             var set = new SelectionSet();
 
@@ -169,47 +174,90 @@ public partial class Request
                     SyntaxFieldSelectionNode fieldSelection => ConvertFieldSelection(fieldSelection),
                     SyntaxFragmentSpreadSelectionNode fragmentSpread => ConvertFragmentSpreadSelection(fragmentSpread),
                     SyntaxInlineFragmentSelectionNode inlineFragment => ConvertInlineFragmentSelection(inlineFragment),
-                    _ => throw ValidationException.UnrecognizedType(selection)
+                    _ => throw ValidationException.UnrecognizedType(selection, CurrentPath)
                 });
             }
 
             return set;
         }
 
-        private static SelectionField ConvertFieldSelection(SyntaxFieldSelectionNode fieldSelection)
+        private SelectionField ConvertFieldSelection(SyntaxFieldSelectionNode fieldSelection)
         {
-            return new SelectionField(
-                fieldSelection.Alias,
-                fieldSelection.Name,
-                ConvertDirectives(fieldSelection.Directives),
-                ConvertObjectFields(fieldSelection.Arguments, fieldSelection.Location, "Field", fieldSelection.Name, "argument"),
-                ConvertSelectionSet(fieldSelection.SelectionSet),
-                fieldSelection.Location);
+            var displayName = string.IsNullOrEmpty(fieldSelection.Alias) ? fieldSelection.Name : fieldSelection.Alias;
+            PushPath($"field {displayName}");
+
+            var ret = new SelectionField(fieldSelection.Alias,
+                                         fieldSelection.Name,
+                                         ConvertDirectives(fieldSelection.Directives),
+                                         ConvertObjectFields(fieldSelection, fieldSelection.Arguments, "argument"),
+                                         ConvertSelectionSet(fieldSelection.SelectionSet),
+                                         fieldSelection.Location);
+
+            PopPath();
+            return ret;
         }
 
-        private static SelectionFragmentSpread ConvertFragmentSpreadSelection(SyntaxFragmentSpreadSelectionNode fragmentSpread)
+        private SelectionFragmentSpread ConvertFragmentSpreadSelection(SyntaxFragmentSpreadSelectionNode fragmentSpread)
         {
-            return new SelectionFragmentSpread(
-                fragmentSpread.Name,
-                ConvertDirectives(fragmentSpread.Directives),
-                fragmentSpread.Location);
+            PushPath($"fragment spread {fragmentSpread.Name}");
+
+            var ret = new SelectionFragmentSpread(fragmentSpread.Name, ConvertDirectives(fragmentSpread.Directives), fragmentSpread.Location);
+
+            PopPath();
+            return ret;
         }
 
-        private static SelectionNode ConvertInlineFragmentSelection(SyntaxInlineFragmentSelectionNode inlineFragment)
+        private SelectionInlineFragment ConvertInlineFragmentSelection(SyntaxInlineFragmentSelectionNode inlineFragment)
         {
-            return new SelectionInlineFragment(
-                inlineFragment.TypeCondition,
-                ConvertDirectives(inlineFragment.Directives),
-                ConvertSelectionSet(inlineFragment.SelectionSet),
-                inlineFragment.Location);
+            PushPath($"inline fragment {inlineFragment.TypeCondition}");
+
+            var ret = new SelectionInlineFragment(inlineFragment.TypeCondition,
+                                                  ConvertDirectives(inlineFragment.Directives),
+                                                  ConvertSelectionSet(inlineFragment.SelectionSet),
+                                                  inlineFragment.Location);
+
+            PopPath();
+            return ret;
         }
 
-        private static string OperationDescription(SyntaxOperationDefinitionNode operation)
+        private Directives ConvertDirectives(SyntaxDirectiveNodeList directives)
         {
-            if (operation.Name == "")
-                return $"Anonymous {operation.Operation.ToString().ToLower()} operation";
-            else
-                return $"{operation.Operation.ToString()[0]}{operation.Operation.ToString().ToLower().Substring(1)} operation '{operation.Name}'";
+            var nodes = new Directives();
+
+            foreach (var directive in directives)
+                nodes.Add(new(directive.Name, ConvertObjectFields(directive, directive.Arguments, "argument"), directive.Location));
+
+            return nodes;
+        }
+
+        private ObjectFields ConvertObjectFields(LocationNode parentNode, SyntaxObjectFieldNodeList fields, string usage)
+        {
+            var nodes = new ObjectFields();
+
+            foreach (var field in fields)
+            {
+                PushPath($"{usage} {field.Name}");
+
+                if (nodes.ContainsKey(field.Name))
+                    throw ValidationException.DuplicateName(parentNode, usage, field.Name, CurrentPath);
+                else
+                    nodes.Add(field.Name, field);
+
+                PopPath();
+            }
+
+            return nodes;
+        }
+
+        private TypeNode ConvertTypeNode(SyntaxTypeNode node)
+        {
+            return node switch
+            {
+                SyntaxTypeNameNode nameNode => new TypeName(nameNode.Name, nameNode.Location),
+                SyntaxTypeNonNullNode nonNullNode => new TypeNonNull(ConvertTypeNode(nonNullNode.Type), nonNullNode.Location),
+                SyntaxTypeListNode listNode => new TypeList(ConvertTypeNode(listNode.Type), listNode.Location),
+                _ => throw ValidationException.UnrecognizedType(node.Location, node.GetType().Name, CurrentPath)
+            };
         }
     }
 }

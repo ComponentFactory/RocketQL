@@ -6,7 +6,7 @@ public abstract record class DocumentNode : LocationNode
     {
     }
 
-    public DocumentNode(Location location) 
+    public DocumentNode(Location location)
         : base(location)
     {
     }
@@ -17,7 +17,7 @@ public abstract record class DocumentNode : LocationNode
 }
 
 public record class OperationDefinition(OperationType Operation, string Name, Directives Directives, VariableDefinitions Variables, SelectionSet SelectionSet, Location Location) : DocumentNode(Location)
-{    
+{
     public override string OutputElement => "Operation";
     public override string OutputName => string.IsNullOrEmpty(Name) ? Operation.ToString() : Name;
 }
@@ -31,7 +31,7 @@ public record class FragmentDefinition(string Name, string TypeCondition, Direct
 
 public record class SchemaRoot(string Description, Directives Directives, OperationTypeDefinition? Query, OperationTypeDefinition? Mutation, OperationTypeDefinition? Subscription, Location Location) : DocumentNode(Location)
 {
-    public static readonly SchemaRoot Empty = new("", [], null, null, null, Location.Empty);    
+    public static readonly SchemaRoot Empty = new("", [], null, null, null, Location.Empty);
 
     public override string OutputElement => "Schema";
     public override string OutputName => "";
@@ -186,7 +186,7 @@ public record class TypeList(TypeNode Type, Location Location) : TypeNode(Locati
 {
     public override TypeDefinition? Definition { get => Type.Definition; set => Type.Definition = value; }
     public override string OutputElement => "TypeList";
-    public override string OutputName => ""; 
+    public override string OutputName => "";
     public override bool IsInputType => Type.IsInputType;
     public override bool IsOutputType => Type.IsOutputType;
 }

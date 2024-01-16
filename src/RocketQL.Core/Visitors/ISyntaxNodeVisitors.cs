@@ -66,7 +66,7 @@ public interface ISyntaxNodeVisitors
                 VisitExtendInputObjectTypeDefinition(extendInputObjectType);
                 break;
             default:
-                throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString());
+                throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString(), []);
         }
     }
 
@@ -89,4 +89,3 @@ public interface ISyntaxNodeVisitors
     void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType);
     void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType);
 }
- 

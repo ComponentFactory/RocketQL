@@ -26,7 +26,7 @@ public class Union : UnitTestBase
                 type Query { first: Int } 
                 type fizz { buzz: Int }
                 union foo = fizz | fizz    
-                """,                                                "Union 'foo' has duplicate member type 'fizz'.")]
+                """,                                                "Duplicate member type 'fizz' encountered.")]
     // Member type can only be an object type
     [InlineData("""
                 type Query { first: Int } 

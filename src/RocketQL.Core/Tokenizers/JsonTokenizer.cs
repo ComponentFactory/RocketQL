@@ -2,12 +2,12 @@
 
 public ref struct JsonTokenizer
 {
-    private static readonly FullTokenKind[] _mapKind = new FullTokenKind[65536];
-    private static readonly FullTokenKind[] _hexKind = new FullTokenKind[65536];
-    private static readonly byte[] _hexValues = new byte[65536];
-    private static readonly EscapeKind[] _escKind = new EscapeKind[65536];
-    private static readonly char[] _escChar = new char[(int)EscapeKind.u];
-    private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
+    private static readonly FullTokenKind[] s_mapKind = new FullTokenKind[65536];
+    private static readonly FullTokenKind[] s_hexKind = new FullTokenKind[65536];
+    private static readonly byte[] s_hexValues = new byte[65536];
+    private static readonly EscapeKind[] s_escKind = new EscapeKind[65536];
+    private static readonly char[] s_escChar = new char[(int)EscapeKind.u];
+    private static readonly ThreadLocal<StringBuilder> s_cachedBuilder = new(() => new(4096));
 
     private readonly string _source;
     private readonly ReadOnlySpan<char> _text;
@@ -26,69 +26,69 @@ public ref struct JsonTokenizer
         // ithas the enumeration value of 0 and the arrays are initialized to all 0 by default
 
         // Skip the Byte Order Mark (BOM) and simple whitespace
-        _mapKind[0xFEFF] = FullTokenKind.Skip;
-        _mapKind[' '] = FullTokenKind.Skip;
-        _mapKind['\t'] = FullTokenKind.Skip;
+        s_mapKind[0xFEFF] = FullTokenKind.Skip;
+        s_mapKind[' '] = FullTokenKind.Skip;
+        s_mapKind['\t'] = FullTokenKind.Skip;
 
         // Individual characters, mostly punctuators
-        _mapKind['\n'] = FullTokenKind.NewLine;
-        _mapKind['\r'] = FullTokenKind.CarriageReturn;
-        _mapKind[':'] = FullTokenKind.Colon;
-        _mapKind['['] = FullTokenKind.LeftSquareBracket;
-        _mapKind[']'] = FullTokenKind.RightSquareBracket;
-        _mapKind['{'] = FullTokenKind.LeftCurlyBracket;
-        _mapKind['}'] = FullTokenKind.RightCurlyBracket;
-        _mapKind['.'] = FullTokenKind.Dot;
-        _mapKind['-'] = FullTokenKind.Minus;
-        _mapKind['+'] = FullTokenKind.Plus;
-        _mapKind['"'] = FullTokenKind.DoubleQuote;
-        _mapKind[','] = FullTokenKind.Comma;
+        s_mapKind['\n'] = FullTokenKind.NewLine;
+        s_mapKind['\r'] = FullTokenKind.CarriageReturn;
+        s_mapKind[':'] = FullTokenKind.Colon;
+        s_mapKind['['] = FullTokenKind.LeftSquareBracket;
+        s_mapKind[']'] = FullTokenKind.RightSquareBracket;
+        s_mapKind['{'] = FullTokenKind.LeftCurlyBracket;
+        s_mapKind['}'] = FullTokenKind.RightCurlyBracket;
+        s_mapKind['.'] = FullTokenKind.Dot;
+        s_mapKind['-'] = FullTokenKind.Minus;
+        s_mapKind['+'] = FullTokenKind.Plus;
+        s_mapKind['"'] = FullTokenKind.DoubleQuote;
+        s_mapKind[','] = FullTokenKind.Comma;
 
         // Letters and numbers
-        for (char c = 'A'; c <= 'Z'; c++)
-            _mapKind[c] = FullTokenKind.Letter;
-        for (char c = 'a'; c <= 'z'; c++)
-            _mapKind[c] = FullTokenKind.Letter;
-        for (char c = '0'; c <= '9'; c++)
-            _mapKind[c] = FullTokenKind.Digit;
+        for (var c = 'A'; c <= 'Z'; c++)
+            s_mapKind[c] = FullTokenKind.Letter;
+        for (var c = 'a'; c <= 'z'; c++)
+            s_mapKind[c] = FullTokenKind.Letter;
+        for (var c = '0'; c <= '9'; c++)
+            s_mapKind[c] = FullTokenKind.Digit;
 
         // Hexadecimal characters
-        for (char c = 'A'; c <= 'F'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        for (char c = 'a'; c <= 'f'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        for (char c = '0'; c <= '9'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        _hexKind['}'] = FullTokenKind.RightCurlyBracket;
+        for (var c = 'A'; c <= 'F'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        for (var c = 'a'; c <= 'f'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        for (var c = '0'; c <= '9'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        s_hexKind['}'] = FullTokenKind.RightCurlyBracket;
 
         // Hexadecimal values
-        for (char c = 'A'; c <= 'F'; c++)
-            _hexValues[c] = (byte)(c + 10 - 'A');
-        for (char c = 'a'; c <= 'f'; c++)
-            _hexValues[c] = (byte)(c + 10 - 'a');
-        for (char c = '0'; c <= '9'; c++)
-            _hexValues[c] = (byte)(c - '0');
+        for (var c = 'A'; c <= 'F'; c++)
+            s_hexValues[c] = (byte)(c + 10 - 'A');
+        for (var c = 'a'; c <= 'f'; c++)
+            s_hexValues[c] = (byte)(c + 10 - 'a');
+        for (var c = '0'; c <= '9'; c++)
+            s_hexValues[c] = (byte)(c - '0');
 
         // Escape characters in simple strings
-        _escKind['\"'] = EscapeKind.DoubleQuote;
-        _escKind['\\'] = EscapeKind.Backslash;
-        _escKind['/'] = EscapeKind.Slash;
-        _escKind['b'] = EscapeKind.Backspace;
-        _escKind['f'] = EscapeKind.Feed;
-        _escKind['n'] = EscapeKind.NewLine;
-        _escKind['r'] = EscapeKind.CarriageReturn;
-        _escKind['t'] = EscapeKind.Tab;
-        _escKind['u'] = EscapeKind.u;
+        s_escKind['\"'] = EscapeKind.DoubleQuote;
+        s_escKind['\\'] = EscapeKind.Backslash;
+        s_escKind['/'] = EscapeKind.Slash;
+        s_escKind['b'] = EscapeKind.Backspace;
+        s_escKind['f'] = EscapeKind.Feed;
+        s_escKind['n'] = EscapeKind.NewLine;
+        s_escKind['r'] = EscapeKind.CarriageReturn;
+        s_escKind['t'] = EscapeKind.Tab;
+        s_escKind['u'] = EscapeKind.u;
 
         // Reverse lookup
-        _escChar[(int)EscapeKind.DoubleQuote] = '\"';
-        _escChar[(int)EscapeKind.Backslash] = '\\';
-        _escChar[(int)EscapeKind.Slash] = '/';
-        _escChar[(int)EscapeKind.Backspace] = '\b';
-        _escChar[(int)EscapeKind.Feed] = '\f';
-        _escChar[(int)EscapeKind.NewLine] = '\n';
-        _escChar[(int)EscapeKind.CarriageReturn] = '\r';
-        _escChar[(int)EscapeKind.Tab] = '\t';
+        s_escChar[(int)EscapeKind.DoubleQuote] = '\"';
+        s_escChar[(int)EscapeKind.Backslash] = '\\';
+        s_escChar[(int)EscapeKind.Slash] = '/';
+        s_escChar[(int)EscapeKind.Backspace] = '\b';
+        s_escChar[(int)EscapeKind.Feed] = '\f';
+        s_escChar[(int)EscapeKind.NewLine] = '\n';
+        s_escChar[(int)EscapeKind.CarriageReturn] = '\r';
+        s_escChar[(int)EscapeKind.Tab] = '\t';
     }
 
     public JsonTokenizer(
@@ -103,7 +103,7 @@ public ref struct JsonTokenizer
     public JsonTokenizer(ReadOnlySpan<char> text, string source)
     {
         _source = source;
-        _sb = _cachedBuilder.Value!;
+        _sb = s_cachedBuilder.Value!;
 
         if (text.Length == 0)
             _tokenKind = FullTokenKind.EndOfText;
@@ -116,7 +116,7 @@ public ref struct JsonTokenizer
     }
 
     public readonly JsonTokenKind TokenKind => (JsonTokenKind)_tokenKind;
-    public readonly string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
+    public readonly string TokenValue => new(_text[_tokenIndex.._index]);
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
@@ -124,10 +124,10 @@ public ref struct JsonTokenizer
 
     public bool Next()
     {
-        while(_index < _length)
+        while (_index < _length)
         {
             _c = _text[_index++];
-            FullTokenKind token = _mapKind[_c];
+            var token = s_mapKind[_c];
 
             switch (token)
             {
@@ -200,19 +200,19 @@ public ref struct JsonTokenizer
     private void ScanKeyword()
     {
         _tokenIndex = _index - 1;
-        while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Letter)) 
+        while ((_index < _length) && (s_mapKind[_text[_index]] == FullTokenKind.Letter))
             _index++;
 
         switch (_index - _tokenIndex)
         {
             case 4:
-                if ((_text[_tokenIndex + 0] == 't') && (_text[_tokenIndex + 1] == 'r') && 
+                if ((_text[_tokenIndex + 0] == 't') && (_text[_tokenIndex + 1] == 'r') &&
                     (_text[_tokenIndex + 2] == 'u') && (_text[_tokenIndex + 3] == 'e'))
                 {
                     _tokenKind = FullTokenKind.TrueValue;
                     break;
                 }
-                else if ((_text[_tokenIndex + 0] == 'n') && (_text[_tokenIndex + 1] == 'u') && 
+                else if ((_text[_tokenIndex + 0] == 'n') && (_text[_tokenIndex + 1] == 'u') &&
                          (_text[_tokenIndex + 2] == 'l') && (_text[_tokenIndex + 3] == 'l'))
                 {
                     _tokenKind = FullTokenKind.NullValue;
@@ -221,7 +221,7 @@ public ref struct JsonTokenizer
                 else
                     throw SyntaxException.UnrecognizedKeyword(Location, TokenValue);
             case 5:
-                if ((_text[_tokenIndex + 0] == 'f') && (_text[_tokenIndex + 1] == 'a') && (_text[_tokenIndex + 2] == 'l') && 
+                if ((_text[_tokenIndex + 0] == 'f') && (_text[_tokenIndex + 1] == 'a') && (_text[_tokenIndex + 2] == 'l') &&
                     (_text[_tokenIndex + 3] == 's') && (_text[_tokenIndex + 4] == 'e'))
                 {
                     _tokenKind = FullTokenKind.FalseValue;
@@ -244,7 +244,7 @@ public ref struct JsonTokenizer
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
             _c = _text[_index];
-            if (_mapKind[_c] != FullTokenKind.Digit)
+            if (s_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.MinusMustBeFollowedByDigit(Location);
 
             _index++;
@@ -253,7 +253,7 @@ public ref struct JsonTokenizer
         if (_c != '0')
         {
             // Skip over all the whole number digits
-            while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
+            while ((_index < _length) && (s_mapKind[_text[_index]] == FullTokenKind.Digit))
                 _index++;
         }
 
@@ -270,11 +270,11 @@ public ref struct JsonTokenizer
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
             _c = _text[_index];
-            if (_mapKind[_c] != FullTokenKind.Digit)
+            if (s_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.PointMustBeFollowedByDigit(Location);
 
             _index++;
-            while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
+            while ((_index < _length) && (s_mapKind[_text[_index]] == FullTokenKind.Digit))
                 _index++;
 
             if (_index < _length)
@@ -291,8 +291,8 @@ public ref struct JsonTokenizer
             ScanFloatExponent();
         else
         {
-            if (_mapKind[_text[_index]] == FullTokenKind.Letter)
-                throw SyntaxException.IntCannotBeFollowed(Location, _mapKind[_c].ToString());
+            if (s_mapKind[_text[_index]] == FullTokenKind.Letter)
+                throw SyntaxException.IntCannotBeFollowed(Location, s_mapKind[_c].ToString());
 
             _tokenKind = FullTokenKind.IntValue;
         }
@@ -305,7 +305,7 @@ public ref struct JsonTokenizer
             throw SyntaxException.UnexpectedEndOfFile(Location);
 
         _c = _text[_index++];
-        if ((_mapKind[_c] == FullTokenKind.Minus) || (_mapKind[_c] == FullTokenKind.Plus))
+        if ((s_mapKind[_c] == FullTokenKind.Minus) || (s_mapKind[_c] == FullTokenKind.Plus))
         {
             if (_index == _length)
                 throw SyntaxException.UnexpectedEndOfFile(Location);
@@ -313,13 +313,13 @@ public ref struct JsonTokenizer
             _c = _text[_index++];
         }
 
-        if (_mapKind[_c] != FullTokenKind.Digit)
+        if (s_mapKind[_c] != FullTokenKind.Digit)
         {
             _index--;
             throw SyntaxException.ExponentMustHaveDigit(Location);
         }
 
-        while (_index < _length && _mapKind[_text[_index]] == FullTokenKind.Digit)
+        while (_index < _length && s_mapKind[_text[_index]] == FullTokenKind.Digit)
             _index++;
 
         if (_index == _length)
@@ -328,11 +328,11 @@ public ref struct JsonTokenizer
             return;
         }
 
-        switch (_mapKind[_text[_index]])
+        switch (s_mapKind[_text[_index]])
         {
             case FullTokenKind.Dot:
             case FullTokenKind.Letter:
-                throw SyntaxException.FloatCannotBeFollowed(Location, _mapKind[_text[_index]].ToString());
+                throw SyntaxException.FloatCannotBeFollowed(Location, s_mapKind[_text[_index]].ToString());
         }
 
         _tokenKind = FullTokenKind.FloatValue;
@@ -344,7 +344,7 @@ public ref struct JsonTokenizer
         _sb.Clear();
 
         _tokenIndex = _index;
-        int copyIndex = _tokenIndex;
+        var copyIndex = _tokenIndex;
 
         while (_index < _length)
         {
@@ -364,7 +364,7 @@ public ref struct JsonTokenizer
                     throw SyntaxException.UnexpectedEndOfFile(Location);
 
                 _c = _text[_index];
-                EscapeKind k =_escKind[_c];
+                var k = s_escKind[_c];
                 switch (k)
                 {
                     case EscapeKind.DoubleQuote:
@@ -379,7 +379,7 @@ public ref struct JsonTokenizer
                         if (copyIndex < (_index - 1))
                             _sb.Append(_text[copyIndex..(_index - 1)]);
 
-                        _sb.Append(_escChar[(int)k]);
+                        _sb.Append(s_escChar[(int)k]);
                         copyIndex = _index + 1;
                         break;
                     case EscapeKind.u:
@@ -394,10 +394,10 @@ public ref struct JsonTokenizer
                             throw SyntaxException.UnexpectedEndOfFile(Location);
                         }
 
-                        FullTokenKind hexToken1 = _hexKind[_text[_index++]];
-                        FullTokenKind hexToken2 = _hexKind[_text[_index++]];
-                        FullTokenKind hexToken3 = _hexKind[_text[_index++]];
-                        FullTokenKind hexToken4 = _hexKind[_text[_index]];
+                        var hexToken1 = s_hexKind[_text[_index++]];
+                        var hexToken2 = s_hexKind[_text[_index++]];
+                        var hexToken3 = s_hexKind[_text[_index++]];
+                        var hexToken4 = s_hexKind[_text[_index]];
                         if ((hexToken1 != FullTokenKind.Hexadecimal) || (hexToken2 != FullTokenKind.Hexadecimal) ||
                             (hexToken3 != FullTokenKind.Hexadecimal) || (hexToken4 != FullTokenKind.Hexadecimal))
                         {
@@ -409,10 +409,10 @@ public ref struct JsonTokenizer
                         if (copyIndex < (_index - 5))
                             _sb.Append(_text[copyIndex..(_index - 5)]);
 
-                        _sb.Append((char)(_hexValues[_text[_index]] | 
-                                            (_hexValues[_text[_index - 1]] << 4) | 
-                                            (_hexValues[_text[_index - 2]] << 8) | 
-                                            (_hexValues[_text[_index - 3]] << 12)));
+                        _sb.Append((char)(s_hexValues[_text[_index]] |
+                                            (s_hexValues[_text[_index - 1]] << 4) |
+                                            (s_hexValues[_text[_index - 2]] << 8) |
+                                            (s_hexValues[_text[_index - 3]] << 12)));
 
                         copyIndex = _index + 1;
                         break;

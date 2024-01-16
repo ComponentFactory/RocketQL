@@ -4,7 +4,7 @@ public interface ISchema
 {
     SchemaRoot Root { get; }
     IReadOnlyDictionary<string, DirectiveDefinition> Directives { get; }
-    IReadOnlyDictionary<string, TypeDefinition> Types { get;  }
+    IReadOnlyDictionary<string, TypeDefinition> Types { get; }
     bool IsValidated { get; }
 
     void Add(SyntaxNode node);
@@ -12,9 +12,9 @@ public interface ISchema
     void Add(SyntaxNodeList nodes);
     void Add(IEnumerable<SyntaxNodeList> schemas);
     void Add(ReadOnlySpan<char> schema, string source);
-    void Add(ReadOnlySpan<char> schema, 
-             [CallerFilePath] string filePath = "", 
-             [CallerMemberName] string memberName = "", 
+    void Add(ReadOnlySpan<char> schema,
+             [CallerFilePath] string filePath = "",
+             [CallerMemberName] string memberName = "",
              [CallerLineNumber] int lineNumber = 0);
 
     void Validate();

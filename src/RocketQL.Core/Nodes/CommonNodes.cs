@@ -16,8 +16,8 @@ public class Location
     }
 
     [SetsRequiredMembers]
-    public Location(int position, int line, int column, string source) 
-    { 
+    public Location(int position, int line, int column, string source)
+    {
         Position = position;
         Line = line;
         Column = column;
@@ -42,5 +42,5 @@ public abstract record class LocationNode
         Location = location;
     }
 
-    public Location Location { get; init; } 
+    public Location Location { get; init; }
 }

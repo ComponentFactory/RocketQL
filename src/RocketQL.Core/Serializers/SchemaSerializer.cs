@@ -2,22 +2,22 @@
 
 public ref struct SchemaSerializer(Schema schema)
 {
-    private static SchemaSerializeOptions _defaultOptions = new();
+    private static readonly SchemaSerializeOptions s_defaultOptions = new();
 
     public readonly string Serialize(SchemaSerializeOptions? options = null)
     {
         var printer = new SchemaSerialize(schema);
-        printer.Visit(options ?? _defaultOptions);
+        printer.Visit(options ?? s_defaultOptions);
         return printer.ToString();
     }
 
     private class SchemaSerialize(Schema schema) : IDocumentNodeVisitors
     {
-        private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
+        private static readonly ThreadLocal<StringBuilder> s_cachedBuilder = new(() => new(4096));
 
         private readonly Schema _schema = schema;
-        private readonly StringBuilder _builder = _cachedBuilder.Value!;
-        private SchemaSerializeOptions _options = _defaultOptions;
+        private readonly StringBuilder _builder = s_cachedBuilder.Value!;
+        private SchemaSerializeOptions _options = s_defaultOptions;
         private char _indentCharacter = ' ';
         private int _indents;
 
@@ -65,8 +65,8 @@ public ref struct SchemaSerializer(Schema schema)
                 PrintLine("(");
                 StartIndent();
 
-                bool firstArgument = true;
-                bool argumentDescription = false;
+                var firstArgument = true;
+                var argumentDescription = false;
                 foreach (var argument in directiveDefinition.Arguments.Values)
                 {
                     if (!firstArgument && (argumentDescription || !IsDescriptionEmpty(argument.Description)))
@@ -100,8 +100,8 @@ public ref struct SchemaSerializer(Schema schema)
 
             Print(" on ");
 
-            bool firstLocation = true;
-            DirectiveLocations[] locations = Enum.GetValues<DirectiveLocations>();
+            var firstLocation = true;
+            var locations = Enum.GetValues<DirectiveLocations>();
             foreach (var location in locations)
             {
                 var locationName = Enum.GetName(location)!;
@@ -150,7 +150,7 @@ public ref struct SchemaSerializer(Schema schema)
             {
                 Print($" implements");
 
-                bool first = true;
+                var first = true;
                 foreach (var implementsInterface in objectType.ImplementsInterfaces.Values)
                 {
                     if (!first)
@@ -166,8 +166,8 @@ public ref struct SchemaSerializer(Schema schema)
             PrintLine("{");
             StartIndent();
 
-            bool firstField = true;
-            bool fieldDescription = false;
+            var firstField = true;
+            var fieldDescription = false;
             foreach (var field in objectType.Fields.Values)
             {
                 if (!firstField && (fieldDescription || !IsDescriptionEmpty(field.Description)))
@@ -183,8 +183,8 @@ public ref struct SchemaSerializer(Schema schema)
                     PrintLine($"(");
                     StartIndent();
 
-                    bool firstArgument = true;
-                    bool argumentDescription = false;
+                    var firstArgument = true;
+                    var argumentDescription = false;
                     foreach (var argument in field.Arguments.Values)
                     {
                         if (!firstArgument && (argumentDescription || !IsDescriptionEmpty(argument.Description)))
@@ -240,7 +240,7 @@ public ref struct SchemaSerializer(Schema schema)
             {
                 Print($" implements");
 
-                bool first = true;
+                var first = true;
                 foreach (var implementsInterface in interfaceType.ImplementsInterfaces.Values)
                 {
                     if (!first)
@@ -256,8 +256,8 @@ public ref struct SchemaSerializer(Schema schema)
             PrintLine("{");
             StartIndent();
 
-            bool firstField = true;
-            bool fieldDescription = false;
+            var firstField = true;
+            var fieldDescription = false;
             foreach (var field in interfaceType.Fields.Values)
             {
                 if (!firstField && (fieldDescription || !IsDescriptionEmpty(field.Description)))
@@ -273,8 +273,8 @@ public ref struct SchemaSerializer(Schema schema)
                     PrintLine($"(");
                     StartIndent();
 
-                    bool firstArgument = true;
-                    bool argumentDescription = false;
+                    var firstArgument = true;
+                    var argumentDescription = false;
                     foreach (var argument in field.Arguments.Values)
                     {
                         if (!firstArgument && (argumentDescription || !IsDescriptionEmpty(argument.Description)))
@@ -332,7 +332,7 @@ public ref struct SchemaSerializer(Schema schema)
             {
                 Print($" =");
 
-                bool first = true;
+                var first = true;
                 foreach (var memberType in unionType.MemberTypes.Values)
                 {
                     if (!first)
@@ -361,8 +361,8 @@ public ref struct SchemaSerializer(Schema schema)
             PrintLine("{");
             StartIndent();
 
-            bool firstValue = true;
-            bool valueDescription = false;
+            var firstValue = true;
+            var valueDescription = false;
             foreach (var enumValue in enumType.EnumValues.Values)
             {
                 if (!firstValue && (valueDescription || !IsDescriptionEmpty(enumValue.Description)))
@@ -397,8 +397,8 @@ public ref struct SchemaSerializer(Schema schema)
             PrintLine("{");
             StartIndent();
 
-            bool firstInputField = true;
-            bool inputFieldDescription = false;
+            var firstInputField = true;
+            var inputFieldDescription = false;
             foreach (var inputField in inputObjectType.InputFields.Values)
             {
                 if (!firstInputField && (inputFieldDescription || !IsDescriptionEmpty(inputField.Description)))
@@ -428,7 +428,7 @@ public ref struct SchemaSerializer(Schema schema)
         }
 
         public void VisitSchemaDefinition(SchemaDefinition schemaDefinition)
-        { 
+        {
         }
 
         public void VisitSchemaDefinition(SchemaRoot schemaRoot)
@@ -566,7 +566,7 @@ public ref struct SchemaSerializer(Schema schema)
                 if (directive.Arguments.Count > 0)
                 {
                     Print("(");
-                    bool firstArgument = true;
+                    var firstArgument = true;
                     foreach (var argument in directive.Arguments.Values)
                     {
                         if (!firstArgument)

@@ -2,12 +2,12 @@
 
 public ref struct DocumentTokenizer
 {
-    private static readonly FullTokenKind[] _mapKind = new FullTokenKind[65536];
-    private static readonly FullTokenKind[] _hexKind = new FullTokenKind[65536];
-    private static readonly byte[] _hexValues = new byte[65536];
-    private static readonly EscapeKind[] _escKind = new EscapeKind[65536];
-    private static readonly char[] _escChar = new char[(int)EscapeKind.u];
-    private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
+    private static readonly FullTokenKind[] s_mapKind = new FullTokenKind[65536];
+    private static readonly FullTokenKind[] s_hexKind = new FullTokenKind[65536];
+    private static readonly byte[] s_hexValues = new byte[65536];
+    private static readonly EscapeKind[] s_escKind = new EscapeKind[65536];
+    private static readonly char[] s_escChar = new char[(int)EscapeKind.u];
+    private static readonly ThreadLocal<StringBuilder> s_cachedBuilder = new(() => new(4096));
 
     private readonly string _source;
     private readonly ReadOnlySpan<char> _text;
@@ -26,79 +26,79 @@ public ref struct DocumentTokenizer
         // it has the enumeration value of 0 and the arrays are initialized to 0 by default
 
         // Skip the Byte Order Mark (BOM) and simple whitespace
-        _mapKind[0xFEFF] = FullTokenKind.Skip;
-        _mapKind[' '] = FullTokenKind.Skip;
-        _mapKind['\t'] = FullTokenKind.Skip;
-        _mapKind[','] = FullTokenKind.Skip;
+        s_mapKind[0xFEFF] = FullTokenKind.Skip;
+        s_mapKind[' '] = FullTokenKind.Skip;
+        s_mapKind['\t'] = FullTokenKind.Skip;
+        s_mapKind[','] = FullTokenKind.Skip;
 
         // Individual characters, mostly punctuators
-        _mapKind['\n'] = FullTokenKind.NewLine;
-        _mapKind['\r'] = FullTokenKind.CarriageReturn;
-        _mapKind['#'] = FullTokenKind.Hash;
-        _mapKind['!'] = FullTokenKind.Exclamation;
-        _mapKind['$'] = FullTokenKind.Dollar;
-        _mapKind['&'] = FullTokenKind.Ampersand;
-        _mapKind['('] = FullTokenKind.LeftParenthesis;
-        _mapKind[')'] = FullTokenKind.RightParenthesis;
-        _mapKind[':'] = FullTokenKind.Colon;
-        _mapKind['='] = FullTokenKind.Equals;
-        _mapKind['@'] = FullTokenKind.At;
-        _mapKind['['] = FullTokenKind.LeftSquareBracket;
-        _mapKind[']'] = FullTokenKind.RightSquareBracket;
-        _mapKind['{'] = FullTokenKind.LeftCurlyBracket;
-        _mapKind['}'] = FullTokenKind.RightCurlyBracket;
-        _mapKind['|'] = FullTokenKind.Vertical;
-        _mapKind['.'] = FullTokenKind.Dot;
-        _mapKind['-'] = FullTokenKind.Minus;
-        _mapKind['+'] = FullTokenKind.Plus;
-        _mapKind['"'] = FullTokenKind.DoubleQuote;
-        _mapKind['_'] = FullTokenKind.Underscore;
+        s_mapKind['\n'] = FullTokenKind.NewLine;
+        s_mapKind['\r'] = FullTokenKind.CarriageReturn;
+        s_mapKind['#'] = FullTokenKind.Hash;
+        s_mapKind['!'] = FullTokenKind.Exclamation;
+        s_mapKind['$'] = FullTokenKind.Dollar;
+        s_mapKind['&'] = FullTokenKind.Ampersand;
+        s_mapKind['('] = FullTokenKind.LeftParenthesis;
+        s_mapKind[')'] = FullTokenKind.RightParenthesis;
+        s_mapKind[':'] = FullTokenKind.Colon;
+        s_mapKind['='] = FullTokenKind.Equals;
+        s_mapKind['@'] = FullTokenKind.At;
+        s_mapKind['['] = FullTokenKind.LeftSquareBracket;
+        s_mapKind[']'] = FullTokenKind.RightSquareBracket;
+        s_mapKind['{'] = FullTokenKind.LeftCurlyBracket;
+        s_mapKind['}'] = FullTokenKind.RightCurlyBracket;
+        s_mapKind['|'] = FullTokenKind.Vertical;
+        s_mapKind['.'] = FullTokenKind.Dot;
+        s_mapKind['-'] = FullTokenKind.Minus;
+        s_mapKind['+'] = FullTokenKind.Plus;
+        s_mapKind['"'] = FullTokenKind.DoubleQuote;
+        s_mapKind['_'] = FullTokenKind.Underscore;
 
         // Letters and numbers
-        for (char c = 'A'; c <= 'Z'; c++)
-            _mapKind[c] = FullTokenKind.Letter;
-        for (char c = 'a'; c <= 'z'; c++)
-            _mapKind[c] = FullTokenKind.Letter;
-        for (char c = '0'; c <= '9'; c++)
-            _mapKind[c] = FullTokenKind.Digit;
+        for (var c = 'A'; c <= 'Z'; c++)
+            s_mapKind[c] = FullTokenKind.Letter;
+        for (var c = 'a'; c <= 'z'; c++)
+            s_mapKind[c] = FullTokenKind.Letter;
+        for (var c = '0'; c <= '9'; c++)
+            s_mapKind[c] = FullTokenKind.Digit;
 
         // Hexadecimal characters
-        for (char c = 'A'; c <= 'F'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        for (char c = 'a'; c <= 'f'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        for (char c = '0'; c <= '9'; c++)
-            _hexKind[c] = FullTokenKind.Hexadecimal;
-        _hexKind['}'] = FullTokenKind.RightCurlyBracket;
+        for (var c = 'A'; c <= 'F'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        for (var c = 'a'; c <= 'f'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        for (var c = '0'; c <= '9'; c++)
+            s_hexKind[c] = FullTokenKind.Hexadecimal;
+        s_hexKind['}'] = FullTokenKind.RightCurlyBracket;
 
         // Hexadecimal values
-        for (char c = 'A'; c <= 'F'; c++)
-            _hexValues[c] = (byte)(c + 10 - 'A');
-        for (char c = 'a'; c <= 'f'; c++)
-            _hexValues[c] = (byte)(c + 10 - 'a');
-        for (char c = '0'; c <= '9'; c++)
-            _hexValues[c] = (byte)(c - '0');
+        for (var c = 'A'; c <= 'F'; c++)
+            s_hexValues[c] = (byte)(c + 10 - 'A');
+        for (var c = 'a'; c <= 'f'; c++)
+            s_hexValues[c] = (byte)(c + 10 - 'a');
+        for (var c = '0'; c <= '9'; c++)
+            s_hexValues[c] = (byte)(c - '0');
 
         // Escape characters inside a simple string
-        _escKind['\"'] = EscapeKind.DoubleQuote;
-        _escKind['\\'] = EscapeKind.Backslash;
-        _escKind['/'] = EscapeKind.Slash;
-        _escKind['b'] = EscapeKind.Backspace;
-        _escKind['f'] = EscapeKind.Feed;
-        _escKind['n'] = EscapeKind.NewLine;
-        _escKind['r'] = EscapeKind.CarriageReturn;
-        _escKind['t'] = EscapeKind.Tab;
-        _escKind['u'] = EscapeKind.u;
+        s_escKind['\"'] = EscapeKind.DoubleQuote;
+        s_escKind['\\'] = EscapeKind.Backslash;
+        s_escKind['/'] = EscapeKind.Slash;
+        s_escKind['b'] = EscapeKind.Backspace;
+        s_escKind['f'] = EscapeKind.Feed;
+        s_escKind['n'] = EscapeKind.NewLine;
+        s_escKind['r'] = EscapeKind.CarriageReturn;
+        s_escKind['t'] = EscapeKind.Tab;
+        s_escKind['u'] = EscapeKind.u;
 
         // Reverse lookup
-        _escChar[(int)EscapeKind.DoubleQuote] = '\"';
-        _escChar[(int)EscapeKind.Backslash] = '\\';
-        _escChar[(int)EscapeKind.Slash] = '/';
-        _escChar[(int)EscapeKind.Backspace] = '\b';
-        _escChar[(int)EscapeKind.Feed] = '\f';
-        _escChar[(int)EscapeKind.NewLine] = '\n';
-        _escChar[(int)EscapeKind.CarriageReturn] = '\r';
-        _escChar[(int)EscapeKind.Tab] = '\t';
+        s_escChar[(int)EscapeKind.DoubleQuote] = '\"';
+        s_escChar[(int)EscapeKind.Backslash] = '\\';
+        s_escChar[(int)EscapeKind.Slash] = '/';
+        s_escChar[(int)EscapeKind.Backspace] = '\b';
+        s_escChar[(int)EscapeKind.Feed] = '\f';
+        s_escChar[(int)EscapeKind.NewLine] = '\n';
+        s_escChar[(int)EscapeKind.CarriageReturn] = '\r';
+        s_escChar[(int)EscapeKind.Tab] = '\t';
     }
 
     public DocumentTokenizer(
@@ -113,7 +113,7 @@ public ref struct DocumentTokenizer
     public DocumentTokenizer(ReadOnlySpan<char> text, string source)
     {
         _source = source;
-        _sb = _cachedBuilder.Value!;
+        _sb = s_cachedBuilder.Value!;
 
         if (text.Length == 0)
             _tokenKind = FullTokenKind.EndOfText;
@@ -126,7 +126,7 @@ public ref struct DocumentTokenizer
     }
 
     public readonly DocumentTokenKind TokenKind => (DocumentTokenKind)_tokenKind;
-    public readonly string TokenValue => new(_text.Slice(_tokenIndex, _index - _tokenIndex));
+    public readonly string TokenValue => new(_text[_tokenIndex.._index]);
     public readonly string TokenString => _sb.ToString();
     public readonly int LineNumber => _lineNumber;
     public readonly int ColumnNumber => 1 + _tokenIndex - _lineIndex;
@@ -134,10 +134,10 @@ public ref struct DocumentTokenizer
 
     public bool Next()
     {
-        while(_index < _length)
+        while (_index < _length)
         {
             _c = _text[_index++];
-            FullTokenKind token = _mapKind[_c];
+            var token = s_mapKind[_c];
 
             switch (token)
             {
@@ -260,7 +260,7 @@ public ref struct DocumentTokenizer
         _tokenIndex = _index - 1;
         while (_index < _length)
         {
-            switch (_mapKind[_text[_index]])
+            switch (s_mapKind[_text[_index]])
             {
                 case FullTokenKind.Underscore:
                 case FullTokenKind.Letter:
@@ -285,7 +285,7 @@ public ref struct DocumentTokenizer
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
             _c = _text[_index];
-            if (_mapKind[_c] != FullTokenKind.Digit)
+            if (s_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.MinusMustBeFollowedByDigit(Location);
 
             _index++;
@@ -294,7 +294,7 @@ public ref struct DocumentTokenizer
         if (_c != '0')
         {
             // Skip over all the whole number digits
-            while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
+            while ((_index < _length) && (s_mapKind[_text[_index]] == FullTokenKind.Digit))
                 _index++;
         }
 
@@ -311,11 +311,11 @@ public ref struct DocumentTokenizer
                 throw SyntaxException.UnexpectedEndOfFile(Location);
 
             _c = _text[_index];
-            if (_mapKind[_c] != FullTokenKind.Digit)
+            if (s_mapKind[_c] != FullTokenKind.Digit)
                 throw SyntaxException.PointMustBeFollowedByDigit(Location);
 
             _index++;
-            while ((_index < _length) && (_mapKind[_text[_index]] == FullTokenKind.Digit))
+            while ((_index < _length) && (s_mapKind[_text[_index]] == FullTokenKind.Digit))
                 _index++;
 
             if (_index < _length)
@@ -332,11 +332,11 @@ public ref struct DocumentTokenizer
             ScanFloatExponent();
         else
         {
-            switch (_mapKind[_text[_index]])
+            switch (s_mapKind[_text[_index]])
             {
                 case FullTokenKind.Underscore:
                 case FullTokenKind.Letter:
-                    throw SyntaxException.IntCannotBeFollowed(Location, _mapKind[_c].ToString());
+                    throw SyntaxException.IntCannotBeFollowed(Location, s_mapKind[_c].ToString());
             }
 
             _tokenKind = FullTokenKind.IntValue;
@@ -350,7 +350,7 @@ public ref struct DocumentTokenizer
             throw SyntaxException.UnexpectedEndOfFile(Location);
 
         _c = _text[_index++];
-        if ((_mapKind[_c] == FullTokenKind.Minus) || (_mapKind[_c] == FullTokenKind.Plus))
+        if ((s_mapKind[_c] == FullTokenKind.Minus) || (s_mapKind[_c] == FullTokenKind.Plus))
         {
             if (_index == _length)
                 throw SyntaxException.UnexpectedEndOfFile(Location);
@@ -358,13 +358,13 @@ public ref struct DocumentTokenizer
             _c = _text[_index++];
         }
 
-        if (_mapKind[_c] != FullTokenKind.Digit)
+        if (s_mapKind[_c] != FullTokenKind.Digit)
         {
             _index--;
             throw SyntaxException.ExponentMustHaveDigit(Location);
         }
 
-        while (_index < _length && _mapKind[_text[_index]] == FullTokenKind.Digit)
+        while (_index < _length && s_mapKind[_text[_index]] == FullTokenKind.Digit)
             _index++;
 
         if (_index == _length)
@@ -373,12 +373,12 @@ public ref struct DocumentTokenizer
             return;
         }
 
-        switch (_mapKind[_text[_index]])
+        switch (s_mapKind[_text[_index]])
         {
             case FullTokenKind.Dot:
             case FullTokenKind.Underscore:
             case FullTokenKind.Letter:
-                throw SyntaxException.FloatCannotBeFollowed(Location, _mapKind[_text[_index]].ToString());
+                throw SyntaxException.FloatCannotBeFollowed(Location, s_mapKind[_text[_index]].ToString());
         }
 
         _tokenKind = FullTokenKind.FloatValue;
@@ -400,30 +400,30 @@ public ref struct DocumentTokenizer
         _tokenIndex = _index;
 
         // Common indent found across all non-whitespace and non-first line
-        int indent = int.MaxValue;
+        var indent = int.MaxValue;
 
         // Start of the current line being scanned
-        int currentLine = _tokenIndex;
+        var currentLine = _tokenIndex;
 
         // Is the current line only whitespace characters
-        bool onlyWhitespace = true;
+        var onlyWhitespace = true;
 
         // Points to the first and last real lines, a real line has at least 1 non-whitespace character
-        int firstRealLine = currentLine;
-        int lastRealLine = currentLine;
+        var firstRealLine = currentLine;
+        var lastRealLine = currentLine;
 
         // Points to the last non-whitespace character scanned
-        int lastRealChar = currentLine;
+        var lastRealChar = currentLine;
 
         // We always start by scanning the first line
-        bool isFirstLine = true;
+        var isFirstLine = true;
 
         // Are we still looking for the first real line, the first line that is not just whitespace
-        bool findingFirstReal = true;
+        var findingFirstReal = true;
 
         while (_index < _length)
         {
-            switch (_mapKind[_text[_index++]])
+            switch (s_mapKind[_text[_index++]])
             {
                 case FullTokenKind.Skip:
                     break;
@@ -446,7 +446,7 @@ public ref struct DocumentTokenizer
                     break;
                 case FullTokenKind.CarriageReturn:
                     // Skip over any optional following newline
-                    int lastLine = _index;
+                    var lastLine = _index;
                     if ((_index < _length) && (_text[_index] == '\n'))
                         _index++;
 
@@ -495,7 +495,7 @@ public ref struct DocumentTokenizer
         _sb.Clear();
 
         // If the three quotes are preceded by a backslash then we want to ignore the backslash
-        int endIndex = _index - 1;
+        var endIndex = _index - 1;
         if (_text[endIndex - 1] == '\\')
             endIndex--;
 
@@ -507,12 +507,12 @@ public ref struct DocumentTokenizer
         if (lastRealLine < endIndex)
             endIndex = lastRealLine;
 
-        int currentLine = firstRealLine;
-        bool onlyWhitespace = true;
+        var currentLine = firstRealLine;
+        var onlyWhitespace = true;
 
-        for (int i = firstRealLine; i < endIndex; i++)
+        for (var i = firstRealLine; i < endIndex; i++)
         {
-            switch (_mapKind[_text[i]])
+            switch (s_mapKind[_text[i]])
             {
                 case FullTokenKind.Skip:
                     break;
@@ -553,7 +553,7 @@ public ref struct DocumentTokenizer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AppendLineToBlockString(int currentLine, int firstRealLine, int endIndex, bool onlyWhitespace, int indent)
+    private readonly void AppendLineToBlockString(int currentLine, int firstRealLine, int endIndex, bool onlyWhitespace, int indent)
     {
         if (_sb.Length > 0)
             _sb.Append('\n');
@@ -563,16 +563,16 @@ public ref struct DocumentTokenizer
             _sb.Append(_text[_tokenIndex..endIndex]);
         else if (onlyWhitespace)
         {
-            int len = endIndex - currentLine - indent;
+            var len = endIndex - currentLine - indent;
             if (len > 0)
                 _sb.Append(' ', len);
         }
         else
         {
-            int len = firstRealLine - currentLine - indent;
+            var len = firstRealLine - currentLine - indent;
             if (len > 0)
                 _sb.Append(' ', len);
-            
+
             _sb.Append(_text[firstRealLine..endIndex]);
         }
     }
@@ -583,7 +583,7 @@ public ref struct DocumentTokenizer
         _sb.Clear();
 
         _tokenIndex = _index;
-        int copyIndex = _tokenIndex;
+        var copyIndex = _tokenIndex;
 
         while (_index < _length)
         {
@@ -603,7 +603,7 @@ public ref struct DocumentTokenizer
                     throw SyntaxException.UnexpectedEndOfFile(Location);
 
                 _c = _text[_index];
-                EscapeKind k =_escKind[_c];
+                var k = s_escKind[_c];
                 switch (k)
                 {
                     case EscapeKind.DoubleQuote:
@@ -618,7 +618,7 @@ public ref struct DocumentTokenizer
                         if (copyIndex < (_index - 1))
                             _sb.Append(_text[copyIndex..(_index - 1)]);
 
-                        _sb.Append(_escChar[(int)k]);
+                        _sb.Append(s_escChar[(int)k]);
                         copyIndex = _index + 1;
                         break;
                     case EscapeKind.u:
@@ -633,14 +633,14 @@ public ref struct DocumentTokenizer
                             if (copyIndex < (_index - 2))
                                 _sb.Append(_text[copyIndex..(_index - 2)]);
 
-                            int digits = 0;
+                            var digits = 0;
                             while (true)
                             {
                                 if (++_index == _length)
                                     throw SyntaxException.UnexpectedEndOfFile(Location);
 
                                 _c = _text[_index];
-                                FullTokenKind hexToken = _hexKind[_c];
+                                var hexToken = s_hexKind[_c];
                                 if (hexToken == FullTokenKind.Hexadecimal)
                                     digits++;
                                 else
@@ -653,7 +653,7 @@ public ref struct DocumentTokenizer
                                         try
                                         {
                                             // This format is rare, so just use the builtin conversion because speed does not matter!
-                                            uint val = uint.Parse(_text.Slice(_index - digits, digits), System.Globalization.NumberStyles.HexNumber);
+                                            var val = uint.Parse(_text.Slice(_index - digits, digits), System.Globalization.NumberStyles.HexNumber);
                                             _sb.Append((char)val);
                                         }
                                         catch
@@ -677,10 +677,10 @@ public ref struct DocumentTokenizer
                                 throw SyntaxException.UnexpectedEndOfFile(Location);
                             }
 
-                            FullTokenKind hexToken1 = _hexKind[_text[_index++]];
-                            FullTokenKind hexToken2 = _hexKind[_text[_index++]];
-                            FullTokenKind hexToken3 = _hexKind[_text[_index++]];
-                            FullTokenKind hexToken4 = _hexKind[_text[_index]];
+                            var hexToken1 = s_hexKind[_text[_index++]];
+                            var hexToken2 = s_hexKind[_text[_index++]];
+                            var hexToken3 = s_hexKind[_text[_index++]];
+                            var hexToken4 = s_hexKind[_text[_index]];
                             if ((hexToken1 != FullTokenKind.Hexadecimal) || (hexToken2 != FullTokenKind.Hexadecimal) ||
                                 (hexToken3 != FullTokenKind.Hexadecimal) || (hexToken4 != FullTokenKind.Hexadecimal))
                             {
@@ -692,10 +692,10 @@ public ref struct DocumentTokenizer
                             if (copyIndex < (_index - 5))
                                 _sb.Append(_text[copyIndex..(_index - 5)]);
 
-                            _sb.Append((char)(_hexValues[_text[_index]] | 
-                                             (_hexValues[_text[_index - 1]] << 4) | 
-                                             (_hexValues[_text[_index - 2]] << 8) | 
-                                             (_hexValues[_text[_index - 3]] << 12)));
+                            _sb.Append((char)(s_hexValues[_text[_index]] |
+                                             (s_hexValues[_text[_index - 1]] << 4) |
+                                             (s_hexValues[_text[_index - 2]] << 8) |
+                                             (s_hexValues[_text[_index - 3]] << 12)));
 
                             copyIndex = _index + 1;
                         }

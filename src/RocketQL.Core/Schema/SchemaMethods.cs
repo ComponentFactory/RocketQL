@@ -34,7 +34,7 @@ public partial class Schema
         // You can assign 'null' to a scalar
         if (valueNode is NullValueNode)
             return true;
-        
+
         // Note that input coercion allows an integer to be assigned to float type
         return scalarTypeDefinition.Name switch
         {
@@ -51,8 +51,8 @@ public partial class Schema
         if (valueNode is NullValueNode)
             return true;
 
-        return valueNode switch 
-        { 
+        return valueNode switch
+        {
             StringValueNode stringValue => enumTypeDefinition.EnumValues.ContainsKey(stringValue.Value),
             EnumValueNode enumValue => enumTypeDefinition.EnumValues.ContainsKey(enumValue.Value),
             _ => false

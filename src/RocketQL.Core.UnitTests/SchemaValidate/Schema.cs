@@ -110,22 +110,22 @@ public class Schemas : UnitTestBase
     [InlineData("""
                 type Query { first: Int } 
                 schema { }
-                """,                                                        "Schema definition must have at least one operation type.",
+                """, "Schema definition must have at least one operation type.",
                                                                             "Schema definition missing mandatory query operation.")]
     [InlineData("""
                 type Query { first: Int } 
                 schema { } 
                 schema { }
-                """,                                                        "Schema is already defined.",
+                """,                                                        "Schema definition already encountered.",
                                                                             "Schema definition must have at least one operation type.",
                                                                             "Schema definition missing mandatory query operation.")]
     [InlineData("""
                 input Subscription { fizz: Int }
-                """,                                                        "Cannot auto generate schema because 'Query' type missing.",
+                """, "Cannot auto generate schema because 'Query' type missing.",
                                                                             "Cannot auto generate schema because 'Subscription' is type input object instead of object type.")]
     [InlineData("""
                 input Mutation { fizz: Int }
-                """,                                                        "Cannot auto generate schema because 'Query' type missing.",
+                """, "Cannot auto generate schema because 'Query' type missing.",
                                                                             "Cannot auto generate schema because 'Mutation' is type input object instead of object type.")]
     [InlineData("""
                 type foo { fizz: Int }
@@ -135,7 +135,7 @@ public class Schemas : UnitTestBase
                     mutation: foo
                     mutation: foo
                 }            
-                """,                                                        "Schema defines the mutation operation more than once.",
+                """, "Schema defines the mutation operation more than once.",
                                                                             "Schema operations query and mutation cannot have the same 'foo' type.")]
     [InlineData("""
                 type foo { fizz: Int }
@@ -145,7 +145,7 @@ public class Schemas : UnitTestBase
                     subscription: foo
                     subscription: foo
                 }            
-                """,                                                        "Schema defines the subscription operation more than once.",
+                """, "Schema defines the subscription operation more than once.",
                                                                             "Schema operations query and subscription cannot have the same 'foo' type.")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {

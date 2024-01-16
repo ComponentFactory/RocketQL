@@ -1,31 +1,19 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public ref struct JsonSerializer
+public ref struct JsonSerializer(ValueNode node, bool format = false, int indent = 4)
 {
-    private static readonly ThreadLocal<StringBuilder> _cachedBuilder = new(() => new(4096));
-
-    private readonly ValueNode _node;
-    private readonly StringBuilder _sb;
-    private readonly bool _format;
-    private int _indent;
+    private static readonly ThreadLocal<StringBuilder> s_cachedBuilder = new(() => new(4096));
+    private readonly StringBuilder _sb = s_cachedBuilder.Value!;
     private int _depth = 0;
-
-    public JsonSerializer(ValueNode node, bool format = false, int indent = 4)
-    {
-        _node = node;
-        _sb = _cachedBuilder.Value!;
-        _format = format;
-        _indent = indent;
-    }
 
     public string Serialize()
     {
         _sb.Clear();
 
-        if (!_format)
-            AppendNode(_node);
+        if (!format)
+            AppendNode(node);
         else
-            AppendNodeFormat(_node);
+            AppendNodeFormat(node);
 
         return _sb.ToString();
     }
@@ -64,7 +52,7 @@ public ref struct JsonSerializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AppendNodeFormat(ValueNode node)
     {
-        switch(node)
+        switch (node)
         {
             case NullValueNode:
                 _sb.Append("null");
@@ -97,8 +85,8 @@ public ref struct JsonSerializer
     {
         _sb.Append('[');
 
-        bool first = true;
-        foreach (ValueNode node in listNode.Values)
+        var first = true;
+        foreach (var node in listNode.Values)
         {
             if (first)
                 first = false;
@@ -117,8 +105,8 @@ public ref struct JsonSerializer
         _sb.Append('[');
         _depth++;
 
-        bool first = true;
-        foreach (ValueNode node in listNode.Values)
+        var first = true;
+        foreach (var node in listNode.Values)
         {
             if (first)
                 first = false;
@@ -126,12 +114,12 @@ public ref struct JsonSerializer
                 _sb.Append(',');
 
             _sb.AppendLine();
-            _sb.Append(' ', _depth * _indent);
+            _sb.Append(' ', _depth * indent);
             AppendNodeFormat(node);
         }
 
         _sb.AppendLine();
-        _sb.Append(' ', --_depth * _indent);
+        _sb.Append(' ', --_depth * indent);
         _sb.Append(']');
     }
 
@@ -140,8 +128,8 @@ public ref struct JsonSerializer
     {
         _sb.Append('{');
 
-        bool first = true;
-        foreach (ObjectFieldNode node in objNode.ObjectFields)
+        var first = true;
+        foreach (var node in objNode.ObjectFields)
         {
             if (first)
                 first = false;
@@ -163,8 +151,8 @@ public ref struct JsonSerializer
         _sb.Append('{');
         _depth++;
 
-        bool first = true;
-        foreach (ObjectFieldNode node in objNode.ObjectFields)
+        var first = true;
+        foreach (var node in objNode.ObjectFields)
         {
             if (first)
                 first = false;
@@ -172,7 +160,7 @@ public ref struct JsonSerializer
                 _sb.Append(',');
 
             _sb.AppendLine();
-            _sb.Append(' ', _depth * _indent);
+            _sb.Append(' ', _depth * indent);
             _sb.Append('\"');
             _sb.Append(node.Name);
             _sb.Append("\": ");
@@ -180,7 +168,7 @@ public ref struct JsonSerializer
         }
 
         _sb.AppendLine();
-        _sb.Append(' ', --_depth * _indent);
+        _sb.Append(' ', --_depth * indent);
         _sb.Append('}');
     }
 }

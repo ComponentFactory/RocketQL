@@ -2,10 +2,10 @@
 
 namespace RocketQL.Core.Serializers;
 
-public ref struct RequestDeserializer
+public ref struct RequestDeserializer(ReadOnlySpan<char> text, string source)
 {
-    private readonly SyntaxNodeList _nodes;
-    private DocumentTokenizer _tokenizer;
+    private readonly SyntaxNodeList _nodes = [];
+    private DocumentTokenizer _tokenizer = new(text, source);
 
     public RequestDeserializer(
         ReadOnlySpan<char> text,
@@ -14,12 +14,6 @@ public ref struct RequestDeserializer
         [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
-    }
-
-    public RequestDeserializer(ReadOnlySpan<char> text, string source)
-    {
-        _nodes = [];
-        _tokenizer = new DocumentTokenizer(text, source);
     }
 
     public SyntaxNodeList Deserialize()
@@ -55,19 +49,11 @@ public ref struct RequestDeserializer
                         case "extend":
                             {
                                 MandatoryNextToken(DocumentTokenKind.Name);
-                                switch (_tokenizer.TokenValue)
+                                throw _tokenizer.TokenValue switch
                                 {
-                                    case "schema":
-                                    case "scalar":
-                                    case "type":
-                                    case "interface":
-                                    case "union":
-                                    case "enum":
-                                    case "input":
-                                        throw SyntaxException.ExtendDefinintionNotAllowedInOperation(_tokenizer.Location, _tokenizer.TokenValue);
-                                    default:
-                                        throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
-                                }
+                                    "schema" or "scalar" or "type" or "interface" or "union" or "enum" or "input" => SyntaxException.ExtendDefinintionNotAllowedInOperation(_tokenizer.Location, _tokenizer.TokenValue),
+                                    _ => SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue),
+                                };
                             }
                         default:
                             throw SyntaxException.UnrecognizedKeyword(_tokenizer.Location, _tokenizer.TokenValue);
@@ -88,10 +74,10 @@ public ref struct RequestDeserializer
     private SyntaxOperationDefinitionNode ParseOperationDefinition()
     {
         var location = _tokenizer.Location;
-        OperationType operationType = OperationTypeFromTokenValue();
+        var operationType = OperationTypeFromTokenValue();
         MandatoryNext();
 
-        string name = "";
+        var name = "";
         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
         {
             name = _tokenizer.TokenValue;
@@ -112,14 +98,14 @@ public ref struct RequestDeserializer
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         if (name == "on")
             throw SyntaxException.FragmentNameCannotBeOn(_tokenizer.Location);
 
         MandatoryNext();
         MandatoryKeyword("on");
         MandatoryNextToken(DocumentTokenKind.Name);
-        string typeCondition = _tokenizer.TokenValue;
+        var typeCondition = _tokenizer.TokenValue;
         MandatoryNext();
 
         return new SyntaxFragmentDefinitionNode(name, typeCondition, ParseDirectivesOptional(), ParseSelectionSet(), location);
@@ -136,20 +122,20 @@ public ref struct RequestDeserializer
             return arguments;
         }
 
-        return new();
+        return [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxVariableDefinitionNodeList ParseVariablesDefinition()
     {
-        SyntaxVariableDefinitionNodeList list = new();
+        SyntaxVariableDefinitionNodeList list = [];
 
         do
         {
             var location = _tokenizer.Location;
             MandatoryTokenNext(DocumentTokenKind.Dollar);
             MandatoryToken(DocumentTokenKind.Name);
-            string name = _tokenizer.TokenValue;
+            var name = _tokenizer.TokenValue;
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
@@ -166,13 +152,13 @@ public ref struct RequestDeserializer
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
             return ParseSelectionSet();
 
-        return new();
+        return [];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxSelectionDefinitionNodeList ParseSelectionSet()
     {
-        SyntaxSelectionDefinitionNodeList list = new();
+        SyntaxSelectionDefinitionNodeList list = [];
 
         MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
 
@@ -184,8 +170,8 @@ public ref struct RequestDeserializer
                     {
                         var location = _tokenizer.Location;
                         MandatoryToken(DocumentTokenKind.Name);
-                        string alias = "";
-                        string name = _tokenizer.TokenValue;
+                        var alias = "";
+                        var name = _tokenizer.TokenValue;
                         MandatoryNext();
 
                         if (_tokenizer.TokenKind == DocumentTokenKind.Colon)
@@ -201,7 +187,7 @@ public ref struct RequestDeserializer
                             name,
                             ParseArgumentsOptional(constant: false),
                             ParseDirectivesOptional(),
-                            ParseSelectionSetOptional(), 
+                            ParseSelectionSetOptional(),
                             location));
                     }
                     break;
@@ -210,7 +196,7 @@ public ref struct RequestDeserializer
                         var fragmentLocation = _tokenizer.Location;
                         MandatoryNext();
 
-                        string name = "";
+                        var name = "";
                         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
                         {
                             name = _tokenizer.TokenValue;
@@ -291,7 +277,7 @@ public ref struct RequestDeserializer
                 break;
             case DocumentTokenKind.LeftSquareBracket:
                 {
-                    ValueNodeList list = new();
+                    ValueNodeList list = [];
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightSquareBracket)
@@ -302,13 +288,13 @@ public ref struct RequestDeserializer
                 break;
             case DocumentTokenKind.LeftCurlyBracket:
                 {
-                    SyntaxObjectFieldNodeList list = new();
+                    SyntaxObjectFieldNodeList list = [];
 
                     MandatoryNext();
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
                     {
                         MandatoryToken(DocumentTokenKind.Name);
-                        string name = _tokenizer.TokenValue;
+                        var name = _tokenizer.TokenValue;
                         MandatoryNextToken(DocumentTokenKind.Colon);
                         MandatoryNext();
 
@@ -329,13 +315,13 @@ public ref struct RequestDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxDirectiveNodeList ParseDirectivesOptional()
     {
-        SyntaxDirectiveNodeList list = new();
+        SyntaxDirectiveNodeList list = [];
 
         while (_tokenizer.TokenKind == DocumentTokenKind.At)
         {
             var location = _tokenizer.Location;
             MandatoryNextToken(DocumentTokenKind.Name);
-            string name = _tokenizer.TokenValue;
+            var name = _tokenizer.TokenValue;
             _tokenizer.Next();
 
             list.Add(new SyntaxDirectiveNode("@" + name, ParseArgumentsOptional(true), location));
@@ -347,7 +333,7 @@ public ref struct RequestDeserializer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxObjectFieldNodeList ParseArgumentsOptional(bool constant)
     {
-        SyntaxObjectFieldNodeList list = new();
+        SyntaxObjectFieldNodeList list = [];
 
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
@@ -355,7 +341,7 @@ public ref struct RequestDeserializer
             while (_tokenizer.TokenKind != DocumentTokenKind.RightParenthesis)
             {
                 MandatoryToken(DocumentTokenKind.Name);
-                string name = _tokenizer.TokenValue;
+                var name = _tokenizer.TokenValue;
                 MandatoryNextToken(DocumentTokenKind.Colon);
                 MandatoryNext();
 
@@ -379,7 +365,7 @@ public ref struct RequestDeserializer
                     var name = _tokenizer.TokenValue;
                     MandatoryNext();
                     SyntaxTypeNode ret = new SyntaxTypeNameNode(name, location);
-                    
+
                     if (OptionalToken(DocumentTokenKind.Exclamation))
                         ret = new SyntaxTypeNonNullNode(ret, location);
 
@@ -404,7 +390,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private OperationType OperationTypeFromTokenValue()
+    private readonly OperationType OperationTypeFromTokenValue()
     {
         return _tokenizer.TokenValue switch
         {
@@ -423,7 +409,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MandatoryToken(DocumentTokenKind token)
+    private readonly void MandatoryToken(DocumentTokenKind token)
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.EndOfText)
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
@@ -456,7 +442,7 @@ public ref struct RequestDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MandatoryKeyword(string keyword)
+    private readonly void MandatoryKeyword(string keyword)
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.EndOfText)
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);
@@ -485,7 +471,7 @@ public ref struct RequestDeserializer
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.StringValue)
         {
-            string ret = _tokenizer.TokenString;
+            var ret = _tokenizer.TokenString;
             _tokenizer.Next();
             return ret;
         }

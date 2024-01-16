@@ -23,7 +23,7 @@ public class ExtendUnion : UnitTestBase
                 type bar { buzz: Int }
                 union foo = bar
                 extend union foo = bar
-                """,                                            "Extend union 'foo' specifies a type 'bar' already defined.")]
+                """,                                            "Extend union 'foo' specifies a member type 'bar' already defined.")]
     public void ValidationSingleExceptions(string schemaText, string message)
     {
         SchemaValidationSingleException(schemaText, message);

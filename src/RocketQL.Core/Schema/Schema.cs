@@ -67,7 +67,7 @@ public partial class Schema : ISchema
             AddBuiltInScalars();
             Converter.Visit();
             Linker.Visit();
-            Validater.Visit();
+            Validator.Visit();
             Rooted.Visit();
             CheckExceptions();
 
@@ -163,7 +163,7 @@ public partial class Schema : ISchema
                 }
             },
             false,
-            DirectiveLocations.FIELD_DEFINITION | DirectiveLocations.ARGUMENT_DEFINITION | DirectiveLocations.INPUT_FIELD_DEFINITION | 
+            DirectiveLocations.FIELD_DEFINITION | DirectiveLocations.ARGUMENT_DEFINITION | DirectiveLocations.INPUT_FIELD_DEFINITION |
             DirectiveLocations.ENUM_VALUE,
             Location.Empty));
 
@@ -186,7 +186,7 @@ public partial class Schema : ISchema
             DirectiveLocations.SCALAR,
             Location.Empty));
 
-        foreach(var directive in directives)
+        foreach (var directive in directives)
         {
             directive.IsBuiltIn = true;
             _directives.Add(directive.Name, directive);
@@ -195,32 +195,34 @@ public partial class Schema : ISchema
 
     private void AddBuiltInScalars()
     {
-        foreach (var scalarPair in new[] { 
+        foreach (var scalarPair in new[] {
             ("Int",     """
                         The `Int` scalar type represents non-fractional signed whole numeric values. 
                         Int can represent values between -(2^31) and 2^31 - 1.
-                        """), 
+                        """),
             ("Float",   """
                         The `Float` scalar type represents signed double-precision fractional values as specified 
                         by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
-                        """), 
+                        """),
             ("String",  """
                         The `String` scalar type represents textual data, represented as UTF-8 character sequences. 
                         The String type is most often used by GraphQL to represent free-form human-readable text.
-                        """), 
+                        """),
             ("Boolean", """
                         The `Boolean` scalar type represents `true` or `false`.
-                        """), 
+                        """),
             ("ID",      """
                         The `ID` scalar type represents a unique identifier, often used to refetch an object or as 
                         key for a cache. The ID type appears in a JSON response as a String; however, it is not 
                         intended to be human-readable. When expected as an input type, any string (such as `"4"`) 
                         or integer (such as `4`) input value will be accepted as an ID.
-                        """) 
+                        """)
         })
         {
-            var scalar = new ScalarTypeDefinition(scalarPair.Item2, scalarPair.Item1, [], Location.Empty);
-            scalar.IsBuiltIn = true;
+            var scalar = new ScalarTypeDefinition(scalarPair.Item2, scalarPair.Item1, [], Location.Empty)
+            {
+                IsBuiltIn = true
+            };
             _types.Add(scalarPair.Item1, scalar);
         }
     }

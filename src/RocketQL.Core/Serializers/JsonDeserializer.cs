@@ -1,21 +1,16 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public ref struct JsonDeserializer
+public ref struct JsonDeserializer(ReadOnlySpan<char> json, string source)
 {
-    private JsonTokenizer _tokenizer;              
+    private JsonTokenizer _tokenizer = new(json, source);
 
     public JsonDeserializer(
-        ReadOnlySpan<char> json, 
+        ReadOnlySpan<char> json,
         [CallerFilePath] string filePath = "",
         [CallerMemberName] string memberName = "",
         [CallerLineNumber] int lineNumber = 0)
         : this(json, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
-    }
-
-    public JsonDeserializer(ReadOnlySpan<char> json, string source)
-    {
-        _tokenizer = new JsonTokenizer(json, source);
     }
 
     public ValueNode Deserialize()
@@ -43,11 +38,11 @@ public ref struct JsonDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueNode ParseArray()
+    private ListValueNode ParseArray()
     {
         MandatoryNext();
 
-        ValueNodeList values = new();
+        ValueNodeList values = [];
 
         while (_tokenizer.TokenKind != JsonTokenKind.RightSquareBracket)
         {
@@ -62,16 +57,16 @@ public ref struct JsonDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueNode ParseObject()
+    private ObjectValueNode ParseObject()
     {
         MandatoryNext();
 
-        SyntaxObjectFieldNodeList values = new();
+        SyntaxObjectFieldNodeList values = [];
 
         while (_tokenizer.TokenKind != JsonTokenKind.RightCurlyBracket)
         {
             MandatoryToken(JsonTokenKind.StringValue);
-            string propertyName = _tokenizer.TokenString;
+            var propertyName = _tokenizer.TokenString;
             MandatoryNextToken(JsonTokenKind.Colon);
             MandatoryNext();
             values.Add(new ObjectFieldNode(propertyName, ParseValue()));
@@ -92,7 +87,7 @@ public ref struct JsonDeserializer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MandatoryToken(JsonTokenKind token)
+    private readonly void MandatoryToken(JsonTokenKind token)
     {
         if (_tokenizer.TokenKind == JsonTokenKind.EndOfText)
             throw SyntaxException.UnexpectedEndOfFile(_tokenizer.Location);

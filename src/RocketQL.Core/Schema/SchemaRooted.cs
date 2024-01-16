@@ -115,7 +115,7 @@ public partial class Schema
 
         private void VisitInputValueDefinitions(InputValueDefinitions inputValues)
         {
-            foreach(var inputValue in inputValues.Values) 
+            foreach (var inputValue in inputValues.Values)
             {
                 VisitDirectives(inputValue.Directives);
 
@@ -133,7 +133,7 @@ public partial class Schema
 
         private void VisitFieldsDefinitions(FieldDefinitions fieldDefinitions)
         {
-            foreach(var fieldDefinition in fieldDefinitions.Values)
+            foreach (var fieldDefinition in fieldDefinitions.Values)
             {
                 VisitDirectives(fieldDefinition.Directives);
                 VisitInputValueDefinitions(fieldDefinition.Arguments);

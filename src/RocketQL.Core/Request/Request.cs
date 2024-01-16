@@ -119,7 +119,7 @@ public partial class Request : IRequest
     private void CleanVariables()
     {
         _exceptions.Clear();
-        _variables = null;
+        _variables = NullValueNode.Null;
         IsValidatedVariables = false;
     }
 
