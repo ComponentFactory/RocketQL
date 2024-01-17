@@ -48,7 +48,7 @@ public class ExtendEnum : UnitTestBase
                 "extend enum foo, enum value SECOND")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class ExtendEnum : UnitTestBase
         var first = foo.EnumValues["FIRST"];
         Assert.NotNull(first);
         var second = foo.EnumValues["SECOND"];
-        Assert.NotNull(first);
+        Assert.NotNull(second);
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class ExtendEnum : UnitTestBase
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
-        Assert.Equal(2, foo.EnumValues.Count());
+        Assert.Equal(2, foo.EnumValues.Count);
         var second = foo.EnumValues["SECOND"];
         Assert.NotNull(second);
         var directive = second.Directives[0];

@@ -61,7 +61,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("Name = false")]
     public void InvalidNullableScalarWrongValueType(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -89,7 +89,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("Name! = false")]
     public void InvalidNonNullableScalarWrongValueType(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -101,7 +101,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("Name! = null")]
     public void InvalidNonNullableScalarCannotBeNull(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -235,7 +235,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Name] = [false]")]
     public void InvalidNullableListNullableScalar(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -251,7 +251,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Name!] = [3.142]")]
     public void InvalidNullableListNonNullableScalar(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -267,7 +267,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Name]! = [3.142]")]
     public void InvalidNonNullableListNullableScalar(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -284,7 +284,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Name!]! = [3.142]")]
     public void InvalidNonNullableListNonNullableScalar(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -309,7 +309,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("Country = true")]
     public void InvalidNullableEnumWrongValueType(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -319,14 +319,14 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("Country! = true")]
     public void InvalidNonNullableEnumWrongValueType(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
     [InlineData("Country! = null")]
     public void InvalidNonNullableEnumCannotBeNull(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -381,7 +381,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Country] = [false]")]
     public void InvalidNullableListNullableEnum(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -391,9 +391,9 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Country!] = [true]")]
     [InlineData("[Country!] = [false]")]
     [InlineData("[Country!] = [\"foo\"]")]
-    public void InValidNullableListNonNullableEnum(string compare)
+    public void InvalidNullableListNonNullableEnum(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -403,9 +403,9 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Country]! = [true]")]
     [InlineData("[Country]! = [false]")]
     [InlineData("[Country]! = [\"foo\"]")]
-    public void InValidNonNullableListNullableEnum(string compare)
+    public void InvalidNonNullableListNullableEnum(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
@@ -416,147 +416,147 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
     [InlineData("[Country!]! = [true]")]
     [InlineData("[Country!]! = [false]")]
     [InlineData("[Country!]! = [\"foo\"]")]
-    public void InValidNonNullableListNonNullableEnum(string compare)
+    public void InvalidNonNullableListNonNullableEnum(string compare)
     {
-        Invalid(compare);
+        Invalid(compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "T = null")]
-    [InlineData("input T { f: Int }",                                   "T = { }")]
-    [InlineData("input T { f: Int }",                                   "T = { f: null }")]
-    [InlineData("input T { f: Int }",                                   "T = { f: 42 }")]
-    [InlineData("input T { f: Float }",                                 "T = { f: 3.14 }")]
-    [InlineData("input T { f: Boolean }",                               "T = { f: true }")]
-    [InlineData("input T { f: String }",                                "T = { f: \"foo\" }")]
-    [InlineData("input T { f: ID }",                                    "T = { f: null }")]
-    [InlineData("input T { f: ID }",                                    "T = { f: \"foo\" }")]
-    [InlineData("input T { f: Name }",                                  "T = { f: \"foo\" }")]
-    [InlineData("input T { f: Country }",                               "T = { f: null }")]
-    [InlineData("input T { f: Country }",                               "T = { f: AUS }")]
-    [InlineData("input T { f: Int g:ID h:Name }",                       "T = { f: 42 g: \"foo\" h: \"foo\" }")]
-    [InlineData("input T { f: Int g:ID h:Name }",                       "T = { f: null g: null h: null }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { g: null }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { g: { } }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { g: { f: 42 } }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { g: { f: 42 g: { f: 43 } } }")]
-    [InlineData("input T { f: Int g: T }",                              "T = { g: { f: 42 g: { g: { f: 43 } } } }")]
+    [InlineData("input T { f: Int }", "T = null")]
+    [InlineData("input T { f: Int }", "T = { }")]
+    [InlineData("input T { f: Int }", "T = { f: null }")]
+    [InlineData("input T { f: Int }", "T = { f: 42 }")]
+    [InlineData("input T { f: Float }", "T = { f: 3.14 }")]
+    [InlineData("input T { f: Boolean }", "T = { f: true }")]
+    [InlineData("input T { f: String }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: ID }", "T = { f: null }")]
+    [InlineData("input T { f: ID }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: Name }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: Country }", "T = { f: null }")]
+    [InlineData("input T { f: Country }", "T = { f: AUS }")]
+    [InlineData("input T { f: Int g:ID h:Name }", "T = { f: 42 g: \"foo\" h: \"foo\" }")]
+    [InlineData("input T { f: Int g:ID h:Name }", "T = { f: null g: null h: null }")]
+    [InlineData("input T { f: Int g: T }", "T = { }")]
+    [InlineData("input T { f: Int g: T }", "T = { g: null }")]
+    [InlineData("input T { f: Int g: T }", "T = { g: { } }")]
+    [InlineData("input T { f: Int g: T }", "T = { g: { f: 42 } }")]
+    [InlineData("input T { f: Int g: T }", "T = { g: { f: 42 g: { f: 43 } } }")]
+    [InlineData("input T { f: Int g: T }", "T = { g: { f: 42 g: { g: { f: 43 } } } }")]
     public void ValidNullableObject(string types, string compare)
     {
         Valid(types, compare);
     }
 
     [Theory]
-    [InlineData("input T { f: Int! }",                                  "T = { f: 42 }")]
-    [InlineData("input T { f: Float! }",                                "T = { f: 3.14 }")]
-    [InlineData("input T { f: Boolean! }",                              "T = { f: true }")]
-    [InlineData("input T { f: String! }",                               "T = { f: \"foo\" }")]
-    [InlineData("input T { f: ID! }",                                   "T = { f: \"foo\" }")]
-    [InlineData("input T { f: Name! }",                                 "T = { f: \"foo\" }")]
-    [InlineData("input T { f: Country! }",                              "T = { f: AUS }")]
-    [InlineData("input T { f: Int! g:ID! h:Name! }",                    "T = { f: 42 g: \"foo\" h: \"foo\" }")]
-    [InlineData("input T { f: Int! g: T }",                             "T = { f: 42 }")]
-    [InlineData("input T { f: Int! g: T }",                             "T = { f: 42 g: null }")]
-    [InlineData("input T { f: Int! g: T }",                             "T = { f: 42 g: { f: 43 } }")]
-    [InlineData("input T { f: Int! g: T }",                             "T = { f: 42 g: { f: 43 g: { f: 44 } } }")]
+    [InlineData("input T { f: Int! }", "T = { f: 42 }")]
+    [InlineData("input T { f: Float! }", "T = { f: 3.14 }")]
+    [InlineData("input T { f: Boolean! }", "T = { f: true }")]
+    [InlineData("input T { f: String! }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: ID! }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: Name! }", "T = { f: \"foo\" }")]
+    [InlineData("input T { f: Country! }", "T = { f: AUS }")]
+    [InlineData("input T { f: Int! g:ID! h:Name! }", "T = { f: 42 g: \"foo\" h: \"foo\" }")]
+    [InlineData("input T { f: Int! g: T }", "T = { f: 42 }")]
+    [InlineData("input T { f: Int! g: T }", "T = { f: 42 g: null }")]
+    [InlineData("input T { f: Int! g: T }", "T = { f: 42 g: { f: 43 } }")]
+    [InlineData("input T { f: Int! g: T }", "T = { f: 42 g: { f: 43 g: { f: 44 } } }")]
     public void ValidNonNullableObject(string types, string compare)
     {
         Valid(types, compare);
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "T = { f: 3.14 }")]
-    public void InValidNullableObject(string types, string compare)
+    [InlineData("input T { f: Int }", "T = { f: 3.14 }")]
+    public void InvalidNullableObject(string types, string compare)
     {
-        Invalid(types, compare);
+        Invalid(types, compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
-    [InlineData("input T { f: Int! }",                                  "T = { }")]
-    [InlineData("input T { f: Int! }",                                  "T = { f: null }")]
-    [InlineData("input T { f: Int! }",                                  "T = { f: 3.14 }")]
-    public void InValidNonNullableObject(string types, string compare)
+    [InlineData("input T { f: Int! }", "T = { }")]
+    [InlineData("input T { f: Int! }", "T = { f: null }")]
+    [InlineData("input T { f: Int! }", "T = { f: 3.14 }")]
+    public void InvalidNonNullableObject(string types, string compare)
     {
-        Invalid(types, compare);
+        Invalid(types, compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "[T] = null")]
-    [InlineData("input T { f: Int }",                                   "[T] = []")]
-    [InlineData("input T { f: Int }",                                   "[T] = [null]")]
-    [InlineData("input T { f: Int }",                                   "[T] = [{}]")]
-    [InlineData("input T { f: Int }",                                   "[T] = [{ f: 42 }]")]
-    [InlineData("input T { f: Int }",                                   "[T] = [{ f: 42 }, null, {}]")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = null")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = []")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = [null]")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = [{}]")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = [{ g: null }]")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = [{ g: {} }]")]
-    [InlineData("input T { f: Int } input U { g: T }",                  "[U] = [{ g: { f: 42 } }]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = null")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = []")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{}]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{ g: null }]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{ g: [] }]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{ g: [{}] }]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{ g: [{ f: 42 }] }]")]
+    [InlineData("input T { f: Int }", "[T] = null")]
+    [InlineData("input T { f: Int }", "[T] = []")]
+    [InlineData("input T { f: Int }", "[T] = [null]")]
+    [InlineData("input T { f: Int }", "[T] = [{}]")]
+    [InlineData("input T { f: Int }", "[T] = [{ f: 42 }]")]
+    [InlineData("input T { f: Int }", "[T] = [{ f: 42 }, null, {}]")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = null")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = []")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = [null]")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = [{}]")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = [{ g: null }]")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = [{ g: {} }]")]
+    [InlineData("input T { f: Int } input U { g: T }", "[U] = [{ g: { f: 42 } }]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = null")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = []")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{}]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{ g: null }]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{ g: [] }]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{ g: [{}] }]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{ g: [{ f: 42 }] }]")]
     public void ValidNullableObjectList(string types, string compare)
     {
         Valid(types, compare);
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "[T]! = []")]
-    [InlineData("input T { f: Int }",                                   "[T]! = [null]")]
-    [InlineData("input T { f: Int }",                                   "[T]! = [{}]")]
-    [InlineData("input T { f: Int }",                                   "[T]! = [{ f: 42 }]")]
-    [InlineData("input T { f: Int }",                                   "[T]! = [{ f: 42 }, null, {}]")]
-    [InlineData("input T { f: Int }",                                   "[T!] = null")]
-    [InlineData("input T { f: Int }",                                   "[T!] = [{}]")]
-    [InlineData("input T { f: Int }",                                   "[T!] = [{ f: 42 }]")]
-    [InlineData("input T { f: Int }",                                   "[T!] = [{ f: 42 }, {}]")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = [{}]")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = [{ f: 42 }]")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = [{ f: 42 }, {}]")]    
-    [InlineData("input T { f: Int } input U { g: T! }",                 "[U]! = []")]
-    [InlineData("input T { f: Int } input U { g: T! }",                 "[U!]! = [{ g: {} }]")]
-    [InlineData("input T { f: Int } input U { g: T! }",                 "[U!]! = [{ g: { f: 42 } }]")]
-    [InlineData("input T { f: Int } input U { g: [T]! }",               "[U!]! = [{ g: [{ f: 42 }] }]")]    
-    [InlineData("input T { f: Int! } input U { g: [T!]! }",             "[U!]! = [{ g: [{ f: 42 }] }]")]    
+    [InlineData("input T { f: Int }", "[T]! = []")]
+    [InlineData("input T { f: Int }", "[T]! = [null]")]
+    [InlineData("input T { f: Int }", "[T]! = [{}]")]
+    [InlineData("input T { f: Int }", "[T]! = [{ f: 42 }]")]
+    [InlineData("input T { f: Int }", "[T]! = [{ f: 42 }, null, {}]")]
+    [InlineData("input T { f: Int }", "[T!] = null")]
+    [InlineData("input T { f: Int }", "[T!] = [{}]")]
+    [InlineData("input T { f: Int }", "[T!] = [{ f: 42 }]")]
+    [InlineData("input T { f: Int }", "[T!] = [{ f: 42 }, {}]")]
+    [InlineData("input T { f: Int }", "[T!]! = [{}]")]
+    [InlineData("input T { f: Int }", "[T!]! = [{ f: 42 }]")]
+    [InlineData("input T { f: Int }", "[T!]! = [{ f: 42 }, {}]")]
+    [InlineData("input T { f: Int } input U { g: T! }", "[U]! = []")]
+    [InlineData("input T { f: Int } input U { g: T! }", "[U!]! = [{ g: {} }]")]
+    [InlineData("input T { f: Int } input U { g: T! }", "[U!]! = [{ g: { f: 42 } }]")]
+    [InlineData("input T { f: Int } input U { g: [T]! }", "[U!]! = [{ g: [{ f: 42 }] }]")]
+    [InlineData("input T { f: Int! } input U { g: [T!]! }", "[U!]! = [{ g: [{ f: 42 }] }]")]
     public void ValidNonNullableObjectList(string types, string compare)
     {
         Valid(types, compare);
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "[T] = [ 42 ]")]
-    [InlineData("input T { f: Int }",                                   "[T] = [ 3.14 ]")]
-    [InlineData("input T { f: Int }",                                   "[T] = [ \"foo\"] ")]
-    [InlineData("input T { f: Int }",                                   "[T] = [{ x: 42 }]")]
-    [InlineData("input T { f: Int } input U { g: [T] }",                "[U] = [{ g: {} }]")]
+    [InlineData("input T { f: Int }", "[T] = [ 42 ]")]
+    [InlineData("input T { f: Int }", "[T] = [ 3.14 ]")]
+    [InlineData("input T { f: Int }", "[T] = [ \"foo\"] ")]
+    [InlineData("input T { f: Int }", "[T] = [{ x: 42 }]")]
+    [InlineData("input T { f: Int } input U { g: [T] }", "[U] = [{ g: {} }]")]
     public void InvalidNullableObjectList(string types, string compare)
     {
-        Invalid(types, compare);
+        Invalid(types, compare, "type foo, field fizz, argument arg");
     }
 
     [Theory]
-    [InlineData("input T { f: Int }",                                   "[T]! = null")]
-    [InlineData("input T { f: Int }",                                   "[T!] = [null]")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = null")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = [null]")]
-    [InlineData("input T { f: Int }",                                   "[T!]! = [{ f: 42 }, null]")]
-    [InlineData("input T { f: Int } input U { g: [T]! }",               "[U!]! = [{}]")]
-    [InlineData("input T { f: Int } input U { g: [T]! }",               "[U!]! = [{ g: null }]")]
-    [InlineData("input T { f: Int } input U { g: [T!]! }",              "[U!]! = [{ g: [null] }]")]
-    [InlineData("input T { f: Int! } input U { g: [T!]! }",             "[U!]! = [{ g: [{}] }]")]
+    [InlineData("input T { f: Int }", "[T]! = null")]
+    [InlineData("input T { f: Int }", "[T!] = [null]")]
+    [InlineData("input T { f: Int }", "[T!]! = null")]
+    [InlineData("input T { f: Int }", "[T!]! = [null]")]
+    [InlineData("input T { f: Int }", "[T!]! = [{ f: 42 }, null]")]
+    [InlineData("input T { f: Int } input U { g: [T]! }", "[U!]! = [{}]")]
+    [InlineData("input T { f: Int } input U { g: [T]! }", "[U!]! = [{ g: null }]")]
+    [InlineData("input T { f: Int } input U { g: [T!]! }", "[U!]! = [{ g: [null] }]")]
+    [InlineData("input T { f: Int! } input U { g: [T!]! }", "[U!]! = [{ g: [{}] }]")]
     public void InvalidNonNullableObjectList(string types, string compare)
     {
-        Invalid(types, compare);
+        Invalid(types, compare, "type foo, field fizz, argument arg");
     }
 
-    private static void Valid(string compare) 
+    private static void Valid(string compare)
     {
         SchemaValidationNoException("type Query { query: Int }  " +
                                     "scalar Name " +
@@ -568,28 +568,30 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
         SchemaValidationNoException("type Query { query: Int }  " +
                                     "scalar Name " +
                                     "enum Country { AUS NZ USA } " +
-                                    types + 
+                                    types +
                                     " " +
                                     "type foo { fizz(arg: " + compare + "): Int }");
     }
 
-    private static void Invalid(string compare)
+    private static void Invalid(string compare, string commaPath)
     {
         SchemaValidationSingleException("type Query { query: Int } " +
                                         "scalar Name " +
                                         "enum Country { AUS NZ USA } " +
                                         "type foo { fizz(arg: " + compare + "): Int }",
-                                        "Default value not compatible with type of argument 'arg'.");
+                                        "Default value not compatible with type of argument 'arg'.",
+                                        commaPath);
     }
 
-    private static void Invalid(string types, string compare)
+    private static void Invalid(string types, string compare, string commaPath)
     {
         SchemaValidationSingleException("type Query { query: Int } " +
                                         "scalar Name " +
                                         "enum Country { AUS NZ USA } " +
                                         types +
                                         "type foo { fizz(arg: " + compare + "): Int }",
-                                        "Default value not compatible with type of argument 'arg'.");
+                                        "Default value not compatible with type of argument 'arg'.",
+                                        commaPath);
     }
 }
 

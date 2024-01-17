@@ -34,7 +34,7 @@ public class ExtendUnion : UnitTestBase
                 "extend union foo, member type bar")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Fact]

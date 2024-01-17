@@ -13,8 +13,12 @@ public class Fragment : UnitTestBase
                                           """;
 
     [Theory]
-    [InlineData("fragment fizz on typeObject1 @foo { a }",                               "Undefined directive '@foo' defined on fragment 'fizz'.")]
-    [InlineData("fragment fizz on typeObject1 { typeObject1 @foo }",                      "Undefined directive '@foo' defined on field.")]
+    [InlineData("fragment fizz on typeObject1 @foo { a }",
+                "Undefined directive '@foo' defined on fragment.",
+                "fragment fizz, directive @foo")]
+    [InlineData("fragment fizz on typeObject1 { typeObject1 @foo }",
+                "Undefined directive '@foo' defined on field.",
+                "fragment fizz, field typeObject1, directive @foo")]
     [InlineData("""
                 fragment buzz on typeObject1
                 {
@@ -25,7 +29,9 @@ public class Fragment : UnitTestBase
                 { 
                     typeObject1
                 }   
-                """,                                                                    "Undefined directive '@foo' defined on fragment spread 'fizz'.")]
+                """,
+                "Undefined directive '@foo' defined on fragment spread.",
+                "fragment buzz, fragment spread fizz, directive @foo")]
     [InlineData("""
                 fragment buzz on typeObject1
                 {
@@ -33,7 +39,9 @@ public class Fragment : UnitTestBase
                         typeObject1
                     }
                 }
-                """,                                                                    "Undefined directive '@foo' defined on inline fragment 'typeObject1'.")]
+                """,
+                "Undefined directive '@foo' defined on inline fragment.",
+                "fragment buzz, inline fragment typeObject1, directive @foo")]
     [InlineData("""
                 fragment buzz on typeObject1
                 {
@@ -43,22 +51,31 @@ public class Fragment : UnitTestBase
                         }
                     }
                 }
-                """,                                                                    "Undefined directive '@foo' defined on inline fragment 'typeObject1'.")]
-    public void FragmentDirectives(string requestText, string message)
+                """,
+                "Undefined directive '@foo' defined on inline fragment.",
+                "fragment buzz, inline fragment typeObject2, inline fragment typeObject1, directive @foo")]
+    public void FragmentDirectives(string requestText, string message, string commaPath)
     {
-        RequestSchemaValidationSingleException(_minimalSchema, requestText, message);
+        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
     }
 
     [Theory]
-    [InlineData("fragment fizz on Int { a }",                                           "Fragment 'fizz' cannot be applied to scalar 'Int' only an object, interface or union.")]
-    [InlineData("fragment fizz on Boolean { a }",                                       "Fragment 'fizz' cannot be applied to scalar 'Boolean' only an object, interface or union.")]
-    [InlineData("fragment fizz on String { a }",                                        "Fragment 'fizz' cannot be applied to scalar 'String' only an object, interface or union.")]
+    [InlineData("fragment fizz on Int { a }",
+                "Fragment 'fizz' cannot be applied to scalar 'Int' only an object, interface or union.",
+                "fragment fizz")]
+    [InlineData("fragment fizz on Boolean { a }",
+                "Fragment 'fizz' cannot be applied to scalar 'Boolean' only an object, interface or union.",
+                "fragment fizz")]
+    [InlineData("fragment fizz on String { a }",
+                "Fragment 'fizz' cannot be applied to scalar 'String' only an object, interface or union.",
+                "fragment fizz")]
     [InlineData("""
                 fragment fizz on typeInput { first }   
-                """,                                                                    "Fragment 'fizz' cannot be applied to input object 'typeInput' only an object, interface or union.")]
-    public void FragmentTypes(string requestText, string message)
+                """, "Fragment 'fizz' cannot be applied to input object 'typeInput' only an object, interface or union.",
+                "fragment fizz")]
+    public void FragmentTypes(string requestText, string message, string commaPath)
     {
-        RequestSchemaValidationSingleException(_minimalSchema, requestText, message);
+        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
     }
 
 
@@ -68,7 +85,9 @@ public class Fragment : UnitTestBase
                 { 
                     typeObject1 @foo
                 }
-                """,                                                                    "Undefined directive '@foo' defined on field.")]
+                """,
+                "Undefined directive '@foo' defined on field.",
+                "fragment fizz, field typeObject1, directive @foo")]
     [InlineData("""
                 fragment fizz on typeObject1 
                 { 
@@ -76,13 +95,17 @@ public class Fragment : UnitTestBase
                         typeObject1 @foo
                     }
                 }
-                """,                                                                    "Undefined directive '@foo' defined on field.")]
+                """,
+                "Undefined directive '@foo' defined on field.",
+                "fragment fizz, field typeObject1, field typeObject1, directive @foo")]
     [InlineData("""
                 fragment fizz on typeObject1 
                 { 
                     ...random
                 }
-                """,                                                                    "Undefined type 'random' specified for fragment spread within fragment 'fizz'.")]
+                """,
+                "Undefined type 'random' specified for fragment spread within fragment 'fizz'.",
+                "fragment fizz, fragment spread random")]
     [InlineData("""
                 fragment fizz on typeObject1 
                 { 
@@ -90,9 +113,11 @@ public class Fragment : UnitTestBase
                         field
                     }
                 }
-                """,                                                                    "Undefined type 'random' specified for inline fragment within fragment 'fizz'.")]
-    public void FragmentSelectionSet(string requestText, string message)
+                """,
+                "Undefined type 'random' specified for inline fragment within fragment 'fizz'.",
+                "fragment fizz, inline fragment random")]
+    public void FragmentSelectionSet(string requestText, string message, string commaPath)
     {
-        RequestSchemaValidationSingleException(_minimalSchema, requestText, message);
+        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
     }
 }

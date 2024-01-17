@@ -8,10 +8,14 @@ public class SelectionSet : UnitTestBase
 
 
     [Theory]
-    [InlineData("query { aaa(foo: Int foo: Int) }",                             "Duplicate argument 'foo' encountered.")]
-    [InlineData("query { aaa { ccc(foo: Int foo: Int) } }",                     "Duplicate argument 'foo' encountered.")]
-    public void FieldArguments(string requestText, string message)
+    [InlineData("query { aaa(foo: Int foo: Int) }",
+                "Duplicate argument 'foo'.",
+                "query (anon), field aaa, argument foo")]
+    [InlineData("query { aaa { ccc(foo: Int foo: Int) } }",
+                "Duplicate argument 'foo'.",
+                "query (anon), field aaa, field ccc, argument foo")]
+    public void FieldArguments(string requestText, string message, string commaPath)
     {
-        RequestSchemaValidationSingleException(_minimumSchema, requestText, message);
+        RequestValidationSingleException(_minimumSchema, requestText, message, commaPath);
     }
 }

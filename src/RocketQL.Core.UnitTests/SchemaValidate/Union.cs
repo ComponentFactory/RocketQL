@@ -5,7 +5,7 @@ public class Union : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSinglePathException("""
+        SchemaValidationSingleException("""
                                         type Query { first: Int} 
                                         type fizz { buzz: Int } 
                                         union foo = fizz
@@ -107,7 +107,7 @@ public class Union : UnitTestBase
                 union foo @example = fizz               
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "union foo, directive @example")]
+                "union foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
@@ -115,7 +115,7 @@ public class Union : UnitTestBase
                 union foo @example = fizz               
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "union foo, directive @example")]
+                "union foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
@@ -139,7 +139,7 @@ public class Union : UnitTestBase
                 union foo @example(arg1: null) = fizz              
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "union foo, directive @example")]
+                "union foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { first: Int } 
                 type fizz { buzz: Int }
@@ -147,10 +147,10 @@ public class Union : UnitTestBase
                 union foo @example(arg1: null) = fizz              
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "union foo, directive @example")]
+                "union foo, directive @example, argument arg1")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Theory]

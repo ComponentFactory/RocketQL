@@ -48,7 +48,7 @@ public class ExtendInputObject : UnitTestBase
                 "extend inpt object foo, input field buzz")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Fact]

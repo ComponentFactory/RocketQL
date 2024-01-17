@@ -6,49 +6,65 @@ public class ExtendInterface : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend interface foo { buzz: Int }
-                """,                                            "Interface 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Interface 'foo' cannot be extended because it is not defined.",
+                "extend interface foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend interface foo { buzz: Int }
                 interface foo { first: Int }
-                """,                                            "Interface 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Interface 'foo' cannot be extended because it is not defined.",
+                "extend interface foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on INTERFACE
                 interface foo @bar { buzz: Int } 
                 extend interface foo @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on interface 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "interface foo, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface bar { buzz: Int }
                 interface foo implements bar { buzz: Int } 
                 extend interface foo implements bar
-                """,                                            "Extend interface 'foo' specifies an interface 'bar' already defined.")]
+                """,
+                "Extend interface 'foo' specifies an interface 'bar' already defined.",
+                "extend interface foo, implement bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface foo { buzz: Int } 
                 extend interface foo { fizz: Int fizz: Int} 
-                """,                                            "Extend interface 'foo' has duplicate definition of field 'fizz'.")]
+                """,
+                "Duplicate field 'fizz'.",
+                "extend interface foo, field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface foo { buzz: Int } 
                 extend interface foo { buzz: Int } 
-                """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend interface foo, field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on FIELD_DEFINITION
                 interface foo { buzz: Int @bar } 
                 extend interface foo { buzz: Int } 
-                """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend interface foo, field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on ARGUMENT_DEFINITION
                 interface foo { buzz(arg: String @bar): Int } 
                 extend interface foo { buzz(arg: String): Int } 
-                """,                                            "Extend interface 'foo' for existing field 'buzz' does not make any change.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend interface foo, field buzz")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Fact]

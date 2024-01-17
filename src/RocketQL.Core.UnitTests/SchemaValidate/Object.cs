@@ -7,13 +7,13 @@ public class Object : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSinglePathException("""
-                                            type Query { alpha: Int } 
-                                            type foo { fizz : Int }
-                                            """,
-                                            "type foo { fizz : Int }",
-                                            "Object 'foo' is already defined.",
-                                            "type foo");
+        SchemaValidationSingleException("""
+                                        type Query { alpha: Int } 
+                                        type foo { fizz : Int }
+                                        """,
+                                        "type foo { fizz : Int }",
+                                        "Object 'foo' is already defined.",
+                                        "type foo");
     }
 
     [Theory]
@@ -151,7 +151,7 @@ public class Object : UnitTestBase
                 type foo implements first { bar(args1: Int!): Int }
                 """,
                 "Object 'foo' field 'bar' argument 'args1' cannot be non-null type because not declared on interface 'first'.",
-                "type foo, implements first, field bar")]
+                "type foo, implements first, field bar, argument args1")]
     // Field errors
     [InlineData("""
                 type Query { alpha: Int }
@@ -291,42 +291,42 @@ public class Object : UnitTestBase
                 type foo @example { fizz : Int }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, directive @example")]
+                "type foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo  { fizz : Int @example }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, field fizz, directive @example")]
+                "type foo, field fizz, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, field fizz, argument arg, directive @example")]
+                "type foo, field fizz, argument arg, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example { fizz : Int }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, directive @example")]
+                "type foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, field fizz, directive @example")]
+                "type foo, field fizz, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "type foo, field fizz, argument arg, directive @example")]
+                "type foo, field fizz, argument arg, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on OBJECT
@@ -375,45 +375,45 @@ public class Object : UnitTestBase
                 type foo @example(arg1: null) { fizz : Int }                
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "type foo, directive @example")]
+                "type foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int  @example(arg1: null) }                
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "type foo, field fizz, directive @example")]
+                "type foo, field fizz, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
                 """,
                "Default value not compatible with type of argument 'arg1'.",
-                "type foo, field fizz, argument arg, directive @example")]
+                "type foo, field fizz, argument arg, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "type foo, directive @example")]
+                "type foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: null) }                
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "type foo, field fizz, directive @example")]
+                "type foo, field fizz, directive @example, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "type foo, field fizz, argument arg, directive @example")]
+                "type foo, field fizz, argument arg, directive @example, argument arg1")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Theory]
@@ -451,7 +451,7 @@ public class Object : UnitTestBase
                 "type foo")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {
-        SchemaValidationMultiplePathExceptions(schemaText, messages);
+        SchemaValidationMultipleExceptions(schemaText, messages);
     }
 
     [Theory]
@@ -585,15 +585,15 @@ public class Object : UnitTestBase
     [Fact]
     public void InvalidTypeCheckOnDefaultValue()
     {
-        SchemaValidationSinglePathException("""
-                                            type Query { query: Int }
-                                            type foo 
-                                            {
-                                               a(arg: Int = 3.13): Int
-                                            }
-                                            """,
-                                            "Default value not compatible with type of argument 'arg'.",
-                                            "type foo, field a, argument arg");
+        SchemaValidationSingleException("""
+                                        type Query { query: Int }
+                                        type foo 
+                                        {
+                                            a(arg: Int = 3.13): Int
+                                        }
+                                        """,
+                                        "Default value not compatible with type of argument 'arg'.",
+                                        "type foo, field a, argument arg");
     }
 
     [Fact]

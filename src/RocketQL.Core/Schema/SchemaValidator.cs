@@ -422,6 +422,8 @@ public partial class Schema
                     var checkedArguments = directive.Arguments.ToDictionary();
                     foreach (var argumentDefinition in directive.Definition.Arguments.Values)
                     {
+                        PushPath($"argument {argumentDefinition.Name}");
+
                         if (checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
                         {
                             if ((checkedArgument.Value is not null) &&
@@ -432,6 +434,8 @@ public partial class Schema
                             _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, CurrentPath));
 
                         checkedArguments.Remove(argumentDefinition.Name);
+
+                        PopPath();
                     }
 
                     if (checkedArguments.Count > 0)
@@ -592,12 +596,18 @@ public partial class Schema
                     }
 
                     foreach (var nonInterfaceArgument in nonInterface.Values)
+                    {
+                        PushPath($"argument {nonInterfaceArgument.Name}");
+
                         if (nonInterfaceArgument.Type is TypeNonNull)
                             _schema.NonFatalException(ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode,
                                                                                                                 interfaceField.Name,
                                                                                                                 interfaceDefinition.Name,
                                                                                                                 nonInterfaceArgument.Name,
                                                                                                                 CurrentPath));
+
+                        PopPath();
+                    }
 
                     if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
                         _schema.NonFatalException(ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode,

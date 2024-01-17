@@ -5,7 +5,7 @@ public class Scalar : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSinglePathException("""
+        SchemaValidationSingleException("""
                                         type Query { fizz: Int } 
                                         scalar foo     
                                         """,
@@ -22,7 +22,9 @@ public class Scalar : UnitTestBase
     [InlineData("ID")]
     public void CannotUsePredefinedName(string scalar)
     {
-        SchemaValidationSingleException("type Query { fizz: Int } scalar " + scalar, $"Scalar '{scalar}' is already defined.");
+        SchemaValidationSingleException("type Query { fizz: Int } scalar " + scalar,
+                                            $"Scalar '{scalar}' is already defined.",
+                                            $"scalar {scalar}");
     }
 
     [Theory]
@@ -60,14 +62,14 @@ public class Scalar : UnitTestBase
                 scalar foo @example                
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "scalar foo, directive @example")]
+                "scalar foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example                
                 """,
                 "Directive '@example' has mandatory argument 'arg1' missing.",
-                "scalar foo, directive @example")]
+                "scalar foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example on SCALAR
@@ -88,17 +90,17 @@ public class Scalar : UnitTestBase
                 scalar foo @example(arg1: null)              
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "scalar foo, directive @example")]
+                "scalar foo, directive @example, argument arg1")]
     [InlineData("""
                 type Query { fizz: Int }
                 directive @example(arg0: Int arg1: Int!) on SCALAR
                 scalar foo @example(arg1: null)              
                 """,
                 "Default value not compatible with type of argument 'arg1'.",
-                "scalar foo, directive @example")]
+                "scalar foo, directive @example, argument arg1")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Theory]

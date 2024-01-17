@@ -21,7 +21,7 @@ public partial class Request
 
         public void VisitOperationDefinition(OperationDefinition operation)
         {
-            var operationName = operation.Name ?? "(default)";
+            var operationName = string.IsNullOrEmpty(operation.Name) ? "(anon)" : operation.Name;
             PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
             InterlinkDirectives(operation.Directives, operation);
             InterlinkVariables(operation.Variables, operation);

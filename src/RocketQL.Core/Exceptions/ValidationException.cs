@@ -38,11 +38,6 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException ExtendTypeAlreadyDefined(LocationNode node, string name, string type, string[] path) => new(node.Location, $"{type} '{name}' cannot be extended because it is not defined.", path);
     public static ValidationException ExtendExistingFieldUnchanged(SyntaxFieldDefinitionNode node, string[] path) => new(node.Location, $"Field '{node.Name}' has not been changed in extend definition.", path);
     public static ValidationException ExtendExistingInputFieldUnchanged(SyntaxInputValueDefinitionNode node, string[] path) => new(node.Location, $"Input field '{node.Name}' has not been changed in extend definition.", path);
-
-
-    //-----------------------------------
-    // Generated during linker stage
-    //-----------------------------------
     public static ValidationException SchemaOperationTypeNotDefined(OperationTypeDefinition node, string[] path) => new(node.Location, $"Schema {node.Operation.ToString().ToLower()} operation type '{node.NamedType}' not defined.", path);
     public static ValidationException SchemaOperationTypeNotObject(OperationTypeDefinition node, DocumentNode type, string[] path) => new(node.Location, $"Schema {node.Operation.ToString().ToLower()} operation '{node.NamedType}' has type {type.OutputElement.ToLower()} instead of object type.", path);
     public static ValidationException UndefinedInterface(Interface node, TypeDefinition parentNode, string[] path) => new(node.Location, $"Undefined interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.", path);

@@ -34,9 +34,11 @@ public partial class Schema
 
             foreach (var argument in directive.Arguments.Values)
             {
+                PushPath($"argument {argument.Name}");
                 argument.Parent = directive;
                 InterlinkDirectives(argument.Directives, argument);
                 InterlinkTypeNode(argument.Type, argument);
+                PopPath();
             }
 
             PopPath();

@@ -138,7 +138,7 @@ public class Schemas : UnitTestBase
                 "schema, directive @example")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSinglePathException(schemaText, message, commaPath);
+        SchemaValidationSingleException(schemaText, message, commaPath);
     }
 
     [Theory]
@@ -204,7 +204,7 @@ public class Schemas : UnitTestBase
                 "schema")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {
-        SchemaValidationMultiplePathExceptions(schemaText, messages);
+        SchemaValidationMultipleExceptions(schemaText, messages);
     }
 
     [Theory]

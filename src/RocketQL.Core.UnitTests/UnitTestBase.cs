@@ -40,26 +40,7 @@ public class UnitTestBase
         schema.Validate();
     }
 
-    protected static void SchemaValidationSingleException(string schemaTest, string message)
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add(schemaTest);
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (Exception ex)
-        {
-            var validation = Assert.IsType<ValidationException>(ex);
-            Assert.NotNull(validation.Source);
-            Assert.Equal(message, validation.Message);
-        }
-    }
-
-
-    protected static void SchemaValidationSinglePathException(string schemaTest, string message, string commaPath)
+    protected static void SchemaValidationSingleException(string schemaTest, string message, string commaPath)
     {
         try
         {
@@ -78,7 +59,7 @@ public class UnitTestBase
         }
     }
 
-    protected static void SchemaValidationSinglePathException(string schemaTest1, string schemaTest2, string message, string commaPath)
+    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message, string commaPath)
     {
         try
         {
@@ -111,31 +92,6 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
-            var expected = messages.Length;
-            var aggregate = Assert.IsType<RocketExceptions>(ex);
-            Assert.Equal(expected, aggregate.InnerExceptions.Count);
-
-            for (var i = 0; i < expected; i++)
-            {
-                var validatonException = aggregate.InnerExceptions[i] as ValidationException;
-                Assert.NotNull(validatonException);
-                Assert.Equal(messages[i], validatonException.Message);
-            }
-        }
-    }
-
-    protected static void SchemaValidationMultiplePathExceptions(string schemaTest, params string[] messages)
-    {
-        try
-        {
-            var schema = new Schema();
-            schema.Add(schemaTest);
-            schema.Validate();
-
-            Assert.Fail("Exception expected");
-        }
-        catch (Exception ex)
-        {
             var expected = messages.Length / 2;
             var aggregate = Assert.IsType<RocketExceptions>(ex);
             Assert.Equal(expected, aggregate.InnerExceptions.Count);
@@ -150,7 +106,7 @@ public class UnitTestBase
         }
     }
 
-    protected static void RequestSchemaValidationSingleException(string schemaTest, string requestTest, string message)
+    protected static void RequestValidationSingleException(string schemaTest, string requestTest, string message, string commaPath)
     {
         try
         {
@@ -168,9 +124,8 @@ public class UnitTestBase
             Assert.Equal(message, ex.Message);
             var validation = Assert.IsType<ValidationException>(ex);
             Assert.NotNull(validation.Source);
+            Assert.Equal(commaPath, validation.CommaPath); ;
         }
     }
-
-
 }
 

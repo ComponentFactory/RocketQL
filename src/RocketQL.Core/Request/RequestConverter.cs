@@ -20,7 +20,7 @@ public partial class Request
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
         {
-            var operationName = operation.Name ?? "(default)";
+            var operationName = string.IsNullOrEmpty(operation.Name) ? "(anon)" : operation.Name;
             PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
 
             if (_request._operations.ContainsKey(operationName))
@@ -33,7 +33,7 @@ public partial class Request
             else
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
-                    (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
+                    (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("(anon)")))
                 {
                     FatalException(ValidationException.RequestAnonymousAndNamed(operation, CurrentPath));
                 }
