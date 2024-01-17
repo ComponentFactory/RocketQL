@@ -110,7 +110,7 @@ public partial class Schema
 
             foreach (var operationTypeDefinition in schemaDefinition.Operations.Values)
             {
-                PushPath($"operation {operationTypeDefinition.NamedType}");
+                PushPath($"{operationTypeDefinition.Operation.ToString().ToLower()} {operationTypeDefinition.NamedType}");
 
                 if (!_schema._types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
                     FatalException(ValidationException.SchemaOperationTypeNotDefined(operationTypeDefinition, CurrentPath));
@@ -130,7 +130,7 @@ public partial class Schema
         {
             foreach (var interfaceEntry in interfaces.Values)
             {
-                PushPath($"interface {interfaceEntry.Name}");
+                PushPath($"implements {interfaceEntry.Name}");
                 interfaceEntry.Parent = parentNode;
 
                 if (!_schema._types.TryGetValue(interfaceEntry.Name, out var typeDefinition))
@@ -165,7 +165,7 @@ public partial class Schema
         {
             foreach (var inputValue in inputValues.Values)
             {
-                PushPath($"{elementUsage} {inputValue.Name}");
+                PushPath($"{elementUsage.ToLower()} {inputValue.Name}");
                 inputValue.Parent = parentNode;
                 InterlinkDirectives(inputValue.Directives, inputValue);
                 InterlinkTypeNode(inputValue.Type, inputValue);

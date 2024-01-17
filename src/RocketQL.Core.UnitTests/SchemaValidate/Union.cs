@@ -5,7 +5,7 @@ public class Union : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
+        SchemaValidationSinglePathException("""
                                         type Query { first: Int} 
                                         type fizz { buzz: Int } 
                                         union foo = fizz
@@ -150,7 +150,7 @@ public class Union : UnitTestBase
                 "union foo, directive @example")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message, commaPath);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Theory]

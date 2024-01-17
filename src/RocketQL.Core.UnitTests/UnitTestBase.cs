@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.UnitTests;
+﻿using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+
+namespace RocketQL.Core.UnitTests;
 
 public class UnitTestBase
 {
@@ -57,7 +59,7 @@ public class UnitTestBase
     }
 
 
-    protected static void SchemaValidationSingleException(string schemaTest, string message, string commaPath)
+    protected static void SchemaValidationSinglePathException(string schemaTest, string message, string commaPath)
     {
         try
         {
@@ -76,7 +78,7 @@ public class UnitTestBase
         }
     }
 
-    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message, string commaPath)
+    protected static void SchemaValidationSinglePathException(string schemaTest1, string schemaTest2, string message, string commaPath)
     {
         try
         {
@@ -109,10 +111,42 @@ public class UnitTestBase
         }
         catch (Exception ex)
         {
+            var expected = messages.Length;
             var aggregate = Assert.IsType<RocketExceptions>(ex);
-            Assert.Equal(messages.Length, aggregate.InnerExceptions.Count);
-            foreach (var message in messages)
-                Assert.NotNull(aggregate.InnerExceptions.Where(e => e.Message == message).FirstOrDefault());
+            Assert.Equal(expected, aggregate.InnerExceptions.Count);
+
+            for (var i = 0; i < expected; i++)
+            {
+                var validatonException = aggregate.InnerExceptions[i] as ValidationException;
+                Assert.NotNull(validatonException);
+                Assert.Equal(messages[i], validatonException.Message);
+            }
+        }
+    }
+
+    protected static void SchemaValidationMultiplePathExceptions(string schemaTest, params string[] messages)
+    {
+        try
+        {
+            var schema = new Schema();
+            schema.Add(schemaTest);
+            schema.Validate();
+
+            Assert.Fail("Exception expected");
+        }
+        catch (Exception ex)
+        {
+            var expected = messages.Length / 2;
+            var aggregate = Assert.IsType<RocketExceptions>(ex);
+            Assert.Equal(expected, aggregate.InnerExceptions.Count);
+
+            for (var i = 0; i < expected; i++)
+            {
+                var validatonException = aggregate.InnerExceptions[i] as ValidationException;
+                Assert.NotNull(validatonException);
+                Assert.Equal(messages[i * 2], validatonException.Message);
+                Assert.Equal(messages[1 + (i * 2)], validatonException.CommaPath);
+            }
         }
     }
 

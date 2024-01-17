@@ -7,9 +7,13 @@ public class Object : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("type Query { alpha: Int } type foo { fizz : Int }", 
-                                        "type foo { fizz : Int }", 
-                                        "Object 'foo' is already defined.");
+        SchemaValidationSinglePathException("""
+                                            type Query { alpha: Int } 
+                                            type foo { fizz : Int }
+                                            """,
+                                            "type foo { fizz : Int }",
+                                            "Object 'foo' is already defined.",
+                                            "type foo");
     }
 
     [Theory]
@@ -17,127 +21,179 @@ public class Object : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 type foo         
-                """,                                                            "Object 'foo' must have at least one field.")]
+                """,
+                "Object 'foo' must have at least one field.",
+                "type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo {} 
-                """,                                                            "Object 'foo' must have at least one field.")]
+                """,
+                "Object 'foo' must have at least one field.",
+                "type foo")]
     // Double underscores
     [InlineData("""
                 type Query { alpha: Int }
                 type __foo { fizz : Int } 
-                """,                                                            "Object '__foo' not allowed to start with two underscores.")]
+                """,
+                "Object '__foo' not allowed to start with two underscores.",
+                "type __foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { __fizz : Int }
-                """,                                                            "Object 'foo' has field '__fizz' not allowed to start with two underscores.")]
+                """,
+                "Field '__fizz' not allowed to start with two underscores.",
+                "type foo, field __fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(__arg1: String): String }
-                """,                                                            "Object 'foo' has field 'fizz' with argument '__arg1' not allowed to start with two underscores.")]
+                """,
+                "Argument '__arg1' not allowed to start with two underscores.",
+                "type foo, field fizz, argument __arg1")]
     // Implements errors
     [InlineData("""
                 type Query { alpha: Int }
                 type foo implements example { fizz : Int }
-                """,                                                            "Undefined interface 'example' defined on object 'foo'.")]
+                """,
+                "Undefined interface 'example' defined on object 'foo'.",
+                "type foo, implements example")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo implements Int { fizz : Int }
-                """,                                                            "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.")]
+                """,
+                "Cannot implement interface 'Int' defined on object 'foo' because it is a 'scalar'.",
+                "type foo, implements Int")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { first: Int }
                 type foo implements first & first { first : Int }
-                """,                                                            "Object 'foo' has duplicate interface 'first'.")]
+                """,
+                "Duplicate interface 'first'.",
+                "type foo, implements first")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second { second: Int }
                 interface first implements second { first: Int second: Int }
                 type foo implements first { first: Int second: Int }
-                """,                                                            "Object 'foo' is missing implements 'second' because it is declared on interface 'first'.")]
+                """,
+                "Object 'foo' is missing implements 'second' because it is declared on interface 'first'.",
+                "type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 scalar example
                 type foo implements example { fizz : Int }
-                """,                                                            "Cannot implement interface 'example' defined on object 'foo' because it is a 'scalar'.")]
+                """,
+                "Cannot implement interface 'example' defined on object 'foo' because it is a 'scalar'.",
+                "type foo, implements example")]
     // Undefined types
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz : Buzz }
-                """,                                                            "Undefined type 'Buzz' for field 'fizz' of object 'foo'.")]
+                """,
+                "Undefined type 'Buzz' on field 'fizz'.",
+                "type foo, field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(arg1: Buzz) : String }
-                """,                                                            "Undefined type 'Buzz' for argument 'arg1' of object 'foo'.")]
+                """,
+                "Undefined type 'Buzz' on argument 'arg1'.",
+                "type foo, field fizz, argument arg1")]
     // Argument errors
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(arg1: String, arg1: String): String }
-                """,                                                            "Object 'foo' has field 'fizz' with duplicate argument 'arg1'.")]
+                """,
+                "Duplicate argument 'arg1'.",
+                "type foo, field fizz, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(arg1: String! @deprecated): String }
-                """,                                                            "Cannot use @deprecated directive on non-null argument 'arg1' of field 'fizz' of object 'foo'.")]
+                """,
+                "Cannot use @deprecated directive on non-null field 'fizz'.",
+                "type foo, field fizz, argument arg1")]
     [InlineData("""                
                 type Query { alpha: Int }
                 type foo { fizz : Int }
                 type bar { buzz(arg1: foo): String }
-                """,                                                            "Object 'bar' has field 'buzz' with argument 'arg1' of type 'foo' that is not an input type.")]
+                """,
+                "Argument 'arg1' is not an input type.",
+                "type bar, field buzz, argument arg1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int): Int }
                 type foo implements first { bar: Int }
-                """,                                                            "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.",
+                "type foo, implements first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int, args2: Int): Int }
                 type foo implements first { bar(args2: Int): Int }
-                """,                                                            "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.",
+                "type foo, implements first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int): Int }
                 type foo implements first { bar(args1: String): Int }
-                """,                                                            "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.",
+                "type foo, implements first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int): Int }
                 type foo implements first { bar(args1: Int!): Int }
-                """,                                                            "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.",
+                "type foo, implements first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int }
                 type foo implements first { bar(args1: Int!): Int }
-                """,                                                            "Object 'foo' field 'bar' argument 'args1' cannot be non-null type because not declared on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' argument 'args1' cannot be non-null type because not declared on interface 'first'.",
+                "type foo, implements first, field bar")]
     // Field errors
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz: String fizz:String }
-                """,                                                            "Object 'foo' has duplicate field 'fizz'.")]
+                """,
+                "Duplicate field 'fizz'.",
+                "type foo, field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { fizz : Int }
                 type bar { buzz: foo }                 
-                """,                                                            "Object 'bar' has field 'buzz' with type 'foo' that is not an output type.")]
+                """,
+                "Field 'buzz' is not an output type.",
+                "type bar, field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { first: Int }
                 type foo implements first { bar: Int }
-                """,                                                            "Object 'foo' is missing field 'first' declared on interface 'first'.")]
+                """,
+                "Object 'foo' is missing field 'first' declared on interface 'first'.",
+                "type foo, implements first, field first")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int! }
                 type foo implements first { bar: Int }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int }
                 type foo implements first { bar: [Int] }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: [Int] }
                 type foo implements first { bar: Int }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 type aaa { aaa: Int }
@@ -145,7 +201,9 @@ public class Object : UnitTestBase
                 union ab = aaa
                 interface first { bar: ab }
                 type foo implements first { bar: bbb }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second { second: Int }
@@ -153,7 +211,9 @@ public class Object : UnitTestBase
                 type buzz implements third { second: Int }
                 interface first { bar: second }
                 type foo implements first { bar: buzz }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second { second: Int }
@@ -161,143 +221,199 @@ public class Object : UnitTestBase
                 interface buzz implements third { second: Int }
                 interface first { bar: second }
                 type foo implements first { bar: buzz }
-                """,                                                            "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.")]
+                """,
+                "Object 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
+                "type foo, implements first, field bar")]
     // Directive errors
     [InlineData("""
                 type Query { alpha: Int }
                 type foo @example { fizz : Int }
-                """,                                                            "Undefined directive '@example' defined on object 'foo'.")]
+                """,
+                "Undefined directive '@example' defined on object.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz : Int @example }
-                """,                                                            "Undefined directive '@example' defined on field 'fizz' of object 'foo'.")]
+                """,
+                "Undefined directive '@example' defined on field.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { fizz(arg1: Int @example) : Int }
-                """,                                                            "Undefined directive '@example' defined on argument 'arg1' of object 'foo'.")]
+                """,
+                "Undefined directive '@example' defined on argument.",
+                "type foo, field fizz, argument arg1, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo @example { fizz : Int }                    
-                """,                                                            "Directive '@example' is not specified for use on object 'foo' location.")]
+                """,
+                "Directive '@example' is not specified for use at this location.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo { fizz : Int @example }                    
-                """,                                                            "Directive '@example' is not specified for use on field 'fizz' of object 'foo' location.")]
+                """,
+                "Directive '@example' is not specified for use at this location.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ENUM
                 type foo { fizz(arg: Int @example) : Int }                    
-                """,                                                            "Directive '@example' is not specified for use on argument 'arg' of field 'fizz' of object 'foo' location.")]
+                """,
+                "Directive '@example' is not specified for use at this location.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on OBJECT
                 type foo @example @example { fizz : Int }                  
-                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on object 'foo'.")]
+                """,
+                "Directive '@example' is not repeatable but has been applied multiple times.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on FIELD_DEFINITION
                 type foo  { fizz : Int @example @example }                  
-                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' is not repeatable but has been applied multiple times.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example @example) : Int }                  
-                """,                                                            "Directive '@example' is not repeatable but has been applied multiple times on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' is not repeatable but has been applied multiple times.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on OBJECT
                 type foo @example { fizz : Int }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo  { fizz : Int @example }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example { fizz : Int }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example) : Int }                  
-                """,                                                            "Directive '@example' has mandatory argument 'arg1' missing on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' has mandatory argument 'arg1' missing.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on OBJECT
                 type foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on object 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on FIELD_DEFINITION
-                type foo { fizz : Int  @example(arg1: 123)}                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
+                type foo { fizz : Int @example(arg1: 123)}                
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: 123)) : Int }                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on OBJECT
                 type foo @example(arg1: 123) { fizz : Int }                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on object 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: 123) }                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int  @example(arg1: 123)) : Int }                
-                """,                                                            "Directive '@example' does not define argument 'arg1' provided on argument 'arg' of field 'fizz' of object 'foo'.")]
+                """,
+                "Directive '@example' does not define argument 'arg1'.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int  @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
+                """,
+               "Default value not compatible with type of argument 'arg1'.",
+                "type foo, field fizz, argument arg, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on OBJECT
                 type foo @example(arg1: null) { fizz : Int }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "type foo, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on FIELD_DEFINITION
                 type foo { fizz : Int @example(arg1: null) }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "type foo, field fizz, directive @example")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @example(arg0: Int arg1: Int!) on ARGUMENT_DEFINITION
                 type foo { fizz(arg: Int @example(arg1: null)) : Int }                
-                """,                                                            "Argument 'arg1' of directive '@example' of object 'foo' has a default value incompatible with the type.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Default value not compatible with type of argument 'arg1'.",
+                "type foo, field fizz, argument arg, directive @example")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Theory]
@@ -306,27 +422,36 @@ public class Object : UnitTestBase
                 interface second { second: Int }
                 interface first implements second { first: Int second: Int }
                 type foo implements first & second { bar: Int first: Int }
-                """,                                                            "Object 'foo' is missing field 'second' declared on interface 'first'.",
-                                                                                "Object 'foo' is missing field 'second' declared on interface 'second'.")]
+                """,
+                "Object 'foo' is missing field 'second' declared on interface 'first'.",
+                "type foo, implements first, field second",
+                "Object 'foo' is missing field 'second' declared on interface 'second'.",
+                "type foo, implements second, field second")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface third { third: Int }
                 interface second implements third { second: Int third: Int }
                 interface first implements second & third { first: Int second: Int third: Int }
                 type foo implements first & second { first: Int second: Int third: Int }
-                """,                                                            "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.",
-                                                                                "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.")]
+                """,
+                "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.",
+                "type foo",
+                "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.",
+                "type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface third { third: Int }
                 interface second implements third { second: Int third: Int }
                 interface first implements third { first: Int third: Int }
                 type foo implements first & second { first: Int second: Int third: Int }
-                """,                                                            "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.",
-                                                                                "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.")]
+                """,
+                "Object 'foo' is missing implements 'third' because it is declared on interface 'first'.",
+                "type foo",
+                "Object 'foo' is missing implements 'third' because it is declared on interface 'second'.",
+                "type foo")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {
-        SchemaValidationMultipleExceptions(schemaText, messages);
+        SchemaValidationMultiplePathExceptions(schemaText, messages);
     }
 
     [Theory]
@@ -460,14 +585,15 @@ public class Object : UnitTestBase
     [Fact]
     public void InvalidTypeCheckOnDefaultValue()
     {
-        SchemaValidationSingleException("""
-                                        type Query { query: Int }
-                                        type foo 
-                                        {
-                                           a(arg: Int = 3.13): Int
-                                        }
-                                        """,
-                                        "Argument 'arg' of field 'a' of object 'foo' has a default value incompatible with the type.");
+        SchemaValidationSinglePathException("""
+                                            type Query { query: Int }
+                                            type foo 
+                                            {
+                                               a(arg: Int = 3.13): Int
+                                            }
+                                            """,
+                                            "Default value not compatible with type of argument 'arg'.",
+                                            "type foo, field a, argument arg");
     }
 
     [Fact]

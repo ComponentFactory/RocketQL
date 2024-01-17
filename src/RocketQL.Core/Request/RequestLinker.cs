@@ -1,4 +1,5 @@
-﻿using RocketQL.Core.Nodes;
+﻿using RocketQL.Core.Enumerations;
+using RocketQL.Core.Nodes;
 
 namespace RocketQL.Core.Base;
 
@@ -21,7 +22,7 @@ public partial class Request
         public void VisitOperationDefinition(OperationDefinition operation)
         {
             var operationName = operation.Name ?? "(default)";
-            PushPath($"operation {operationName}");
+            PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
             InterlinkDirectives(operation.Directives, operation);
             InterlinkVariables(operation.Variables, operation);
             InterlinkSelectionSet(operation.SelectionSet, operation);

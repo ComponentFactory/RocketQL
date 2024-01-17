@@ -7,7 +7,9 @@ public class Schemas : UnitTestBase
     [InlineData("""
                 type foo { fizz: Int }
                 schema { mutation: foo }
-                """,                                                        "Schema definition missing mandatory query operation.")]
+                """,
+                "Schema definition missing mandatory query operation.",
+                "schema")]
     // Cannot define same operation more than once
     [InlineData("""
                 type foo { fizz: Int }
@@ -16,15 +18,21 @@ public class Schemas : UnitTestBase
                     query: foo
                     query: foo
                 }            
-                """,                                                        "Schema defines the query operation more than once.")]
+                """,
+                "Schema defines the query operation more than once.",
+                "schema, query foo")]
     // Check operation types
     [InlineData("""
                 schema { query: foo }
-                """,                                                        "Type 'foo' not defined for the schema operation query.")]
+                """,
+                "Schema query operation type 'foo' not defined.",
+                "schema, query foo")]
     [InlineData("""
                 scalar foo
                 schema { query: foo }
-                """,                                                        "Schema operation query 'foo' has type scalar instead of object type.")]
+                """,
+                "Schema query operation 'foo' has type scalar instead of object type.",
+                "schema, query foo")]
     [InlineData("""
                 type bar { fizz: Int }
                 scalar foo
@@ -33,7 +41,9 @@ public class Schemas : UnitTestBase
                     query: bar 
                     mutation: foo 
                 }
-                """,                                                        "Schema operation mutation 'foo' has type scalar instead of object type.")]
+                """,
+                "Schema mutation operation 'foo' has type scalar instead of object type.",
+                "schema, mutation foo")]
     [InlineData("""
                 type bar { fizz: Int }
                 scalar foo
@@ -42,7 +52,9 @@ public class Schemas : UnitTestBase
                     query: bar 
                     subscription: foo 
                 }
-                """,                                                        "Schema operation subscription 'foo' has type scalar instead of object type.")]    
+                """,
+                "Schema subscription operation 'foo' has type scalar instead of object type.",
+                "schema, subscription foo")]
     [InlineData("""
                 type foo { fizz: Int }
                 schema 
@@ -50,7 +62,9 @@ public class Schemas : UnitTestBase
                     query: foo 
                     mutation: foo 
                 }
-                """,                                                        "Schema operations query and mutation cannot have the same 'foo' type.")]
+                """,
+                "Schema operations query and mutation cannot have the same 'foo' type.",
+                "schema")]
     [InlineData("""
                 type foo { fizz: Int }
                 schema 
@@ -58,7 +72,9 @@ public class Schemas : UnitTestBase
                     query: foo 
                     subscription: foo 
                 }
-                """,                                                        "Schema operations query and subscription cannot have the same 'foo' type.")]
+                """,
+                "Schema operations query and subscription cannot have the same 'foo' type.",
+                "schema")]
     [InlineData("""
                 type bar { fizz: Int }
                 type foo { fizz: Int }
@@ -68,41 +84,61 @@ public class Schemas : UnitTestBase
                     mutation: foo 
                     subscription: foo 
                 }
-                """,                                                        "Schema operations mutation and subscription cannot have the same 'foo' type.")]
-    [InlineData("",                                                         "Cannot auto generate schema because 'Query' type missing.")]
+                """,
+                "Schema operations mutation and subscription cannot have the same 'foo' type.",
+                "schema")]
+    [InlineData("",
+                "Cannot auto generate schema because 'Query' type missing.",
+                "")]
     [InlineData("""
                 scalar foo
-                """,                                                        "Cannot auto generate schema because 'Query' type missing.")]
+                """,
+                "Cannot auto generate schema because 'Query' type missing.",
+                "")]
     [InlineData("""
                 input Query { fizz: Int }
-                """,                                                        "Cannot auto generate schema because 'Query' is type input object instead of object type.")]
+                """,
+                "Cannot auto generate schema because 'Query' is type input object instead of object type.",
+                "")]
     [InlineData("""
                 type Query { fizz: Int }     
                 type Other { fizz: Query }     
-                """,                                                        "Cannot auto generate schema because 'Query' type is referenced from other types instead of being a top level type.")]
+                """,
+                "Cannot auto generate schema because 'Query' type is referenced from other types instead of being a top level type.",
+                "")]
     [InlineData("""
                 type Query { fizz: Int }     
                 input Mutation { fizz: Int }     
-                """,                                                        "Cannot auto generate schema because 'Mutation' is type input object instead of object type.")]
+                """,
+                "Cannot auto generate schema because 'Mutation' is type input object instead of object type.",
+                "")]
     [InlineData("""
                 type Query { fizz: Int }     
                 type Mutation { fizz: Int }     
                 type Other { fizz: Mutation }     
-                """,                                                        "Cannot auto generate schema because 'Mutation' type is referenced from other types instead of being a top level type.")]
+                """,
+                "Cannot auto generate schema because 'Mutation' type is referenced from other types instead of being a top level type.",
+                "")]
     [InlineData("""
                 type Query { fizz: Int }     
                 input Subscription { fizz: Int }     
-                """,                                                        "Cannot auto generate schema because 'Subscription' is type input object instead of object type.")]
+                """,
+                "Cannot auto generate schema because 'Subscription' is type input object instead of object type.",
+                "")]
     [InlineData("""
                 type Query { fizz: Int }     
                 type Subscription { fizz: Int }     
                 type Other { fizz: Subscription }     
-                """,                                                        "Cannot auto generate schema because 'Subscription' type is referenced from other types instead of being a top level type.")]
+                """,
+                "Cannot auto generate schema because 'Subscription' type is referenced from other types instead of being a top level type.",
+                "")]
     // Directive errors
-    [InlineData("schema @example { }",                                      "Undefined directive '@example' defined on schema.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+    [InlineData("schema @example { }",
+                "Undefined directive '@example' defined on schema.",
+                "schema, directive @example")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Theory]
@@ -110,23 +146,36 @@ public class Schemas : UnitTestBase
     [InlineData("""
                 type Query { first: Int } 
                 schema { }
-                """, "Schema definition must have at least one operation type.",
-                                                                            "Schema definition missing mandatory query operation.")]
+                """,
+                "Schema definition must have at least one operation type.",
+                "schema",
+                "Schema definition missing mandatory query operation.",
+                "schema")]
     [InlineData("""
                 type Query { first: Int } 
                 schema { } 
                 schema { }
-                """,                                                        "Schema definition already encountered.",
-                                                                            "Schema definition must have at least one operation type.",
-                                                                            "Schema definition missing mandatory query operation.")]
+                """,
+                "Schema definition already encountered.",
+                "schema",
+                "Schema definition must have at least one operation type.",
+                "schema",
+                "Schema definition missing mandatory query operation.",
+                "schema")]
     [InlineData("""
                 input Subscription { fizz: Int }
-                """, "Cannot auto generate schema because 'Query' type missing.",
-                                                                            "Cannot auto generate schema because 'Subscription' is type input object instead of object type.")]
+                """,
+                "Cannot auto generate schema because 'Query' type missing.",
+                "",
+                "Cannot auto generate schema because 'Subscription' is type input object instead of object type.",
+                "")]
     [InlineData("""
                 input Mutation { fizz: Int }
-                """, "Cannot auto generate schema because 'Query' type missing.",
-                                                                            "Cannot auto generate schema because 'Mutation' is type input object instead of object type.")]
+                """,
+                "Cannot auto generate schema because 'Query' type missing.",
+                "",
+                "Cannot auto generate schema because 'Mutation' is type input object instead of object type.",
+                "")]
     [InlineData("""
                 type foo { fizz: Int }
                 schema 
@@ -135,8 +184,11 @@ public class Schemas : UnitTestBase
                     mutation: foo
                     mutation: foo
                 }            
-                """, "Schema defines the mutation operation more than once.",
-                                                                            "Schema operations query and mutation cannot have the same 'foo' type.")]
+                """,
+                "Schema defines the mutation operation more than once.",
+                "schema, mutation foo",
+                "Schema operations query and mutation cannot have the same 'foo' type.",
+                "schema")]
     [InlineData("""
                 type foo { fizz: Int }
                 schema 
@@ -145,11 +197,14 @@ public class Schemas : UnitTestBase
                     subscription: foo
                     subscription: foo
                 }            
-                """, "Schema defines the subscription operation more than once.",
-                                                                            "Schema operations query and subscription cannot have the same 'foo' type.")]
+                """,
+                "Schema defines the subscription operation more than once.",
+                "schema, subscription foo",
+                "Schema operations query and subscription cannot have the same 'foo' type.",
+                "schema")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {
-        SchemaValidationMultipleExceptions(schemaText, messages);
+        SchemaValidationMultiplePathExceptions(schemaText, messages);
     }
 
     [Theory]

@@ -5,9 +5,13 @@ public class Interface : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("type Query { alpha: Int} interface foo { fizz : Int }",
-                                        "interface foo { fizz : Int }",
-                                        "Interface 'foo' is already defined.");
+        SchemaValidationSinglePathException("""
+                                            type Query { alpha: Int} 
+                                            interface foo { fizz : Int }
+                                            """,
+                                            "interface foo { fizz : Int }",
+                                            "Interface 'foo' is already defined.",
+                                            "");
     }
 
     [Theory]

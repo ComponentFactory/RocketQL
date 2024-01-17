@@ -471,7 +471,7 @@ public partial class Schema
                     if (argumentDefinition.Type.Definition is null)
                         _schema.NonFatalException(ValidationException.UnrecognizedType(argumentDefinition.Location, argumentDefinition.Name, CurrentPath));
                     else if (!argumentDefinition.Type.Definition.IsInputType)
-                        _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(fieldDefinition, CurrentPath));
+                        _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(argumentDefinition, CurrentPath));
 
                     if (isObject && argumentDefinition.Type is TypeNonNull &&
                         (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "@deprecated").Any())
@@ -507,6 +507,8 @@ public partial class Schema
                     else
                         interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
                 }
+
+                PopPath();
             }
 
             HashSet<string> processed = [];
@@ -527,14 +529,10 @@ public partial class Schema
 
                 foreach (var implementsInterface in checkInterface.ImplementsInterfaces.Values)
                 {
-                    PushPath($"interface {implementsInterface.Name}");
-
                     if (!objectImplements.ContainsKey(implementsInterface.Name))
                         _schema.NonFatalException(ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name, CurrentPath));
                     else
                         CheckTypeImplementsInterface(objectImplements, processed, checkInterface, checkInterface);
-
-                    PopPath();
                 }
             }
         }
@@ -542,13 +540,19 @@ public partial class Schema
         private void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, DocumentNode parentNode)
         {
             foreach (var interfaceDefinition in interfaceDefinitions.Values)
+            {
+                PushPath($"implements {interfaceDefinition.Name}");
                 IsValidImplementation(objectFields, interfaceDefinition, parentNode);
+                PopPath();
+            }
         }
 
         private void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, DocumentNode parentNode)
         {
             foreach (var interfaceField in interfaceDefinition.Fields.Values)
             {
+                PushPath($"field {interfaceField.Name}");
+
                 if (!objectFields.TryGetValue(interfaceField.Name, out var objectFieldDefinition))
                     _schema.NonFatalException(ValidationException.TypeMissingFieldFromInterface(parentNode,
                                                                                                 interfaceField.Name,
@@ -560,6 +564,8 @@ public partial class Schema
 
                     foreach (var argument in interfaceField.Arguments.Values)
                     {
+                        PushPath($"argument {argument.Name}");
+
                         if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
                         {
                             _schema.NonFatalException(ValidationException.TypeMissingFieldArgumentFromInterface(parentNode,
@@ -581,26 +587,26 @@ public partial class Schema
 
                             nonInterface.Remove(argument.Name);
                         }
+
+                        PopPath();
                     }
 
                     foreach (var nonInterfaceArgument in nonInterface.Values)
                         if (nonInterfaceArgument.Type is TypeNonNull)
-                        {
                             _schema.NonFatalException(ValidationException.TypeFieldArgumentNonNullFromInterface(parentNode,
                                                                                                                 interfaceField.Name,
                                                                                                                 interfaceDefinition.Name,
                                                                                                                 nonInterfaceArgument.Name,
                                                                                                                 CurrentPath));
-                        }
 
                     if (!IsValidImplementationFieldType(objectFieldDefinition.Type, interfaceField.Type))
-                    {
                         _schema.NonFatalException(ValidationException.TypeFieldReturnNotCompatibleFromInterface(parentNode,
                                                                                                                 interfaceField.Name,
                                                                                                                 interfaceDefinition.Name,
                                                                                                                 CurrentPath));
-                    }
                 }
+
+                PopPath();
             }
         }
 

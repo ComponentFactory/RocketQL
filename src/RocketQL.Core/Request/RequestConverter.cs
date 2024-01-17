@@ -21,7 +21,7 @@ public partial class Request
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
         {
             var operationName = operation.Name ?? "(default)";
-            PushPath($"operation {operationName}");
+            PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
 
             if (_request._operations.ContainsKey(operationName))
             {

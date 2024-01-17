@@ -13,7 +13,7 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException UnrecognizedType(Location location, string name, string[] path) => new(location, $"Unrecognized type '{name}' encountered.", path);
     public static ValidationException UnrecognizedType(SyntaxNode node, string[] path) => new(node.Location, $"Unrecognized type '{node.GetType()}' encountered.", path);
     public static ValidationException TypeNameAlreadyDefined(LocationNode node, string name, string type, string[] path) => new(node.Location, $"{type} '{name}' is already defined.", path);
-    public static ValidationException DuplicateName(LocationNode node, string usage, string name, string[] path) => new(node.Location, $"Duplicate {usage} '{name}'.", path);
+    public static ValidationException DuplicateName(LocationNode node, string usage, string name, string[] path) => new(node.Location, $"Duplicate {usage.ToLower()} '{name}'.", path);
     public static ValidationException DefinitionNotAllowedInSchema(LocationNode node, string definition) => new(node.Location, $"{definition} definition not allowed in a schema.", []);
     public static ValidationException SchemaDefinitionAlreadyEncountered(LocationNode node, string[] path) => new(node.Location, $"Schema definition already encountered.", path);
     public static ValidationException SchemaDefinitionMultipleOperation(SyntaxOperationTypeDefinitionNode node, string[] path) => new(node.Location, $"Schema defines the {node.Operation.ToString().ToLower()} operation more than once.", path);
@@ -43,7 +43,7 @@ public class ValidationException(Location location, string message, string[] pat
     //-----------------------------------
     // Generated during linker stage
     //-----------------------------------
-    public static ValidationException SchemaOperationTypeNotDefined(OperationTypeDefinition node, string[] path) => new(node.Location, $"Schema{node.Operation.ToString().ToLower()} operation type '{node.NamedType}' not defined.", path);
+    public static ValidationException SchemaOperationTypeNotDefined(OperationTypeDefinition node, string[] path) => new(node.Location, $"Schema {node.Operation.ToString().ToLower()} operation type '{node.NamedType}' not defined.", path);
     public static ValidationException SchemaOperationTypeNotObject(OperationTypeDefinition node, DocumentNode type, string[] path) => new(node.Location, $"Schema {node.Operation.ToString().ToLower()} operation '{node.NamedType}' has type {type.OutputElement.ToLower()} instead of object type.", path);
     public static ValidationException UndefinedInterface(Interface node, TypeDefinition parentNode, string[] path) => new(node.Location, $"Undefined interface '{node.OutputName}' defined on {parentNode.OutputElement.ToLower()} '{parentNode.OutputName}'.", path);
     public static ValidationException UndefinedMemberType(MemberType node, string[] path) => new(node.Location, $"Undefined member type '{node.OutputName}'.", path);
@@ -59,8 +59,8 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException AutoSchemaOperationNotObject(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' is type {node.OutputElement.ToLower()} instead of object type.", []);
     public static ValidationException AutoSchemaOperationReferenced(TypeDefinition node, string opreration) => new(node.Location, $"Cannot auto generate schema because '{opreration}' type is referenced from other types instead of being a top level type.", []);
     public static ValidationException NameDoubleUnderscore(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' not allowed to start with two underscores.", path);
-    public static ValidationException TypeIsNotAnInputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement.ToLower()} '{node.OutputName}' is not an input type.", path);
-    public static ValidationException TypeIsNotAnOutputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement.ToLower()} '{node.OutputName}' is not an output type.", path);
+    public static ValidationException TypeIsNotAnInputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not an input type.", path);
+    public static ValidationException TypeIsNotAnOutputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' is not an output type.", path);
     public static ValidationException DefaultValueNotCompatibleInArgument(InputValueDefinition node, string[] path) => new(node.Location, $"Default value not compatible with type of argument '{node.Name}'.", path);
     public static ValidationException AtLeastOne(DocumentNode node, string target, string[] path) => new(node.Location, $"{node.OutputElement} '{node.OutputName}' must have at least one {target}.", path);
     public static ValidationException NonNullCannotBeDeprecated(DocumentNode node, string[] path) => new(node.Location, $"Cannot use @deprecated directive on non-null {node.OutputElement.ToLower()} '{node.OutputName}'.", path);

@@ -49,7 +49,7 @@ public partial class Schema
             else
                 _schema._directives.Add(directive.Name, new(directive.Description,
                                                             directive.Name,
-                                                            ConvertInputValueDefinitions(directive.Arguments, "argument"),
+                                                            ConvertInputValueDefinitions(directive.Arguments, "Argument"),
                                                             directive.Repeatable,
                                                             directive.DirectiveLocations,
                                                             directive.Location));
@@ -147,7 +147,7 @@ public partial class Schema
                 _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition(inputObjectType.Description,
                                                                                        inputObjectType.Name,
                                                                                        ConvertDirectives(inputObjectType.Directives),
-                                                                                       ConvertInputValueDefinitions(inputObjectType.InputFields, "input field"),
+                                                                                       ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field"),
                                                                                        inputObjectType.Location));
 
             PopPath();
@@ -174,7 +174,7 @@ public partial class Schema
                     {
                         foreach (var operationType in extendSchema.OperationTypes)
                         {
-                            PushPath($"operation {operationType.NamedType}");
+                            PushPath($"{operationType.Operation.ToString().ToLower()} {operationType.NamedType}");
 
                             if (schemaType.Operations.TryGetValue(operationType.Operation, out _))
                                 _schema.NonFatalException(ValidationException.ExtendSchemaOperationAlreadyDefined(operationType, operationType.Operation, CurrentPath));
@@ -466,7 +466,7 @@ public partial class Schema
                         {
                             existingFields.Add(extendField.Name, new(extendField.Description,
                                                                      extendField.Name,
-                                                                     ConvertInputValueDefinitions(extendField.Arguments, "argument"),
+                                                                     ConvertInputValueDefinitions(extendField.Arguments, "Argument"),
                                                                      ConvertTypeNode(extendField.Type),
                                                                      ConvertDirectives(extendField.Directives),
                                                                      extendField.Location));
@@ -578,7 +578,7 @@ public partial class Schema
                 else
                     nodes.Add(field.Name, new(field.Description,
                                               field.Name,
-                                              ConvertInputValueDefinitions(field.Arguments, "argument"),
+                                              ConvertInputValueDefinitions(field.Arguments, "Argument"),
                                               ConvertTypeNode(field.Type),
                                               ConvertDirectives(field.Directives),
                                               field.Location));
@@ -595,12 +595,14 @@ public partial class Schema
 
             foreach (var operationType in operationTypes)
             {
-                PushPath($"operation {operationType.NamedType}");
+                PushPath($"{operationType.Operation.ToString().ToLower()} {operationType.NamedType}");
 
                 if (nodes.ContainsKey(operationType.Operation))
                     _schema.NonFatalException(ValidationException.SchemaDefinitionMultipleOperation(operationType, CurrentPath));
                 else
                     nodes.Add(operationType.Operation, new(operationType.Operation, operationType.NamedType, operationType.Location));
+
+                PopPath();
             }
 
             return nodes;
@@ -612,7 +614,7 @@ public partial class Schema
 
             foreach (var inputValue in inputValues)
             {
-                PushPath($"{elementUsage} {inputValue.Name}");
+                PushPath($"{elementUsage.ToLower()} {inputValue.Name}");
 
                 if (nodes.ContainsKey(inputValue.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(inputValue, elementUsage, inputValue.Name, CurrentPath));
@@ -637,7 +639,7 @@ public partial class Schema
 
             foreach (var name in names)
             {
-                PushPath($"interface {name.Name}");
+                PushPath($"implements {name.Name}");
 
                 if (nodes.ContainsKey(name.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "interface", name.Name, CurrentPath));
@@ -711,7 +713,7 @@ public partial class Schema
 
             foreach (var field in fields)
             {
-                PushPath($"{elementUsage} {field.Name}");
+                PushPath($"{elementUsage.ToLower()} {field.Name}");
 
                 if (nodes.ContainsKey(field.Name))
                     throw ValidationException.DuplicateName(parentNode, elementUsage, field.Name, CurrentPath);
