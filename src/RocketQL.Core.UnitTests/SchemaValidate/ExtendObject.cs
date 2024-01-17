@@ -6,49 +6,65 @@ public class ExtendObject : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend type foo { buzz: Int }
-                """,                                            "Object 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Object 'foo' cannot be extended because it is not defined.",
+                "extend type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend type foo { buzz: Int }
                 type foo { first: Int }
-                """,                                            "Object 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Object 'foo' cannot be extended because it is not defined.",
+                "extend type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on OBJECT
                 type foo @bar { buzz: Int } 
                 extend type foo @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on object 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "type foo, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface bar { buzz: Int }
                 type foo implements bar { buzz: Int } 
                 extend type foo implements bar
-                """,                                            "Extend object 'foo' specifies an interface 'bar' already defined.")]
+                """,
+                "Extend object 'foo' specifies an interface 'bar' already defined.",
+                "extend type foo, implement bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { buzz: Int } 
                 extend type foo { fizz: Int fizz: Int} 
-                """,                                            "Extend object 'foo' has duplicate definition of field 'fizz'.")]
+                """,
+                "Duplicate field 'fizz'.",
+                "extend type foo, field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { buzz: Int } 
                 extend type foo { buzz: Int } 
-                """,                                            "Extend object 'foo' for existing field 'buzz' does not make any change.")]
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend type foo, field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on FIELD_DEFINITION
                 type foo { buzz: Int @bar } 
                 extend type foo { buzz: Int } 
-                """,                                            "Extend object 'foo' for existing field 'buzz' does not make any change.")]
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend type foo, field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on ARGUMENT_DEFINITION
                 type foo { buzz(arg: String @bar): Int } 
                 extend type foo { buzz(arg: String): Int } 
-                """,                                            "Extend object 'foo' for existing field 'buzz' does not make any change.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Field 'buzz' has not been changed in extend definition.",
+                "extend type foo, field buzz")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]

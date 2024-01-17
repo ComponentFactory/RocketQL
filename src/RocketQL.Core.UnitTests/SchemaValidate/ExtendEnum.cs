@@ -6,37 +6,49 @@ public class ExtendEnum : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend enum foo { FIRST }
-                """,                                            "Enum 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Enum 'foo' cannot be extended because it is not defined.",
+                "extend enum foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend enum foo { SECOND }
                 enum foo { FIRST }
-                """,                                            "Enum 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Enum 'foo' cannot be extended because it is not defined.",
+                "extend enum foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on ENUM
                 enum foo @bar { FIRST }
                 extend enum foo @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on enum 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "enum foo, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on ENUM_VALUE
                 enum foo { FIRST @bar }
                 extend enum foo { FIRST @bar }
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on enum value 'FIRST' of enum 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "enum foo, enum value FIRST, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 enum foo { FIRST }
                 extend enum foo { FIRST }
-                """,                                            "Extend enum 'foo' for existing enum value 'FIRST' does not make any change.")]
+                """,
+                "Extend enum 'foo' for existing enum value 'FIRST' does not make any change.",
+                "extend enum foo, enum value FIRST")]
     [InlineData("""
                 type Query { alpha: Int }
                 enum foo { FIRST }
                 extend enum foo { SECOND SECOND }
-                """,                                            "Extend enum 'foo' has duplicate definition of enum value 'SECOND'.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Extend enum 'foo' has duplicate definition of enum value 'SECOND'.",
+                "extend enum foo, enum value SECOND")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]

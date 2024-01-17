@@ -6,27 +6,35 @@ public class ExtendUnion : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend union foo = bar
-                """,                                            "Union 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Union 'foo' cannot be extended because it is not defined.",
+                "extend union foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend union foo = bar
                 union foo
-                """,                                            "Union 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Union 'foo' cannot be extended because it is not defined.",
+                "extend union foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on UNION
                 union foo @bar
                 extend union foo @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on union 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "union foo, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 type bar { buzz: Int }
                 union foo = bar
                 extend union foo = bar
-                """,                                            "Extend union 'foo' specifies a member type 'bar' already defined.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Extend union 'foo' specifies a member type 'bar' already defined.",
+                "extend union foo, member type bar")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]

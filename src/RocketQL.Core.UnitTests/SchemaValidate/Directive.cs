@@ -11,7 +11,7 @@ public class Directive : UnitTestBase
                                             """,
                                             "directive @foo on ENUM",
                                             "Directive '@foo' is already defined.",
-                                            "");
+                                            "directive @foo");
     }
 
     [Theory]

@@ -6,25 +6,33 @@ public class ExtendScalar : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend scalar foo
-                """,                                     "Scalar 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Scalar 'foo' cannot be extended because it is not defined.",
+                "extend scalar foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend scalar foo 
                 scalar foo
-                """,                                    "Scalar 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Scalar 'foo' cannot be extended because it is not defined.",
+                "extend scalar foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 scalar foo                
                 extend scalar foo 
-                """,                                    "Extend scalar 'foo' must specify at least one directive.")]
+                """,
+                "Extend scalar 'foo' must specify at least one directive.",
+                "extend scalar foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 scalar foo @specifiedBy(url: "url")
                 extend scalar foo @specifiedBy(url: "url")
-                """,                                    "Directive '@specifiedBy' is not repeatable but has been applied multiple times on scalar 'foo'.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Directive '@specifiedBy' is not repeatable but has been applied multiple times.",
+                "scalar foo, directive @specifiedBy")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]

@@ -11,7 +11,7 @@ public class Interface : UnitTestBase
                                             """,
                                             "interface foo { fizz : Int }",
                                             "Interface 'foo' is already defined.",
-                                            "");
+                                            "interface foo");
     }
 
     [Theory]

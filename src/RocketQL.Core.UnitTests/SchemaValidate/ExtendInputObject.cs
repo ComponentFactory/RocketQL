@@ -6,37 +6,49 @@ public class ExtendInputObject : UnitTestBase
     [InlineData("""
                 type Query { alpha: Int }
                 extend input foo { buzz: Int }
-                """,                                            "Input object 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Input object 'foo' cannot be extended because it is not defined.",
+                "extend inpt object foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend input foo { buzz: Int }
                 input foo { first: Int }
-                """,                                            "Input object 'foo' cannot be extended because it is not defined.")]
+                """,
+                "Input object 'foo' cannot be extended because it is not defined.",
+                "extend inpt object foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on INPUT_OBJECT
                 input foo @bar { buzz: Int } 
                 extend input foo @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on input object 'foo'.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "input object foo, directive @bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { buzz: Int } 
                 extend input foo { fizz: Int fizz: Int} 
-                """,                                            "Extend input object 'foo' has duplicate definition of input field 'fizz'.")]
+                """,
+                "Duplicate input field 'fizz'.",
+                "extend inpt object foo, input field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { buzz: Int } 
                 extend input foo { buzz: Int } 
-                """,                                            "Extend input object 'foo' for existing input field 'buzz' does not make any change.")]
+                """,
+                "Input field 'buzz' has not been changed in extend definition.",
+                "extend inpt object foo, input field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on INPUT_FIELD_DEFINITION
                 input foo { buzz: Int @bar } 
                 extend input foo { buzz: Int } 
-                """,                                            "Extend input object 'foo' for existing input field 'buzz' does not make any change.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Input field 'buzz' has not been changed in extend definition.",
+                "extend inpt object foo, input field buzz")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]

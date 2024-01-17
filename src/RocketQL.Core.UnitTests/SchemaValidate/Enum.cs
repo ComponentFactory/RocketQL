@@ -11,7 +11,7 @@ public class Enum : UnitTestBase
                                             """,
                                             "enum foo { FIRST }",
                                             "Enum 'foo' is already defined.",
-                                            "");
+                                            "enum foo");
     }
 
     [Theory]

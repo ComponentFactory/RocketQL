@@ -578,8 +578,8 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
         SchemaValidationSingleException("type Query { query: Int } " +
                                         "scalar Name " +
                                         "enum Country { AUS NZ USA } " +
-                                        "type foo { fizz(arg: " + compare + "): Int }", 
-                                        "Argument 'arg' of field 'fizz' of object 'foo' has a default value incompatible with the type.");
+                                        "type foo { fizz(arg: " + compare + "): Int }",
+                                        "Default value not compatible with type of argument 'arg'.");
     }
 
     private static void Invalid(string types, string compare)
@@ -589,7 +589,7 @@ public class IsInputTypeCompatibleWithValue : UnitTestBase
                                         "enum Country { AUS NZ USA } " +
                                         types +
                                         "type foo { fizz(arg: " + compare + "): Int }",
-                                        "Argument 'arg' of field 'fizz' of object 'foo' has a default value incompatible with the type.");
+                                        "Default value not compatible with type of argument 'arg'.");
     }
 }
 

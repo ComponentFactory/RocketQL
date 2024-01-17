@@ -11,7 +11,7 @@ public class Input : UnitTestBase
                                             """,
                                             "input foo { fizz: Int }",
                                             "Input object 'foo' is already defined.",
-                                            "");
+                                            "input object foo");
     }
 
     [Theory]

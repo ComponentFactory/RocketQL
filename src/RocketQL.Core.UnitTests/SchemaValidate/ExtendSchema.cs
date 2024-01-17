@@ -6,27 +6,35 @@ public class ExtendSchema : UnitTestBase
     [InlineData("""
                 extend schema { query: fizz }
                 type Query { alpha: Int }
-                """,                                            "Extend schema cannot be applied because no schema has been defined.")]
+                """,
+                "Extend schema cannot be applied because no schema has been defined.",
+                "extend schema")]
     [InlineData("""
                 extend schema { query: fizz }
                 schema { query: fizz }
                 type fizz { alpha: Int }
-                """,                                            "Extend schema cannot be applied because no schema has been defined.")]
+                """,
+                "Extend schema cannot be applied because no schema has been defined.",
+                "extend schema")]
     [InlineData("""
                 directive @bar on SCHEMA
                 type fizz { buzz: Int }
                 schema @bar { query: fizz } 
                 extend schema @bar
-                """,                                            "Directive '@bar' is not repeatable but has been applied multiple times on schema.")]
+                """,
+                "Directive '@bar' is not repeatable but has been applied multiple times.",
+                "schema, directive @bar")]
     [InlineData("""
                 directive @bar on SCHEMA
                 type fizz { buzz: Int }
                 schema { query: fizz } 
                 extend schema { query: fizz } 
-                """,                                            "Extend schema cannot add query operation because it is already defined.")]
-    public void ValidationSingleExceptions(string schemaText, string message)
+                """,
+                "Extend schema cannot add query operation because it is already defined.",
+                "extend schema, query fizz")]
+    public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
-        SchemaValidationSingleException(schemaText, message);
+        SchemaValidationSinglePathException(schemaText, message, commaPath);
     }
 
     [Fact]
