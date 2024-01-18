@@ -125,7 +125,7 @@ namespace DotNetQL.PerformanceTests
         }
         """;
 
-        public readonly JsonSerializerOptions _graphQLOptions = new()
+        public readonly JsonSerializerOptions GraphQLOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true,
@@ -136,27 +136,22 @@ namespace DotNetQL.PerformanceTests
             }
         };
 
-        [GlobalSetup]
-        public void Setup()
-        {
-        }
-
         [Benchmark]
         public void JsonSerializer_Small_Deserial()
         {
-            var inputs = JsonSerializer.Deserialize<Inputs>(_input, _graphQLOptions);
+            JsonSerializer.Deserialize<Inputs>(_input, GraphQLOptions);
         }
 
         [Benchmark]
         public void HotChocolate_Small_Deserial()
         {
-            var reader = HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
+            HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
         }
 
         [Benchmark]
         public void RocketQL_Small_Deserial()
         {
-            var valueNode = RQL.Serializers.Serialization.JsonDeserialize(_input);
+            RQL.Serializers.Serialization.JsonDeserialize(_input);
         }
     }
 
@@ -164,9 +159,9 @@ namespace DotNetQL.PerformanceTests
     public class TokenizerBenchmark
     {
         public string _github = "";
-        public byte[] _githubBytes = Array.Empty<byte>();
+        public byte[] _githubBytes = [];
         public string _introspection = "";
-        public byte[] _introspectionBytes = Array.Empty<byte>();
+        public byte[] _introspectionBytes = [];
 
         [GlobalSetup]
         public void Setup()
@@ -179,7 +174,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void _GraphQL_GitHub_Token()
+        public void GraphQL_GitHub_Token()
         {
             GraphQL(_github);
         }
@@ -214,10 +209,10 @@ namespace DotNetQL.PerformanceTests
             RocketQL(_introspection);
         }
 
-        private void GraphQL(string schema)
+        private static void GraphQL(string schema)
         {
             var s = "";
-            int resetPosition = 0;
+            var resetPosition = 0;
             GQLParser.Token token;
             while ((token = GQLParser.Lexer.Lex(schema, resetPosition)).Kind != GraphQLParser.TokenKind.EOF)
             {
@@ -235,9 +230,8 @@ namespace DotNetQL.PerformanceTests
             }
         }
 
-        private void HotChocolate(byte[] schemaBytes)
+        private static void HotChocolate(byte[] schemaBytes)
         {
-            var s = "";
             var reader = new HC.Utf8GraphQLReader(schemaBytes);
             while (reader.Read())
             {
@@ -245,24 +239,23 @@ namespace DotNetQL.PerformanceTests
                 {
                     case HC.TokenKind.String:
                     case HC.TokenKind.BlockString:
-                        s = reader.GetString();
+                        reader.GetString();
                         break;
                     case HC.TokenKind.Name:
-                        s = reader.GetName();
+                        reader.GetName();
                         break;
                     case HC.TokenKind.Integer:
                     case HC.TokenKind.Float:
-                        s = reader.GetScalarValue();
+                        reader.GetScalarValue();
                         break;
                     case HC.TokenKind.Comment:
-                        s = reader.GetComment();
+                        reader.GetComment();
                         break;
-
                 }
             }
         }
 
-        private void RocketQL(string schema)
+        private static void RocketQL(string schema)
         {
             var s = "";
             var t = new RQL.Tokenizers.DocumentTokenizer(schema);

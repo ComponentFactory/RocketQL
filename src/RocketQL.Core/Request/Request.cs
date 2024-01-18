@@ -54,27 +54,31 @@ public partial class Request : IRequest
 
     public void ValidateSchema(ISchema schema)
     {
-        if (!schema.IsValidated)
-            FatalException(ValidationException.SchemaNotValidated());
-
-        CleanSchema();
-
-        try
+        if (!IsValidatedSchema)
         {
-            _schema = schema;
-            Converter.Visit();
-            Linker.Visit();
-            CheckExceptions();
+            if (!schema.IsValidated)
+                FatalException(ValidationException.SchemaNotValidated());
 
-            Operations = _operations;
-            Fragments = _fragments;
-
-            IsValidatedSchema = true;
-        }
-        catch
-        {
             CleanSchema();
-            throw;
+
+            try
+            {
+                _schema = schema;
+                Converter.Visit();
+                Linker.Visit();
+                Validator.Visit();
+                CheckExceptions();
+
+                Operations = _operations;
+                Fragments = _fragments;
+
+                IsValidatedSchema = true;
+            }
+            catch
+            {
+                CleanSchema();
+                throw;
+            }
         }
     }
 
