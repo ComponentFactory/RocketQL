@@ -1,9 +1,9 @@
 ﻿Next
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
-	
+
+    Unit test parent in schema entries	
     Parent Nodes in RequestLinker
-    UnitTest correct Parent Nodes?
 
 
 	Request processing
