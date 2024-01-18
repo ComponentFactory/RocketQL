@@ -78,7 +78,4 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException UndefinedTypeForFragmentSpread(SelectionFragmentSpread spread, DocumentNode rootNode, string[] path) => new(spread.Location, $"Undefined type '{spread.Name}' specified for fragment spread within {rootNode.OutputElement.ToLower()} '{rootNode.OutputName}'.", path);
     public static ValidationException SchemaNotValidated() => new(Location.Empty, "Provided schema has not been validated.", []);
     public static ValidationException CannotSerializeInvalidSchema() => new(Location.Empty, "Cannot serialize a schema that is not validated.", []);
-
 }
-
-

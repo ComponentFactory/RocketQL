@@ -6,11 +6,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     private DocumentTokenizer _tokenizer = new(text, source);
     private string? _description = null;
 
-    public SchemaDeserializer(
-        ReadOnlySpan<char> text,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
+    public SchemaDeserializer(ReadOnlySpan<char> text, [CallerFilePath] string filePath = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
@@ -120,14 +116,14 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             var operationLocation = _tokenizer.Location;
             MandatoryToken(DocumentTokenKind.Name);
-            OperationType operationType = OperationTypeFromTokenValue();
+            var operationType = OperationTypeFromTokenValue();
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNextToken(DocumentTokenKind.Name);
-            string namedType = _tokenizer.TokenValue;
+            var namedType = _tokenizer.TokenValue;
             MandatoryNext();
 
             list.Add(new SyntaxOperationTypeDefinitionNode(operationType, namedType, operationLocation));
-        } 
+        }
 
         _tokenizer.Next();
         return new SyntaxSchemaDefinitionNode(UseTopLevelDescription(), directives, list, schemaLocation);
@@ -150,10 +146,10 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             {
                 var operationLocation = _tokenizer.Location;
                 MandatoryToken(DocumentTokenKind.Name);
-                OperationType operationType = OperationTypeFromTokenValue();
+                var operationType = OperationTypeFromTokenValue();
                 MandatoryNextToken(DocumentTokenKind.Colon);
                 MandatoryNextToken(DocumentTokenKind.Name);
-                string namedType = _tokenizer.TokenValue;
+                var namedType = _tokenizer.TokenValue;
                 MandatoryNext();
 
                 list.Add(new SyntaxOperationTypeDefinitionNode(operationType, namedType, operationLocation));
@@ -173,7 +169,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         return new SyntaxScalarTypeDefinitionNode(UseTopLevelDescription(), name, ParseDirectivesOptional(), location);
@@ -184,7 +180,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         return new SyntaxExtendScalarTypeDefinitionNode(name, ParseDirectivesOptional(), location);
@@ -195,25 +191,24 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
-        return new SyntaxObjectTypeDefinitionNode(
-            UseTopLevelDescription(),
-            name,
-            ParseImplementsInterfacesOptional(),
-            ParseDirectivesOptional(),
-            ParseFieldsOptionalDefinition(),
-            location);
+        return new SyntaxObjectTypeDefinitionNode(UseTopLevelDescription(),
+                                                  name,
+                                                  ParseImplementsInterfacesOptional(),
+                                                  ParseDirectivesOptional(),
+                                                  ParseFieldsOptionalDefinition(),
+                                                  location);
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SyntaxExtendObjectTypeDefinitionNode ParseExtendObjectTypeDefinition()
     {
-        var location = _tokenizer.Location; 
+        var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
         var implementsIntefaces = ParseImplementsInterfacesOptional();
         var directives = ParseDirectivesOptional();
@@ -230,16 +225,15 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
-        return new SyntaxInterfaceTypeDefinitionNode(
-            UseTopLevelDescription(),
-            name,
-            ParseImplementsInterfacesOptional(),
-            ParseDirectivesOptional(),
-            ParseFieldsOptionalDefinition(),
-            location);
+        return new SyntaxInterfaceTypeDefinitionNode(UseTopLevelDescription(),
+                                                     name,
+                                                     ParseImplementsInterfacesOptional(),
+                                                     ParseDirectivesOptional(),
+                                                     ParseFieldsOptionalDefinition(),
+                                                     location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,7 +241,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
         var implementsIntefaces = ParseImplementsInterfacesOptional();
         var directives = ParseDirectivesOptional();
@@ -264,7 +258,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         return new SyntaxUnionTypeDefinitionNode(UseTopLevelDescription(), name, ParseDirectivesOptional(), ParseMemberTypesOptional(), location);
@@ -275,7 +269,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         var directives = ParseDirectivesOptional();
@@ -292,7 +286,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         return new SyntaxEnumTypeDefinitionNode(UseTopLevelDescription(), name, ParseDirectivesOptional(), ParseEnumValueTypesOptional(), location);
@@ -303,7 +297,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
 
         var directives = ParseDirectivesOptional();
@@ -320,7 +314,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
         var directives = ParseDirectivesOptional();
 
@@ -341,7 +335,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         _tokenizer.Next();
         var directives = ParseDirectivesOptional();
 
@@ -366,7 +360,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         var location = _tokenizer.Location;
         MandatoryNextToken(DocumentTokenKind.At);
         MandatoryNextToken(DocumentTokenKind.Name);
-        string name = _tokenizer.TokenValue;
+        var name = _tokenizer.TokenValue;
         MandatoryNext();
         var arguments = ParseArgumentsOptionalDefinition();
         var repeatable = OptionalKeyword("repeatable");
@@ -408,7 +402,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             var location = _tokenizer.Location;
             MandatoryTokenNext(DocumentTokenKind.Dollar);
             MandatoryToken(DocumentTokenKind.Name);
-            string name = _tokenizer.TokenValue;
+            var name = _tokenizer.TokenValue;
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
@@ -443,8 +437,8 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                     {
                         var location = _tokenizer.Location;
                         MandatoryToken(DocumentTokenKind.Name);
-                        string alias = "";
-                        string name = _tokenizer.TokenValue;
+                        var alias = "";
+                        var name = _tokenizer.TokenValue;
                         MandatoryNext();
 
                         if (_tokenizer.TokenKind == DocumentTokenKind.Colon)
@@ -455,13 +449,12 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                             MandatoryNext();
                         }
 
-                        list.Add(new SyntaxFieldSelectionNode(
-                            alias,
-                            name,
-                            ParseArgumentsOptional(constant: false),
-                            ParseDirectivesOptional(),
-                            ParseSelectionSetOptional(),
-                            location));
+                        list.Add(new SyntaxFieldSelectionNode(alias,
+                                                              name,
+                                                              ParseArgumentsOptional(constant: false),
+                                                              ParseDirectivesOptional(),
+                                                              ParseSelectionSetOptional(),
+                                                              location));
                     }
                     break;
                 case DocumentTokenKind.Spread:
@@ -469,7 +462,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                         var fragmentLocation = _tokenizer.Location;
                         MandatoryNext();
 
-                        string name = "";
+                        var name = "";
                         if (_tokenizer.TokenKind == DocumentTokenKind.Name)
                         {
                             name = _tokenizer.TokenValue;
@@ -515,13 +508,13 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 var location = _tokenizer.Location;
                 var description = OptionalString();
                 MandatoryToken(DocumentTokenKind.Name);
-                string name = _tokenizer.TokenValue;
+                var name = _tokenizer.TokenValue;
                 MandatoryNext();
                 var arguments = ParseArgumentsOptionalDefinition();
                 MandatoryTokenNext(DocumentTokenKind.Colon);
 
                 list.Add(new SyntaxFieldDefinitionNode(description ?? "", name, arguments, ParseType(), ParseDirectivesOptional(), location));
-            } 
+            }
 
             _tokenizer.Next();
         }
@@ -543,11 +536,11 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 var location = _tokenizer.Location;
                 var description = OptionalString();
                 MandatoryToken(DocumentTokenKind.Name);
-                string name = _tokenizer.TokenValue;
+                var name = _tokenizer.TokenValue;
                 MandatoryNext();
 
                 list.Add(new SyntaxEnumValueDefinition(description ?? "", name, ParseDirectivesOptional(), location));
-            } 
+            }
 
             _tokenizer.Next();
         }
@@ -603,18 +596,17 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             var location = _tokenizer.Location;
             var description = OptionalString();
             MandatoryToken(DocumentTokenKind.Name);
-            string name = _tokenizer.TokenValue;
+            var name = _tokenizer.TokenValue;
             MandatoryNextToken(DocumentTokenKind.Colon);
             MandatoryNext();
 
-            list.Add(new SyntaxInputValueDefinitionNode(
-                description ?? "",
-                name,
-                ParseType(),
-                ParseDefaultValueOptional(),
-                ParseDirectivesOptional(),
-                location));
-        } 
+            list.Add(new SyntaxInputValueDefinitionNode(description ?? "",
+                                                        name,
+                                                        ParseType(),
+                                                        ParseDefaultValueOptional(),
+                                                        ParseDirectivesOptional(),
+                                                        location));
+        }
 
         return list;
     }
@@ -685,7 +677,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                     while (_tokenizer.TokenKind != DocumentTokenKind.RightCurlyBracket)
                     {
                         MandatoryToken(DocumentTokenKind.Name);
-                        string name = _tokenizer.TokenValue;
+                        var name = _tokenizer.TokenValue;
                         MandatoryNextToken(DocumentTokenKind.Colon);
                         MandatoryNext();
 
@@ -712,7 +704,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             var location = _tokenizer.Location;
             MandatoryNextToken(DocumentTokenKind.Name);
-            string name = _tokenizer.TokenValue;
+            var name = _tokenizer.TokenValue;
             _tokenizer.Next();
 
             list.Add(new SyntaxDirectiveNode("@" + name, ParseArgumentsOptional(true), location));
@@ -732,7 +724,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             while (_tokenizer.TokenKind != DocumentTokenKind.RightParenthesis)
             {
                 MandatoryToken(DocumentTokenKind.Name);
-                string name = _tokenizer.TokenValue;
+                var name = _tokenizer.TokenValue;
                 MandatoryNextToken(DocumentTokenKind.Colon);
                 MandatoryNext();
 
@@ -765,7 +757,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
                 }
             case DocumentTokenKind.LeftSquareBracket:
                 {
-                    var location = _tokenizer.Location; 
+                    var location = _tokenizer.Location;
                     MandatoryNext();
                     var listType = ParseType();
                     MandatoryTokenNext(DocumentTokenKind.RightSquareBracket);
@@ -787,7 +779,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         MandatoryNext();
         OptionalToken(DocumentTokenKind.Vertical);
         MandatoryToken(DocumentTokenKind.Name);
-        DirectiveLocations directiveLocations = StringToDriveLocations(_tokenizer.TokenValue);
+        var directiveLocations = StringToDriveLocations(_tokenizer.TokenValue);
 
         if (_tokenizer.Next())
         {
@@ -837,7 +829,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string UseTopLevelDescription()
     {
-        string? description = _description;
+        var description = _description;
         _description = null;
         return description ?? "";
     }
@@ -936,7 +928,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     {
         if (_tokenizer.TokenKind == DocumentTokenKind.StringValue)
         {
-            string ret = _tokenizer.TokenString;
+            var ret = _tokenizer.TokenString;
             _tokenizer.Next();
             return ret;
         }

@@ -47,11 +47,7 @@ public partial class Schema : ISchema
         Add(Serialization.SchemaDeserialize(schema, source));
     }
 
-    public void Add(
-        ReadOnlySpan<char> schema,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
+    public void Add(ReadOnlySpan<char> schema, [CallerFilePath] string filePath = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
     {
         Add(Serialization.SchemaDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
     }
@@ -59,28 +55,31 @@ public partial class Schema : ISchema
 
     public void Validate()
     {
-        Clean();
-
-        try
-        {
-            AddBuiltInDirectives();
-            AddBuiltInScalars();
-            Converter.Visit();
-            Linker.Visit();
-            Validator.Visit();
-            Rooted.Visit();
-            CheckExceptions();
-
-            Root = _root;
-            Directives = _directives;
-            Types = _types;
-
-            IsValidated = true;
-        }
-        catch
+        if (!IsValidated)
         {
             Clean();
-            throw;
+
+            try
+            {
+                AddBuiltInDirectives();
+                AddBuiltInScalars();
+                Converter.Visit();
+                Linker.Visit();
+                Validator.Visit();
+                Rooted.Visit();
+                CheckExceptions();
+
+                Root = _root;
+                Directives = _directives;
+                Types = _types;
+
+                IsValidated = true;
+            }
+            catch
+            {
+                Clean();
+                throw;
+            }
         }
     }
 
@@ -225,11 +224,6 @@ public partial class Schema : ISchema
             };
             _types.Add(scalarPair.Item1, scalar);
         }
-    }
-
-    private static void FatalException(ValidationException validationException)
-    {
-        throw validationException;
     }
 
     private void NonFatalException(ValidationException validationException)

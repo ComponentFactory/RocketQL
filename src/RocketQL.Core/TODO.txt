@@ -2,8 +2,8 @@
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 	
-	Indentation
-	Parent Nodes in RequestLinker
+    Parent Nodes in RequestLinker
+    UnitTest correct Parent Nodes?
 
 
 	Request processing

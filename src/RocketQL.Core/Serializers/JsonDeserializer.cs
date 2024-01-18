@@ -4,11 +4,7 @@ public ref struct JsonDeserializer(ReadOnlySpan<char> json, string source)
 {
     private JsonTokenizer _tokenizer = new(json, source);
 
-    public JsonDeserializer(
-        ReadOnlySpan<char> json,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
+    public JsonDeserializer(ReadOnlySpan<char> json, [CallerFilePath] string filePath = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
         : this(json, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }

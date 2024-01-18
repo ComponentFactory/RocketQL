@@ -26,16 +26,16 @@ public partial class Request
             if (_request._operations.ContainsKey(operationName))
             {
                 if (string.IsNullOrEmpty(operation.Name))
-                    FatalException(ValidationException.RequestAnonymousAlreadyDefined(operation, CurrentPath));
+                    _request.NonFatalException(ValidationException.RequestAnonymousAlreadyDefined(operation, CurrentPath));
                 else
-                    FatalException(ValidationException.RequestOperationAlreadyDefined(operation, CurrentPath));
+                    _request.NonFatalException(ValidationException.RequestOperationAlreadyDefined(operation, CurrentPath));
             }
             else
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
                     (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("(anon)")))
                 {
-                    FatalException(ValidationException.RequestAnonymousAndNamed(operation, CurrentPath));
+                    _request.NonFatalException(ValidationException.RequestAnonymousAndNamed(operation, CurrentPath));
                 }
 
                 _request._operations.Add(operationName, new(operation.Operation,
@@ -56,11 +56,13 @@ public partial class Request
             if (_request._fragments.ContainsKey(fragment.Name))
                 _request.NonFatalException(ValidationException.TypeNameAlreadyDefined(fragment, "Fragment", fragment.Name, CurrentPath));
             else
+            {
                 _request._fragments.Add(fragment.Name, new(fragment.Name,
                                                            fragment.TypeCondition,
                                                            ConvertDirectives(fragment.Directives),
                                                            ConvertSelectionSet(fragment.SelectionSet),
                                                            fragment.Location));
+            }
 
             PopPath();
         }
@@ -149,13 +151,15 @@ public partial class Request
                 PushPath($"variable {variable.Name}");
 
                 if (nodes.ContainsKey(variable.Name))
-                    FatalException(ValidationException.DuplicateName(variable, "variable", variable.Name, CurrentPath));
+                    _request.NonFatalException(ValidationException.DuplicateName(variable, "variable", variable.Name, CurrentPath));
                 else
+                {
                     nodes.Add(variable.Name, new VariableDefinition(variable.Name,
                                                                     ConvertTypeNode(variable.Type),
                                                                     variable.DefaultValue,
                                                                     ConvertDirectives(variable.Directives),
                                                                     variable.Location));
+                }
 
                 PopPath();
             }

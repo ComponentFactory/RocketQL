@@ -45,22 +45,17 @@ public partial class Request : IRequest
         Add(Serialization.RequestDeserialize(schema, source));
     }
 
-    public void Add(
-        ReadOnlySpan<char> schema,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
+    public void Add(ReadOnlySpan<char> schema, [CallerFilePath] string filePath = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
     {
         Add(Serialization.RequestDeserialize(schema, CallerExtensions.CallerToSource(filePath, memberName, lineNumber)));
     }
 
-
     public void ValidateSchema(ISchema schema)
     {
-        CleanSchema();
-
         if (!schema.IsValidated)
             FatalException(ValidationException.SchemaNotValidated());
+
+        CleanSchema();
 
         try
         {
@@ -79,10 +74,10 @@ public partial class Request : IRequest
 
     public void ValidateVariables(ValueNode variables)
     {
-        CleanVariables();
-
         if (!IsValidatedSchema)
             FatalException(ValidationException.SchemaNotValidated());
+
+        CleanVariables();
 
         try
         {

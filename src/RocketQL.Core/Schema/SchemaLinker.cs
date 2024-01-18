@@ -115,10 +115,9 @@ public partial class Schema
                 PushPath($"{operationTypeDefinition.Operation.ToString().ToLower()} {operationTypeDefinition.NamedType}");
 
                 if (!_schema._types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
-                    FatalException(ValidationException.SchemaOperationTypeNotDefined(operationTypeDefinition, CurrentPath));
-
-                if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
-                    FatalException(ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition!, CurrentPath));
+                    _schema.NonFatalException(ValidationException.SchemaOperationTypeNotDefined(operationTypeDefinition, CurrentPath));
+                else if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
+                    _schema.NonFatalException(ValidationException.SchemaOperationTypeNotObject(operationTypeDefinition, typeDefinition!, CurrentPath));
                 else
                     operationTypeDefinition.Definition = objectTypeDefinition;
 
@@ -136,10 +135,9 @@ public partial class Schema
                 interfaceEntry.Parent = parentNode;
 
                 if (!_schema._types.TryGetValue(interfaceEntry.Name, out var typeDefinition))
-                    FatalException(ValidationException.UndefinedInterface(interfaceEntry, parentNode, CurrentPath));
-
-                if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
-                    FatalException(ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition!, CurrentPath));
+                    _schema.NonFatalException(ValidationException.UndefinedInterface(interfaceEntry, parentNode, CurrentPath));
+                else if (typeDefinition is not InterfaceTypeDefinition interfaceTypeDefinition)
+                    _schema.NonFatalException(ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, typeDefinition!, CurrentPath));
                 else
                 {
                     interfaceEntry.Definition = interfaceTypeDefinition;
@@ -183,18 +181,19 @@ public partial class Schema
                 memberType.Parent = unionType;
 
                 if (!_schema._types.TryGetValue(memberType.Name, out var typeDefinition))
-                    FatalException(ValidationException.UndefinedMemberType(memberType, CurrentPath));
-
-                if (typeDefinition is ObjectTypeDefinition objectTypeDefinition)
+                    _schema.NonFatalException(ValidationException.UndefinedMemberType(memberType, CurrentPath));
+                else if (typeDefinition is not ObjectTypeDefinition objectTypeDefinition)
+                {
+                    _schema.NonFatalException(ValidationException.TypeIsNotAnObject(memberType,
+                                                                                    typeDefinition!,
+                                                                                    ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an",
+                                                                                    CurrentPath));
+                }
+                else
                 {
                     memberType.Definition = objectTypeDefinition;
                     objectTypeDefinition.References.Add(memberType);
                 }
-                else
-                    FatalException(ValidationException.TypeIsNotAnObject(memberType,
-                                                                         typeDefinition!,
-                                                                         ((typeDefinition is ScalarTypeDefinition) || (typeDefinition is UnionTypeDefinition)) ? "a" : "an",
-                                                                         CurrentPath));
 
                 PopPath();
             }
@@ -208,7 +207,7 @@ public partial class Schema
                 directive.Parent = parentNode;
 
                 if (!_schema._directives.TryGetValue(directive.Name, out var directiveDefinition))
-                    FatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
+                    _schema.NonFatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
                 else
                 {
                     directive.Definition = directiveDefinition;
@@ -230,7 +229,7 @@ public partial class Schema
             else if (typeLocation is TypeName typeName)
             {
                 if (!_schema._types.TryGetValue(typeName.Name, out var type))
-                    FatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
+                    _schema.NonFatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
                 else
                 {
                     typeName.Definition = type;

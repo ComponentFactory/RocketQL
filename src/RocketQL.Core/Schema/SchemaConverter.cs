@@ -47,12 +47,15 @@ public partial class Schema
             if (_schema._directives.ContainsKey(directive.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(directive, directive.Name, "Directive", CurrentPath));
             else
+            {
                 _schema._directives.Add(directive.Name, new(directive.Description,
                                                             directive.Name,
                                                             ConvertInputValueDefinitions(directive.Arguments, "Argument"),
                                                             directive.Repeatable,
                                                             directive.DirectiveLocations,
                                                             directive.Location));
+            }
+
             PopPath();
         }
 
@@ -63,10 +66,12 @@ public partial class Schema
             if (_schema._types.ContainsKey(scalarType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(scalarType, scalarType.Name, "Scalar", CurrentPath));
             else
+            {
                 _schema._types.Add(scalarType.Name, new ScalarTypeDefinition(scalarType.Description,
                                                                              scalarType.Name,
                                                                              ConvertDirectives(scalarType.Directives),
                                                                              scalarType.Location));
+            }
 
             PopPath();
         }
@@ -78,12 +83,14 @@ public partial class Schema
             if (_schema._types.ContainsKey(objectType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(objectType, objectType.Name, "Object", CurrentPath));
             else
+            {
                 _schema._types.Add(objectType.Name, new ObjectTypeDefinition(objectType.Description,
                                                                              objectType.Name,
                                                                              ConvertDirectives(objectType.Directives),
                                                                              ConvertInterfaces(objectType, objectType.ImplementsInterfaces),
                                                                              ConvertFieldDefinitions(objectType, objectType.Fields),
                                                                              objectType.Location));
+            }
 
             PopPath();
         }
@@ -95,12 +102,14 @@ public partial class Schema
             if (_schema._types.ContainsKey(interfaceType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(interfaceType, interfaceType.Name, "Interface", CurrentPath));
             else
+            {
                 _schema._types.Add(interfaceType.Name, new InterfaceTypeDefinition(interfaceType.Description,
                                                                                    interfaceType.Name,
                                                                                    ConvertDirectives(interfaceType.Directives),
                                                                                    ConvertInterfaces(interfaceType, interfaceType.ImplementsInterfaces),
                                                                                    ConvertFieldDefinitions(interfaceType, interfaceType.Fields),
                                                                                    interfaceType.Location));
+            }
 
             PopPath();
         }
@@ -112,11 +121,13 @@ public partial class Schema
             if (_schema._types.ContainsKey(unionType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(unionType, unionType.Name, "Union", CurrentPath));
             else
+            {
                 _schema._types.Add(unionType.Name, new UnionTypeDefinition(unionType.Description,
                                                                            unionType.Name,
                                                                            ConvertDirectives(unionType.Directives),
                                                                            ConvertMemberTypes(unionType, unionType.MemberTypes),
                                                                            unionType.Location));
+            }
 
             PopPath();
         }
@@ -128,11 +139,13 @@ public partial class Schema
             if (_schema._types.ContainsKey(enumType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(enumType, enumType.Name, "Enum", CurrentPath));
             else
+            {
                 _schema._types.Add(enumType.Name, new EnumTypeDefinition(enumType.Description,
                                                                          enumType.Name,
                                                                          ConvertDirectives(enumType.Directives),
                                                                          ConvertEnumValueDefinitions(enumType, enumType.EnumValues),
                                                                          enumType.Location));
+            }
 
             PopPath();
         }
@@ -144,11 +157,13 @@ public partial class Schema
             if (_schema._types.ContainsKey(inputObjectType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(inputObjectType, inputObjectType.Name, "Input object", CurrentPath));
             else
+            {
                 _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition(inputObjectType.Description,
                                                                                        inputObjectType.Name,
                                                                                        ConvertDirectives(inputObjectType.Directives),
                                                                                        ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field"),
                                                                                        inputObjectType.Location));
+            }
 
             PopPath();
         }
@@ -224,12 +239,8 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendObjectType, "Object", typeDefinition, CurrentPath));
                 else
                 {
-                    if ((extendObjectType.ImplementsInterfaces.Count == 0) &&
-                        (extendObjectType.Directives.Count == 0) &&
-                        (extendObjectType.Fields.Count == 0))
-                    {
+                    if ((extendObjectType.ImplementsInterfaces.Count == 0) && (extendObjectType.Directives.Count == 0) && (extendObjectType.Fields.Count == 0))
                         _schema.NonFatalException(ValidationException.ExtendObjectMandatory(extendObjectType, objectType.OutputElement, CurrentPath));
-                    }
                     else
                     {
                         if (extendObjectType.Directives.Count > 0)
@@ -242,13 +253,17 @@ public partial class Schema
                                 PushPath($"implement {extendImplementsInterface.Name}");
 
                                 if (objectType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
+                                {
                                     _schema.NonFatalException(ValidationException.ExtendObjectImplementAlreadyDefined(extendImplementsInterface,
                                                                                                                       extendObjectType.Name,
                                                                                                                       extendImplementsInterface.Name,
                                                                                                                       CurrentPath));
+                                }
                                 else
+                                {
                                     objectType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name,
                                                                                                             extendImplementsInterface.Location));
+                                }
 
                                 PopPath();
                             }
@@ -274,12 +289,8 @@ public partial class Schema
                     _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendInterfaceType, "Interface", typeDefinition, CurrentPath));
                 else
                 {
-                    if ((extendInterfaceType.ImplementsInterfaces.Count == 0) &&
-                        (extendInterfaceType.Directives.Count == 0) &&
-                        (extendInterfaceType.Fields.Count == 0))
-                    {
+                    if ((extendInterfaceType.ImplementsInterfaces.Count == 0) && (extendInterfaceType.Directives.Count == 0) && (extendInterfaceType.Fields.Count == 0))
                         _schema.NonFatalException(ValidationException.ExtendInterfaceMandatory(extendInterfaceType, interfaceType.OutputElement, CurrentPath));
-                    }
                     else
                     {
 
@@ -293,13 +304,17 @@ public partial class Schema
                                 PushPath($"implement {extendImplementsInterface.Name}");
 
                                 if (interfaceType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
+                                {
                                     _schema.NonFatalException(ValidationException.ExtendInterfaceImplementAlreadyDefined(extendImplementsInterface,
                                                                                                                          extendInterfaceType.Name,
                                                                                                                          extendImplementsInterface.Name,
                                                                                                                          CurrentPath));
+                                }
                                 else
+                                {
                                     interfaceType.ImplementsInterfaces.Add(extendImplementsInterface.Name, new(extendImplementsInterface.Name,
                                                                                                                extendImplementsInterface.Location));
+                                }
 
                                 PopPath();
                             }
@@ -339,10 +354,12 @@ public partial class Schema
                                 PushPath($"member type {extendMemberType.Name}");
 
                                 if (unionType.MemberTypes.TryGetValue(extendMemberType.Name, out _))
+                                {
                                     _schema.NonFatalException(ValidationException.ExtendUnionAlreadyDefined(extendUnionType,
                                                                                                             extendUnionType.Name,
                                                                                                             extendMemberType.Name,
                                                                                                             CurrentPath));
+                                }
                                 else
                                     unionType.MemberTypes.Add(extendMemberType.Name, new(extendMemberType.Name, extendMemberType.Location));
 
@@ -401,10 +418,12 @@ public partial class Schema
                                     else
                                     {
                                         if (extendEnumValue.Directives.Count == 0)
+                                        {
                                             _schema.NonFatalException(ValidationException.ExtendExistingEnumValueUnchanged(extendEnumValue,
                                                                                                                            extendEnumType.Name,
                                                                                                                            extendEnumValue.Name,
                                                                                                                            CurrentPath));
+                                        }
                                         else
                                             existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
                                     }
@@ -576,12 +595,14 @@ public partial class Schema
                 if (nodes.ContainsKey(field.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "field", field.Name, CurrentPath));
                 else
+                {
                     nodes.Add(field.Name, new(field.Description,
                                               field.Name,
                                               ConvertInputValueDefinitions(field.Arguments, "Argument"),
                                               ConvertTypeNode(field.Type),
                                               ConvertDirectives(field.Directives),
                                               field.Location));
+                }
 
                 PopPath();
             }
@@ -619,6 +640,7 @@ public partial class Schema
                 if (nodes.ContainsKey(inputValue.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(inputValue, elementUsage, inputValue.Name, CurrentPath));
                 else
+                {
                     nodes.Add(inputValue.Name, new InputValueDefinition(inputValue.Description,
                                                                         inputValue.Name,
                                                                         ConvertTypeNode(inputValue.Type),
@@ -626,6 +648,7 @@ public partial class Schema
                                                                         ConvertDirectives(inputValue.Directives),
                                                                         inputValue.Location,
                                                                         elementUsage));
+                }
 
                 PopPath();
             }
@@ -682,10 +705,12 @@ public partial class Schema
                 if (nodes.ContainsKey(enumValue.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "enum value", enumValue.Name, CurrentPath));
                 else
+                {
                     nodes.Add(enumValue.Name, new(enumValue.Description,
                                                   enumValue.Name,
                                                   ConvertDirectives(enumValue.Directives),
                                                   enumValue.Location));
+                }
 
                 PopPath();
             }

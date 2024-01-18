@@ -132,10 +132,6 @@ public class Schemas : UnitTestBase
                 """,
                 "Cannot auto generate schema because 'Subscription' type is referenced from other types instead of being a top level type.",
                 "")]
-    // Directive errors
-    [InlineData("schema @example { }",
-                "Undefined directive '@example' defined on schema.",
-                "schema, directive @example")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
         SchemaValidationSingleException(schemaText, message, commaPath);
@@ -201,6 +197,13 @@ public class Schemas : UnitTestBase
                 "Schema defines the subscription operation more than once.",
                 "schema, subscription foo",
                 "Schema operations query and subscription cannot have the same 'foo' type.",
+                "schema")]
+    [InlineData("schema @example { }",
+                "Undefined directive '@example' defined on schema.",
+                "schema, directive @example",
+                "Schema definition must have at least one operation type.",
+                "schema",
+                "Schema definition missing mandatory query operation.",
                 "schema")]
     public void ValidationMultipleExceptions(string schemaText, params string[] messages)
     {

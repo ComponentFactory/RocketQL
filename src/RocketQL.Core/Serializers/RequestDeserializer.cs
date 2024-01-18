@@ -7,11 +7,7 @@ public ref struct RequestDeserializer(ReadOnlySpan<char> text, string source)
     private readonly SyntaxNodeList _nodes = [];
     private DocumentTokenizer _tokenizer = new(text, source);
 
-    public RequestDeserializer(
-        ReadOnlySpan<char> text,
-        [CallerFilePath] string filePath = "",
-        [CallerMemberName] string memberName = "",
-        [CallerLineNumber] int lineNumber = 0)
+    public RequestDeserializer(ReadOnlySpan<char> text, [CallerFilePath] string filePath = "", [CallerMemberName] string memberName = "", [CallerLineNumber] int lineNumber = 0)
         : this(text, CallerExtensions.CallerToSource(filePath, memberName, lineNumber))
     {
     }
@@ -84,13 +80,12 @@ public ref struct RequestDeserializer(ReadOnlySpan<char> text, string source)
             MandatoryNext();
         }
 
-        return new SyntaxOperationDefinitionNode(
-            operationType,
-            name,
-            ParseVariablesOptionalDefinition(),
-            ParseDirectivesOptional(),
-            ParseSelectionSet(),
-            location);
+        return new SyntaxOperationDefinitionNode(operationType,
+                                                 name,
+                                                 ParseVariablesOptionalDefinition(),
+                                                 ParseDirectivesOptional(),
+                                                 ParseSelectionSet(),
+                                                 location);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -182,13 +177,12 @@ public ref struct RequestDeserializer(ReadOnlySpan<char> text, string source)
                             MandatoryNext();
                         }
 
-                        list.Add(new SyntaxFieldSelectionNode(
-                            alias,
-                            name,
-                            ParseArgumentsOptional(constant: false),
-                            ParseDirectivesOptional(),
-                            ParseSelectionSetOptional(),
-                            location));
+                        list.Add(new SyntaxFieldSelectionNode(alias,
+                                                              name,
+                                                              ParseArgumentsOptional(constant: false),
+                                                              ParseDirectivesOptional(),
+                                                              ParseSelectionSetOptional(),
+                                                              location));
                     }
                     break;
                 case DocumentTokenKind.Spread:

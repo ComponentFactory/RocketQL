@@ -34,9 +34,9 @@ public partial class Request
             PushPath($"fragment {fragment.Name}");
 
             if (!_request._schema.Types.TryGetValue(fragment.TypeCondition, out var type))
-                FatalException(ValidationException.UndefinedTypeForFragment(fragment, CurrentPath));
+                _request.NonFatalException(ValidationException.UndefinedTypeForFragment(fragment, CurrentPath));
             else if ((type is not ObjectTypeDefinition) && (type is not InterfaceTypeDefinition) && (type is not UnionTypeDefinition))
-                FatalException(ValidationException.FragmentTypeInvalid(fragment, type, CurrentPath));
+                _request.NonFatalException(ValidationException.FragmentTypeInvalid(fragment, type, CurrentPath));
 
             fragment.Definition = type;
             InterlinkDirectives(fragment.Directives, fragment);
@@ -111,7 +111,7 @@ public partial class Request
                             PushPath($"fragment spread {fragmentSpread.Name}");
 
                             if (!_request._fragments.TryGetValue(fragmentSpread.Name, out var fragmentType))
-                                FatalException(ValidationException.UndefinedTypeForFragmentSpread(fragmentSpread, rootNode, CurrentPath));
+                                _request.NonFatalException(ValidationException.UndefinedTypeForFragmentSpread(fragmentSpread, rootNode, CurrentPath));
 
                             fragmentSpread.Definition = fragmentType;
                             InterlinkDirectives(fragmentSpread.Directives, fragmentSpread);
@@ -123,7 +123,7 @@ public partial class Request
                             PushPath($"inline fragment {inlineFragment.TypeCondition}");
 
                             if (!_request._schema.Types.TryGetValue(inlineFragment.TypeCondition, out var _))
-                                FatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode, CurrentPath));
+                                _request.NonFatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode, CurrentPath));
 
                             InterlinkDirectives(inlineFragment.Directives, inlineFragment);
                             InterlinkSelectionSet(inlineFragment.SelectionSet, rootNode);
@@ -142,7 +142,7 @@ public partial class Request
                 directive.Parent = parentNode;
 
                 if (!_request._schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
-                    FatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
+                    _request.NonFatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
                 else
                 {
                     directive.Definition = directiveDefinition;
@@ -164,7 +164,7 @@ public partial class Request
             else if (typeLocation is TypeName typeName)
             {
                 if (!_request._schema.Types.TryGetValue(typeName.Name, out var type))
-                    FatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
+                    _request.NonFatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
                 else
                 {
                     typeName.Definition = type;
@@ -172,6 +172,5 @@ public partial class Request
                 }
             }
         }
-
     }
 }
