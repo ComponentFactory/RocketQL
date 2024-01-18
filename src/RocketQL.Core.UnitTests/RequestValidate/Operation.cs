@@ -4,7 +4,7 @@ namespace RocketQL.Core.UnitTests.RequestValidation;
 
 public class Operation : UnitTestBase
 {
-    private const string _minimumSchema = "type Query { a: Int }";
+    private static readonly string s_minimumSchema = "type Query { a: Int }";
 
     [Theory]
     // Single anonymous operation
@@ -36,7 +36,7 @@ public class Operation : UnitTestBase
                 "mutation foo")]
     public void OperationNames(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimumSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
     }
 
     [Theory]
@@ -48,7 +48,7 @@ public class Operation : UnitTestBase
                 "query foo, directive @foo")]
     public void OperationDirectives(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimumSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
     }
 
     [Theory]
@@ -72,6 +72,6 @@ public class Operation : UnitTestBase
                 "query foo, variable $foo")]
     public void OperationParameters(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimumSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
     }
 }

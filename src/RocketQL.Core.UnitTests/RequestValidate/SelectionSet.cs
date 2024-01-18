@@ -4,7 +4,7 @@ namespace RocketQL.Core.UnitTests.RequestValidation;
 
 public class SelectionSet : UnitTestBase
 {
-    private const string _minimumSchema = "type Query { a: Int }";
+    private static readonly string s_minimumSchema = "type Query { a: Int }";
 
 
     [Theory]
@@ -16,6 +16,6 @@ public class SelectionSet : UnitTestBase
                 "query (anon), field aaa, field ccc, argument foo")]
     public void FieldArguments(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimumSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
     }
 }

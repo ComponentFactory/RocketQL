@@ -4,13 +4,12 @@ namespace RocketQL.Core.UnitTests.RequestValidation;
 
 public class Fragment : UnitTestBase
 {
-    private const string _minimalSchema = """
-                                          type Query { a: Int }
-                                          input typeInput { typeInput: Int }
-                                          type typeObject1 { typeObject1: Int }
-                                          type typeObject2 { typeObject2: Int }
-                                          
-                                          """;
+    private static readonly string s_minimalSchema = """
+                                                     type Query { a: Int }
+                                                     input typeInput { typeInput: Int }
+                                                     type typeObject1 { typeObject1: Int }
+                                                     type typeObject2 { typeObject2: Int }
+                                                     """;
 
     [Theory]
     [InlineData("fragment fizz on typeObject1 @foo { a }",
@@ -56,7 +55,7 @@ public class Fragment : UnitTestBase
                 "fragment buzz, inline fragment typeObject2, inline fragment typeObject1, directive @foo")]
     public void FragmentDirectives(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimalSchema, requestText, message, commaPath);
     }
 
     [Theory]
@@ -75,7 +74,7 @@ public class Fragment : UnitTestBase
                 "fragment fizz")]
     public void FragmentTypes(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimalSchema, requestText, message, commaPath);
     }
 
 
@@ -118,6 +117,6 @@ public class Fragment : UnitTestBase
                 "fragment fizz, inline fragment random")]
     public void FragmentSelectionSet(string requestText, string message, string commaPath)
     {
-        RequestValidationSingleException(_minimalSchema, requestText, message, commaPath);
+        RequestValidationSingleException(s_minimalSchema, requestText, message, commaPath);
     }
 }

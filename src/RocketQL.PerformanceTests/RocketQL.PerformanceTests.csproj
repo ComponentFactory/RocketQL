@@ -8,10 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
-    <PackageReference Include="GraphQL-Parser" Version="9.3.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+    <PackageReference Include="GraphQL-Parser" Version="9.3.1" />
     <PackageReference Include="GraphQL.Server.All" Version="7.6.0" />
-    <PackageReference Include="HotChocolate.Language" Version="13.7.0" />
+    <PackageReference Include="HotChocolate.Language" Version="13.8.1" />
   </ItemGroup>
 
   <ItemGroup>
