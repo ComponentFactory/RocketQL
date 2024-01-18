@@ -2,9 +2,7 @@
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 
-    Unit test parent in schema entries	
-    Parent Nodes in RequestLinker
-
+    Request Validator
 
 	Request processing
 		@skip

@@ -1,4 +1,6 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System;
+
+namespace RocketQL.Core.Base;
 
 public partial class Request : IRequest
 {
@@ -63,6 +65,10 @@ public partial class Request : IRequest
             Converter.Visit();
             Linker.Visit();
             CheckExceptions();
+
+            Operations = _operations;
+            Fragments = _fragments;
+
             IsValidatedSchema = true;
         }
         catch

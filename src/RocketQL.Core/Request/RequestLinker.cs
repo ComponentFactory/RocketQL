@@ -25,7 +25,7 @@ public partial class Request
             PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
             InterlinkDirectives(operation.Directives, operation);
             InterlinkVariables(operation.Variables, operation);
-            InterlinkSelectionSet(operation.SelectionSet, operation);
+            InterlinkSelectionSet(operation.SelectionSet, operation, operation);
             PopPath();
         }
 
@@ -40,7 +40,7 @@ public partial class Request
 
             fragment.Definition = type;
             InterlinkDirectives(fragment.Directives, fragment);
-            InterlinkSelectionSet(fragment.SelectionSet, fragment);
+            InterlinkSelectionSet(fragment.SelectionSet, fragment, fragment);
             PopPath();
         }
 
@@ -91,10 +91,12 @@ public partial class Request
                 PopPath();
             }
         }
-        private void InterlinkSelectionSet(SelectionSet selectionSet, DocumentNode rootNode)
+        private void InterlinkSelectionSet(SelectionSet selectionSet, DocumentNode parentNode, DocumentNode rootNode)
         {
             foreach (var selection in selectionSet)
             {
+                selection.Parent = parentNode;
+
                 switch (selection)
                 {
                     case SelectionField field:
@@ -102,7 +104,7 @@ public partial class Request
                             var displayName = string.IsNullOrEmpty(field.Alias) ? field.Name : field.Alias;
                             PushPath($"field {displayName}");
                             InterlinkDirectives(field.Directives, field);
-                            InterlinkSelectionSet(field.SelectionSet, rootNode);
+                            InterlinkSelectionSet(field.SelectionSet, field, rootNode);
                             PopPath();
                         }
                         break;
@@ -126,7 +128,7 @@ public partial class Request
                                 _request.NonFatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode, CurrentPath));
 
                             InterlinkDirectives(inlineFragment.Directives, inlineFragment);
-                            InterlinkSelectionSet(inlineFragment.SelectionSet, rootNode);
+                            InterlinkSelectionSet(inlineFragment.SelectionSet, inlineFragment, rootNode);
                             PopPath();
                         }
                         break;

@@ -223,6 +223,40 @@ public class Directive : UnitTestBase
     [Theory]
     [InlineData("""
                 type Query { query: Int }
+                directive @foo(arg: Int = 42) on SCALAR
+                """)]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int) on SCALAR
+                scalar example @foo(arg: 42)
+                """)]
+    public void ValidTypeCheckOnDefaultValue(string schemaText)
+    {
+        SchemaValidationNoException(schemaText);
+    }
+
+    [Theory]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int = 3.14) on SCALAR
+                """,
+                "Default value not compatible with type of argument 'arg'.",
+                "directive @foo, argument arg")]
+    [InlineData("""
+                type Query { query: Int }
+                directive @foo(arg: Int) on SCALAR
+                scalar example @foo(arg: 3.14)
+                """,
+                "Default value not compatible with type of argument 'arg'.",
+                "scalar example, directive @foo, argument arg")]
+    public void InvalidTypeCheckOnDefaultValue(string schemaText, string message, string path)
+    {
+        SchemaValidationSingleException(schemaText, message, path);
+    }
+
+    [Theory]
+    [InlineData("""
+                type Query { query: Int }
                 type example { field: String @deprecated }
                 """)]
     [InlineData("""
@@ -278,40 +312,6 @@ public class Directive : UnitTestBase
         var directive = argument.Directives.NotNull().One();
         Assert.NotNull(directive);
         Assert.Equal(argument, directive.Parent);
-    }
-
-    [Theory]
-    [InlineData("""
-                type Query { query: Int }
-                directive @foo(arg: Int = 42) on SCALAR
-                """)]
-    [InlineData("""
-                type Query { query: Int }
-                directive @foo(arg: Int) on SCALAR
-                scalar example @foo(arg: 42)
-                """)]
-    public void ValidTypeCheckOnDefaultValue(string schemaText)
-    {
-        SchemaValidationNoException(schemaText);
-    }
-
-    [Theory]
-    [InlineData("""
-                type Query { query: Int }
-                directive @foo(arg: Int = 3.14) on SCALAR
-                """,
-                "Default value not compatible with type of argument 'arg'.",
-                "directive @foo, argument arg")]
-    [InlineData("""
-                type Query { query: Int }
-                directive @foo(arg: Int) on SCALAR
-                scalar example @foo(arg: 3.14)
-                """,
-                "Default value not compatible with type of argument 'arg'.",
-                "scalar example, directive @foo, argument arg")]
-    public void InvalidTypeCheckOnDefaultValue(string schemaText, string message, string path)
-    {
-        SchemaValidationSingleException(schemaText, message, path);
     }
 }
 

@@ -10,7 +10,7 @@ public class Files : UnitTestBase
     {
         var schema = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
         var t = new DocumentTokenizer(schema.AsSpan(), "test");
-        var s = "";
+        var s = string.Empty;
         while (t.Next())
         {
             switch (t.TokenKind)

@@ -445,6 +445,33 @@ public class Interface : UnitTestBase
         SchemaValidationMultipleExceptions(schemaText, messages);
     }
 
+    [Fact]
+    public void ValidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationNoException("""
+                                    type Query { query: Int }
+                                    interface foo 
+                                    {
+                                       a(arg: Int = 5): Int
+                                       b(arg: [Int] = [1, 2]): Int
+                                    }
+                                    """);
+    }
+
+    [Fact]
+    public void InvalidTypeCheckOnDefaultValue()
+    {
+        SchemaValidationSingleException("""
+                                        type Query { query: Int }
+                                        interface foo 
+                                        {
+                                            a(arg: Int = 3.13): Int
+                                        }
+                                        """,
+                                        "Default value not compatible with type of argument 'arg'.",
+                                        "interface foo, field a, argument arg");
+    }
+
     [Theory]
     [InlineData("""
                 type Query { query: Int }
@@ -617,32 +644,5 @@ public class Interface : UnitTestBase
         var d3 = argument.Directives.NotNull().One();
         Assert.Equal("@d3", d3.Name);
         Assert.Equal(argument, d3.Parent);
-    }
-
-    [Fact]
-    public void ValidTypeCheckOnDefaultValue()
-    {
-        SchemaValidationNoException("""
-                                    type Query { query: Int }
-                                    interface foo 
-                                    {
-                                       a(arg: Int = 5): Int
-                                       b(arg: [Int] = [1, 2]): Int
-                                    }
-                                    """);
-    }
-
-    [Fact]
-    public void InvalidTypeCheckOnDefaultValue()
-    {
-        SchemaValidationSingleException("""
-                                        type Query { query: Int }
-                                        interface foo 
-                                        {
-                                            a(arg: Int = 3.13): Int
-                                        }
-                                        """,
-                                        "Default value not compatible with type of argument 'arg'.",
-                                        "interface foo, field a, argument arg");
     }
 }

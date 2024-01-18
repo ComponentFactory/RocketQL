@@ -4,7 +4,7 @@ namespace RocketQL.Core.UnitTests.RequestValidation;
 
 public class Operation : UnitTestBase
 {
-    private static readonly string s_minimumSchema = "type Query { a: Int }";
+    private static readonly string s_minimumSchema = "type Query { a: Int b(c: Int): Int }";
 
     [Theory]
     // Single anonymous operation
@@ -73,5 +73,79 @@ public class Operation : UnitTestBase
     public void OperationParameters(string requestText, string message, string commaPath)
     {
         RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
+    }
+
+    [Fact]
+    public void ParentLinkage()
+    {
+        var schema = new Schema();
+        schema.Add("""
+                   directive @foo on QUERY
+                   type Query
+                   {
+                       a(b: Int): Int
+                       c: Other
+                       d: Other
+                   }
+
+                   type Other
+                   {
+                       e: Int
+                   }
+                   """);
+        schema.Validate();
+
+        var request = new Request();
+        request.Add("""
+                    query($c: Int) @foo 
+                    { 
+                        a(b: $c)
+                        c {
+                            ...Frag
+                        }
+                        d {
+                            ...on Other {
+                                e
+                            }
+                        }
+                    }
+
+                    fragment Frag on Other
+                    {
+                        e
+                    }
+                    """);
+        request.ValidateSchema(schema);
+
+        var operation = request.Operations[""];
+        Assert.NotNull(operation);
+        var variable = operation.Variables["$c"];
+        Assert.NotNull(variable);
+        Assert.Equal(operation, variable.Parent);
+        Assert.NotNull(variable.Type);
+        Assert.Equal(variable, variable.Type.Parent);
+        var directive = operation.Directives[0];
+        Assert.NotNull(directive);
+        Assert.Equal(operation, directive.Parent);
+        var fielda = operation.SelectionSet[0];
+        Assert.NotNull(fielda);
+        Assert.IsType<SelectionField>(fielda);
+        Assert.Equal(operation, fielda.Parent);
+        var fieldc = operation.SelectionSet[1];
+        Assert.NotNull(fieldc);
+        var fieldcSet = Assert.IsType<SelectionField>(fieldc);
+        Assert.Equal(operation, fieldcSet.Parent);
+        var fieldFrag = fieldcSet.SelectionSet[0];
+        Assert.NotNull(fieldFrag);
+        Assert.IsType<SelectionFragmentSpread>(fieldFrag);
+        Assert.Equal(fieldc, fieldFrag.Parent);
+        var fieldd = operation.SelectionSet[2];
+        Assert.NotNull(fieldd);
+        var fielddSet = Assert.IsType<SelectionField>(fieldd);
+        Assert.Equal(operation, fielddSet.Parent);
+        var fieldOther = fielddSet.SelectionSet[0];
+        Assert.NotNull(fieldOther);
+        Assert.IsType<SelectionInlineFragment>(fieldOther);
+        Assert.Equal(fieldd, fieldOther.Parent);
     }
 }

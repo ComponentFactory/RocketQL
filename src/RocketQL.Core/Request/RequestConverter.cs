@@ -23,7 +23,7 @@ public partial class Request
             var operationName = string.IsNullOrEmpty(operation.Name) ? "(anon)" : operation.Name;
             PushPath($"{operation.Operation.ToString().ToLower()} {operationName}");
 
-            if (_request._operations.ContainsKey(operationName))
+            if (_request._operations.ContainsKey(operation.Name))
             {
                 if (string.IsNullOrEmpty(operation.Name))
                     _request.NonFatalException(ValidationException.RequestAnonymousAlreadyDefined(operation, CurrentPath));
@@ -33,17 +33,17 @@ public partial class Request
             else
             {
                 if ((string.IsNullOrEmpty(operation.Name) && (_request._operations.Count > 0)) ||
-                    (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("(anon)")))
+                    (!string.IsNullOrEmpty(operation.Name) && _request._operations.ContainsKey("")))
                 {
                     _request.NonFatalException(ValidationException.RequestAnonymousAndNamed(operation, CurrentPath));
                 }
 
-                _request._operations.Add(operationName, new(operation.Operation,
-                                                            operationName,
-                                                            ConvertDirectives(operation.Directives),
-                                                            ConvertVariableDefinitions(operation.VariableDefinitions),
-                                                            ConvertSelectionSet(operation.SelectionSet),
-                                                            operation.Location));
+                _request._operations.Add(operation.Name, new(operation.Operation,
+                                                             operation.Name,
+                                                             ConvertDirectives(operation.Directives),
+                                                             ConvertVariableDefinitions(operation.VariableDefinitions),
+                                                             ConvertSelectionSet(operation.SelectionSet),
+                                                             operation.Location));
             }
 
             PopPath();
