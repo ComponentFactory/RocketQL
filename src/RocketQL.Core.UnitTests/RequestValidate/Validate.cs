@@ -72,7 +72,7 @@ public class Validate : UnitTestBase
         var request = new Request();
         request.Add(new SyntaxObjectTypeDefinitionNode("", "Example", [], [], [], Location.Empty));
         var exception = Assert.Throws<ValidationException>(() => request.ValidateSchema(schema));
-        Assert.Equal("Object definition not allowed in a schema.", exception.Message);
+        Assert.Equal("Type definition not allowed in a schema.", exception.Message);
         Assert.Equal("", exception.CommaPath);
     }
 

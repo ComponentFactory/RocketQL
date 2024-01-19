@@ -67,7 +67,7 @@ public record class ScalarTypeDefinition(string Description, string Name, Direct
 
 public record class ObjectTypeDefinition(string Description, string Name, Directives Directives, Interfaces ImplementsInterfaces, FieldDefinitions Fields, Location Location) : TypeDefinition(Description, Name, Directives, Location, false, true)
 {
-    public override string OutputElement => "Object";
+    public override string OutputElement => "Type";
 }
 
 public record class InterfaceTypeDefinition(string Description, string Name, Directives Directives, Interfaces ImplementsInterfaces, FieldDefinitions Fields, Location Location) : TypeDefinition(Description, Name, Directives, Location, false, true)
@@ -103,7 +103,7 @@ public abstract record class SelectionNode(Location Location) : DocumentNode(Loc
 public record class SelectionField(string Alias, string Name, Directives Directives, ObjectFields Arguments, SelectionSet SelectionSet, Location Location) : SelectionNode(Location)
 {
     public override string OutputElement => "Field";
-    public override string OutputName => Alias ?? Name;
+    public override string OutputName => string.IsNullOrEmpty(Alias) ? Name : Alias;
 }
 
 public record class SelectionFragmentSpread(string Name, Directives Directives, Location Location) : SelectionNode(Location)

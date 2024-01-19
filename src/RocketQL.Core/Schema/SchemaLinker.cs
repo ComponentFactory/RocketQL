@@ -30,11 +30,11 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
         {
-            PushPath($"directive {directive.Name}");
+            PushPath(directive);
 
             foreach (var argument in directive.Arguments.Values)
             {
-                PushPath($"argument {argument.Name}");
+                PushPath(argument);
                 argument.Parent = directive;
                 InterlinkDirectives(argument.Directives, argument);
                 InterlinkTypeNode(argument.Type, argument);
@@ -46,14 +46,14 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            PushPath($"scalar {scalarType.Name}");
+            PushPath(scalarType);
             InterlinkDirectives(scalarType.Directives, scalarType);
             PopPath();
         }
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            PushPath($"type {objectType.Name}");
+            PushPath(objectType);
             InterlinkDirectives(objectType.Directives, objectType);
             InterlinkInterfaces(objectType.ImplementsInterfaces, objectType);
             InterlinkFields(objectType.Fields, objectType);
@@ -62,7 +62,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            PushPath($"interface {interfaceType.Name}");
+            PushPath(interfaceType);
             InterlinkDirectives(interfaceType.Directives, interfaceType);
             InterlinkInterfaces(interfaceType.ImplementsInterfaces, interfaceType);
             InterlinkFields(interfaceType.Fields, interfaceType);
@@ -71,7 +71,7 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            PushPath($"union {unionType.Name}");
+            PushPath(unionType);
             InterlinkDirectives(unionType.Directives, unionType);
             InterlinkMemberTypes(unionType.MemberTypes, unionType);
             PopPath();
@@ -79,12 +79,12 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            PushPath($"enum {enumType.Name}");
+            PushPath(enumType);
             InterlinkDirectives(enumType.Directives, enumType);
 
             foreach (var enumValue in enumType.EnumValues.Values)
             {
-                PushPath($"enum value {enumValue.Name}");
+                PushPath(enumValue);
                 enumValue.Parent = enumType;
                 InterlinkDirectives(enumValue.Directives, enumValue);
                 PopPath();
@@ -95,9 +95,9 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            PushPath($"input object {inputObjectType.Name}");
+            PushPath(inputObjectType);
             InterlinkDirectives(inputObjectType.Directives, inputObjectType);
-            InterlinkInputValues(inputObjectType.InputFields, inputObjectType, "input field");
+            InterlinkInputValues(inputObjectType.InputFields, inputObjectType);
             PopPath();
         }
 
@@ -112,7 +112,7 @@ public partial class Schema
 
             foreach (var operationTypeDefinition in schemaDefinition.Operations.Values)
             {
-                PushPath($"{operationTypeDefinition.Operation.ToString().ToLower()} {operationTypeDefinition.NamedType}");
+                PushPath(operationTypeDefinition);
 
                 if (!_schema._types.TryGetValue(operationTypeDefinition.NamedType, out var typeDefinition))
                     _schema.NonFatalException(ValidationException.SchemaOperationTypeNotDefined(operationTypeDefinition, CurrentPath));
@@ -131,7 +131,7 @@ public partial class Schema
         {
             foreach (var interfaceEntry in interfaces.Values)
             {
-                PushPath($"implements {interfaceEntry.Name}");
+                PushPath(interfaceEntry);
                 interfaceEntry.Parent = parentNode;
 
                 if (!_schema._types.TryGetValue(interfaceEntry.Name, out var typeDefinition))
@@ -152,20 +152,20 @@ public partial class Schema
         {
             foreach (var field in fields.Values)
             {
-                PushPath($"field {field.Name}");
+                PushPath(field);
                 field.Parent = parentNode;
                 InterlinkDirectives(field.Directives, field);
                 InterlinkTypeNode(field.Type, field);
-                InterlinkInputValues(field.Arguments, field, "argument");
+                InterlinkInputValues(field.Arguments, field);
                 PopPath();
             }
         }
 
-        private void InterlinkInputValues(InputValueDefinitions inputValues, DocumentNode parentNode, string elementUsage)
+        private void InterlinkInputValues(InputValueDefinitions inputValues, DocumentNode parentNode)
         {
             foreach (var inputValue in inputValues.Values)
             {
-                PushPath($"{elementUsage.ToLower()} {inputValue.Name}");
+                PushPath(inputValue);
                 inputValue.Parent = parentNode;
                 InterlinkDirectives(inputValue.Directives, inputValue);
                 InterlinkTypeNode(inputValue.Type, inputValue);
@@ -177,7 +177,7 @@ public partial class Schema
         {
             foreach (var memberType in memberTypes.Values)
             {
-                PushPath($"member type {memberType.Name}");
+                PushPath(memberType);
                 memberType.Parent = unionType;
 
                 if (!_schema._types.TryGetValue(memberType.Name, out var typeDefinition))
@@ -203,7 +203,7 @@ public partial class Schema
         {
             foreach (var directive in directives)
             {
-                PushPath($"directive {directive.Name}");
+                PushPath(directive);
                 directive.Parent = parentNode;
 
                 if (!_schema._directives.TryGetValue(directive.Name, out var directiveDefinition))

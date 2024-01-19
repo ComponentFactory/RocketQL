@@ -7,4 +7,3 @@ public static class CallerExtensions
         return $"{Path.GetFileName(filePath)}, {memberName}, {lineNumber}";
     }
 }
-

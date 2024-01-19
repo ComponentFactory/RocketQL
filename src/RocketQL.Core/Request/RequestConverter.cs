@@ -51,10 +51,10 @@ public partial class Request
 
         public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
         {
-            PushPath($"fragment {fragment.Name}");
+            PushPath(fragment);
 
             if (_request._fragments.ContainsKey(fragment.Name))
-                _request.NonFatalException(ValidationException.TypeNameAlreadyDefined(fragment, "Fragment", fragment.Name, CurrentPath));
+                _request.NonFatalException(ValidationException.TypeNameAlreadyDefined(fragment, fragment.OutputElement(), fragment.Name, CurrentPath));
             else
             {
                 _request._fragments.Add(fragment.Name, new(fragment.Name,
@@ -84,7 +84,7 @@ public partial class Request
 
         public void VisitObjectTypeDefinition(SyntaxObjectTypeDefinitionNode objectType)
         {
-            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(objectType, "Object"));
+            _request.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(objectType, "Type"));
         }
 
         public void VisitInterfaceTypeDefinition(SyntaxInterfaceTypeDefinitionNode interfaceType)
@@ -148,7 +148,7 @@ public partial class Request
 
             foreach (var variable in variables)
             {
-                PushPath($"variable {variable.Name}");
+                PushPath(variable);
 
                 if (nodes.ContainsKey(variable.Name))
                     _request.NonFatalException(ValidationException.DuplicateName(variable, "variable", variable.Name, CurrentPath));
@@ -187,13 +187,12 @@ public partial class Request
 
         private SelectionField ConvertFieldSelection(SyntaxFieldSelectionNode fieldSelection)
         {
-            var displayName = string.IsNullOrEmpty(fieldSelection.Alias) ? fieldSelection.Name : fieldSelection.Alias;
-            PushPath($"field {displayName}");
+            PushPath(fieldSelection);
 
             var ret = new SelectionField(fieldSelection.Alias,
                                          fieldSelection.Name,
                                          ConvertDirectives(fieldSelection.Directives),
-                                         ConvertObjectFields(fieldSelection, fieldSelection.Arguments, "argument"),
+                                         ConvertObjectFields(fieldSelection, fieldSelection.Arguments),
                                          ConvertSelectionSet(fieldSelection.SelectionSet),
                                          fieldSelection.Location);
 
@@ -203,7 +202,7 @@ public partial class Request
 
         private SelectionFragmentSpread ConvertFragmentSpreadSelection(SyntaxFragmentSpreadSelectionNode fragmentSpread)
         {
-            PushPath($"fragment spread {fragmentSpread.Name}");
+            PushPath(fragmentSpread);
 
             var ret = new SelectionFragmentSpread(fragmentSpread.Name, ConvertDirectives(fragmentSpread.Directives), fragmentSpread.Location);
 
@@ -213,7 +212,7 @@ public partial class Request
 
         private SelectionInlineFragment ConvertInlineFragmentSelection(SyntaxInlineFragmentSelectionNode inlineFragment)
         {
-            PushPath($"inline fragment {inlineFragment.TypeCondition}");
+            PushPath(inlineFragment);
 
             var ret = new SelectionInlineFragment(inlineFragment.TypeCondition,
                                                   ConvertDirectives(inlineFragment.Directives),
@@ -229,21 +228,21 @@ public partial class Request
             var nodes = new Directives();
 
             foreach (var directive in directives)
-                nodes.Add(new(directive.Name, ConvertObjectFields(directive, directive.Arguments, "argument"), directive.Location));
+                nodes.Add(new(directive.Name, ConvertObjectFields(directive, directive.Arguments), directive.Location));
 
             return nodes;
         }
 
-        private ObjectFields ConvertObjectFields(LocationNode parentNode, SyntaxObjectFieldNodeList fields, string usage)
+        private ObjectFields ConvertObjectFields(LocationNode parentNode, SyntaxObjectFieldNodeList fields)
         {
             var nodes = new ObjectFields();
 
             foreach (var field in fields)
             {
-                PushPath($"{usage} {field.Name}");
+                PushPath(field);
 
                 if (nodes.ContainsKey(field.Name))
-                    throw ValidationException.DuplicateName(parentNode, usage, field.Name, CurrentPath);
+                    throw ValidationException.DuplicateName(parentNode, "argument", field.Name, CurrentPath);
                 else
                     nodes.Add(field.Name, field);
 

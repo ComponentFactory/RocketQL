@@ -42,7 +42,7 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(SyntaxDirectiveDefinitionNode directive)
         {
-            PushPath($"directive {directive.Name}");
+            PushPath(directive);
 
             if (_schema._directives.ContainsKey(directive.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(directive, directive.Name, "Directive", CurrentPath));
@@ -61,7 +61,7 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(SyntaxScalarTypeDefinitionNode scalarType)
         {
-            PushPath($"scalar {scalarType.Name}");
+            PushPath(scalarType);
 
             if (_schema._types.ContainsKey(scalarType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(scalarType, scalarType.Name, "Scalar", CurrentPath));
@@ -78,10 +78,10 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(SyntaxObjectTypeDefinitionNode objectType)
         {
-            PushPath($"type {objectType.Name}");
+            PushPath(objectType);
 
             if (_schema._types.ContainsKey(objectType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(objectType, objectType.Name, "Object", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(objectType, objectType.Name, "Type", CurrentPath));
             else
             {
                 _schema._types.Add(objectType.Name, new ObjectTypeDefinition(objectType.Description,
@@ -97,7 +97,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(SyntaxInterfaceTypeDefinitionNode interfaceType)
         {
-            PushPath($"interface {interfaceType.Name}");
+            PushPath(interfaceType);
 
             if (_schema._types.ContainsKey(interfaceType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(interfaceType, interfaceType.Name, "Interface", CurrentPath));
@@ -116,7 +116,7 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(SyntaxUnionTypeDefinitionNode unionType)
         {
-            PushPath($"union {unionType.Name}");
+            PushPath(unionType);
 
             if (_schema._types.ContainsKey(unionType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(unionType, unionType.Name, "Union", CurrentPath));
@@ -134,7 +134,7 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(SyntaxEnumTypeDefinitionNode enumType)
         {
-            PushPath($"enum {enumType.Name}");
+            PushPath(enumType);
 
             if (_schema._types.ContainsKey(enumType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(enumType, enumType.Name, "Enum", CurrentPath));
@@ -152,7 +152,7 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(SyntaxInputObjectTypeDefinitionNode inputObjectType)
         {
-            PushPath($"input object {inputObjectType.Name}");
+            PushPath(inputObjectType);
 
             if (_schema._types.ContainsKey(inputObjectType.Name))
                 _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(inputObjectType, inputObjectType.Name, "Input object", CurrentPath));
@@ -189,7 +189,7 @@ public partial class Schema
                     {
                         foreach (var operationType in extendSchema.OperationTypes)
                         {
-                            PushPath($"{operationType.Operation.ToString().ToLower()} {operationType.NamedType}");
+                            PushPath(operationType);
 
                             if (schemaType.Operations.TryGetValue(operationType.Operation, out _))
                                 _schema.NonFatalException(ValidationException.ExtendSchemaOperationAlreadyDefined(operationType, operationType.Operation, CurrentPath));
@@ -207,7 +207,7 @@ public partial class Schema
 
         public void VisitExtendScalarTypeDefinition(SyntaxExtendScalarTypeDefinitionNode extendScalarType)
         {
-            PushPath($"extend scalar {extendScalarType.Name}");
+            PushPath(extendScalarType);
 
             if (!_schema._types.TryGetValue(extendScalarType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendScalarType, extendScalarType.Name, "Scalar", CurrentPath));
@@ -229,14 +229,14 @@ public partial class Schema
 
         public void VisitExtendObjectTypeDefinition(SyntaxExtendObjectTypeDefinitionNode extendObjectType)
         {
-            PushPath($"extend type {extendObjectType.Name}");
+            PushPath(extendObjectType);
 
             if (!_schema._types.TryGetValue(extendObjectType.Name, out var typeDefinition))
-                _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendObjectType, extendObjectType.Name, "Object", CurrentPath));
+                _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendObjectType, extendObjectType.Name, "Type", CurrentPath));
             else
             {
                 if (typeDefinition is not ObjectTypeDefinition objectType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendObjectType, "Object", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendObjectType, "Type", typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendObjectType.ImplementsInterfaces.Count == 0) && (extendObjectType.Directives.Count == 0) && (extendObjectType.Fields.Count == 0))
@@ -250,7 +250,7 @@ public partial class Schema
                         {
                             foreach (var extendImplementsInterface in extendObjectType.ImplementsInterfaces)
                             {
-                                PushPath($"implement {extendImplementsInterface.Name}");
+                                PushPath(extendImplementsInterface);
 
                                 if (objectType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
                                 {
@@ -279,7 +279,7 @@ public partial class Schema
 
         public void VisitExtendInterfaceTypeDefinition(SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType)
         {
-            PushPath($"extend interface {extendInterfaceType.Name}");
+            PushPath(extendInterfaceType);
 
             if (!_schema._types.TryGetValue(extendInterfaceType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendInterfaceType, extendInterfaceType.Name, "Interface", CurrentPath));
@@ -301,7 +301,7 @@ public partial class Schema
                         {
                             foreach (var extendImplementsInterface in extendInterfaceType.ImplementsInterfaces)
                             {
-                                PushPath($"implement {extendImplementsInterface.Name}");
+                                PushPath(extendImplementsInterface);
 
                                 if (interfaceType.ImplementsInterfaces.TryGetValue(extendImplementsInterface.Name, out _))
                                 {
@@ -330,7 +330,7 @@ public partial class Schema
 
         public void VisitExtendUnionTypeDefinition(SyntaxExtendUnionTypeDefinitionNode extendUnionType)
         {
-            PushPath($"extend union {extendUnionType.Name}");
+            PushPath(extendUnionType);
 
             if (!_schema._types.TryGetValue(extendUnionType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendUnionType, extendUnionType.Name, "Union", CurrentPath));
@@ -351,7 +351,7 @@ public partial class Schema
                         {
                             foreach (var extendMemberType in extendUnionType.MemberTypes)
                             {
-                                PushPath($"member type {extendMemberType.Name}");
+                                PushPath(extendMemberType);
 
                                 if (unionType.MemberTypes.TryGetValue(extendMemberType.Name, out _))
                                 {
@@ -375,7 +375,7 @@ public partial class Schema
 
         public void VisitExtendEnumDefinition(SyntaxExtendEnumTypeDefinitionNode extendEnumType)
         {
-            PushPath($"extend enum {extendEnumType.Name}");
+            PushPath(extendEnumType);
 
             if (!_schema._types.TryGetValue(extendEnumType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendEnumType, extendEnumType.Name, "Enum", CurrentPath));
@@ -397,7 +397,7 @@ public partial class Schema
                             HashSet<string> extendValues = [];
                             foreach (var extendEnumValue in extendEnumType.EnumValues)
                             {
-                                PushPath($"enum value {extendEnumValue.Name}");
+                                PushPath(extendEnumValue);
 
                                 if (extendValues.Contains(extendEnumValue.Name))
                                 {
@@ -443,7 +443,7 @@ public partial class Schema
 
         public void VisitExtendInputObjectTypeDefinition(SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType)
         {
-            PushPath($"extend inpt object {extendInputObjectType.Name}");
+            PushPath(extendInputObjectType);
 
             if (!_schema._types.TryGetValue(extendInputObjectType.Name, out var typeDefinition))
                 _schema.NonFatalException(ValidationException.ExtendTypeAlreadyDefined(extendInputObjectType, extendInputObjectType.Name, "Input object", CurrentPath));
@@ -475,7 +475,7 @@ public partial class Schema
                 HashSet<string> fieldNames = [];
                 foreach (var extendField in extendFields)
                 {
-                    PushPath($"field {extendField.Name}");
+                    PushPath(extendField);
 
                     if (fieldNames.Contains(extendField.Name))
                         _schema.NonFatalException(ValidationException.DuplicateName(extendField, "field", extendField.Name, CurrentPath));
@@ -503,10 +503,10 @@ public partial class Schema
                             HashSet<string> argumentNames = [];
                             foreach (var extendArgument in extendField.Arguments)
                             {
-                                PushPath($"argument {extendArgument.Name}");
+                                PushPath(extendArgument);
 
                                 if (argumentNames.Contains(extendArgument.Name))
-                                    _schema.NonFatalException(ValidationException.DuplicateName(extendArgument, "argument", extendArgument.Name, CurrentPath));
+                                    _schema.NonFatalException(ValidationException.DuplicateName(extendArgument, extendArgument.OutputElement(), extendArgument.Name, CurrentPath));
                                 else
                                 {
                                     if (!existingField.Arguments.TryGetValue(extendArgument.Name, out var existingArgument))
@@ -552,10 +552,10 @@ public partial class Schema
                 HashSet<string> inputFieldNames = [];
                 foreach (var extendInputField in extendInputFields)
                 {
-                    PushPath($"input field {extendInputField.Name}");
+                    PushPath(extendInputField);
 
                     if (inputFieldNames.Contains(extendInputField.Name))
-                        _schema.NonFatalException(ValidationException.DuplicateName(extendInputField, "input field", extendInputField.Name, CurrentPath));
+                        _schema.NonFatalException(ValidationException.DuplicateName(extendInputField, extendInputField.OutputElement(), extendInputField.Name, CurrentPath));
                     else
                     {
                         if (!existingInputFields.TryGetValue(extendInputField.Name, out var existingField))
@@ -590,7 +590,7 @@ public partial class Schema
 
             foreach (var field in fields)
             {
-                PushPath($"field {field.Name}");
+                PushPath(field);
 
                 if (nodes.ContainsKey(field.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "field", field.Name, CurrentPath));
@@ -616,7 +616,7 @@ public partial class Schema
 
             foreach (var operationType in operationTypes)
             {
-                PushPath($"{operationType.Operation.ToString().ToLower()} {operationType.NamedType}");
+                PushPath(operationType);
 
                 if (nodes.ContainsKey(operationType.Operation))
                     _schema.NonFatalException(ValidationException.SchemaDefinitionMultipleOperation(operationType, CurrentPath));
@@ -635,10 +635,10 @@ public partial class Schema
 
             foreach (var inputValue in inputValues)
             {
-                PushPath($"{elementUsage.ToLower()} {inputValue.Name}");
+                PushPath(inputValue);
 
                 if (nodes.ContainsKey(inputValue.Name))
-                    _schema.NonFatalException(ValidationException.DuplicateName(inputValue, elementUsage, inputValue.Name, CurrentPath));
+                    _schema.NonFatalException(ValidationException.DuplicateName(inputValue, inputValue.OutputElement(), inputValue.Name, CurrentPath));
                 else
                 {
                     nodes.Add(inputValue.Name, new InputValueDefinition(inputValue.Description,
@@ -662,7 +662,7 @@ public partial class Schema
 
             foreach (var name in names)
             {
-                PushPath($"implements {name.Name}");
+                PushPath(name);
 
                 if (nodes.ContainsKey(name.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "interface", name.Name, CurrentPath));
@@ -681,7 +681,7 @@ public partial class Schema
 
             foreach (var name in names)
             {
-                PushPath($"member type {name.Name}");
+                PushPath(name);
 
                 if (nodes.ContainsKey(name.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "member type", name.Name, CurrentPath));
@@ -700,7 +700,7 @@ public partial class Schema
 
             foreach (var enumValue in enumValues)
             {
-                PushPath($"enum value {enumValue.Name}");
+                PushPath(enumValue);
 
                 if (nodes.ContainsKey(enumValue.Name))
                     _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "enum value", enumValue.Name, CurrentPath));
@@ -724,24 +724,24 @@ public partial class Schema
 
             foreach (var directive in directives)
             {
-                PushPath($"directive {directive.Name}");
-                nodes.Add(new(directive.Name, ConvertObjectFields(directive, directive.Arguments, "argument"), directive.Location));
+                PushPath(directive);
+                nodes.Add(new(directive.Name, ConvertObjectFields(directive, directive.Arguments), directive.Location));
                 PopPath();
             }
 
             return nodes;
         }
 
-        private ObjectFields ConvertObjectFields(LocationNode parentNode, SyntaxObjectFieldNodeList fields, string elementUsage)
+        private ObjectFields ConvertObjectFields(LocationNode parentNode, SyntaxObjectFieldNodeList fields)
         {
             var nodes = new ObjectFields();
 
             foreach (var field in fields)
             {
-                PushPath($"{elementUsage.ToLower()} {field.Name}");
+                PushPath(field);
 
                 if (nodes.ContainsKey(field.Name))
-                    throw ValidationException.DuplicateName(parentNode, elementUsage, field.Name, CurrentPath);
+                    throw ValidationException.DuplicateName(parentNode, "argument", field.Name, CurrentPath);
                 else
                     nodes.Add(field.Name, field);
 

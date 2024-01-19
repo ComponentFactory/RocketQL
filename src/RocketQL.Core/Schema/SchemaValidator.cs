@@ -30,7 +30,7 @@ public partial class Schema
 
         public void VisitDirectiveDefinition(DirectiveDefinition directiveDefinition)
         {
-            PushPath($"directive {directiveDefinition.Name}");
+            PushPath(directiveDefinition);
 
             if (directiveDefinition.Name.StartsWith("@__"))
                 _schema.NonFatalException(ValidationException.NameDoubleUnderscore(directiveDefinition, CurrentPath));
@@ -39,7 +39,7 @@ public partial class Schema
             Queue<DirectiveDefinition> referencedDirectives = [];
             foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
             {
-                PushPath($"argument {argumentDefinition.Name}");
+                PushPath(argumentDefinition);
 
                 if (argumentDefinition.Name.StartsWith("__"))
                     _schema.NonFatalException(ValidationException.NameDoubleUnderscore(argumentDefinition, CurrentPath));
@@ -71,7 +71,7 @@ public partial class Schema
 
         public void VisitScalarTypeDefinition(ScalarTypeDefinition scalarType)
         {
-            PushPath($"scalar {scalarType.Name}");
+            PushPath(scalarType);
             CheckDoubleUnderscore(scalarType);
             CheckDirectiveUsage(scalarType.Directives, scalarType, DirectiveLocations.SCALAR);
             PopPath();
@@ -79,7 +79,7 @@ public partial class Schema
 
         public void VisitObjectTypeDefinition(ObjectTypeDefinition objectType)
         {
-            PushPath($"type {objectType.Name}");
+            PushPath(objectType);
             CheckDoubleUnderscore(objectType);
             CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
 
@@ -94,7 +94,7 @@ public partial class Schema
 
         public void VisitInterfaceTypeDefinition(InterfaceTypeDefinition interfaceType)
         {
-            PushPath($"interface {interfaceType.Name}");
+            PushPath(interfaceType);
             CheckDoubleUnderscore(interfaceType);
             CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
 
@@ -109,7 +109,7 @@ public partial class Schema
 
         public void VisitUnionTypeDefinition(UnionTypeDefinition unionType)
         {
-            PushPath($"union {unionType.Name}");
+            PushPath(unionType);
             CheckDoubleUnderscore(unionType);
             CheckDirectiveUsage(unionType.Directives, unionType, DirectiveLocations.UNION);
             PopPath();
@@ -117,7 +117,7 @@ public partial class Schema
 
         public void VisitEnumTypeDefinition(EnumTypeDefinition enumType)
         {
-            PushPath($"enum {enumType.Name}");
+            PushPath(enumType);
             CheckDoubleUnderscore(enumType);
             CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
 
@@ -127,7 +127,7 @@ public partial class Schema
             {
                 foreach (var enumValueDefinition in enumType.EnumValues.Values)
                 {
-                    PushPath($"enum value {enumValueDefinition.Name}");
+                    PushPath(enumValueDefinition);
                     CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE);
                     PopPath();
                 }
@@ -138,7 +138,7 @@ public partial class Schema
 
         public void VisitInputObjectTypeDefinition(InputObjectTypeDefinition inputObjectType)
         {
-            PushPath($"input object {inputObjectType.Name}");
+            PushPath(inputObjectType);
             CheckDoubleUnderscore(inputObjectType);
             CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
 
@@ -149,7 +149,7 @@ public partial class Schema
                 Queue<InputObjectTypeDefinition> referencedInputObjects = [];
                 foreach (var fieldDefinition in inputObjectType.InputFields.Values)
                 {
-                    PushPath($"input field {fieldDefinition.Name}");
+                    PushPath(fieldDefinition);
 
                     if (fieldDefinition.Name.StartsWith("__"))
                         _schema.NonFatalException(ValidationException.NameDoubleUnderscore(fieldDefinition, CurrentPath));
@@ -396,7 +396,7 @@ public partial class Schema
             HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
             {
-                PushPath($"directive {directive.Name}");
+                PushPath(directive);
 
                 if (directive.Definition is not null)
                 {
@@ -409,7 +409,7 @@ public partial class Schema
                     var checkedArguments = directive.Arguments.ToDictionary();
                     foreach (var argumentDefinition in directive.Definition.Arguments.Values)
                     {
-                        PushPath($"argument {argumentDefinition.Name}");
+                        PushPath(argumentDefinition);
 
                         if (checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
                         {
@@ -439,7 +439,7 @@ public partial class Schema
         {
             foreach (var fieldDefinition in fieldDefinitions)
             {
-                PushPath($"field {fieldDefinition.Name}");
+                PushPath(fieldDefinition);
 
                 if (fieldDefinition.Name.StartsWith("__"))
                     _schema.NonFatalException(ValidationException.NameDoubleUnderscore(fieldDefinition, CurrentPath));
@@ -453,7 +453,7 @@ public partial class Schema
 
                     foreach (var argumentDefinition in fieldDefinition.Arguments.Values)
                     {
-                        PushPath($"argument {argumentDefinition.Name}");
+                        PushPath(argumentDefinition);
 
                         if (argumentDefinition.Name.StartsWith("__"))
                             _schema.NonFatalException(ValidationException.NameDoubleUnderscore(argumentDefinition, CurrentPath));
@@ -485,7 +485,7 @@ public partial class Schema
             InterfaceTypeDefinitions interfaceDefinitions = [];
             foreach (var interfaceEntry in implementsInterfaces.Values)
             {
-                PushPath($"interface {interfaceEntry.Name}");
+                PushPath(interfaceEntry);
 
                 if (!isObject && (interfaceEntry.Name == parentNode.OutputName))
                     _schema.NonFatalException(ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry, CurrentPath));
@@ -527,7 +527,7 @@ public partial class Schema
         {
             foreach (var interfaceDefinition in interfaceDefinitions.Values)
             {
-                PushPath($"implements {interfaceDefinition.Name}");
+                PushPath(interfaceDefinition);
                 IsValidImplementation(objectFields, interfaceDefinition, parentNode);
                 PopPath();
             }
@@ -537,7 +537,7 @@ public partial class Schema
         {
             foreach (var interfaceField in interfaceDefinition.Fields.Values)
             {
-                PushPath($"field {interfaceField.Name}");
+                PushPath(interfaceField);
 
                 if (!objectFields.TryGetValue(interfaceField.Name, out var objectFieldDefinition))
                 {
@@ -552,7 +552,7 @@ public partial class Schema
 
                     foreach (var argument in interfaceField.Arguments.Values)
                     {
-                        PushPath($"argument {argument.Name}");
+                        PushPath(argument);
 
                         if (!objectFieldDefinition.Arguments.TryGetValue(argument.Name, out var objectFieldArgument))
                         {
@@ -581,7 +581,7 @@ public partial class Schema
 
                     foreach (var nonInterfaceArgument in nonInterface.Values)
                     {
-                        PushPath($"argument {nonInterfaceArgument.Name}");
+                        PushPath(nonInterfaceArgument);
 
                         if (nonInterfaceArgument.Type is TypeNonNull)
                         {

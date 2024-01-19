@@ -7,14 +7,14 @@ public class ExtendObject : UnitTestBase
                 type Query { alpha: Int }
                 extend type foo { buzz: Int }
                 """,
-                "Object 'foo' cannot be extended because it is not defined.",
+                "Type 'foo' cannot be extended because it is not defined.",
                 "extend type foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend type foo { buzz: Int }
                 type foo { first: Int }
                 """,
-                "Object 'foo' cannot be extended because it is not defined.",
+                "Type 'foo' cannot be extended because it is not defined.",
                 "extend type foo")]
     [InlineData("""
                 type Query { alpha: Int }
@@ -31,7 +31,7 @@ public class ExtendObject : UnitTestBase
                 extend type foo implements bar
                 """,
                 "Extend object 'foo' specifies an interface 'bar' already defined.",
-                "extend type foo, implement bar")]
+                "extend type foo, interface bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 type foo { buzz: Int } 

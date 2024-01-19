@@ -31,7 +31,7 @@ public class ExtendInterface : UnitTestBase
                 extend interface foo implements bar
                 """,
                 "Extend interface 'foo' specifies an interface 'bar' already defined.",
-                "extend interface foo, implement bar")]
+                "extend interface foo, interface bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface foo { buzz: Int } 

@@ -53,20 +53,20 @@ public class Interface : UnitTestBase
                 interface foo implements example { fizz : Int }
                 """,
                 "Undefined interface 'example' defined on interface 'foo'.",
-                "interface foo, implements example")]
+                "interface foo, interface example")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface foo implements Int { fizz : Int }
                 """,
                 "Cannot implement interface 'Int' defined on interface 'foo' because it is a 'scalar'.",
-                "interface foo, implements Int")]
+                "interface foo, interface Int")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first  { first: Int }
                 interface foo implements first & first { first : Int }
                 """,
                 "Duplicate interface 'first'.",
-                "interface foo, implements first")]
+                "interface foo, interface first")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second  { second: Int }
@@ -81,7 +81,7 @@ public class Interface : UnitTestBase
                 interface foo implements example { fizz : Int }
                 """,
                 "Cannot implement interface 'example' defined on interface 'foo' because it is a 'scalar'.",
-                "interface foo, implements example")]
+                "interface foo, interface example")]
     // Undefined types
     [InlineData("""
                 type Query { alpha: Int }
@@ -115,35 +115,35 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: Int }
                 """,
                 "Interface 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.",
-                "interface foo, implements first, field bar, argument args1")]
+                "interface foo, interface first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int, args2: Int): Int }
                 interface foo implements first { bar(args2: Int): Int }
                 """,
                 "Interface 'foo' field 'bar' is missing argument 'args1' declared on interface 'first'.",
-                "interface foo, implements first, field bar, argument args1")]
+                "interface foo, interface first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int): Int }
                 interface foo implements first { bar(args1: String): Int }
                 """,
                 "Interface 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.",
-                "interface foo, implements first, field bar, argument args1")]
+                "interface foo, interface first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar(args1: Int): Int }
                 interface foo implements first { bar(args1: Int!): Int }
                 """,
                 "Interface 'foo' field 'bar' argument 'args1' has different type to the declared interface 'first'.",
-                "interface foo, implements first, field bar, argument args1")]
+                "interface foo, interface first, field bar, argument args1")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int }
                 interface foo implements first { bar(args1: Int!): Int }
                 """,
                 "Interface 'foo' field 'bar' argument 'args1' cannot be non-null type because not declared on interface 'first'.",
-                "interface foo, implements first, field bar, argument args1")]
+                "interface foo, interface first, field bar, argument args1")]
     // Field errors
     [InlineData("""
                 type Query { alpha: Int }
@@ -164,28 +164,28 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: Int }
                 """,
                 "Interface 'foo' is missing field 'first' declared on interface 'first'.",
-                "interface foo, implements first, field first")]
+                "interface foo, interface first, field first")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int! }
                 interface foo implements first { bar: Int }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: Int }
                 interface foo implements first { bar: [Int] }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface first { bar: [Int] }
                 interface foo implements first { bar: Int }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 type aaa { aaa: Int }
@@ -195,7 +195,7 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: bbb }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second { second: Int }
@@ -205,7 +205,7 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: buzz }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface second { second: Int }
@@ -215,7 +215,7 @@ public class Interface : UnitTestBase
                 interface foo implements first { bar: buzz }
                 """,
                 "Interface 'foo' field 'bar' return type not a sub-type of matching field on interface 'first'.",
-                "interface foo, implements first, field bar")]
+                "interface foo, interface first, field bar")]
     // Directive errors
     [InlineData("""
                 type Query { alpha: Int }
@@ -415,9 +415,9 @@ public class Interface : UnitTestBase
                 interface foo implements first & second { bar: Int first: Int }
                 """,
                 "Interface 'foo' is missing field 'second' declared on interface 'first'.",
-                "interface foo, implements first, field second",
+                "interface foo, interface first, field second",
                 "Interface 'foo' is missing field 'second' declared on interface 'second'.",
-                "interface foo, implements second, field second")]
+                "interface foo, interface second, field second")]
     [InlineData("""
                 type Query { alpha: Int }
                 interface third { third: Int }

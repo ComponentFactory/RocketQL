@@ -8,14 +8,14 @@ public class ExtendInputObject : UnitTestBase
                 extend input foo { buzz: Int }
                 """,
                 "Input object 'foo' cannot be extended because it is not defined.",
-                "extend inpt object foo")]
+                "extend input object foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 extend input foo { buzz: Int }
                 input foo { first: Int }
                 """,
                 "Input object 'foo' cannot be extended because it is not defined.",
-                "extend inpt object foo")]
+                "extend input object foo")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on INPUT_OBJECT
@@ -30,14 +30,14 @@ public class ExtendInputObject : UnitTestBase
                 extend input foo { fizz: Int fizz: Int} 
                 """,
                 "Duplicate input field 'fizz'.",
-                "extend inpt object foo, input field fizz")]
+                "extend input object foo, input field fizz")]
     [InlineData("""
                 type Query { alpha: Int }
                 input foo { buzz: Int } 
                 extend input foo { buzz: Int } 
                 """,
                 "Input field 'buzz' has not been changed in extend definition.",
-                "extend inpt object foo, input field buzz")]
+                "extend input object foo, input field buzz")]
     [InlineData("""
                 type Query { alpha: Int }
                 directive @bar on INPUT_FIELD_DEFINITION
@@ -45,7 +45,7 @@ public class ExtendInputObject : UnitTestBase
                 extend input foo { buzz: Int } 
                 """,
                 "Input field 'buzz' has not been changed in extend definition.",
-                "extend inpt object foo, input field buzz")]
+                "extend input object foo, input field buzz")]
     public void ValidationSingleExceptions(string schemaText, string message, string commaPath)
     {
         SchemaValidationSingleException(schemaText, message, commaPath);

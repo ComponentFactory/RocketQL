@@ -31,7 +31,7 @@ public partial class Request
 
         public void VisitFragmentDefinition(FragmentDefinition fragment)
         {
-            PushPath($"fragment {fragment.Name}");
+            PushPath(fragment);
 
             if (!_request._schema.Types.TryGetValue(fragment.TypeCondition, out var type))
                 _request.NonFatalException(ValidationException.UndefinedTypeForFragment(fragment, CurrentPath));
@@ -84,7 +84,7 @@ public partial class Request
         {
             foreach (var variable in variables.Values)
             {
-                PushPath($"variable {variable.Name}");
+                PushPath(variable);
                 variable.Parent = parentNode;
                 InterlinkDirectives(variable.Directives, variable);
                 InterlinkTypeNode(variable.Type, variable);
@@ -101,8 +101,7 @@ public partial class Request
                 {
                     case SelectionField field:
                         {
-                            var displayName = string.IsNullOrEmpty(field.Alias) ? field.Name : field.Alias;
-                            PushPath($"field {displayName}");
+                            PushPath(field);
                             InterlinkDirectives(field.Directives, field);
                             InterlinkSelectionSet(field.SelectionSet, field, rootNode);
                             PopPath();
@@ -110,7 +109,7 @@ public partial class Request
                         break;
                     case SelectionFragmentSpread fragmentSpread:
                         {
-                            PushPath($"fragment spread {fragmentSpread.Name}");
+                            PushPath(fragmentSpread);
 
                             if (!_request._fragments.TryGetValue(fragmentSpread.Name, out var fragmentType))
                                 _request.NonFatalException(ValidationException.UndefinedTypeForFragmentSpread(fragmentSpread, rootNode, CurrentPath));
@@ -122,7 +121,7 @@ public partial class Request
                         break;
                     case SelectionInlineFragment inlineFragment:
                         {
-                            PushPath($"inline fragment {inlineFragment.TypeCondition}");
+                            PushPath(inlineFragment);
 
                             if (!_request._schema.Types.TryGetValue(inlineFragment.TypeCondition, out var _))
                                 _request.NonFatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode, CurrentPath));
@@ -140,7 +139,7 @@ public partial class Request
         {
             foreach (var directive in directives)
             {
-                PushPath($"directive {directive.Name}");
+                PushPath(directive);
                 directive.Parent = parentNode;
 
                 if (!_request._schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))

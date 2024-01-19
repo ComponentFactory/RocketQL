@@ -2,7 +2,20 @@
 
 public abstract record class SyntaxNode(Location Location) : LocationNode(Location);
 
-public record class SyntaxNameNode(string Name, Location Location) : SyntaxNode(Location);
+public enum SyntaxNameUsage
+{
+    Interface,
+    MemberType
+}
+
+public enum SyntaxInputValueUsage
+{
+    Argument,
+    InputField
+}
+
+
+public record class SyntaxNameNode(string Name, SyntaxNameUsage Usage, Location Location) : SyntaxNode(Location);
 public record class SyntaxSchemaDefinitionNode(string Description, SyntaxDirectiveNodeList Directives, SyntaxOperationTypeDefinitionNodeList OperationTypes, Location Location) : SyntaxExtendSchemaDefinitionNode(Directives, OperationTypes, Location);
 public record class SyntaxDirectiveDefinitionNode(string Description, string Name, SyntaxInputValueDefinitionNodeList Arguments, bool Repeatable, DirectiveLocations DirectiveLocations, Location Location) : SyntaxNode(Location);
 public record class SyntaxScalarTypeDefinitionNode(string Description, string Name, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxExtendScalarTypeDefinitionNode(Name, Directives, Location);
@@ -23,7 +36,7 @@ public record class SyntaxFragmentDefinitionNode(string Name, string TypeConditi
 public record class SyntaxDirectiveNode(string Name, SyntaxObjectFieldNodeList Arguments, Location Location) : SyntaxNode(Location);
 public record class SyntaxOperationTypeDefinitionNode(OperationType Operation, string NamedType, Location Location) : SyntaxNode(Location);
 public record class SyntaxVariableDefinitionNode(string Name, SyntaxTypeNode Type, ValueNode? DefaultValue, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxNode(Location);
-public record class SyntaxInputValueDefinitionNode(string Description, string Name, SyntaxTypeNode Type, ValueNode? DefaultValue, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxNode(Location);
+public record class SyntaxInputValueDefinitionNode(string Description, string Name, SyntaxTypeNode Type, ValueNode? DefaultValue, SyntaxDirectiveNodeList Directives, SyntaxInputValueUsage Usage, Location Location) : SyntaxNode(Location);
 public record class SyntaxFieldDefinitionNode(string Description, string Name, SyntaxInputValueDefinitionNodeList Arguments, SyntaxTypeNode Type, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxNode(Location);
 public record class SyntaxEnumValueDefinition(string Description, string Name, SyntaxDirectiveNodeList Directives, Location Location) : SyntaxNode(Location);
 
