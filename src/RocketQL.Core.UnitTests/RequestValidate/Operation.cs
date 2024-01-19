@@ -70,7 +70,7 @@ public class Operation : UnitTestBase
     [InlineData("query foo ($foo: Example) { a }",
                 "Undefined type 'Example' on variable '$foo'.",
                 "query foo, variable $foo")]
-    public void OperationParameters(string requestText, string message, string commaPath)
+    public void OperationVariables(string requestText, string message, string commaPath)
     {
         RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
     }

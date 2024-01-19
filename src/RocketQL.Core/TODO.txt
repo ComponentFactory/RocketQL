@@ -3,6 +3,12 @@
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 
     Request Validator
+        Fields    
+        Arguments  
+        Fragments   
+        Values     
+        Directives 
+        Variables   
 
 	Request processing
 		@skip

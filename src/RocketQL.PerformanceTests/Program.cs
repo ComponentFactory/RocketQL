@@ -18,8 +18,8 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<DeserializerBenchmark>();
+            //BenchmarkRunner.Run<TokenizerBenchmark>();
+            //BenchmarkRunner.Run<DeserializerBenchmark>();
             BenchmarkRunner.Run<ParserBenchmark>();
         }
     }
@@ -289,11 +289,11 @@ namespace DotNetQL.PerformanceTests
             _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
         }
 
-        [Benchmark]
-        public void GraphQL_GitHub_Parse()
-        {
-            GraphQLParser.Parser.Parse(_github);
-        }
+        //[Benchmark]
+        //public void GraphQL_GitHub_Parse()
+        //{
+        //    GraphQLParser.Parser.Parse(_github);
+        //}
 
         [Benchmark]
         public void HotChocolate_GitHub_Parse()
@@ -315,22 +315,22 @@ namespace DotNetQL.PerformanceTests
             schema.Validate();
         }
 
-        [Benchmark]
-        public void GraphQL_Intro_Parse()
-        {
-            GraphQLParser.Parser.Parse(_introspection);
-        }
+        //[Benchmark]
+        //public void GraphQL_Intro_Parse()
+        //{
+        //    GraphQLParser.Parser.Parse(_introspection);
+        //}
 
-        [Benchmark]
-        public void HotChocolate_Intro_Parse()
-        {
-            HC.Utf8GraphQLParser.Parse(_introspection);
-        }
+        //[Benchmark]
+        //public void HotChocolate_Intro_Parse()
+        //{
+        //    HC.Utf8GraphQLParser.Parse(_introspection);
+        //}
 
-        [Benchmark]
-        public void RocketQL_Intro_Parse()
-        {
-            RQL.Serializers.Serialization.RequestDeserialize(_introspection);
-        }
+        //[Benchmark]
+        //public void RocketQL_Intro_Parse()
+        //{
+        //    RQL.Serializers.Serialization.RequestDeserialize(_introspection);
+        //}
     }
 }
