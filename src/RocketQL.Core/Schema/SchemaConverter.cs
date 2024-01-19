@@ -20,12 +20,12 @@ public partial class Schema
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)
         {
-            _schema.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(operation, "Operation"));
+            _schema.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(operation, operation.OutputElement()));
         }
 
         public void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment)
         {
-            _schema.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(fragment, "Fragment"));
+            _schema.NonFatalException(ValidationException.DefinitionNotAllowedInSchema(fragment, fragment.OutputElement()));
         }
 
         public void VisitSchemaDefinition(SyntaxSchemaDefinitionNode schema)
@@ -45,12 +45,12 @@ public partial class Schema
             PushPath(directive);
 
             if (_schema._directives.ContainsKey(directive.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(directive, directive.Name, "Directive", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(directive, directive.Name, directive.OutputElement(), CurrentPath));
             else
             {
                 _schema._directives.Add(directive.Name, new(directive.Description,
                                                             directive.Name,
-                                                            ConvertInputValueDefinitions(directive.Arguments, "Argument"),
+                                                            ConvertInputValueDefinitions(directive.Arguments),
                                                             directive.Repeatable,
                                                             directive.DirectiveLocations,
                                                             directive.Location));
@@ -64,7 +64,7 @@ public partial class Schema
             PushPath(scalarType);
 
             if (_schema._types.ContainsKey(scalarType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(scalarType, scalarType.Name, "Scalar", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(scalarType, scalarType.Name, scalarType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(scalarType.Name, new ScalarTypeDefinition(scalarType.Description,
@@ -81,7 +81,7 @@ public partial class Schema
             PushPath(objectType);
 
             if (_schema._types.ContainsKey(objectType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(objectType, objectType.Name, "Type", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(objectType, objectType.Name, objectType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(objectType.Name, new ObjectTypeDefinition(objectType.Description,
@@ -100,7 +100,7 @@ public partial class Schema
             PushPath(interfaceType);
 
             if (_schema._types.ContainsKey(interfaceType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(interfaceType, interfaceType.Name, "Interface", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(interfaceType, interfaceType.Name, interfaceType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(interfaceType.Name, new InterfaceTypeDefinition(interfaceType.Description,
@@ -119,7 +119,7 @@ public partial class Schema
             PushPath(unionType);
 
             if (_schema._types.ContainsKey(unionType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(unionType, unionType.Name, "Union", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(unionType, unionType.Name, unionType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(unionType.Name, new UnionTypeDefinition(unionType.Description,
@@ -137,7 +137,7 @@ public partial class Schema
             PushPath(enumType);
 
             if (_schema._types.ContainsKey(enumType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(enumType, enumType.Name, "Enum", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(enumType, enumType.Name, enumType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(enumType.Name, new EnumTypeDefinition(enumType.Description,
@@ -155,13 +155,13 @@ public partial class Schema
             PushPath(inputObjectType);
 
             if (_schema._types.ContainsKey(inputObjectType.Name))
-                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(inputObjectType, inputObjectType.Name, "Input object", CurrentPath));
+                _schema.NonFatalException(ValidationException.TypeNameAlreadyDefined(inputObjectType, inputObjectType.Name, inputObjectType.OutputElement(), CurrentPath));
             else
             {
                 _schema._types.Add(inputObjectType.Name, new InputObjectTypeDefinition(inputObjectType.Description,
                                                                                        inputObjectType.Name,
                                                                                        ConvertDirectives(inputObjectType.Directives),
-                                                                                       ConvertInputValueDefinitions(inputObjectType.InputFields, "Input field"),
+                                                                                       ConvertInputValueDefinitions(inputObjectType.InputFields),
                                                                                        inputObjectType.Location));
             }
 
@@ -214,7 +214,7 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not ScalarTypeDefinition scalarType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendScalarType, "Scalar", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendScalarType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if (extendScalarType.Directives.Count == 0)
@@ -236,11 +236,11 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not ObjectTypeDefinition objectType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendObjectType, "Type", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendObjectType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendObjectType.ImplementsInterfaces.Count == 0) && (extendObjectType.Directives.Count == 0) && (extendObjectType.Fields.Count == 0))
-                        _schema.NonFatalException(ValidationException.ExtendObjectMandatory(extendObjectType, objectType.OutputElement, CurrentPath));
+                        _schema.NonFatalException(ValidationException.ExtendObjectMandatory(extendObjectType, objectType.OutputElement(), CurrentPath));
                     else
                     {
                         if (extendObjectType.Directives.Count > 0)
@@ -286,11 +286,11 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not InterfaceTypeDefinition interfaceType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendInterfaceType, "Interface", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendInterfaceType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendInterfaceType.ImplementsInterfaces.Count == 0) && (extendInterfaceType.Directives.Count == 0) && (extendInterfaceType.Fields.Count == 0))
-                        _schema.NonFatalException(ValidationException.ExtendInterfaceMandatory(extendInterfaceType, interfaceType.OutputElement, CurrentPath));
+                        _schema.NonFatalException(ValidationException.ExtendInterfaceMandatory(extendInterfaceType, interfaceType.OutputElement(), CurrentPath));
                     else
                     {
 
@@ -337,7 +337,7 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not UnionTypeDefinition unionType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendUnionType, "Union", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendUnionType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendUnionType.Directives.Count == 0) && (extendUnionType.MemberTypes.Count == 0))
@@ -382,7 +382,7 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not EnumTypeDefinition enumType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendEnumType, "Enum", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendEnumType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendEnumType.Directives.Count == 0) && (extendEnumType.EnumValues.Count == 0))
@@ -450,7 +450,7 @@ public partial class Schema
             else
             {
                 if (typeDefinition is not InputObjectTypeDefinition inputObjectType)
-                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendInputObjectType, "Input object", typeDefinition, CurrentPath));
+                    _schema.NonFatalException(ValidationException.ExtendIncorrectType(extendInputObjectType, typeDefinition.OutputElement(), typeDefinition, CurrentPath));
                 else
                 {
                     if ((extendInputObjectType.Directives.Count == 0) && (extendInputObjectType.InputFields.Count == 0))
@@ -478,14 +478,14 @@ public partial class Schema
                     PushPath(extendField);
 
                     if (fieldNames.Contains(extendField.Name))
-                        _schema.NonFatalException(ValidationException.DuplicateName(extendField, "field", extendField.Name, CurrentPath));
+                        _schema.NonFatalException(ValidationException.DuplicateName(extendField, extendField.OutputElement(), extendField.Name, CurrentPath));
                     else
                     {
                         if (!existingFields.TryGetValue(extendField.Name, out var existingField))
                         {
                             existingFields.Add(extendField.Name, new(extendField.Description,
                                                                      extendField.Name,
-                                                                     ConvertInputValueDefinitions(extendField.Arguments, "Argument"),
+                                                                     ConvertInputValueDefinitions(extendField.Arguments),
                                                                      ConvertTypeNode(extendField.Type),
                                                                      ConvertDirectives(extendField.Directives),
                                                                      extendField.Location));
@@ -516,8 +516,8 @@ public partial class Schema
                                                                                              ConvertTypeNode(extendArgument.Type),
                                                                                              extendArgument.DefaultValue,
                                                                                              ConvertDirectives(extendArgument.Directives),
-                                                                                             extendArgument.Location,
-                                                                                             "Argument"));
+                                                                                             extendArgument.Usage,
+                                                                                             extendArgument.Location));
 
                                         changed = true;
                                     }
@@ -565,8 +565,8 @@ public partial class Schema
                                                                                ConvertTypeNode(extendInputField.Type),
                                                                                extendInputField.DefaultValue,
                                                                                ConvertDirectives(extendInputField.Directives),
-                                                                               extendInputField.Location,
-                                                                               "Input field"));
+                                                                               extendInputField.Usage,
+                                                                               extendInputField.Location));
                         }
                         else
                         {
@@ -593,12 +593,12 @@ public partial class Schema
                 PushPath(field);
 
                 if (nodes.ContainsKey(field.Name))
-                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "field", field.Name, CurrentPath));
+                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, field.OutputElement(), field.Name, CurrentPath));
                 else
                 {
                     nodes.Add(field.Name, new(field.Description,
                                               field.Name,
-                                              ConvertInputValueDefinitions(field.Arguments, "Argument"),
+                                              ConvertInputValueDefinitions(field.Arguments),
                                               ConvertTypeNode(field.Type),
                                               ConvertDirectives(field.Directives),
                                               field.Location));
@@ -629,7 +629,7 @@ public partial class Schema
             return nodes;
         }
 
-        private InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues, string elementUsage)
+        private InputValueDefinitions ConvertInputValueDefinitions(SyntaxInputValueDefinitionNodeList inputValues)
         {
             var nodes = new InputValueDefinitions();
 
@@ -646,8 +646,8 @@ public partial class Schema
                                                                         ConvertTypeNode(inputValue.Type),
                                                                         inputValue.DefaultValue,
                                                                         ConvertDirectives(inputValue.Directives),
-                                                                        inputValue.Location,
-                                                                        elementUsage));
+                                                                        inputValue.Usage,
+                                                                        inputValue.Location));
                 }
 
                 PopPath();
@@ -665,7 +665,7 @@ public partial class Schema
                 PushPath(name);
 
                 if (nodes.ContainsKey(name.Name))
-                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "interface", name.Name, CurrentPath));
+                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, name.OutputElement(), name.Name, CurrentPath));
                 else
                     nodes.Add(name.Name, new(name.Name, name.Location));
 
@@ -684,7 +684,7 @@ public partial class Schema
                 PushPath(name);
 
                 if (nodes.ContainsKey(name.Name))
-                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "member type", name.Name, CurrentPath));
+                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, name.OutputElement(), name.Name, CurrentPath));
                 else
                     nodes.Add(name.Name, new(name.Name, name.Location));
 
@@ -703,7 +703,7 @@ public partial class Schema
                 PushPath(enumValue);
 
                 if (nodes.ContainsKey(enumValue.Name))
-                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, "enum value", enumValue.Name, CurrentPath));
+                    _schema.NonFatalException(ValidationException.DuplicateName(parentNode, enumValue.OutputElement(), enumValue.Name, CurrentPath));
                 else
                 {
                     nodes.Add(enumValue.Name, new(enumValue.Description,

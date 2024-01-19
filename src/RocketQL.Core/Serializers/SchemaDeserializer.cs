@@ -322,7 +322,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
         {
             MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
-            inputFields = ParseInputValueListDefinition(SyntaxInputValueUsage.InputField);
+            inputFields = ParseInputValueListDefinition(InputValueUsage.InputField);
             MandatoryToken(DocumentTokenKind.RightCurlyBracket);
             _tokenizer.Next();
         }
@@ -343,7 +343,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftCurlyBracket)
         {
             MandatoryTokenNext(DocumentTokenKind.LeftCurlyBracket);
-            inputFields = ParseInputValueListDefinition(SyntaxInputValueUsage.InputField);
+            inputFields = ParseInputValueListDefinition(InputValueUsage.InputField);
             MandatoryToken(DocumentTokenKind.RightCurlyBracket);
             _tokenizer.Next();
         }
@@ -378,13 +378,13 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         {
             OptionalToken(DocumentTokenKind.Ampersand);
             MandatoryToken(DocumentTokenKind.Name);
-            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, SyntaxNameUsage.Interface, _tokenizer.Location));
+            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, NameUsage.Interface, _tokenizer.Location));
             _tokenizer.Next();
 
             while (_tokenizer.TokenKind == DocumentTokenKind.Ampersand)
             {
                 MandatoryNextToken(DocumentTokenKind.Name);
-                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, SyntaxNameUsage.Interface, _tokenizer.Location));
+                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, NameUsage.Interface, _tokenizer.Location));
                 _tokenizer.Next();
             }
         }
@@ -558,13 +558,13 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
             MandatoryNext();
             OptionalToken(DocumentTokenKind.Vertical);
             MandatoryToken(DocumentTokenKind.Name);
-            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, SyntaxNameUsage.MemberType, _tokenizer.Location));
+            list.Add(new SyntaxNameNode(_tokenizer.TokenValue, NameUsage.MemberType, _tokenizer.Location));
             _tokenizer.Next();
 
             while (_tokenizer.TokenKind == DocumentTokenKind.Vertical)
             {
                 MandatoryNextToken(DocumentTokenKind.Name);
-                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, SyntaxNameUsage.MemberType, _tokenizer.Location));
+                list.Add(new SyntaxNameNode(_tokenizer.TokenValue, NameUsage.MemberType, _tokenizer.Location));
                 _tokenizer.Next();
             }
         }
@@ -578,7 +578,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
         if (_tokenizer.TokenKind == DocumentTokenKind.LeftParenthesis)
         {
             MandatoryNext();
-            var arguments = ParseInputValueListDefinition(SyntaxInputValueUsage.Argument);
+            var arguments = ParseInputValueListDefinition(InputValueUsage.Argument);
             MandatoryTokenNext(DocumentTokenKind.RightParenthesis);
             return arguments;
         }
@@ -587,7 +587,7 @@ public ref struct SchemaDeserializer(ReadOnlySpan<char> text, string source)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private SyntaxInputValueDefinitionNodeList ParseInputValueListDefinition(SyntaxInputValueUsage usage)
+    private SyntaxInputValueDefinitionNodeList ParseInputValueListDefinition(InputValueUsage usage)
     {
         SyntaxInputValueDefinitionNodeList list = [];
 

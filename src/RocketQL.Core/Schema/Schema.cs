@@ -119,8 +119,8 @@ public partial class Schema : ISchema
                     new TypeNonNull(new TypeName("Boolean", Location.Empty), Location.Empty),
                     null,
                     [],
-                    Location.Empty,
-                    "Argument")
+                    InputValueUsage.Argument,
+                    Location.Empty)
                 }
             },
             false,
@@ -138,8 +138,8 @@ public partial class Schema : ISchema
                     new TypeNonNull(new TypeName("Boolean", Location.Empty), Location.Empty),
                     null,
                     [],
-                    Location.Empty,
-                    "Argument")
+                    InputValueUsage.Argument,
+                    Location.Empty)
                 }
             },
             false,
@@ -157,8 +157,8 @@ public partial class Schema : ISchema
                     new TypeName("String", Location.Empty),
                     new StringValueNode("No longer supported"),
                     [],
-                    Location.Empty,
-                    "Argument")
+                    InputValueUsage.Argument,
+                    Location.Empty)
                 }
             },
             false,
@@ -177,8 +177,8 @@ public partial class Schema : ISchema
                     new TypeNonNull(new TypeName("String", Location.Empty), Location.Empty),
                     null,
                     [],
-                    Location.Empty,
-                    "Argument")
+                    InputValueUsage.Argument,
+                    Location.Empty)
                 }
             },
             false,

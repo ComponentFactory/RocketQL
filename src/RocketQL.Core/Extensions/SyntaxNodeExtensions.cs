@@ -22,16 +22,17 @@ public static class SyntaxNodeExtensions
             SyntaxEnumValueDefinition => "Enum value",
             SyntaxFieldDefinitionNode => "Field",
             SyntaxOperationTypeDefinitionNode operationType => operationType.Operation.ToString(),
+            SyntaxOperationDefinitionNode operation => "Operation",
             SyntaxNameNode name => name.Usage switch
             {
-                SyntaxNameUsage.Interface => "Interface",
-                SyntaxNameUsage.MemberType => "Member type",
+                NameUsage.Interface => "Interface",
+                NameUsage.MemberType => "Member type",
                 _ => ""
             },
             SyntaxInputValueDefinitionNode inputValue => inputValue.Usage switch
             {
-                SyntaxInputValueUsage.Argument => "Argument",
-                SyntaxInputValueUsage.InputField => "Input field",
+                InputValueUsage.Argument => "Argument",
+                InputValueUsage.InputField => "Input field",
                 _ => ""
             },
             SyntaxExtendScalarTypeDefinitionNode => "Extend scalar",
@@ -66,6 +67,7 @@ public static class SyntaxNodeExtensions
             SyntaxNameNode name => name.Name,
             SyntaxInputValueDefinitionNode inputValue => inputValue.Name,
             SyntaxOperationTypeDefinitionNode operationType => operationType.NamedType,
+            SyntaxOperationDefinitionNode operation => operation.Name,
             SyntaxExtendScalarTypeDefinitionNode extendScalarType => extendScalarType.Name,
             SyntaxExtendObjectTypeDefinitionNode extendObjectType => extendObjectType.Name,
             SyntaxExtendInterfaceTypeDefinitionNode extendInterfaceType => extendInterfaceType.Name,
@@ -73,8 +75,6 @@ public static class SyntaxNodeExtensions
             SyntaxExtendInputObjectTypeDefinitionNode extendInputObjectType => extendInputObjectType.Name,
             SyntaxExtendEnumTypeDefinitionNode extendEnumType => extendEnumType.Name,
             _ => ""
-
-
         };
     }
 }

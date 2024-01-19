@@ -487,7 +487,7 @@ public partial class Schema
             {
                 PushPath(interfaceEntry);
 
-                if (!isObject && (interfaceEntry.Name == parentNode.OutputName))
+                if (!isObject && (interfaceEntry.Name == parentNode.OutputName()))
                     _schema.NonFatalException(ValidationException.InterfaceCannotImplmentOwnInterface(interfaceEntry, CurrentPath));
                 else if (interfaceEntry.Definition is not null)
                 {
