@@ -11,6 +11,7 @@ using GraphQL.SystemTextJson;
 using HotChocolate.Language;
 using GraphQL.Types;
 using static BenchmarkDotNet.Attributes.MarkdownExporterAttribute;
+using Path = System.IO.Path;
 
 namespace DotNetQL.PerformanceTests
 {
@@ -18,9 +19,10 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<TokenizerBenchmark>();
             BenchmarkRunner.Run<DeserializerBenchmark>();
+            BenchmarkRunner.Run<TokenizerBenchmark>();
             BenchmarkRunner.Run<ParserBenchmark>();
+            BenchmarkRunner.Run<ValidateBenchmark>();
         }
     }
 
@@ -143,13 +145,13 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void HotChocolate_Small_Deserial()
+        public void HotChocolate___Small_Deserial()
         {
             HC.Utf8GraphQLRequestParser.ParseJsonObject(_input);
         }
 
         [Benchmark]
-        public void RocketQL_Small_Deserial()
+        public void RocketQL______Small_Deserial()
         {
             RQL.Serializers.Serialization.JsonDeserialize(_input);
         }
@@ -158,55 +160,78 @@ namespace DotNetQL.PerformanceTests
     [MemoryDiagnoser]
     public class TokenizerBenchmark
     {
-        public string _github = "";
-        public byte[] _githubBytes = [];
         public string _introspection = "";
         public byte[] _introspectionBytes = [];
+        public string _github = "";
+        public byte[] _githubBytes = [];
+        public string _onegraph = "";
+        public byte[] _onegraphBytes = [];
 
         [GlobalSetup]
         public void Setup()
         {
+            _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
+            _introspectionBytes = Encoding.ASCII.GetBytes(_introspection);
+
             _github = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
             _githubBytes = Encoding.ASCII.GetBytes(_github);
 
-            _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
-            _introspectionBytes = Encoding.ASCII.GetBytes(_introspection);
+            _onegraph = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "onegraph.graphql"));
+            _onegraphBytes = Encoding.ASCII.GetBytes(_onegraph);
         }
 
         [Benchmark]
-        public void GraphQL_GitHub_Token()
-        {
-            GraphQL(_github);
-        }
-
-        [Benchmark]
-        public void HotChocolate_GitHub_Token()
-        {
-            HotChocolate(_githubBytes);
-        }
-
-        [Benchmark]
-        public void RocketQL_GitHub_Token()
-        {
-            RocketQL(_github);
-        }
-
-        [Benchmark]
-        public void GraphQL_Intro_Token()
+        public void GraphQL______Intro____Token()
         {
             GraphQL(_introspection);
         }
 
         [Benchmark]
-        public void HotChocolate_Intro_Token()
+        public void HotChocolate_Intro____Token()
         {
             HotChocolate(_introspectionBytes);
         }
 
         [Benchmark]
-        public void RocketQL_Intro_Token()
+        public void RocketQL_____Intro____Token()
         {
             RocketQL(_introspection);
+        }
+
+        [Benchmark]
+        public void GraphQL______GitHub___Token()
+        {
+            GraphQL(_github);
+        }
+
+        [Benchmark]
+        public void HotChocolate_GitHub___Token()
+        {
+            HotChocolate(_githubBytes);
+        }
+
+        [Benchmark]
+        public void RocketQL_____GitHub___Token()
+        {
+            RocketQL(_github);
+        }
+
+        [Benchmark]
+        public void GraphQL______Onegraph_Token()
+        {
+            GraphQL(_onegraph);
+        }
+
+        [Benchmark]
+        public void HotChocolate_Onegraph_Token()
+        {
+            HotChocolate(_onegraphBytes);
+        }
+
+        [Benchmark]
+        public void RocketQL_____Onegraph_Token()
+        {
+            RocketQL(_onegraph);
         }
 
         private static void GraphQL(string schema)
@@ -281,56 +306,98 @@ namespace DotNetQL.PerformanceTests
     {
         public string _github = "";
         public string _introspection = "";
+        public string _onegraph = "";
 
         [GlobalSetup]
         public void Setup()
         {
-            _github = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
             _introspection = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "introspection.graphql"));
+            _github = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "github.graphql"));
+            _onegraph = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "onegraph.graphql"));
         }
 
         [Benchmark]
-        public void GraphQL_GitHub_Parse()
-        {
-            GraphQLParser.Parser.Parse(_github);
-        }
-
-        [Benchmark]
-        public void HotChocolate_GitHub_Parse()
-        {
-            HC.Utf8GraphQLParser.Parse(_github);
-        }
-
-        [Benchmark]
-        public void RocketQL_GitHub_Parse()
-        {
-            RQL.Serializers.Serialization.SchemaDeserialize(_github);
-        }
-
-        [Benchmark]
-        public void RocketQL_GitHub_Validate()
-        {
-            var schema = new RQL.Base.Schema();
-            schema.Add(_github);
-            schema.Validate();
-        }
-
-        [Benchmark]
-        public void GraphQL_Intro_Parse()
+        public void GraphQL______Intro____Parse()
         {
             GraphQLParser.Parser.Parse(_introspection);
         }
 
         [Benchmark]
-        public void HotChocolate_Intro_Parse()
+        public void HotChocolate_Intro____Parse()
         {
             HC.Utf8GraphQLParser.Parse(_introspection);
         }
 
         [Benchmark]
-        public void RocketQL_Intro_Parse()
+        public void RocketQL_____Intro____Parse()
         {
             RQL.Serializers.Serialization.RequestDeserialize(_introspection);
+        }
+
+        [Benchmark]
+        public void GraphQL______GitHub___Parse()
+        {
+            GraphQLParser.Parser.Parse(_github);
+        }
+
+        [Benchmark]
+        public void HotChocolate_GitHub___Parse()
+        {
+            HC.Utf8GraphQLParser.Parse(_github);
+        }
+
+        [Benchmark]
+        public void RocketQL_____GitHub___Parse()
+        {
+            RQL.Serializers.Serialization.SchemaDeserialize(_github);
+        }
+
+        [Benchmark]
+        public void GraphQL______Onegraph_Parse()
+        {
+            GraphQLParser.Parser.Parse(_onegraph);
+        }
+
+        [Benchmark]
+        public void HotChocolate_Onegraph_Parse()
+        {
+            HC.Utf8GraphQLParser.Parse(_onegraph);
+        }
+
+        [Benchmark]
+        public void RocketQL_____Onegraph_Parse()
+        {
+            RQL.Serializers.Serialization.SchemaDeserialize(_onegraph);
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class ValidateBenchmark
+    {
+        public string _onegraph = "";
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _onegraph = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "onegraph.graphql"));
+        }
+
+        [Benchmark]
+        public void HotChocolate_Onegraph_Validate()
+        {
+            SchemaBuilder
+                .New()
+                .Use(next => context => throw new NotSupportedException())
+                .AddDocumentFromString(_onegraph)
+                .Create();
+        }
+
+        [Benchmark]
+        public void RocketQL_____Onegraph_Validate()
+        {
+            var schema = new RQL.Base.Schema();
+            schema.Add(_onegraph);
+            schema.Validate();
         }
     }
 }

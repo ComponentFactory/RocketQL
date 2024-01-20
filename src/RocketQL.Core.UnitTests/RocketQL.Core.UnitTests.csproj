@@ -36,6 +36,9 @@
     <None Update="TestFiles\kitchensink-schema.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestFiles\onegraph-schema.graphql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestFiles\printer-extended-schema.graphql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
