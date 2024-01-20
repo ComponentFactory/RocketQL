@@ -1,17 +1,13 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using System.Text;
-using GQLParser = GraphQLParser;
-using GQLJson = GraphQL.SystemTextJson;
-using HC = HotChocolate.Language;
-using RQL = RocketQL.Core;
+﻿using System.Text;
 using System.Text.Json;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 using GraphQL;
 using GraphQL.SystemTextJson;
-using HotChocolate.Language;
-using GraphQL.Types;
-using static BenchmarkDotNet.Attributes.MarkdownExporterAttribute;
+using GQLParser = GraphQLParser;
+using HC = HotChocolate.Language;
 using Path = System.IO.Path;
+using RQL = RocketQL.Core;
 
 namespace DotNetQL.PerformanceTests
 {
@@ -19,9 +15,9 @@ namespace DotNetQL.PerformanceTests
     {
         static void Main()
         {
-            BenchmarkRunner.Run<DeserializerBenchmark>();
-            BenchmarkRunner.Run<TokenizerBenchmark>();
-            BenchmarkRunner.Run<ParserBenchmark>();
+            //BenchmarkRunner.Run<DeserializerBenchmark>();
+            //BenchmarkRunner.Run<TokenizerBenchmark>();
+            //BenchmarkRunner.Run<ParserBenchmark>();
             BenchmarkRunner.Run<ValidateBenchmark>();
         }
     }
@@ -151,7 +147,7 @@ namespace DotNetQL.PerformanceTests
         }
 
         [Benchmark]
-        public void RocketQL______Small_Deserial()
+        public void RocketQL_______Small_Deserial()
         {
             RQL.Serializers.Serialization.JsonDeserialize(_input);
         }
@@ -380,6 +376,14 @@ namespace DotNetQL.PerformanceTests
         public void Setup()
         {
             _onegraph = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", "onegraph.graphql"));
+        }
+
+        [Benchmark]
+        public void GraphQL______Onegraph_Validate()
+        {
+            // NOTE: Does not actually validate the schema
+            // We cannot call Initialise because it will throw because there are no resolvers
+            var schema = GraphQL.Types.Schema.For(_onegraph);
         }
 
         [Benchmark]

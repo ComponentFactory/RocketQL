@@ -1,4 +1,4 @@
-﻿namespace RocketQL.Core.Visitors;
+﻿namespace RocketQL.Core.Base;
 
 public interface ISyntaxNodeVisitors
 {

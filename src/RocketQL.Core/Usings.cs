@@ -9,4 +9,4 @@ global using RocketQL.Core.Extensions;
 global using RocketQL.Core.Nodes;
 global using RocketQL.Core.Serializers;
 global using RocketQL.Core.Tokenizers;
-global using RocketQL.Core.Visitors;
+global using RocketQL.Core.Helper;
