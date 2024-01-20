@@ -5,13 +5,14 @@ public class InputObject : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { alpha: Int } 
-                                        input foo { fizz: Int }
-                                        """,
-                                        "input foo { fizz: Int }",
-                                        "Input object 'foo' is already defined.",
-                                        "input object foo");
+        SchemaValidationSingleException(
+            """
+            type Query { alpha: Int } 
+            input foo { fizz: Int }
+            """,
+            "input foo { fizz: Int }",
+            "Input object 'foo' is already defined.",
+            "input object foo");
     }
 
     [Theory]
@@ -286,10 +287,7 @@ public class InputObject : UnitTestBase
                 """)]
     public void ValidCircularReference(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -298,17 +296,16 @@ public class InputObject : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @d1 on INPUT_OBJECT
-                   directive @d2 on INPUT_FIELD_DEFINITION
-                   input foo @d1 
-                   {
-                       bar: [Int] @d2
-                   }
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @d1 on INPUT_OBJECT
+            directive @d2 on INPUT_FIELD_DEFINITION
+            input foo @d1 
+            {
+                bar: [Int] @d2
+            }
+            """);
 
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);

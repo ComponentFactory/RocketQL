@@ -54,14 +54,13 @@ public class ExtendEnum : UnitTestBase
     [Fact]
     public void AddDirectiveToEnum()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ENUM
-                   enum foo { FIRST }
-                   extend enum foo @bar                
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ENUM
+            enum foo { FIRST }
+            extend enum foo @bar                
+            """);
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
@@ -78,14 +77,13 @@ public class ExtendEnum : UnitTestBase
     [Fact]
     public void AddDirectiveToEnumValue()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ENUM_VALUE
-                   enum foo { FIRST }
-                   extend enum foo { FIRST @bar }              
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ENUM_VALUE
+            enum foo { FIRST }
+            extend enum foo { FIRST @bar }              
+            """);
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
@@ -101,14 +99,13 @@ public class ExtendEnum : UnitTestBase
     [Fact]
     public void AddEnumValue()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ENUM
-                   enum foo { FIRST }
-                   extend enum foo { SECOND }              
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ENUM
+            enum foo { FIRST }
+            extend enum foo { SECOND }              
+            """);
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
@@ -123,14 +120,13 @@ public class ExtendEnum : UnitTestBase
     [Fact]
     public void AddEnumValueWithDirective()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ENUM_VALUE
-                   enum foo { FIRST }
-                   extend enum foo { SECOND @bar }              
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ENUM_VALUE
+            enum foo { FIRST }
+            extend enum foo { SECOND @bar }              
+            """);
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);

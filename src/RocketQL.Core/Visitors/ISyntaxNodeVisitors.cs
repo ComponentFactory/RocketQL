@@ -1,6 +1,4 @@
-﻿using RocketQL.Core.Base;
-
-namespace RocketQL.Core.Visitors;
+﻿namespace RocketQL.Core.Visitors;
 
 public interface ISyntaxNodeVisitors
 {
@@ -69,7 +67,6 @@ public interface ISyntaxNodeVisitors
                 throw ValidationException.UnrecognizedType(node.Location, node.GetType().ToString(), []);
         }
     }
-
 
     void VisitOperationDefinition(SyntaxOperationDefinitionNode operation);
     void VisitFragmentDefinition(SyntaxFragmentDefinitionNode fragment);

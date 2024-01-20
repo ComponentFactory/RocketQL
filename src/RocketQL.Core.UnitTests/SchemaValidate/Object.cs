@@ -7,13 +7,14 @@ public class Object : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { alpha: Int } 
-                                        type foo { fizz : Int }
-                                        """,
-                                        "type foo { fizz : Int }",
-                                        "Type 'foo' is already defined.",
-                                        "type foo");
+        SchemaValidationSingleException(
+            """
+            type Query { alpha: Int } 
+            type foo { fizz : Int }
+            """,
+            "type foo { fizz : Int }",
+            "Type 'foo' is already defined.",
+            "type foo");
     }
 
     [Theory]
@@ -560,10 +561,7 @@ public class Object : UnitTestBase
                 """)]
     public void ImplementsInterface(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -572,47 +570,48 @@ public class Object : UnitTestBase
     [Fact]
     public void ValidTypeCheckOnDefaultValue()
     {
-        SchemaValidationNoException("""
-                                    type Query { query: Int }
-                                    type foo 
-                                    {
-                                       a(arg: Int = 5): Int
-                                       b(arg: [Int] = [1, 2]): Int
-                                    }
-                                    """);
+        SchemaValidationNoException(
+            """
+            type Query { query: Int }
+            type foo 
+            {
+                a(arg: Int = 5): Int
+                b(arg: [Int] = [1, 2]): Int
+            }
+            """);
     }
 
     [Fact]
     public void InvalidTypeCheckOnDefaultValue()
     {
-        SchemaValidationSingleException("""
-                                        type Query { query: Int }
-                                        type foo 
-                                        {
-                                            a(arg: Int = 3.13): Int
-                                        }
-                                        """,
-                                        "Default value not compatible with type of argument 'arg'.",
-                                        "type foo, field a, argument arg");
+        SchemaValidationSingleException(
+            """
+            type Query { query: Int }
+            type foo 
+            {
+                a(arg: Int = 3.13): Int
+            }
+            """,
+            "Default value not compatible with type of argument 'arg'.",
+            "type foo, field a, argument arg");
     }
 
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @d1 on OBJECT
-                   directive @d2 on FIELD_DEFINITION
-                   directive @d3(fizz: Int) on ARGUMENT_DEFINITION
-                   interface first { first: Int }
-                   type foo implements first @d1 
-                   {
-                       bar(arg: Int @d3(fizz: 4)): [Int] @d2
-                       first: Int
-                   }
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @d1 on OBJECT
+            directive @d2 on FIELD_DEFINITION
+            directive @d3(fizz: Int) on ARGUMENT_DEFINITION
+            interface first { first: Int }
+            type foo implements first @d1 
+            {
+                bar(arg: Int @d3(fizz: 4)): [Int] @d2
+                first: Int
+            }
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);

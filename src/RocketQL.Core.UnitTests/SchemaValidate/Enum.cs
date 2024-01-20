@@ -5,13 +5,14 @@ public class Enum : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { alpha: Int } 
-                                        enum foo { FIRST } 
-                                        """,
-                                        "enum foo { FIRST }",
-                                        "Enum 'foo' is already defined.",
-                                        "enum foo");
+        SchemaValidationSingleException(
+            """
+            type Query { alpha: Int } 
+            enum foo { FIRST } 
+            """,
+            "enum foo { FIRST }",
+            "Enum 'foo' is already defined.",
+            "enum foo");
     }
 
     [Theory]
@@ -265,10 +266,7 @@ public class Enum : UnitTestBase
                 """)]
     public void ValidDirectiveUse(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -278,17 +276,16 @@ public class Enum : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @d1 on ENUM
-                   directive @d2 on ENUM_VALUE
-                   enum foo @d1 
-                   {
-                       BAR @d2
-                   }
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @d1 on ENUM
+            directive @d2 on ENUM_VALUE
+            enum foo @d1 
+            {
+                BAR @d2
+            }
+            """);
 
         var foo = schema.Types["foo"] as EnumTypeDefinition;
         Assert.NotNull(foo);

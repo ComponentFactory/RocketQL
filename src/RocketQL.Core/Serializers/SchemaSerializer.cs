@@ -23,9 +23,6 @@ public ref struct SchemaSerializer(Schema schema)
 
         public void Visit(SchemaSerializeOptions options)
         {
-            if (!_schema.IsValidated)
-                throw ValidationException.CannotSerializeInvalidSchema();
-
             _options = options;
             _indentCharacter = _options.IndentCharacter == IndentCharacter.Space ? ' ' : '\t';
             _builder.Clear();

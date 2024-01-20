@@ -1,20 +1,18 @@
-﻿using RocketQL.Core.Nodes;
-using System.Runtime.Intrinsics.X86;
-using System.Security.Cryptography.X509Certificates;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Request
+public partial class RequestBuilder
 {
-    private RequestConverter? _requestConverter = null;
-    private RequestConverter Converter => _requestConverter ??= new RequestConverter(this);
+    private RequestBuilderConverter? _converter = null;
+    private RequestBuilderConverter Converter => _converter ??= new RequestBuilderConverter(this);
 
-    private class RequestConverter(Request request) : NodeVisitor, ISyntaxNodeVisitors
+    private class RequestBuilderConverter(RequestBuilder request) : NodePathTracker, ISyntaxNodeVisitors
     {
-        private readonly Request _request = request;
+        private readonly RequestBuilder _request = request;
+        private ISchema _schema = Schema.Empty;
 
-        public void Visit()
+        public void Visit(ISchema schema)
         {
+            _schema = schema;
             ((ISyntaxNodeVisitors)this).Visit(_request._nodes);
         }
 

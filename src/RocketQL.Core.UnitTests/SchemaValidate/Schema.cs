@@ -268,9 +268,7 @@ public class Schemas : UnitTestBase
                 """)]
     public void ValidSchemas(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
+        SchemaFromString(schemaText);
     }
 }
 

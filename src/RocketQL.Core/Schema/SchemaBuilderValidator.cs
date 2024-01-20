@@ -1,15 +1,13 @@
-﻿using RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Schema
+public partial class SchemaBuilder
 {
-    private SchemaValidator? _schemaValidator = null;
-    private SchemaValidator Validator => _schemaValidator ??= new SchemaValidator(this);
+    private SchemaBuilderValidator? _validator = null;
+    private SchemaBuilderValidator Validator => _validator ??= new SchemaBuilderValidator(this);
 
-    private class SchemaValidator(Schema schema) : NodeVisitor, IDocumentNodeVisitors
+    private class SchemaBuilderValidator(SchemaBuilder schema) : NodePathTracker, IDocumentNodeVisitors
     {
-        private readonly Schema _schema = schema;
+        private readonly SchemaBuilder _schema = schema;
         private readonly Queue<TypeDefinition> _referencedTypes = [];
         private readonly Queue<DirectiveDefinition> _referencedDirectives = [];
         private readonly Queue<InputObjectTypeDefinition> _referencedInputObjects = [];

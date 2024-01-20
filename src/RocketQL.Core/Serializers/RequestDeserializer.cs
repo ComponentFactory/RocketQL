@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Serializers;
+﻿namespace RocketQL.Core.Serializers;
 
 public ref struct RequestDeserializer(ReadOnlySpan<char> text, string source)
 {

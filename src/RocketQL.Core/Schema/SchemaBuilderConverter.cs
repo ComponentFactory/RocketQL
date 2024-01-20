@@ -1,13 +1,13 @@
 ﻿namespace RocketQL.Core.Base;
 
-public partial class Schema
+public partial class SchemaBuilder
 {
-    private SchemaConverter? _schemaConverter = null;
-    private SchemaConverter Converter => _schemaConverter ??= new SchemaConverter(this);
+    private SchemaBuilderConverter? _converter = null;
+    private SchemaBuilderConverter Converter => _converter ??= new SchemaBuilderConverter(this);
 
-    private class SchemaConverter(Schema schema) : NodeVisitor, ISyntaxNodeVisitors
+    private class SchemaBuilderConverter(SchemaBuilder schema) : NodePathTracker, ISyntaxNodeVisitors
     {
-        private readonly Schema _schema = schema;
+        private readonly SchemaBuilder _schema = schema;
         private readonly HashSet<string> _uniqueNames1 = [];
         private readonly HashSet<string> _uniqueNames2 = [];
 

@@ -40,15 +40,14 @@ public class ExtendSchema : UnitTestBase
     [Fact]
     public void AddDirectiveToSchema()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   directive @bar on SCHEMA
-                   type Query { fizz: Int }
-                   type fizz { buzz: Int }
-                   schema { query: fizz } 
-                   extend schema @bar               
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            directive @bar on SCHEMA
+            type Query { fizz: Int }
+            type fizz { buzz: Int }
+            schema { query: fizz } 
+            extend schema @bar               
+            """);
 
         var foo = schema.Root;
         Assert.NotNull(foo);
@@ -60,15 +59,14 @@ public class ExtendSchema : UnitTestBase
     [Fact]
     public void AddOperation()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   type fizz { buzz: Int }
-                   type foo { bar: Int }
-                   schema { query: fizz } 
-                   extend schema { mutation: foo }        
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            type fizz { buzz: Int }
+            type foo { bar: Int }
+            schema { query: fizz } 
+            extend schema { mutation: foo }        
+            """);
 
         var foo = schema.Root;
         Assert.NotNull(foo);

@@ -1,9 +1,6 @@
-﻿using RocketQL.Core.Enumerations;
-using RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Visitors;
 
-namespace RocketQL.Core.Visitors;
-
-public abstract class NodeVisitor
+public abstract class NodePathTracker
 {
     private readonly Stack<object> _path = [];
 

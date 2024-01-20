@@ -1,13 +1,13 @@
 ﻿namespace RocketQL.Core.Base;
 
-public partial class Schema
+public partial class SchemaBuilder
 {
-    private SchemaRooted? _schemaRooted = null;
-    private SchemaRooted Rooted => _schemaRooted ??= new SchemaRooted(this);
+    private SchemaBuilderRooted? _rooted = null;
+    private SchemaBuilderRooted Rooted => _rooted ??= new SchemaBuilderRooted(this);
 
-    private class SchemaRooted(Schema schema) : IDocumentNodeVisitors
+    private class SchemaBuilderRooted(SchemaBuilder schema) : IDocumentNodeVisitors
     {
-        private readonly Schema _schema = schema;
+        private readonly SchemaBuilder _schema = schema;
 
         public void Visit()
         {

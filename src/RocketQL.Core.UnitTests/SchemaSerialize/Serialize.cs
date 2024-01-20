@@ -7,10 +7,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaDefault(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema);
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build());
         print.MatchSnapshot();
     }
 
@@ -19,10 +18,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaIndent2Spaces(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCount = 2 });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IndentCount = 2 });
         print.MatchSnapshot();
     }
 
@@ -31,10 +29,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaIndent2Tabs(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IndentCharacter = IndentCharacter.Tab, IndentCount = 2 });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IndentCharacter = IndentCharacter.Tab, IndentCount = 2 });
         print.MatchSnapshot();
     }
 
@@ -43,10 +40,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaNoDescriptions(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeDescription = false });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IncludeDescription = false });
         print.MatchSnapshot();
     }
 
@@ -55,10 +51,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaShowPredefined(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IncludeBuiltIn = true });
         print.MatchSnapshot();
     }
 
@@ -67,10 +62,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaExcludeUnrooted(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = false });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = false });
         print.MatchSnapshot();
     }
 
@@ -79,10 +73,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaIncludeUnrooted(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema, new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = true });
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build(), new SchemaSerializeOptions() { IncludeBuiltIn = true, IncludeUnrooted = true });
         print.MatchSnapshot();
     }
 
@@ -91,10 +84,9 @@ public class Serialize : UnitTestBase
     public void FileSchemaExtended(string filename)
     {
         var schemaText = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFiles", filename));
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-        string print = Serialization.SchemaSerialize(schema);
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaText);
+        var print = Serialization.SchemaSerialize(schema.Build());
         print.MatchSnapshot();
     }
 }

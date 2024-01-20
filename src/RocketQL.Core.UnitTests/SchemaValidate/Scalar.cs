@@ -5,13 +5,14 @@ public class Scalar : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { fizz: Int } 
-                                        scalar foo     
-                                        """,
-                                        "scalar foo",
-                                        "Scalar 'foo' is already defined.",
-                                        "scalar foo");
+        SchemaValidationSingleException(
+            """
+            type Query { fizz: Int } 
+            scalar foo     
+            """,
+            "scalar foo",
+            "Scalar 'foo' is already defined.",
+            "scalar foo");
     }
 
     [Theory]
@@ -23,8 +24,8 @@ public class Scalar : UnitTestBase
     public void CannotUsePredefinedName(string scalar)
     {
         SchemaValidationSingleException("type Query { fizz: Int } scalar " + scalar,
-                                            $"Scalar '{scalar}' is already defined.",
-                                            $"scalar {scalar}");
+                                        $"Scalar '{scalar}' is already defined.",
+                                        $"scalar {scalar}");
     }
 
     [Theory]
@@ -151,10 +152,7 @@ public class Scalar : UnitTestBase
                 """)]
     public void ValidDirectiveUse(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as ScalarTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -163,18 +161,17 @@ public class Scalar : UnitTestBase
     [Fact]
     public void ReferenceCreated()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   scalar foo
-                   type bar1 { first: foo }
-                   type bar2 { first(arg: foo): Int }
-                   interface bar3 { first: foo }
-                   interface bar4 { first(arg: foo): Int }
-                   input bar5 { first: foo }
-                   directive @bar6(arg: foo) on ENUM
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            scalar foo
+            type bar1 { first: foo }
+            type bar2 { first(arg: foo): Int }
+            interface bar3 { first: foo }
+            interface bar4 { first(arg: foo): Int }
+            input bar5 { first: foo }
+            directive @bar6(arg: foo) on ENUM
+            """);
 
         var foo = schema.Types["foo"];
         Assert.NotNull(foo);
@@ -184,12 +181,11 @@ public class Scalar : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   scalar foo @specifiedBy(url: "Example")
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            scalar foo @specifiedBy(url: "Example")
+            """);
 
         var foo = schema.Types["foo"] as ScalarTypeDefinition;
         Assert.NotNull(foo);

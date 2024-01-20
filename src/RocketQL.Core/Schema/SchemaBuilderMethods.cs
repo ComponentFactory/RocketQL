@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Base;
 
-public partial class Schema
+public partial class SchemaBuilder
 {
     public bool IsInputTypeCompatibleWithValue(TypeNode typeNode, ValueNode valueNode)
     {

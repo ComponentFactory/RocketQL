@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace RocketQL.Core.Extensions;
+﻿namespace RocketQL.Core.Extensions;
 
 public static class DocumentNodeExtensions
 {

@@ -54,14 +54,13 @@ public class ExtendInputObject : UnitTestBase
     [Fact]
     public void AddDirectiveToInputObject()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on INPUT_OBJECT
-                   input foo { fizz: Int }
-                   extend input foo @bar                
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on INPUT_OBJECT
+            input foo { fizz: Int }
+            extend input foo @bar                
+            """);
 
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -75,14 +74,13 @@ public class ExtendInputObject : UnitTestBase
     [Fact]
     public void AddDirectiveToInputField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on INPUT_FIELD_DEFINITION
-                   input foo { fizz: Int }
-                   extend input foo { fizz: Int @bar }               
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on INPUT_FIELD_DEFINITION
+            input foo { fizz: Int }
+            extend input foo { fizz: Int @bar }               
+            """);
 
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -100,14 +98,13 @@ public class ExtendInputObject : UnitTestBase
     [Fact]
     public void AddInputField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on INPUT_FIELD_DEFINITION
-                   input foo { buzz: Int }
-                   extend input foo { fizz: Int @bar }       
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on INPUT_FIELD_DEFINITION
+            input foo { buzz: Int }
+            extend input foo { fizz: Int @bar }       
+            """);
 
         var foo = schema.Types["foo"] as InputObjectTypeDefinition;
         Assert.NotNull(foo);

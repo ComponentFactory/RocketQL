@@ -5,13 +5,14 @@ public class Interface : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { alpha: Int} 
-                                        interface foo { fizz : Int }
-                                        """,
-                                        "interface foo { fizz : Int }",
-                                        "Interface 'foo' is already defined.",
-                                        "interface foo");
+        SchemaValidationSingleException(
+            """
+            type Query { alpha: Int} 
+            interface foo { fizz : Int }
+            """,
+            "interface foo { fizz : Int }",
+            "Interface 'foo' is already defined.",
+            "interface foo");
     }
 
     [Theory]
@@ -582,10 +583,7 @@ public class Interface : UnitTestBase
                 """)]
     public void ImplementsInterface(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -594,13 +592,12 @@ public class Interface : UnitTestBase
     [Fact]
     public void ReferenceCreated()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   interface foo { first: Int }
-                   type bar implements foo { first: Int }
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            interface foo { first: Int }
+            type bar implements foo { first: Int }
+            """);
 
         var foo = schema.Types["foo"];
         Assert.NotNull(foo);
@@ -612,18 +609,17 @@ public class Interface : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @d1 on INTERFACE
-                   directive @d2 on FIELD_DEFINITION
-                   directive @d3(fizz: Int) on ARGUMENT_DEFINITION
-                   interface foo @d1
-                   {
-                       bar(arg: Int @d3(fizz: 4)): [Int] @d2
-                   }
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @d1 on INTERFACE
+            directive @d2 on FIELD_DEFINITION
+            directive @d3(fizz: Int) on ARGUMENT_DEFINITION
+            interface foo @d1
+            {
+                bar(arg: Int @d3(fizz: 4)): [Int] @d2
+            }
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);

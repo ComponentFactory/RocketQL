@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Nodes;
 
 public class Location
 {

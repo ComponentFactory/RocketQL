@@ -70,14 +70,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddDirectiveToObject()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on OBJECT
-                   type foo { fizz: Int }
-                   extend type foo @bar                
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on OBJECT
+            type foo { fizz: Int }
+            extend type foo @bar                
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -91,14 +90,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddDirectiveToField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION
-                   type foo { fizz: Int }
-                   extend type foo { fizz: Int @bar }               
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION
+            type foo { fizz: Int }
+            extend type foo { fizz: Int @bar }               
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -116,14 +114,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddDirectiveToArgument()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ARGUMENT_DEFINITION
-                   type foo { fizz(arg: String): Int }
-                   extend type foo { fizz(arg: String @bar): Int }             
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ARGUMENT_DEFINITION
+            type foo { fizz(arg: String): Int }
+            extend type foo { fizz(arg: String @bar): Int }             
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -145,14 +142,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddType()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   interface bar { buzz: Int }
-                   type foo { buzz: Int }
-                   extend type foo implements bar        
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            interface bar { buzz: Int }
+            type foo { buzz: Int }
+            extend type foo implements bar        
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -165,14 +161,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
-                   type foo { buzz: Int }
-                   extend type foo { fizz(arg: Int @bar): Int @bar }       
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
+            type foo { buzz: Int }
+            extend type foo { fizz(arg: Int @bar): Int @bar }       
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);
@@ -194,14 +189,13 @@ public class ExtendObject : UnitTestBase
     [Fact]
     public void AddArgument()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
-                   type foo { buzz: Int }
-                   extend type foo { buzz(arg: String @bar): Int }       
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
+            type foo { buzz: Int }
+            extend type foo { buzz(arg: String @bar): Int }       
+            """);
 
         var foo = schema.Types["foo"] as ObjectTypeDefinition;
         Assert.NotNull(foo);

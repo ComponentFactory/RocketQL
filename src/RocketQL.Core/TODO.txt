@@ -2,6 +2,9 @@
 
 	https://www.npmjs.com/package/@graphql-schema/validate-schema
 
+    SchemaBuilder
+    Add full list of repredefined and then remove them afterwards
+
     Request Validator
         Fields    
         Arguments  

@@ -40,14 +40,13 @@ public class ExtendUnion : UnitTestBase
     [Fact]
     public void AddDirectiveToUnion()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on UNION
-                   union foo
-                   extend union foo @bar                
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on UNION
+            union foo
+            extend union foo @bar                
+            """);
 
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);
@@ -60,14 +59,13 @@ public class ExtendUnion : UnitTestBase
     [Fact]
     public void AddType()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   type bar { buzz: Int }
-                   union foo
-                   extend union foo = bar          
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            type bar { buzz: Int }
+            union foo
+            extend union foo = bar          
+            """);
 
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);

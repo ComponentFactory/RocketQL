@@ -1,18 +1,18 @@
-﻿using RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Request
+public partial class RequestBuilder
 {
-    private RequestValidator? _requestValidator = null;
-    private RequestValidator Validator => _requestValidator ??= new RequestValidator(this);
+    private RequestBuilderValidator? _validator = null;
+    private RequestBuilderValidator Validator => _validator ??= new RequestBuilderValidator(this);
 
-    private class RequestValidator(Request request) : NodeVisitor, IDocumentNodeVisitors
+    private class RequestBuilderValidator(RequestBuilder request) : NodePathTracker, IDocumentNodeVisitors
     {
-        private readonly Request _request = request;
+        private readonly RequestBuilder _request = request;
+        private ISchema _schema = Schema.Empty;
 
-        public void Visit()
+        public void Visit(ISchema schema)
         {
+            _schema = schema;
             IDocumentNodeVisitors visitor = this;
             visitor.Visit(_request._operations.Values);
             visitor.Visit(_request._fragments.Values);

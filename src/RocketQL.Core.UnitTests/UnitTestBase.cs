@@ -33,20 +33,41 @@ public class UnitTestBase
         return node;
     }
 
+    protected static Schema SchemaFromString(string schema)
+    {
+        var builder = new SchemaBuilder();
+        builder.AddFromString(schema);
+        return builder.Build();
+    }
+
+    protected static Request RequestFromString(ISchema schema, string request)
+    {
+        var builder = new RequestBuilder();
+        builder.AddFromString(request);
+        return builder.Build(schema);
+    }
+
+    protected static Request RequestFromString(string schema, string request)
+    {
+        var builder = new RequestBuilder();
+        builder.AddFromString(request);
+        return builder.Build(SchemaFromString(schema));
+    }
+
     protected static void SchemaValidationNoException(string schemaTest)
     {
-        var schema = new Schema();
-        schema.Add(schemaTest);
-        schema.Validate();
+        var schema = new SchemaBuilder();
+        schema.AddFromString(schemaTest);
+        schema.Build();
     }
 
     protected static void SchemaValidationSingleException(string schemaTest, string message, string commaPath)
     {
         try
         {
-            var schema = new Schema();
-            schema.Add(schemaTest);
-            schema.Validate();
+            var schema = new SchemaBuilder();
+            schema.AddFromString(schemaTest);
+            schema.Build();
 
             Assert.Fail("Exception expected");
         }
@@ -63,10 +84,10 @@ public class UnitTestBase
     {
         try
         {
-            var schema = new Schema();
-            schema.Add(schemaTest1);
-            schema.Add(schemaTest2);
-            schema.Validate();
+            var schema = new SchemaBuilder();
+            schema.AddFromString(schemaTest1);
+            schema.AddFromString(schemaTest2);
+            schema.Build();
 
             Assert.Fail("Exception expected");
         }
@@ -84,9 +105,9 @@ public class UnitTestBase
     {
         try
         {
-            var schema = new Schema();
-            schema.Add(schemaTest);
-            schema.Validate();
+            var schema = new SchemaBuilder();
+            schema.AddFromString(schemaTest);
+            schema.Build();
 
             Assert.Fail("Exception expected");
         }
@@ -110,12 +131,11 @@ public class UnitTestBase
     {
         try
         {
-            var schema = new Schema();
-            schema.Add(schemaTest);
-            schema.Validate();
-            var request = new Request();
-            request.Add(requestTest);
-            request.ValidateSchema(schema);
+            var schema = new SchemaBuilder();
+            schema.AddFromString(schemaTest);
+            var request = new RequestBuilder();
+            request.AddFromString(requestTest);
+            request.Build(schema.Build());
 
             Assert.Fail("Exception expected");
         }

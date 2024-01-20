@@ -5,13 +5,14 @@ public class Directive : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { alpha: Int } 
-                                        directive @foo on ENUM 
-                                        """,
-                                        "directive @foo on ENUM",
-                                        "Directive '@foo' is already defined.",
-                                        "directive @foo");
+        SchemaValidationSingleException(
+            """
+            type Query { alpha: Int } 
+            directive @foo on ENUM 
+            """,
+            "directive @foo on ENUM",
+            "Directive '@foo' is already defined.",
+            "directive @foo");
     }
 
     [Theory]
@@ -265,21 +266,20 @@ public class Directive : UnitTestBase
                 """)]
     public void PredefinedDirectives(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
+        var builder = new SchemaBuilder();
+        builder.AddFromString(schemaText);
+        builder.Build();
     }
 
     [Fact]
     public void ReferenceCreated()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @foo on SCALAR
-                   scalar bar @foo
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @foo on SCALAR
+            scalar bar @foo
+            """);
 
         var foo = schema.Directives["@foo"];
         Assert.NotNull(foo);
@@ -291,12 +291,11 @@ public class Directive : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @foo(arg: [Int] @deprecated(reason: "Example")) on ENUM
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @foo(arg: [Int] @deprecated(reason: "Example")) on ENUM
+            """);
 
         var foo = schema.Directives["@foo"] as DirectiveDefinition;
         Assert.NotNull(foo);

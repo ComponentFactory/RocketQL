@@ -1,16 +1,13 @@
-﻿using System.Data;
-using RocketQL.Core.Enumerations;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Schema
+public partial class SchemaBuilder
 {
-    private SchemaLinker? _schemaLinker = null;
-    private SchemaLinker Linker => _schemaLinker ??= new SchemaLinker(this);
+    private SchemaBuilderLinker? _linker = null;
+    private SchemaBuilderLinker Linker => _linker ??= new SchemaBuilderLinker(this);
 
-    private class SchemaLinker(Schema schema) : NodeVisitor, IDocumentNodeVisitors
+    private class SchemaBuilderLinker(SchemaBuilder schema) : NodePathTracker, IDocumentNodeVisitors
     {
-        private readonly Schema _schema = schema;
+        private readonly SchemaBuilder _schema = schema;
 
         public void Visit()
         {

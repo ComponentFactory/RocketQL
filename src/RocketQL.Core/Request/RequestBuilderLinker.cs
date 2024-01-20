@@ -1,19 +1,18 @@
-﻿using RocketQL.Core.Enumerations;
-using RocketQL.Core.Nodes;
+﻿namespace RocketQL.Core.Base;
 
-namespace RocketQL.Core.Base;
-
-public partial class Request
+public partial class RequestBuilder
 {
-    private RequestLinker? _requestLinker = null;
-    private RequestLinker Linker => _requestLinker ??= new RequestLinker(this);
+    private RequestBuilderLinker? _linker = null;
+    private RequestBuilderLinker Linker => _linker ??= new RequestBuilderLinker(this);
 
-    private class RequestLinker(Request request) : NodeVisitor, IDocumentNodeVisitors
+    private class RequestBuilderLinker(RequestBuilder request) : NodePathTracker, IDocumentNodeVisitors
     {
-        private readonly Request _request = request;
+        private readonly RequestBuilder _request = request;
+        private ISchema _schema = Schema.Empty;
 
-        public void Visit()
+        public void Visit(ISchema schema)
         {
+            _schema = schema;
             IDocumentNodeVisitors visitor = this;
             visitor.Visit(_request._operations.Values);
             visitor.Visit(_request._fragments.Values);
@@ -32,7 +31,7 @@ public partial class Request
         {
             PushPath(fragment);
 
-            if (!_request._schema.Types.TryGetValue(fragment.TypeCondition, out var type))
+            if (!_schema.Types.TryGetValue(fragment.TypeCondition, out var type))
                 _request.NonFatalException(ValidationException.UndefinedTypeForFragment(fragment, CurrentPath));
             else if ((type is not ObjectTypeDefinition) && (type is not InterfaceTypeDefinition) && (type is not UnionTypeDefinition))
                 _request.NonFatalException(ValidationException.FragmentTypeInvalid(fragment, type, CurrentPath));
@@ -122,7 +121,7 @@ public partial class Request
                         {
                             PushPath(inlineFragment);
 
-                            if (!_request._schema.Types.TryGetValue(inlineFragment.TypeCondition, out var _))
+                            if (!_schema.Types.TryGetValue(inlineFragment.TypeCondition, out var _))
                                 _request.NonFatalException(ValidationException.UndefinedTypeForInlineFragment(inlineFragment, rootNode, CurrentPath));
 
                             InterlinkDirectives(inlineFragment.Directives, inlineFragment);
@@ -141,7 +140,7 @@ public partial class Request
                 PushPath(directive);
                 directive.Parent = parentNode;
 
-                if (!_request._schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
+                if (!_schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
                     _request.NonFatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
                 else
                 {
@@ -163,7 +162,7 @@ public partial class Request
                 InterlinkTypeNode(typeNonNull.Type, typeNonNull);
             else if (typeLocation is TypeName typeName)
             {
-                if (!_request._schema.Types.TryGetValue(typeName.Name, out var type))
+                if (!_schema.Types.TryGetValue(typeName.Name, out var type))
                     _request.NonFatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
                 else
                 {

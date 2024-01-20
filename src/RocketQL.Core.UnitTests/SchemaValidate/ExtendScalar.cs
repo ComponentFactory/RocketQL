@@ -38,13 +38,12 @@ public class ExtendScalar : UnitTestBase
     [Fact]
     public void AddDirectiveToScalar()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   scalar foo
-                   extend scalar foo @specifiedBy(url: "url")                 
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            scalar foo
+            extend scalar foo @specifiedBy(url: "url")                 
+            """);
 
         var foo = schema.Types["foo"] as ScalarTypeDefinition;
         Assert.NotNull(foo);

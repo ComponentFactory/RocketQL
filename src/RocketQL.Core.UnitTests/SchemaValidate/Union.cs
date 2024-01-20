@@ -5,14 +5,15 @@ public class Union : UnitTestBase
     [Fact]
     public void NameAlreadyDefined()
     {
-        SchemaValidationSingleException("""
-                                        type Query { first: Int} 
-                                        type fizz { buzz: Int } 
-                                        union foo = fizz
-                                        """,
-                                        "union foo = fizz",
-                                        "Union 'foo' is already defined.",
-                                        "union foo");
+        SchemaValidationSingleException(
+            """
+            type Query { first: Int} 
+            type fizz { buzz: Int } 
+            union foo = fizz
+            """,
+            "union foo = fizz",
+            "Union 'foo' is already defined.",
+            "union foo");
     }
 
     [Theory]
@@ -210,10 +211,7 @@ public class Union : UnitTestBase
                 """)]
     public void ValidDirectiveUse(string schemaText)
     {
-        var schema = new Schema();
-        schema.Add(schemaText);
-        schema.Validate();
-
+        var schema = SchemaFromString(schemaText);
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);
         Assert.Equal("foo", foo.Name);
@@ -222,13 +220,12 @@ public class Union : UnitTestBase
     [Fact]
     public void ReferenceCreated()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   type foo { first: Int }
-                   union bar = foo
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            type foo { first: Int }
+            union bar = foo
+            """);
 
         var foo = schema.Types["foo"];
         Assert.NotNull(foo);
@@ -240,14 +237,13 @@ public class Union : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { query: Int }
-                   directive @d1 on UNION
-                   type fizz { b1: Int }
-                   union foo @d1 = fizz
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { query: Int }
+            directive @d1 on UNION
+            type fizz { b1: Int }
+            union foo @d1 = fizz
+            """);
 
         var foo = schema.Types["foo"] as UnionTypeDefinition;
         Assert.NotNull(foo);

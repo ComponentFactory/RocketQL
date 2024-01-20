@@ -1,6 +1,4 @@
-﻿using RocketQL.Core.Nodes;
-
-namespace RocketQL.Core.UnitTests.RequestValidation;
+﻿namespace RocketQL.Core.UnitTests.RequestValidation;
 
 public class Operation : UnitTestBase
 {
@@ -78,44 +76,39 @@ public class Operation : UnitTestBase
     [Fact]
     public void ParentLinkage()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   directive @foo on QUERY
-                   type Query
-                   {
-                       a(b: Int): Int
-                       c: Other
-                       d: Other
-                   }
+        var request = RequestFromString(
+            """
+            directive @foo on QUERY
+            type Query
+            {
+                a(b: Int): Int
+                c: Other
+                d: Other
+            }
 
-                   type Other
-                   {
-                       e: Int
-                   }
-                   """);
-        schema.Validate();
-
-        var request = new Request();
-        request.Add("""
-                    query($c: Int) @foo 
-                    { 
-                        a(b: $c)
-                        c {
-                            ...Frag
-                        }
-                        d {
-                            ...on Other {
-                                e
-                            }
-                        }
-                    }
-
-                    fragment Frag on Other
-                    {
+            type Other
+            {
+                e: Int
+            }
+            """,
+            """
+            query($c: Int) @foo 
+            { 
+                a(b: $c)
+                c {
+                    ...Frag
+                }
+                d {
+                    ...on Other {
                         e
                     }
-                    """);
-        request.ValidateSchema(schema);
+                }
+            }
+
+            fragment Frag on Other                                      {
+                e
+            }
+            """);
 
         var operation = request.Operations[""];
         Assert.NotNull(operation);

@@ -395,9 +395,9 @@ namespace DotNetQL.PerformanceTests
         [Benchmark]
         public void RocketQL_____Onegraph_Validate()
         {
-            var schema = new RQL.Base.Schema();
-            schema.Add(_onegraph);
-            schema.Validate();
+            var schema = new RQL.Base.SchemaBuilder();
+            schema.AddFromString(_onegraph);
+            schema.Build();
         }
     }
 }

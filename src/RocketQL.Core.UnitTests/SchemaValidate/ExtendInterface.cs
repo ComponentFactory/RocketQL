@@ -70,14 +70,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddDirectiveToInterface()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on INTERFACE
-                   interface foo { fizz: Int }
-                   extend interface foo @bar                
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on INTERFACE
+            interface foo { fizz: Int }
+            extend interface foo @bar                
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
@@ -91,14 +90,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddDirectiveToField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION
-                   interface foo { fizz: Int }
-                   extend interface foo { fizz: Int @bar }               
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION
+            interface foo { fizz: Int }
+            extend interface foo { fizz: Int @bar }               
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
@@ -116,14 +114,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddDirectiveToArgument()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on ARGUMENT_DEFINITION
-                   interface foo { fizz(arg: String): Int }
-                   extend interface foo { fizz(arg: String @bar): Int }             
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on ARGUMENT_DEFINITION
+            interface foo { fizz(arg: String): Int }
+            extend interface foo { fizz(arg: String @bar): Int }             
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
@@ -145,14 +142,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddType()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   interface bar { buzz: Int }
-                   interface foo { buzz: Int }
-                   extend interface foo implements bar        
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            interface bar { buzz: Int }
+            interface foo { buzz: Int }
+            extend interface foo implements bar        
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
@@ -165,14 +161,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddField()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
-                   interface foo { buzz: Int }
-                   extend interface foo { fizz(arg: Int @bar): Int @bar }       
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
+            interface foo { buzz: Int }
+            extend interface foo { fizz(arg: Int @bar): Int @bar }       
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
@@ -194,14 +189,13 @@ public class ExtendInterface : UnitTestBase
     [Fact]
     public void AddArgument()
     {
-        var schema = new Schema();
-        schema.Add("""
-                   type Query { fizz: Int }
-                   directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
-                   interface foo { buzz: Int }
-                   extend interface foo { buzz(arg: String @bar): Int }       
-                   """);
-        schema.Validate();
+        var schema = SchemaFromString(
+            """
+            type Query { fizz: Int }
+            directive @bar on FIELD_DEFINITION | ARGUMENT_DEFINITION
+            interface foo { buzz: Int }
+            extend interface foo { buzz(arg: String @bar): Int }       
+            """);
 
         var foo = schema.Types["foo"] as InterfaceTypeDefinition;
         Assert.NotNull(foo);
