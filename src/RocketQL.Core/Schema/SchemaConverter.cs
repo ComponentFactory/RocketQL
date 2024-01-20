@@ -1,8 +1,4 @@
-﻿using RocketQL.Core.Enumerations;
-using RocketQL.Core.Nodes;
-using System.Xml.Linq;
-
-namespace RocketQL.Core.Base;
+﻿namespace RocketQL.Core.Base;
 
 public partial class Schema
 {
@@ -12,6 +8,8 @@ public partial class Schema
     private class SchemaConverter(Schema schema) : NodeVisitor, ISyntaxNodeVisitors
     {
         private readonly Schema _schema = schema;
+        private readonly HashSet<string> _uniqueNames1 = [];
+        private readonly HashSet<string> _uniqueNames2 = [];
 
         public void Visit()
         {
@@ -394,12 +392,11 @@ public partial class Schema
 
                         if (extendEnumType.EnumValues.Count > 0)
                         {
-                            HashSet<string> extendValues = [];
                             foreach (var extendEnumValue in extendEnumType.EnumValues)
                             {
                                 PushPath(extendEnumValue);
 
-                                if (extendValues.Contains(extendEnumValue.Name))
+                                if (_uniqueNames1.Contains(extendEnumValue.Name))
                                 {
                                     _schema.NonFatalException(ValidationException.ExtendEnumValueAlreadyDefined(extendEnumValue,
                                                                                                                 extendEnumType.Name,
@@ -428,11 +425,13 @@ public partial class Schema
                                             existingEnumValue.Directives.AddRange(ConvertDirectives(extendEnumValue.Directives));
                                     }
 
-                                    extendValues.Add(extendEnumValue.Name);
+                                    _uniqueNames1.Add(extendEnumValue.Name);
                                 }
 
                                 PopPath();
                             }
+
+                            _uniqueNames1.Clear();
                         }
                     }
                 }
@@ -472,12 +471,11 @@ public partial class Schema
         {
             if (extendFields.Count > 0)
             {
-                HashSet<string> fieldNames = [];
                 foreach (var extendField in extendFields)
                 {
                     PushPath(extendField);
 
-                    if (fieldNames.Contains(extendField.Name))
+                    if (_uniqueNames1.Contains(extendField.Name))
                         _schema.NonFatalException(ValidationException.DuplicateName(extendField, extendField.OutputElement(), extendField.Name, CurrentPath));
                     else
                     {
@@ -500,12 +498,11 @@ public partial class Schema
                                 changed = true;
                             }
 
-                            HashSet<string> argumentNames = [];
                             foreach (var extendArgument in extendField.Arguments)
                             {
                                 PushPath(extendArgument);
 
-                                if (argumentNames.Contains(extendArgument.Name))
+                                if (_uniqueNames2.Contains(extendArgument.Name))
                                     _schema.NonFatalException(ValidationException.DuplicateName(extendArgument, extendArgument.OutputElement(), extendArgument.Name, CurrentPath));
                                 else
                                 {
@@ -534,14 +531,18 @@ public partial class Schema
                                 PopPath();
                             }
 
+                            _uniqueNames2.Clear();
+
                             if (!changed)
                                 _schema.NonFatalException(ValidationException.ExtendExistingFieldUnchanged(extendField, CurrentPath));
                         }
                     }
 
-                    fieldNames.Add(extendField.Name);
+                    _uniqueNames1.Add(extendField.Name);
                     PopPath();
                 }
+
+                _uniqueNames1.Clear();
             }
         }
 

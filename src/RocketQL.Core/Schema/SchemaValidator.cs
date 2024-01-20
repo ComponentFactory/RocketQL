@@ -10,6 +10,14 @@ public partial class Schema
     private class SchemaValidator(Schema schema) : NodeVisitor, IDocumentNodeVisitors
     {
         private readonly Schema _schema = schema;
+        private readonly Queue<TypeDefinition> _referencedTypes = [];
+        private readonly Queue<DirectiveDefinition> _referencedDirectives = [];
+        private readonly Queue<InputObjectTypeDefinition> _referencedInputObjects = [];
+        private readonly HashSet<TypeDefinition> _checkedTypes = [];
+        private readonly HashSet<DirectiveDefinition> _checkedDirectives = [];
+        private readonly HashSet<InputObjectTypeDefinition> _checkedInputObjects = [];
+        private readonly HashSet<string> _processed = [];
+        private readonly InterfaceTypeDefinitions _interfaceDefinitions = [];
 
         public void Visit()
         {
@@ -35,8 +43,6 @@ public partial class Schema
             if (directiveDefinition.Name.StartsWith("@__"))
                 _schema.NonFatalException(ValidationException.NameDoubleUnderscore(directiveDefinition, CurrentPath));
 
-            Queue<TypeDefinition> referencedTypes = [];
-            Queue<DirectiveDefinition> referencedDirectives = [];
             foreach (var argumentDefinition in directiveDefinition.Arguments.Values)
             {
                 PushPath(argumentDefinition);
@@ -53,19 +59,23 @@ public partial class Schema
                         if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
                             _schema.NonFatalException(ValidationException.DefaultValueNotCompatibleInArgument(argumentDefinition, CurrentPath));
 
-                        referencedTypes.Enqueue(argumentDefinition.Type.Definition);
+                        _referencedTypes.Enqueue(argumentDefinition.Type.Definition);
                         foreach (var directive in argumentDefinition.Directives)
                             if (directive.Definition is not null)
-                                referencedDirectives.Enqueue(directive.Definition);
+                                _referencedDirectives.Enqueue(directive.Definition);
 
-                        CheckDirectiveUsage(argumentDefinition.Directives, directiveDefinition, DirectiveLocations.ARGUMENT_DEFINITION);
+                        CheckDirectiveUsage(argumentDefinition.Directives, DirectiveLocations.ARGUMENT_DEFINITION);
                     }
                 }
 
                 PopPath();
             }
 
-            CheckDirectiveForCircularReference(directiveDefinition, referencedTypes, referencedDirectives);
+            CheckDirectiveForCircularReference(directiveDefinition);
+
+            _referencedTypes.Clear();
+            _referencedDirectives.Clear();
+
             PopPath();
         }
 
@@ -73,7 +83,7 @@ public partial class Schema
         {
             PushPath(scalarType);
             CheckDoubleUnderscore(scalarType);
-            CheckDirectiveUsage(scalarType.Directives, scalarType, DirectiveLocations.SCALAR);
+            CheckDirectiveUsage(scalarType.Directives, DirectiveLocations.SCALAR);
             PopPath();
         }
 
@@ -81,14 +91,15 @@ public partial class Schema
         {
             PushPath(objectType);
             CheckDoubleUnderscore(objectType);
-            CheckDirectiveUsage(objectType.Directives, objectType, DirectiveLocations.OBJECT);
+            CheckDirectiveUsage(objectType.Directives, DirectiveLocations.OBJECT);
 
             if (objectType.Fields.Count == 0)
                 _schema.NonFatalException(ValidationException.AtLeastOne(objectType, "field", CurrentPath));
             else
-                VisitFieldDefinintions(objectType.Fields.Values, objectType, isObject: true);
+                VisitFieldDefinintions(objectType.Fields.Values, isObject: true);
 
-            IsValidImplementations(objectType.Fields, CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true), objectType);
+            CheckTypeImplementsInterfaces(objectType.ImplementsInterfaces, objectType, isObject: true);
+            IsValidImplementations(objectType.Fields, objectType);
             PopPath();
         }
 
@@ -96,14 +107,15 @@ public partial class Schema
         {
             PushPath(interfaceType);
             CheckDoubleUnderscore(interfaceType);
-            CheckDirectiveUsage(interfaceType.Directives, interfaceType, DirectiveLocations.INTERFACE);
+            CheckDirectiveUsage(interfaceType.Directives, DirectiveLocations.INTERFACE);
 
             if (interfaceType.Fields.Count == 0)
                 _schema.NonFatalException(ValidationException.AtLeastOne(interfaceType, "field", CurrentPath));
             else
-                VisitFieldDefinintions(interfaceType.Fields.Values, interfaceType, isObject: false);
+                VisitFieldDefinintions(interfaceType.Fields.Values, isObject: false);
 
-            IsValidImplementations(interfaceType.Fields, CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false), interfaceType);
+            CheckTypeImplementsInterfaces(interfaceType.ImplementsInterfaces, interfaceType, isObject: false);
+            IsValidImplementations(interfaceType.Fields, interfaceType);
             PopPath();
         }
 
@@ -111,7 +123,7 @@ public partial class Schema
         {
             PushPath(unionType);
             CheckDoubleUnderscore(unionType);
-            CheckDirectiveUsage(unionType.Directives, unionType, DirectiveLocations.UNION);
+            CheckDirectiveUsage(unionType.Directives, DirectiveLocations.UNION);
             PopPath();
         }
 
@@ -119,7 +131,7 @@ public partial class Schema
         {
             PushPath(enumType);
             CheckDoubleUnderscore(enumType);
-            CheckDirectiveUsage(enumType.Directives, enumType, DirectiveLocations.ENUM);
+            CheckDirectiveUsage(enumType.Directives, DirectiveLocations.ENUM);
 
             if (enumType.EnumValues.Count == 0)
                 _schema.NonFatalException(ValidationException.AtLeastOne(enumType, "enum value", CurrentPath));
@@ -128,7 +140,7 @@ public partial class Schema
                 foreach (var enumValueDefinition in enumType.EnumValues.Values)
                 {
                     PushPath(enumValueDefinition);
-                    CheckDirectiveUsage(enumValueDefinition.Directives, enumType, DirectiveLocations.ENUM_VALUE);
+                    CheckDirectiveUsage(enumValueDefinition.Directives, DirectiveLocations.ENUM_VALUE);
                     PopPath();
                 }
             }
@@ -140,13 +152,12 @@ public partial class Schema
         {
             PushPath(inputObjectType);
             CheckDoubleUnderscore(inputObjectType);
-            CheckDirectiveUsage(inputObjectType.Directives, inputObjectType, DirectiveLocations.INPUT_OBJECT);
+            CheckDirectiveUsage(inputObjectType.Directives, DirectiveLocations.INPUT_OBJECT);
 
             if (inputObjectType.InputFields.Count == 0)
                 _schema.NonFatalException(ValidationException.AtLeastOne(inputObjectType, "input field", CurrentPath));
             else
             {
-                Queue<InputObjectTypeDefinition> referencedInputObjects = [];
                 foreach (var fieldDefinition in inputObjectType.InputFields.Values)
                 {
                     PushPath(fieldDefinition);
@@ -164,16 +175,17 @@ public partial class Schema
                                 _schema.NonFatalException(ValidationException.NonNullCannotBeDeprecated(fieldDefinition, CurrentPath));
 
                             if ((fieldDefinition.Type is TypeNonNull fieldNonNull) && ((fieldNonNull.Type is TypeName) && (fieldNonNull.Type.Definition is InputObjectTypeDefinition referenceInputObject)))
-                                referencedInputObjects.Enqueue(referenceInputObject);
+                                _referencedInputObjects.Enqueue(referenceInputObject);
 
-                            CheckDirectiveUsage(fieldDefinition.Directives, inputObjectType, DirectiveLocations.INPUT_FIELD_DEFINITION);
+                            CheckDirectiveUsage(fieldDefinition.Directives, DirectiveLocations.INPUT_FIELD_DEFINITION);
                         }
                     }
 
                     PopPath();
                 }
 
-                CheckInputObjectForCircularReference(inputObjectType, referencedInputObjects);
+                CheckInputObjectForCircularReference(inputObjectType);
+                _referencedInputObjects.Clear();
             }
 
             PopPath();
@@ -220,7 +232,7 @@ public partial class Schema
                 _schema.NonFatalException(ValidationException.SchemaOperationsNotUnique(mutation, subscription, CurrentPath));
             }
 
-            CheckDirectiveUsage(schemaDefinition.Directives, schemaDefinition, DirectiveLocations.SCHEMA);
+            CheckDirectiveUsage(schemaDefinition.Directives, DirectiveLocations.SCHEMA);
             PopPath();
         }
 
@@ -327,73 +339,74 @@ public partial class Schema
             };
         }
 
-        private void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition, Queue<TypeDefinition> referencedTypes, Queue<DirectiveDefinition> referencedDirectives)
+        private void CheckDirectiveForCircularReference(DirectiveDefinition directiveDefinition)
         {
-            if ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
+            if ((_referencedDirectives.Count > 0) || (_referencedTypes.Count > 0))
             {
-                HashSet<TypeDefinition> checkedTypes = [];
-                HashSet<DirectiveDefinition> checkedDirectives = [];
-
-                while ((referencedDirectives.Count > 0) || (referencedTypes.Count > 0))
+                while ((_referencedDirectives.Count > 0) || (_referencedTypes.Count > 0))
                 {
-                    while (referencedDirectives.TryDequeue(out var referencedDirective))
+                    while (_referencedDirectives.TryDequeue(out var referencedDirective))
                     {
                         if (referencedDirective == directiveDefinition)
                         {
                             _schema.NonFatalException(ValidationException.DirectiveCircularReference(directiveDefinition, CurrentPath));
+                            _checkedTypes.Clear();
+                            _checkedDirectives.Clear();
                             return;
                         }
 
                         foreach (var argumentDefinition in referencedDirective.Arguments.Values)
                         {
-                            if ((argumentDefinition.Type.Definition is not null) && !checkedTypes.Contains(argumentDefinition.Type.Definition))
-                                referencedTypes.Enqueue(argumentDefinition.Type.Definition);
+                            if ((argumentDefinition.Type.Definition is not null) && !_checkedTypes.Contains(argumentDefinition.Type.Definition))
+                                _referencedTypes.Enqueue(argumentDefinition.Type.Definition);
 
-                            FindDirectives(argumentDefinition.Directives, checkedDirectives, referencedDirectives);
+                            FindDirectives(argumentDefinition.Directives);
                         }
 
-                        checkedDirectives.Add(referencedDirective);
+                        _checkedDirectives.Add(referencedDirective);
                     }
 
-                    while (referencedTypes.TryDequeue(out var referencedType))
+                    while (_referencedTypes.TryDequeue(out var referencedType))
                     {
                         switch (referencedType)
                         {
                             case ScalarTypeDefinition scalarTypeDefinition:
-                                FindDirectives(scalarTypeDefinition.Directives, checkedDirectives, referencedDirectives);
+                                FindDirectives(scalarTypeDefinition.Directives);
                                 break;
                             case EnumTypeDefinition enumTypeDefinition:
-                                FindDirectives(enumTypeDefinition.Directives, checkedDirectives, referencedDirectives);
+                                FindDirectives(enumTypeDefinition.Directives);
                                 foreach (var enumValue in enumTypeDefinition.EnumValues.Values)
-                                    FindDirectives(enumValue.Directives, checkedDirectives, referencedDirectives);
+                                    FindDirectives(enumValue.Directives);
                                 break;
                             case InputObjectTypeDefinition inputObjectTypeDefinition:
-                                FindDirectives(inputObjectTypeDefinition.Directives, checkedDirectives, referencedDirectives);
+                                FindDirectives(inputObjectTypeDefinition.Directives);
                                 foreach (var fieldDefinition in inputObjectTypeDefinition.InputFields.Values)
                                 {
-                                    FindDirectives(fieldDefinition.Directives, checkedDirectives, referencedDirectives);
-                                    if ((fieldDefinition.Type.Definition is not null) && !checkedTypes.Contains(fieldDefinition.Type.Definition))
-                                        referencedTypes.Enqueue(fieldDefinition.Type.Definition);
+                                    FindDirectives(fieldDefinition.Directives);
+                                    if ((fieldDefinition.Type.Definition is not null) && !_checkedTypes.Contains(fieldDefinition.Type.Definition))
+                                        _referencedTypes.Enqueue(fieldDefinition.Type.Definition);
                                 }
                                 break;
                         }
 
-                        checkedTypes.Add(referencedType);
+                        _checkedTypes.Add(referencedType);
                     }
                 }
+
+                _checkedTypes.Clear();
+                _checkedDirectives.Clear();
             }
         }
 
-        private static void FindDirectives(IEnumerable<Directive> directives, HashSet<DirectiveDefinition> checkedDirectives, Queue<DirectiveDefinition> referencedDirectives)
+        private void FindDirectives(IEnumerable<Directive> directives)
         {
             foreach (var directive in directives)
-                if ((directive.Definition is not null) && !checkedDirectives.Contains(directive.Definition))
-                    referencedDirectives.Enqueue(directive.Definition);
+                if ((directive.Definition is not null) && !_checkedDirectives.Contains(directive.Definition))
+                    _referencedDirectives.Enqueue(directive.Definition);
         }
 
-        private void CheckDirectiveUsage(Directives directives, DocumentNode parentNode, DirectiveLocations directiveLocations)
+        private void CheckDirectiveUsage(Directives directives, DirectiveLocations directiveLocations)
         {
-            HashSet<DirectiveDefinition> checkedDirectives = [];
             foreach (var directive in directives)
             {
                 PushPath(directive);
@@ -403,7 +416,7 @@ public partial class Schema
                     if ((directive.Definition.DirectiveLocations & directiveLocations) != directiveLocations)
                         _schema.NonFatalException(ValidationException.DirectiveNotAllowedLocation(directive, CurrentPath));
 
-                    if (checkedDirectives.Contains(directive.Definition) && !directive.Definition.Repeatable)
+                    if (_checkedDirectives.Contains(directive.Definition) && !directive.Definition.Repeatable)
                         _schema.NonFatalException(ValidationException.DirectiveNotRepeatable(directive, CurrentPath));
 
                     var checkedArguments = directive.Arguments.ToDictionary();
@@ -428,14 +441,16 @@ public partial class Schema
                         foreach (var checkArgument in checkedArguments)
                             _schema.NonFatalException(ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, CurrentPath));
 
-                    checkedDirectives.Add(directive.Definition);
+                    _checkedDirectives.Add(directive.Definition);
                 }
 
                 PopPath();
             }
+
+            _checkedDirectives.Clear();
         }
 
-        private void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, DocumentNode parentNode, bool isObject)
+        private void VisitFieldDefinintions(IEnumerable<FieldDefinition> fieldDefinitions, bool isObject)
         {
             foreach (var fieldDefinition in fieldDefinitions)
             {
@@ -449,7 +464,7 @@ public partial class Schema
                     if (!fieldDefinition.Type.Definition.IsOutputType)
                         _schema.NonFatalException(ValidationException.TypeIsNotAnOutputType(fieldDefinition, CurrentPath));
 
-                    CheckDirectiveUsage(fieldDefinition.Directives, parentNode, DirectiveLocations.FIELD_DEFINITION);
+                    CheckDirectiveUsage(fieldDefinition.Directives, DirectiveLocations.FIELD_DEFINITION);
 
                     foreach (var argumentDefinition in fieldDefinition.Arguments.Values)
                     {
@@ -469,7 +484,7 @@ public partial class Schema
                             if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
                                 _schema.NonFatalException(ValidationException.DefaultValueNotCompatibleInArgument(argumentDefinition, CurrentPath));
 
-                            CheckDirectiveUsage(argumentDefinition.Directives, parentNode, DirectiveLocations.ARGUMENT_DEFINITION);
+                            CheckDirectiveUsage(argumentDefinition.Directives, DirectiveLocations.ARGUMENT_DEFINITION);
                         }
 
                         PopPath();
@@ -480,9 +495,8 @@ public partial class Schema
             }
         }
 
-        private InterfaceTypeDefinitions CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, TypeDefinition parentNode, bool isObject)
+        private void CheckTypeImplementsInterfaces(Interfaces implementsInterfaces, TypeDefinition parentNode, bool isObject)
         {
-            InterfaceTypeDefinitions interfaceDefinitions = [];
             foreach (var interfaceEntry in implementsInterfaces.Values)
             {
                 PushPath(interfaceEntry);
@@ -494,43 +508,44 @@ public partial class Schema
                     if (interfaceEntry.Definition is not InterfaceTypeDefinition interfaceTypeDefinition)
                         _schema.NonFatalException(ValidationException.TypeIsNotAnInterface(interfaceEntry, parentNode, interfaceEntry.Definition, CurrentPath));
                     else
-                        interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
+                        _interfaceDefinitions.Add(interfaceTypeDefinition.Name, interfaceTypeDefinition);
                 }
 
                 PopPath();
             }
 
-            HashSet<string> processed = [];
-            foreach (var objectImplement in interfaceDefinitions)
-                CheckTypeImplementsInterface(interfaceDefinitions, processed, objectImplement.Value, parentNode);
+            foreach (var objectImplement in _interfaceDefinitions)
+                CheckTypeImplementsInterface(objectImplement.Value, parentNode);
 
-            return interfaceDefinitions;
+            _processed.Clear();
         }
 
-        private void CheckTypeImplementsInterface(InterfaceTypeDefinitions objectImplements, HashSet<string> processed, InterfaceTypeDefinition checkInterface, DocumentNode rootNode)
+        private void CheckTypeImplementsInterface(InterfaceTypeDefinition checkInterface, DocumentNode rootNode)
         {
-            if (!processed.Contains(checkInterface.Name))
+            if (!_processed.Contains(checkInterface.Name))
             {
-                processed.Add(checkInterface.Name);
+                _processed.Add(checkInterface.Name);
 
                 foreach (var implementsInterface in checkInterface.ImplementsInterfaces.Values)
                 {
-                    if (!objectImplements.ContainsKey(implementsInterface.Name))
+                    if (!_interfaceDefinitions.ContainsKey(implementsInterface.Name))
                         _schema.NonFatalException(ValidationException.TypeMissingImplements(rootNode, implementsInterface.Name, checkInterface.Name, CurrentPath));
                     else
-                        CheckTypeImplementsInterface(objectImplements, processed, checkInterface, checkInterface);
+                        CheckTypeImplementsInterface(checkInterface, checkInterface);
                 }
             }
         }
 
-        private void IsValidImplementations(FieldDefinitions objectFields, InterfaceTypeDefinitions interfaceDefinitions, DocumentNode parentNode)
+        private void IsValidImplementations(FieldDefinitions objectFields, DocumentNode parentNode)
         {
-            foreach (var interfaceDefinition in interfaceDefinitions.Values)
+            foreach (var interfaceDefinition in _interfaceDefinitions!.Values)
             {
                 PushPath(interfaceDefinition);
                 IsValidImplementation(objectFields, interfaceDefinition, parentNode);
                 PopPath();
             }
+
+            _interfaceDefinitions.Clear();
         }
 
         private void IsValidImplementation(FieldDefinitions objectFields, InterfaceTypeDefinition interfaceDefinition, DocumentNode parentNode)
@@ -666,16 +681,16 @@ public partial class Schema
             return false;
         }
 
-        private void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType, Queue<InputObjectTypeDefinition> referencedInputObjects)
+        private void CheckInputObjectForCircularReference(InputObjectTypeDefinition inputObjectType)
         {
-            if (referencedInputObjects.Count > 0)
+            if (_referencedInputObjects.Count > 0)
             {
-                HashSet<InputObjectTypeDefinition> checkedInputObjects = [];
-                while (referencedInputObjects.TryDequeue(out var referencedInputObject))
+                while (_referencedInputObjects.TryDequeue(out var referencedInputObject))
                 {
                     if (referencedInputObject == inputObjectType)
                     {
                         _schema.NonFatalException(ValidationException.InputObjectCircularReference(inputObjectType, CurrentPath));
+                        _checkedInputObjects.Clear();
                         return;
                     }
                     else
@@ -686,15 +701,17 @@ public partial class Schema
                                 (nonNullField.Type is TypeName) &&
                                 (nonNullField.Type.Definition is not null) &&
                                 (nonNullField.Type.Definition is InputObjectTypeDefinition referenceInputObject) &&
-                                (!checkedInputObjects.Contains(referenceInputObject)))
+                                (!_checkedInputObjects.Contains(referenceInputObject)))
                             {
-                                referencedInputObjects.Enqueue(referenceInputObject);
+                                _referencedInputObjects.Enqueue(referenceInputObject);
                             }
                         }
 
-                        checkedInputObjects.Add(referencedInputObject);
+                        _checkedInputObjects.Add(referencedInputObject);
                     }
                 }
+
+                _checkedInputObjects.Clear();
             }
         }
 
