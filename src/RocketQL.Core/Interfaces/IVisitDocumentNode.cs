@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Base;
 
-public interface IDocumentNodeVisitors
+public interface IVisitDocumentNode
 {
     void Visit(IEnumerable<DocumentNode> nodes)
     {

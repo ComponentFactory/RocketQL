@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Helper;
 
-public abstract class NodePathTracker
+public class NodePathTracker
 {
     private readonly Stack<object> _path = [];
 
@@ -29,7 +29,7 @@ public abstract class NodePathTracker
         }
     }
 
-    private string OperationDefinitionToString(OperationDefinition operation)
+    private static string OperationDefinitionToString(OperationDefinition operation)
     {
         var operationName = string.IsNullOrEmpty(operation.Name) ? "(anon)" : operation.Name;
         return $"{operation.Operation.ToString().ToLower()} {operationName}";

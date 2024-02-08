@@ -33,40 +33,43 @@ public class UnitTestBase
         return node;
     }
 
-    protected static Schema SchemaFromString(string schema)
+    protected static ISchema SchemaFromString(string schemaText)
     {
         var builder = new SchemaBuilder();
-        builder.AddFromString(schema);
+        builder.AddFromString(schemaText);
         return builder.Build();
     }
 
-    protected static Request RequestFromString(ISchema schema, string request)
+    protected static IRequest RequestFromString(ISchema schema, string request)
     {
         var builder = new RequestBuilder();
         builder.AddFromString(request);
         return builder.Build(schema);
     }
 
-    protected static Request RequestFromString(string schema, string request)
+    protected static IRequest RequestFromString(string schemaText, string request)
     {
         var builder = new RequestBuilder();
         builder.AddFromString(request);
-        return builder.Build(SchemaFromString(schema));
+        return builder.Build(SchemaFromString(schemaText));
     }
 
-    protected static void SchemaValidationNoException(string schemaTest)
+    protected static void SchemaValidationNoException(string schemaText)
     {
-        var schema = new SchemaBuilder();
-        schema.AddFromString(schemaTest);
-        schema.Build();
+        SchemaFromString(schemaText);
     }
 
-    protected static void SchemaValidationSingleException(string schemaTest, string message, string commaPath)
+    protected static void RequestValidationNoException(string schemaText, string requestText)
+    {
+        RequestFromString(SchemaFromString(schemaText), requestText);
+    }
+
+    protected static void SchemaValidationSingleException(string schemaText, string message, string commaPath)
     {
         try
         {
             var schema = new SchemaBuilder();
-            schema.AddFromString(schemaTest);
+            schema.AddFromString(schemaText);
             schema.Build();
 
             Assert.Fail("Exception expected");
@@ -80,13 +83,13 @@ public class UnitTestBase
         }
     }
 
-    protected static void SchemaValidationSingleException(string schemaTest1, string schemaTest2, string message, string commaPath)
+    protected static void SchemaValidationSingleException(string schemaText1, string schemaText2, string message, string commaPath)
     {
         try
         {
             var schema = new SchemaBuilder();
-            schema.AddFromString(schemaTest1);
-            schema.AddFromString(schemaTest2);
+            schema.AddFromString(schemaText1);
+            schema.AddFromString(schemaText2);
             schema.Build();
 
             Assert.Fail("Exception expected");
@@ -101,12 +104,12 @@ public class UnitTestBase
         }
     }
 
-    protected static void SchemaValidationMultipleExceptions(string schemaTest, params string[] messages)
+    protected static void SchemaValidationMultipleExceptions(string schemaText, params string[] messages)
     {
         try
         {
             var schema = new SchemaBuilder();
-            schema.AddFromString(schemaTest);
+            schema.AddFromString(schemaText);
             schema.Build();
 
             Assert.Fail("Exception expected");
@@ -127,14 +130,14 @@ public class UnitTestBase
         }
     }
 
-    protected static void RequestValidationSingleException(string schemaTest, string requestTest, string message, string commaPath)
+    protected static void RequestValidationSingleException(string schemaText, string requestText, string message, string commaPath)
     {
         try
         {
             var schema = new SchemaBuilder();
-            schema.AddFromString(schemaTest);
+            schema.AddFromString(schemaText);
             var request = new RequestBuilder();
-            request.AddFromString(requestTest);
+            request.AddFromString(requestText);
             request.Build(schema.Build());
 
             Assert.Fail("Exception expected");

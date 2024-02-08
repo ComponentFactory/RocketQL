@@ -50,6 +50,24 @@ public class Operation : UnitTestBase
     }
 
     [Theory]
+    [InlineData("mutation { a }",
+                "Mutation operation type not defined in the schema.",
+                "mutation (anon)")]
+    [InlineData("mutation foo { a }",
+                "Mutation operation type not defined in the schema.",
+                "mutation foo")]
+    [InlineData("subscription { a }",
+                "Subscription operation type not defined in the schema.",
+                "subscription (anon)")]
+    [InlineData("subscription foo { a }",
+                "Subscription operation type not defined in the schema.",
+                "subscription foo")]
+    public void OperationNotDefined(string requestText, string message, string commaPath)
+    {
+        RequestValidationSingleException(s_minimumSchema, requestText, message, commaPath);
+    }
+
+    [Theory]
     [InlineData("query($foo: Int $foo: Int) { a }",
                 "Duplicate variable '$foo'.",
                 "query (anon), variable $foo")]

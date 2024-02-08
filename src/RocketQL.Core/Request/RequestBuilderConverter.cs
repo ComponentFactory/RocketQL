@@ -5,15 +5,13 @@ public partial class RequestBuilder
     private RequestBuilderConverter? _converter = null;
     private RequestBuilderConverter Converter => _converter ??= new RequestBuilderConverter(this);
 
-    private class RequestBuilderConverter(RequestBuilder request) : NodePathTracker, ISyntaxNodeVisitors
+    private class RequestBuilderConverter(RequestBuilder request) : NodePathTracker, IVisitSyntaxNode
     {
         private readonly RequestBuilder _request = request;
-        private ISchema _schema = Schema.Empty;
 
-        public void Visit(ISchema schema)
+        public void Visit()
         {
-            _schema = schema;
-            ((ISyntaxNodeVisitors)this).Visit(_request._nodes);
+            ((IVisitSyntaxNode)this).Visit(_request._nodes);
         }
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)

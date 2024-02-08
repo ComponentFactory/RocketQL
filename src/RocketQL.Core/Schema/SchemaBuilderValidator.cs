@@ -5,7 +5,7 @@ public partial class SchemaBuilder
     private SchemaBuilderValidator? _validator = null;
     private SchemaBuilderValidator Validator => _validator ??= new SchemaBuilderValidator(this);
 
-    private class SchemaBuilderValidator(SchemaBuilder schema) : NodePathTracker, IDocumentNodeVisitors
+    private class SchemaBuilderValidator(SchemaBuilder schema) : NodePathTracker, IVisitDocumentNode
     {
         private readonly SchemaBuilder _schema = schema;
         private readonly Queue<TypeDefinition> _referencedTypes = [];
@@ -19,7 +19,7 @@ public partial class SchemaBuilder
 
         public void Visit()
         {
-            IDocumentNodeVisitors visitor = this;
+            IVisitDocumentNode visitor = this;
             visitor.Visit(_schema._directives.Values);
             visitor.Visit(_schema._types.Values);
             visitor.Visit(_schema._schemas);
@@ -54,7 +54,7 @@ public partial class SchemaBuilder
                         _schema.NonFatalException(ValidationException.TypeIsNotAnInputType(argumentDefinition, CurrentPath));
                     else
                     {
-                        if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
+                        if ((argumentDefinition.DefaultValue is not null) && !TypeHelper.IsInputTypeCompatibleWithValue(_schema._types, argumentDefinition.Type, argumentDefinition.DefaultValue))
                             _schema.NonFatalException(ValidationException.DefaultValueNotCompatibleInArgument(argumentDefinition, CurrentPath));
 
                         _referencedTypes.Enqueue(argumentDefinition.Type.Definition);
@@ -424,11 +424,11 @@ public partial class SchemaBuilder
 
                         if (checkedArguments.TryGetValue(argumentDefinition.Name, out var checkedArgument))
                         {
-                            if ((checkedArgument.Value is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, checkedArgument.Value))
+                            if ((checkedArgument.Value is not null) && !TypeHelper.IsInputTypeCompatibleWithValue(_schema._types, argumentDefinition.Type, checkedArgument.Value))
                                 _schema.NonFatalException(ValidationException.DefaultValueNotCompatibleInArgument(argumentDefinition, CurrentPath));
                         }
                         else if ((argumentDefinition.DefaultValue is null) && (argumentDefinition.Type is TypeNonNull))
-                            _schema.NonFatalException(ValidationException.DirectiveMandatoryArgumentMissing(directive, argumentDefinition.Name, CurrentPath));
+                            _schema.NonFatalException(ValidationException.NodeMandatoryArgumentMissing(directive, argumentDefinition.Name, CurrentPath));
 
                         checkedArguments.Remove(argumentDefinition.Name);
 
@@ -437,7 +437,7 @@ public partial class SchemaBuilder
 
                     if (checkedArguments.Count > 0)
                         foreach (var checkArgument in checkedArguments)
-                            _schema.NonFatalException(ValidationException.DirectiveArgumentNotDefined(directive, checkArgument.Key, CurrentPath));
+                            _schema.NonFatalException(ValidationException.NodeArgumentNotDefined(directive, checkArgument.Key, CurrentPath));
 
                     _checkedDirectives.Add(directive.Definition);
                 }
@@ -479,7 +479,7 @@ public partial class SchemaBuilder
                             if (isObject && argumentDefinition.Type is TypeNonNull && (argumentDefinition.DefaultValue is null) && argumentDefinition.Directives.Where(d => d.Name == "@deprecated").Any())
                                 _schema.NonFatalException(ValidationException.NonNullCannotBeDeprecated(fieldDefinition, CurrentPath));
 
-                            if ((argumentDefinition.DefaultValue is not null) && !_schema.IsInputTypeCompatibleWithValue(argumentDefinition.Type, argumentDefinition.DefaultValue))
+                            if ((argumentDefinition.DefaultValue is not null) && !TypeHelper.IsInputTypeCompatibleWithValue(_schema._types, argumentDefinition.Type, argumentDefinition.DefaultValue))
                                 _schema.NonFatalException(ValidationException.DefaultValueNotCompatibleInArgument(argumentDefinition, CurrentPath));
 
                             CheckDirectiveUsage(argumentDefinition.Directives, DirectiveLocations.ARGUMENT_DEFINITION);

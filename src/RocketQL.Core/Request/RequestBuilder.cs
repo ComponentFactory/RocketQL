@@ -1,31 +1,31 @@
 ﻿namespace RocketQL.Core.Base;
 
-public partial class RequestBuilder
+public partial class RequestBuilder : IRequestBuilder
 {
     private readonly OperationDefinitions _operations = [];
     private readonly FragmentDefinitions _fragments = [];
     private readonly List<ValidationException> _exceptions = [];
     private readonly SyntaxNodeList _nodes = [];
 
-    public RequestBuilder AddSyntaxNode(SyntaxNode node)
+    public IRequestBuilder AddSyntaxNode(SyntaxNode node)
     {
         _nodes.Add(node);
         return this;
     }
 
-    public RequestBuilder AddSyntaxNodes(IEnumerable<SyntaxNode> nodes)
+    public IRequestBuilder AddSyntaxNodes(IEnumerable<SyntaxNode> nodes)
     {
         _nodes.AddRange(nodes);
         return this;
     }
 
-    public RequestBuilder AddSyntaxNodes(SyntaxNodeList nodes)
+    public IRequestBuilder AddSyntaxNodes(SyntaxNodeList nodes)
     {
         _nodes.AddRange(nodes);
         return this;
     }
 
-    public RequestBuilder AddSyntaxNodes(IEnumerable<SyntaxNodeList> schemas)
+    public IRequestBuilder AddSyntaxNodes(IEnumerable<SyntaxNodeList> schemas)
     {
         foreach (var nodes in schemas)
             _nodes.AddRange(nodes);
@@ -33,13 +33,13 @@ public partial class RequestBuilder
         return this;
     }
 
-    public RequestBuilder AddFromString(ReadOnlySpan<char> schema, string source)
+    public IRequestBuilder AddFromString(ReadOnlySpan<char> schema, string source)
     {
         AddSyntaxNodes(Serialization.RequestDeserialize(schema, source));
         return this;
     }
 
-    public RequestBuilder AddFromString(ReadOnlySpan<char> schema,
+    public IRequestBuilder AddFromString(ReadOnlySpan<char> schema,
                                         [CallerFilePath] string filePath = "",
                                         [CallerMemberName] string memberName = "",
                                         [CallerLineNumber] int lineNumber = 0)
@@ -48,18 +48,18 @@ public partial class RequestBuilder
         return this;
     }
 
-    public Request Build(ISchema schema)
+    public IRequest Build(ISchema schema)
     {
         Clean();
 
         try
         {
-            Converter.Visit(schema);
+            Converter.Visit();
             Linker.Visit(schema);
             Validator.Visit(schema);
             CheckExceptions();
 
-            return new Request(_operations, _fragments);
+            return new Request(schema, _operations, _fragments);
         }
         catch
         {
@@ -67,7 +67,6 @@ public partial class RequestBuilder
             throw;
         }
     }
-
 
     private void Clean()
     {

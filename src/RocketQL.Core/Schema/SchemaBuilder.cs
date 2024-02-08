@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Base;
 
-public partial class SchemaBuilder
+public partial class SchemaBuilder : ISchemaBuilder
 {
     private SchemaRoot _root = SchemaRoot.Empty;
     private readonly SchemaDefinitions _schemas = [];
@@ -9,25 +9,25 @@ public partial class SchemaBuilder
     private readonly List<ValidationException> _exceptions = [];
     private readonly SyntaxNodeList _nodes = [];
 
-    public SchemaBuilder AddSyntaxNode(SyntaxNode node)
+    public ISchemaBuilder AddSyntaxNode(SyntaxNode node)
     {
         _nodes.Add(node);
         return this;
     }
 
-    public SchemaBuilder AddSyntaxNodes(IEnumerable<SyntaxNode> nodes)
+    public ISchemaBuilder AddSyntaxNodes(IEnumerable<SyntaxNode> nodes)
     {
         _nodes.AddRange(nodes);
         return this;
     }
 
-    public SchemaBuilder AddSyntaxNodes(SyntaxNodeList nodes)
+    public ISchemaBuilder AddSyntaxNodes(SyntaxNodeList nodes)
     {
         _nodes.AddRange(nodes);
         return this;
     }
 
-    public SchemaBuilder AddSyntaxNodes(IEnumerable<SyntaxNodeList> schemas)
+    public ISchemaBuilder AddSyntaxNodes(IEnumerable<SyntaxNodeList> schemas)
     {
         foreach (var nodes in schemas)
             _nodes.AddRange(nodes);
@@ -35,13 +35,13 @@ public partial class SchemaBuilder
         return this;
     }
 
-    public SchemaBuilder AddFromString(ReadOnlySpan<char> schema, string source)
+    public ISchemaBuilder AddFromString(ReadOnlySpan<char> schema, string source)
     {
         AddSyntaxNodes(Serialization.SchemaDeserialize(schema, source));
         return this;
     }
 
-    public SchemaBuilder AddFromString(ReadOnlySpan<char> schema,
+    public ISchemaBuilder AddFromString(ReadOnlySpan<char> schema,
                                        [CallerFilePath] string filePath = "",
                                        [CallerMemberName] string memberName = "",
                                        [CallerLineNumber] int lineNumber = 0)
@@ -51,7 +51,7 @@ public partial class SchemaBuilder
     }
 
 
-    public Schema Build()
+    public ISchema Build()
     {
         Clean();
 

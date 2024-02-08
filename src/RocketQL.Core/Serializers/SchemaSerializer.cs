@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Serializers;
 
-public ref struct SchemaSerializer(Schema schema)
+public ref struct SchemaSerializer(ISchema schema)
 {
     private static readonly SchemaSerializeOptions s_defaultOptions = new();
 
@@ -11,11 +11,11 @@ public ref struct SchemaSerializer(Schema schema)
         return printer.ToString();
     }
 
-    private class SchemaSerialize(Schema schema) : IDocumentNodeVisitors
+    private class SchemaSerialize(ISchema schema) : IVisitDocumentNode
     {
         private static readonly ThreadLocal<StringBuilder> s_cachedBuilder = new(() => new(4096));
 
-        private readonly Schema _schema = schema;
+        private readonly ISchema _schema = schema;
         private readonly StringBuilder _builder = s_cachedBuilder.Value!;
         private SchemaSerializeOptions _options = s_defaultOptions;
         private char _indentCharacter = ' ';
@@ -27,7 +27,7 @@ public ref struct SchemaSerializer(Schema schema)
             _indentCharacter = _options.IndentCharacter == IndentCharacter.Space ? ' ' : '\t';
             _builder.Clear();
 
-            IDocumentNodeVisitors visitor = this;
+            IVisitDocumentNode visitor = this;
             visitor.Visit(_schema.Root!);
             visitor.Visit(_schema.Types.Values.Where(t => t is ObjectTypeDefinition));
             visitor.Visit(_schema.Types.Values.Where(t => t is InterfaceTypeDefinition));

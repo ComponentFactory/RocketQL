@@ -5,13 +5,13 @@ public partial class SchemaBuilder
     private SchemaBuilderLinker? _linker = null;
     private SchemaBuilderLinker Linker => _linker ??= new SchemaBuilderLinker(this);
 
-    private class SchemaBuilderLinker(SchemaBuilder schema) : NodePathTracker, IDocumentNodeVisitors
+    private class SchemaBuilderLinker(SchemaBuilder schema) : NodePathTracker, IVisitDocumentNode
     {
         private readonly SchemaBuilder _schema = schema;
 
         public void Visit()
         {
-            IDocumentNodeVisitors visitor = this;
+            IVisitDocumentNode visitor = this;
             visitor.Visit(_schema._directives.Values);
             visitor.Visit(_schema._types.Values);
             visitor.Visit(_schema._schemas);

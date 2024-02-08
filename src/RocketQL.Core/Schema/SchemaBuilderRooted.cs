@@ -5,13 +5,13 @@ public partial class SchemaBuilder
     private SchemaBuilderRooted? _rooted = null;
     private SchemaBuilderRooted Rooted => _rooted ??= new SchemaBuilderRooted(this);
 
-    private class SchemaBuilderRooted(SchemaBuilder schema) : IDocumentNodeVisitors
+    private class SchemaBuilderRooted(SchemaBuilder schema) : IVisitDocumentNode
     {
         private readonly SchemaBuilder _schema = schema;
 
         public void Visit()
         {
-            IDocumentNodeVisitors visitor = this;
+            IVisitDocumentNode visitor = this;
             visitor.Visit(_schema._schemas);
         }
 
@@ -33,7 +33,7 @@ public partial class SchemaBuilder
 
             foreach (var operationType in schema.Operations.Values)
                 if (operationType.Definition is not null)
-                    ((IDocumentNodeVisitors)this).Visit(operationType.Definition);
+                    ((IVisitDocumentNode)this).Visit(operationType.Definition);
         }
 
         public void VisitDirectiveDefinition(DirectiveDefinition directive)
@@ -120,7 +120,7 @@ public partial class SchemaBuilder
                 VisitDirectives(inputValue.Directives);
 
                 if (inputValue.Type.Definition is not null)
-                    ((IDocumentNodeVisitors)this).Visit(inputValue.Type.Definition);
+                    ((IVisitDocumentNode)this).Visit(inputValue.Type.Definition);
             }
         }
 
@@ -128,7 +128,7 @@ public partial class SchemaBuilder
         {
             foreach (var interfaceValue in interfaces.Values)
                 if (interfaceValue.Definition is not null)
-                    ((IDocumentNodeVisitors)this).Visit(interfaceValue.Definition);
+                    ((IVisitDocumentNode)this).Visit(interfaceValue.Definition);
         }
 
         private void VisitFieldsDefinitions(FieldDefinitions fieldDefinitions)
@@ -139,7 +139,7 @@ public partial class SchemaBuilder
                 VisitInputValueDefinitions(fieldDefinition.Arguments);
 
                 if (fieldDefinition.Type.Definition is not null)
-                    ((IDocumentNodeVisitors)this).Visit(fieldDefinition.Type.Definition);
+                    ((IVisitDocumentNode)this).Visit(fieldDefinition.Type.Definition);
             }
         }
 
@@ -147,7 +147,7 @@ public partial class SchemaBuilder
         {
             foreach (var memberType in memberTypes.Values)
                 if (memberType.Definition is not null)
-                    ((IDocumentNodeVisitors)this).Visit(memberType.Definition);
+                    ((IVisitDocumentNode)this).Visit(memberType.Definition);
         }
 
         private void VisitEnumValueDefinitions(EnumValueDefinitions enumValueDefinitions)

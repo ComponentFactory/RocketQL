@@ -5,7 +5,7 @@ public partial class SchemaBuilder
     private SchemaBuilderConverter? _converter = null;
     private SchemaBuilderConverter Converter => _converter ??= new SchemaBuilderConverter(this);
 
-    private class SchemaBuilderConverter(SchemaBuilder schema) : NodePathTracker, ISyntaxNodeVisitors
+    private class SchemaBuilderConverter(SchemaBuilder schema) : NodePathTracker, IVisitSyntaxNode
     {
         private readonly SchemaBuilder _schema = schema;
         private readonly HashSet<string> _uniqueNames1 = [];
@@ -13,7 +13,7 @@ public partial class SchemaBuilder
 
         public void Visit()
         {
-            ((ISyntaxNodeVisitors)this).Visit(_schema._nodes);
+            ((IVisitSyntaxNode)this).Visit(_schema._nodes);
         }
 
         public void VisitOperationDefinition(SyntaxOperationDefinitionNode operation)

@@ -7,11 +7,21 @@
 
     Request Validator
         Fields    
-        Arguments  
+            merge
+                object
+                interface
+                union
         Fragments   
+            merge
+                object
+                interface
+                union
+        Arguments  
         Values     
         Directives 
         Variables   
+
+    dotnet tool
 
 	Request processing
 		@skip
@@ -37,6 +47,12 @@ Organisations
 	Chillicream (.Net)	https://chillicream.com/
 	Apollo (Node.js)	https://www.apollographql.com/
 	The Guild (Node.js)	https://the-guild.dev/
+    
+    
+    
+User Interface
+    https://www.fast.design/
+    https://material.angular.io/
 
 
 	

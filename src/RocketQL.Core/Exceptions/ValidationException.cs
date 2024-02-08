@@ -56,14 +56,15 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException NameDoubleUnderscore(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' not allowed to start with two underscores.", path);
     public static ValidationException TypeIsNotAnInputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is not an input type.", path);
     public static ValidationException TypeIsNotAnOutputType(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is not an output type.", path);
+    public static ValidationException ValueNotCompatibleInArgument(InputValueDefinition node, string[] path) => new(node.Location, $"Value not compatible with type of argument '{node.Name}'.", path);
     public static ValidationException DefaultValueNotCompatibleInArgument(InputValueDefinition node, string[] path) => new(node.Location, $"Default value not compatible with type of argument '{node.Name}'.", path);
     public static ValidationException AtLeastOne(DocumentNode node, string target, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' must have at least one {target.ToLower()}.", path);
     public static ValidationException NonNullCannotBeDeprecated(DocumentNode node, string[] path) => new(node.Location, $"Cannot use @deprecated directive on non-null {node.OutputElement().ToLower()} '{node.OutputName()}'.", path);
     public static ValidationException DirectiveCircularReference(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' has circular reference to itself.", path);
     public static ValidationException DirectiveNotAllowedLocation(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is not specified for use at this location.", path);
     public static ValidationException DirectiveNotRepeatable(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is not repeatable but has been applied multiple times.", path);
-    public static ValidationException DirectiveMandatoryArgumentMissing(DocumentNode node, string argumentName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' has mandatory argument '{argumentName}' missing.", path);
-    public static ValidationException DirectiveArgumentNotDefined(DocumentNode node, string argumentName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' does not define argument '{argumentName}'.", path);
+    public static ValidationException NodeMandatoryArgumentMissing(DocumentNode node, string argumentName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' has mandatory argument '{argumentName}' missing.", path);
+    public static ValidationException NodeArgumentNotDefined(DocumentNode node, string argumentName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' does not define argument '{argumentName}'.", path);
     public static ValidationException InterfaceCannotImplmentOwnInterface(DocumentNode node, string[] path) => new(node.Location, $"Interface '{node.OutputName()}' cannnot implement itself.", path);
     public static ValidationException TypeMissingImplements(DocumentNode node, string implementsName, string interfaceName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is missing implements '{implementsName}' because it is declared on interface '{interfaceName}'.", path);
     public static ValidationException TypeMissingFieldFromInterface(DocumentNode node, string fieldName, string interfaceName, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' is missing field '{fieldName}' declared on interface '{interfaceName}'.", path);
@@ -74,8 +75,23 @@ public class ValidationException(Location location, string message, string[] pat
     public static ValidationException InputObjectCircularReference(DocumentNode node, string[] path) => new(node.Location, $"{node.OutputElement()} '{node.OutputName()}' has circular reference requiring a non-null value.", path);
     public static ValidationException UndefinedTypeForFragment(FragmentDefinition fragment, string[] path) => new(fragment.Location, $"Undefined type '{fragment.TypeCondition}' specified for fragment '{fragment.Name}'.", path);
     public static ValidationException FragmentTypeInvalid(FragmentDefinition fragment, TypeDefinition targetType, string[] path) => new(fragment.Location, $"Fragment '{fragment.Name}' cannot be applied to {targetType.OutputElement().ToLower()} '{targetType.OutputName()}' only an object, interface or union.", path);
+    public static ValidationException OperationTypeNodeDefinedInSchema(OperationDefinition operation, string[] path) => new(operation.Location, $"{OperationTypeAsString(operation.Operation)} operation type not defined in the schema.", path);
+    public static ValidationException TypeDefinitionMissing(DocumentNode node, string[] path) => new(node.Location, $"Type definition missing for {node.OutputElement().ToLower()} '{node.OutputName()}'.", path);
+    public static ValidationException FieldNotDefinedOnObject(SelectionField node, TypeDefinition type, string[] path) => new(node.Location, $"Field '{node.Name}' not defined on {type.OutputElement().ToLower()} '{type.OutputName()}'.", path);
+
     public static ValidationException UndefinedTypeForInlineFragment(SelectionInlineFragment inline, DocumentNode rootNode, string[] path) => new(inline.Location, $"Undefined type '{inline.TypeCondition}' specified for inline fragment within {rootNode.OutputElement().ToLower()} '{rootNode.OutputName()}'.", path);
     public static ValidationException UndefinedTypeForFragmentSpread(SelectionFragmentSpread spread, DocumentNode rootNode, string[] path) => new(spread.Location, $"Undefined type '{spread.Name}' specified for fragment spread within {rootNode.OutputElement().ToLower()} '{rootNode.OutputName()}'.", path);
-    public static ValidationException SchemaNotValidated() => new(Location.Empty, "Provided schema has not been validated.", []);
     public static ValidationException CannotSerializeInvalidSchema() => new(Location.Empty, "Cannot serialize a schema that is not validated.", []);
+    public static ValidationException SchemaNotValidated() => new(Location.Empty, "Provided schema has not been validated.", []);
+
+    private static string OperationTypeAsString(OperationType operationType)
+    {
+        return operationType switch
+        {
+            OperationType.QUERY => "Query",
+            OperationType.MUTATION => "Mutation",
+            OperationType.SUBSCRIPTION => "Subscription",
+            _ => ""
+        };
+    }
 }

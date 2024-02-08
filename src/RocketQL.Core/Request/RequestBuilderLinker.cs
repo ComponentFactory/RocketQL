@@ -5,7 +5,7 @@ public partial class RequestBuilder
     private RequestBuilderLinker? _linker = null;
     private RequestBuilderLinker Linker => _linker ??= new RequestBuilderLinker(this);
 
-    private class RequestBuilderLinker(RequestBuilder request) : NodePathTracker, IDocumentNodeVisitors
+    private class RequestBuilderLinker(RequestBuilder request) : NodePathTracker, IVisitDocumentNode
     {
         private readonly RequestBuilder _request = request;
         private ISchema _schema = Schema.Empty;
@@ -13,7 +13,7 @@ public partial class RequestBuilder
         public void Visit(ISchema schema)
         {
             _schema = schema;
-            IDocumentNodeVisitors visitor = this;
+            IVisitDocumentNode visitor = this;
             visitor.Visit(_request._operations.Values);
             visitor.Visit(_request._fragments.Values);
         }
@@ -78,6 +78,25 @@ public partial class RequestBuilder
         {
         }
 
+        private void InterlinkDirectives(Directives directives, DocumentNode parentNode)
+        {
+            foreach (var directive in directives)
+            {
+                PushPath(directive);
+                directive.Parent = parentNode;
+
+                if (!_schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
+                    _request.NonFatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
+                else
+                {
+                    directive.Definition = directiveDefinition;
+                    directiveDefinition.References.Add(directive!);
+                }
+
+                PopPath();
+            }
+        }
+
         private void InterlinkVariables(VariableDefinitions variables, DocumentNode parentNode)
         {
             foreach (var variable in variables.Values)
@@ -89,6 +108,27 @@ public partial class RequestBuilder
                 PopPath();
             }
         }
+
+        private void InterlinkTypeNode(TypeNode typeLocation, DocumentNode typeParentNode)
+        {
+            typeLocation.Parent = typeParentNode;
+
+            if (typeLocation is TypeList typeList)
+                InterlinkTypeNode(typeList.Type, typeList);
+            if (typeLocation is TypeNonNull typeNonNull)
+                InterlinkTypeNode(typeNonNull.Type, typeNonNull);
+            else if (typeLocation is TypeName typeName)
+            {
+                if (!_schema.Types.TryGetValue(typeName.Name, out var type))
+                    _request.NonFatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
+                else
+                {
+                    typeName.Definition = type;
+                    type.References.Add(typeName);
+                }
+            }
+        }
+
         private void InterlinkSelectionSet(SelectionSet selectionSet, DocumentNode parentNode, DocumentNode rootNode)
         {
             foreach (var selection in selectionSet)
@@ -129,45 +169,6 @@ public partial class RequestBuilder
                             PopPath();
                         }
                         break;
-                }
-            }
-        }
-
-        private void InterlinkDirectives(Directives directives, DocumentNode parentNode)
-        {
-            foreach (var directive in directives)
-            {
-                PushPath(directive);
-                directive.Parent = parentNode;
-
-                if (!_schema.Directives.TryGetValue(directive.Name, out var directiveDefinition))
-                    _request.NonFatalException(ValidationException.UndefinedDirective(directive, parentNode, CurrentPath));
-                else
-                {
-                    directive.Definition = directiveDefinition;
-                    directiveDefinition.References.Add(directive!);
-                }
-
-                PopPath();
-            }
-        }
-
-        private void InterlinkTypeNode(TypeNode typeLocation, DocumentNode typeParentNode)
-        {
-            typeLocation.Parent = typeParentNode;
-
-            if (typeLocation is TypeList typeList)
-                InterlinkTypeNode(typeList.Type, typeList);
-            if (typeLocation is TypeNonNull typeNonNull)
-                InterlinkTypeNode(typeNonNull.Type, typeNonNull);
-            else if (typeLocation is TypeName typeName)
-            {
-                if (!_schema.Types.TryGetValue(typeName.Name, out var type))
-                    _request.NonFatalException(ValidationException.UndefinedTypeForListEntry(typeName, typeName.Name, typeParentNode, CurrentPath));
-                else
-                {
-                    typeName.Definition = type;
-                    type.References.Add(typeName);
                 }
             }
         }

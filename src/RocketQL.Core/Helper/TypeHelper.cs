@@ -1,27 +1,29 @@
-﻿namespace RocketQL.Core.Base;
+﻿using System.Data;
 
-public partial class SchemaBuilder
+namespace RocketQL.Core.Base;
+
+public static class TypeHelper
 {
-    public bool IsInputTypeCompatibleWithValue(TypeNode typeNode, ValueNode valueNode)
+    public static bool IsInputTypeCompatibleWithValue(IReadOnlyDictionary<string, TypeDefinition> types, TypeNode typeNode, ValueNode valueNode)
     {
         return typeNode switch
         {
-            TypeName typeNameNode => IsInputTypeCompatibleWithTypeName(typeNameNode, valueNode),
-            TypeList typeListNode => IsInputTypeCompatibleWithTypeList(typeListNode, valueNode),
-            TypeNonNull typeNonNullNode => IsInputValueCompatibleWithTypeNonNull(typeNonNullNode, valueNode),
+            TypeName typeNameNode => IsInputTypeCompatibleWithTypeName(types, typeNameNode, valueNode),
+            TypeList typeListNode => IsInputTypeCompatibleWithTypeList(types, typeListNode, valueNode),
+            TypeNonNull typeNonNullNode => IsInputValueCompatibleWithTypeNonNull(types, typeNonNullNode, valueNode),
             _ => false
         };
     }
 
-    private bool IsInputTypeCompatibleWithTypeName(TypeName typeNameNode, ValueNode valueNode)
+    private static bool IsInputTypeCompatibleWithTypeName(IReadOnlyDictionary<string, TypeDefinition> types, TypeName typeNameNode, ValueNode valueNode)
     {
-        if (_types.TryGetValue(typeNameNode.Name, out var typeDefinition))
+        if (types.TryGetValue(typeNameNode.Name, out var typeDefinition))
         {
             return typeDefinition switch
             {
                 ScalarTypeDefinition scalarTypeDefinition => IsInputTypeCompatibleWithScalarType(valueNode, scalarTypeDefinition),
                 EnumTypeDefinition enumTypeDefinition => IsInputTypeCompatibleWithEnumType(valueNode, enumTypeDefinition),
-                InputObjectTypeDefinition inputObjectTypeDefinition => IsInputTypeCompatibleWithInputObjectType(valueNode, inputObjectTypeDefinition),
+                InputObjectTypeDefinition inputObjectTypeDefinition => IsInputTypeCompatibleWithInputObjectType(types, valueNode, inputObjectTypeDefinition),
                 _ => false
             };
         }
@@ -59,7 +61,7 @@ public partial class SchemaBuilder
         };
     }
 
-    private bool IsInputTypeCompatibleWithInputObjectType(ValueNode valueNode, InputObjectTypeDefinition inputObjectTypeDefinition)
+    private static bool IsInputTypeCompatibleWithInputObjectType(IReadOnlyDictionary<string, TypeDefinition> types, ValueNode valueNode, InputObjectTypeDefinition inputObjectTypeDefinition)
     {
         // You can assign 'null' to an input object
         if (valueNode is NullValueNode)
@@ -78,7 +80,7 @@ public partial class SchemaBuilder
                 if (inputFieldDefinition.Type is TypeNonNull)
                     return false;
             }
-            else if (!IsInputTypeCompatibleWithValue(inputFieldDefinition.Type, objectNode))
+            else if (!IsInputTypeCompatibleWithValue(types, inputFieldDefinition.Type, objectNode))
                 return false;
 
             objectNodes.Remove(inputFieldDefinition.Name);
@@ -88,7 +90,7 @@ public partial class SchemaBuilder
         return (objectNodes.Count == 0);
     }
 
-    private bool IsInputTypeCompatibleWithTypeList(TypeList typeListNode, ValueNode valueNode)
+    private static bool IsInputTypeCompatibleWithTypeList(IReadOnlyDictionary<string, TypeDefinition> types, TypeList typeListNode, ValueNode valueNode)
     {
         // You can assign 'null' to a list
         if (valueNode is NullValueNode)
@@ -99,18 +101,18 @@ public partial class SchemaBuilder
             return false;
 
         foreach (var entryValueNode in listValueNode.Values)
-            if (!IsInputTypeCompatibleWithValue(typeListNode.Type, entryValueNode))
+            if (!IsInputTypeCompatibleWithValue(types, typeListNode.Type, entryValueNode))
                 return false;
 
         return true;
     }
 
-    private bool IsInputValueCompatibleWithTypeNonNull(TypeNonNull typeNonNullNode, ValueNode valueNode)
+    private static bool IsInputValueCompatibleWithTypeNonNull(IReadOnlyDictionary<string, TypeDefinition> types, TypeNonNull typeNonNullNode, ValueNode valueNode)
     {
         // You cannot assign 'null' to a non-null type
         if (valueNode is NullValueNode)
             return false;
 
-        return IsInputTypeCompatibleWithValue(typeNonNullNode.Type, valueNode);
+        return IsInputTypeCompatibleWithValue(types, typeNonNullNode.Type, valueNode);
     }
 }

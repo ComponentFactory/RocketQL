@@ -1,6 +1,6 @@
 ﻿namespace RocketQL.Core.Base;
 
-public interface ISyntaxNodeVisitors
+public interface IVisitSyntaxNode
 {
     void Visit(IEnumerable<SyntaxNode> nodes)
     {

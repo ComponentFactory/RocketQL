@@ -27,7 +27,7 @@ public static class Serialization
         return new RequestDeserializer(text, source).Deserialize();
     }
 
-    public static string SchemaSerialize(Schema schema, SchemaSerializeOptions? options = null)
+    public static string SchemaSerialize(ISchema schema, SchemaSerializeOptions? options = null)
     {
         return new SchemaSerializer(schema).Serialize(options);
     }
